@@ -21,7 +21,6 @@ export default function ProductScanner() {
 
     try {
       const { Html5Qrcode } = await import("html5-qrcode");
-
       const qrCodeScanner = new Html5Qrcode("qr-reader");
       Html5QrcodeRef.current = qrCodeScanner;
 
@@ -31,36 +30,27 @@ export default function ProductScanner() {
         async (decodedText) => {
           try {
             setQrData(decodedText);
-            if (Html5QrcodeRef.current) {
-              await Html5QrcodeRef.current.stop();
-            }
+            if (Html5QrcodeRef.current) await Html5QrcodeRef.current.stop();
             setIsScanning(false);
 
             const [product_id_str, blockchain_hash] = decodedText.split("|");
             const product_id = Number(product_id_str);
 
-            if (!product_id || !blockchain_hash) {
+            if (!product_id || !blockchain_hash)
               throw new Error("Invalid QR data format");
-            }
 
-            console.log("Sending to backend:", { product_id, blockchain_hash });
             let res;
             try {
               res = await axios.post(
                 "http://localhost:3000/api/products/verify",
                 { product_id, blockchain_hash }
               );
-              console.log("Backend verification response:", res.data);
               setProduct(res.data);
               setError(null);
             } catch (axiosErr) {
-              console.error(
-                "Backend error:",
-                axiosErr.response?.data || axiosErr.message
-              );
               setError(
                 axiosErr.response?.data?.message ||
-                  "Backend verification failed"
+                  "Verification failed. Please try again."
               );
               return;
             }
@@ -71,27 +61,19 @@ export default function ProductScanner() {
                   "http://localhost:3000/api/products"
                 );
                 const matched = allRes.data.find((p) => p.id === product_id);
-                if (matched) {
-                  setProductDetails(matched);
-                  setError(null);
-                } else {
-                  setError("Verified but product not found in list");
-                }
+                if (matched) setProductDetails(matched);
+                else setError("Verified but product not found in list");
               } catch {
                 setError("Verified but failed to fetch product details");
               }
             }
           } catch (err) {
-            console.error("Processing error:", err);
-            setError(err.message || "Invalid QR format or backend error");
+            setError(err.message || "Invalid QR or backend error");
           }
         },
-        (scanError) => {
-          console.warn("Scan error:", scanError);
-        }
+        (scanError) => console.warn("Scan error:", scanError)
       );
     } catch (err) {
-      console.error("Camera start failed:", err);
       setError("Failed to access camera");
       setIsScanning(false);
     }
@@ -105,76 +87,106 @@ export default function ProductScanner() {
   };
 
   return (
-    <div className="flex flex-col items-center p-4">
-      <h2 className="text-xl font-semibold mb-4">QR Product Verification</h2>
-
-      {!isScanning ? (
-        <button
-          onClick={startScanner}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow"
-        >
-          Open Scanner
-        </button>
-      ) : (
-        <button
-          onClick={stopScanner}
-          className="bg-red-500 text-white px-4 py-2 rounded-lg shadow"
-        >
-          Stop Scanner
-        </button>
-      )}
-
-      <div
-        id="qr-reader"
-        style={{ width: "300px", marginTop: "20px" }}
-      ></div>
-
-      {qrData && (
-        <p className="mt-4 text-gray-600 break-words">
-          <strong>Scanned Data:</strong> {qrData}
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-gray-100 to-gray-50 p-6">
+      <div className="w-full max-w-md bg-white/80 backdrop-blur-md rounded-3xl shadow-2xl p-8 border border-gray-200">
+        {/* Header */}
+        <h2 className="text-3xl font-bold text-gray-900 text-center mb-1">
+          Product Verification
+        </h2>
+        <p className="text-gray-500 text-center mb-6">
+          Scan the QR code to confirm authenticity
         </p>
-      )}
 
-      {error && <p className="mt-4 text-red-500">{error}</p>}
-      {product && product.verified && (
-        <div className="mt-4 text-green-600 font-semibold">
-          ✅ {product.message}
+        {/* Scanner Box */}
+        <div
+          id="qr-reader"
+          className="relative mx-auto w-72 h-72 rounded-xl overflow-hidden shadow-inner border-4 border-dashed border-gray-300"
+          style={{ backgroundColor: "#f9fafb" }}
+        >
+          {/* Overlay frame */}
+          <div className="absolute inset-0 border-4 border-indigo-400 rounded-xl pointer-events-none animate-pulse"></div>
         </div>
-      )}
 
-      {product && !product.verified && (
-        <div className="mt-4 text-red-500 font-semibold">
-          ❌ {product.message}
-        </div>
-      )}
-      {productDetails && (
-        <div className="bg-gray-100 rounded-xl p-4 mt-6 shadow w-full max-w-md">
-          <h3 className="text-lg font-bold mb-2">{productDetails.name}</h3>
-          <p className="text-gray-700 mb-1">
-            <strong>Description:</strong> {productDetails.description}
-          </p>
-          <p className="text-gray-700 mb-1">
-            <strong>Type:</strong> {productDetails.type}
-          </p>
-          <p className="text-gray-700 mb-1">
-            <strong>Origin:</strong> {productDetails.origin}
-          </p>
-          <p className="text-gray-700 mb-1">
-            <strong>Materials:</strong> {productDetails.materials}
-          </p>
-          <p className="text-gray-700 mb-1">
-            <strong>Production Date:</strong> {productDetails.productionDate}
-          </p>
-
-          {productDetails.product_image && (
-            <img
-              src={`http://localhost:3000/${productDetails.product_image}`}
-              alt={productDetails.name}
-              className="mt-3 rounded-lg"
-            />
+        {/* Buttons */}
+        <div className="flex justify-center gap-4 mt-6">
+          {!isScanning ? (
+            <button
+              onClick={startScanner}
+              className="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold px-6 py-3 rounded-xl shadow-md transition-transform transform hover:scale-105"
+            >
+              Start
+            </button>
+          ) : (
+            <button
+              onClick={stopScanner}
+              className="bg-gray-800 hover:bg-gray-900 text-white font-semibold px-6 py-3 rounded-xl shadow-md transition-transform transform hover:scale-105"
+            >
+              Stop
+            </button>
           )}
         </div>
-      )}
+
+        {/* Results */}
+        {qrData && (
+          <p className="mt-6 text-center text-gray-700 break-words font-medium">
+            <span className="font-semibold text-gray-900">Scanned:</span>{" "}
+            {qrData}
+          </p>
+        )}
+
+        {/* Feedback */}
+        {error && (
+          <div className="mt-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-center shadow-sm">
+            ❌ {error}
+          </div>
+        )}
+        {product && product.verified && (
+          <div className="mt-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl text-center shadow-sm">
+            ✅ {product.message}
+          </div>
+        )}
+        {product && !product.verified && (
+          <div className="mt-6 bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-xl text-center shadow-sm">
+            ⚠️ {product.message}
+          </div>
+        )}
+
+        {/* Product Details */}
+        {productDetails && (
+          <div className="bg-white/80 backdrop-blur-md rounded-2xl p-5 mt-8 border border-gray-200 shadow-sm">
+            <h3 className="text-xl font-semibold text-gray-800 mb-3">
+              {productDetails.name}
+            </h3>
+            <div className="text-gray-700 space-y-1">
+              <p>
+                <strong>Description:</strong> {productDetails.description}
+              </p>
+              <p>
+                <strong>Type:</strong> {productDetails.type}
+              </p>
+              <p>
+                <strong>Origin:</strong> {productDetails.origin}
+              </p>
+              <p>
+                <strong>Materials:</strong> {productDetails.materials}
+              </p>
+              <p>
+                <strong>Production Date:</strong>{" "}
+                {productDetails.productionDate}
+              </p>
+            </div>
+            {productDetails.product_image && (
+              <div className="mt-4 flex justify-center">
+                <img
+                  src={`http://localhost:3000/${productDetails.product_image}`}
+                  alt={productDetails.name}
+                  className="rounded-xl shadow-md max-h-60 object-contain border border-gray-100"
+                />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

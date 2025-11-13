@@ -1,70 +1,135 @@
-import { Text, View } from "react-native";
+import { useFonts } from "expo-font";
+import {
+  Image,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  useWindowDimensions,
+  View
+} from "react-native";
 import LoginButtons from "../components/LoginButtons";
 
 export default function Home() {
+  const { height, width } = useWindowDimensions();
+
+  const [fontsLoaded] = useFonts({
+    "Garet-Book": require("../assets/fonts/garet/Garet-Book.ttf"),
+    "Garet-Heavy": require("../assets/fonts/garet/Garet-Heavy.ttf"),
+  });
+
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Loading fonts...</Text>
+      </View>
+    );
+  }
+
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: "#f8fafc",
-        alignItems: "center",
-        paddingTop: 100,
-        paddingHorizontal: 20,
-      }}
-    >
-      {/* Headline */}
-      <Text
+      <SafeAreaView
         style={{
-          fontSize: 70,
-          fontWeight: "bold",
-          textAlign: "center",
-          color: "#0f172a",
-          marginBottom: 12,
+          flex: 1,
+          backgroundColor: "#FFFFFF",
         }}
       >
-        Verilokal
-      </Text>
-      {/* Headline */}
-      <Text
-        style={{
-          fontSize: 32,
-          fontWeight: "bold",
-          textAlign: "center",
-          color: "#0f172a",
-          marginBottom: 12,
-        }}
-      >
-        Authenticate Local Products
-      </Text>
+        <ScrollView
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            paddingHorizontal: 30,
+            paddingTop: 50,
+            paddingBottom: 100,
+          }}
+        >
+          {/* Logo */}
+          <Image
+            source={require("../assets/images/verilokal_logo.png")}
+            style={{
+              width: width < 500 ? 120 : 160,
+              height: width < 500 ? 150 : 200,
+              marginBottom: 25,
+            }}
+          />
 
-      {/* Subtext */}
-      <Text
-        style={{
-          fontSize: 16,
-          textAlign: "center",
-          color: "#475569",
-          maxWidth: 500,
-          lineHeight: 22,
-        }}
-      >
-        Ensuring genuine Filipino craftsmanship through secure QR verification
-        and blockchain technology — protecting artisans and empowering buyers.
-      </Text>
+          {/* Headlines */}
+          <Text
+            style={{
+              fontSize: width < 500 ? 35 : 65,
+              fontFamily: "Garet-Book",
+              fontWeight: "bold",
+              textAlign: "center",
+              color: "#000000",
+            }}
+          >
+            Preserving what is
+          </Text>
 
-      {/* CTA Button */}
-      <LoginButtons />
+          <Text
+            style={{
+              fontSize: width < 500 ? 35 : 65,
+              fontFamily: "Garet-Heavy",
+              textAlign: "center",
+              color: "#d6461f",
+              marginBottom: 15,
+            }}
+          >
+            TRUE,
+          </Text>
 
-      {/* Trusted Tag */}
-      <Text
-        style={{
-          marginTop: 20,
-          fontSize: 14,
-          color: "#64748b",
-          fontStyle: "italic",
-        }}
-      >
-        Preserving what is true, empowering what is ours.
-      </Text>
-    </View>
+          <Text
+            style={{
+              fontSize: width < 500 ? 35 : 65,
+              fontFamily: "Garet-Book",
+              fontWeight: "bold",
+              textAlign: "center",
+              color: "#000000",
+            }}
+          >
+            Empowering what
+          </Text>
+
+          <Text
+            style={{
+              fontSize: width < 500 ? 35 : 65,
+              fontFamily: "Garet-Book",
+              fontWeight: "bold",
+              textAlign: "center",
+              color: "#000000",
+              marginBottom: 15,
+            }}
+          >
+            is{" "}
+            <Text
+              style={{
+                fontFamily: "Garet-Heavy",
+                fontSize: width < 500 ? 35 : 65,
+                color: "#d6461f",
+              }}
+            >
+              OURS.
+            </Text>
+          </Text>
+
+          {/* Subtext */}
+          <Text
+            style={{
+              fontSize: width < 500 ? 16 : 20,
+              fontFamily: "Garet-Book",
+              textAlign: "center",
+              color: "#000000",
+              maxWidth: 600,
+              lineHeight: width < 500 ? 24 : 28,
+              marginBottom: 20,
+            }}
+          >
+            Ensuring genuine Filipino craftsmanship through secure QR
+            verification and blockchain technology.
+          </Text>
+
+          {/* Login Buttons */}
+          <LoginButtons />
+        </ScrollView>
+      </SafeAreaView>
   );
 }

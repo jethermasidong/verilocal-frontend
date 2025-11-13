@@ -1,8 +1,19 @@
+import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
 import { Text, TouchableOpacity, View } from "react-native";
 
 export default function LoginButtons() {
+  
   const router = useRouter();
+  const [fontsLoaded] = useFonts({
+      "Garet-Book": require("../assets/fonts/garet/Garet-Book.ttf"),
+      "Garet-Heavy": require("../assets/fonts/garet/Garet-Heavy.ttf"),
+      "Montserrat-Regular": require("../assets/fonts/Montserrat/static/Montserrat-Regular.ttf"),
+    });
+  
+     if (!fontsLoaded) {
+      return <View><Text>Loading fonts...</Text></View>;
+    }
 
   return (
     <View
@@ -11,18 +22,19 @@ export default function LoginButtons() {
         justifyContent: "center",
         alignItems: "center",
         gap: 16,
-        marginTop: 40,
+        marginTop: 10,
       }}
     >
-      {/* Login as Buyer */}
+      {/* Continue as Buyer */}
       <TouchableOpacity
-        onPress={() => router.push("/buyer")}
+        onPress={() => router.push("/buyer/qrscanner")}
         style={{
-          backgroundColor: "#38bdf8",
+          backgroundColor: "#FFFFFF",
           paddingVertical: 12,
-          paddingHorizontal: 45,
-          borderRadius: 8,
-          shadowColor: "#000",
+          paddingHorizontal: 54,
+          borderRadius: 50,
+          borderWidth: 1.3,
+          shadowColor: "#000000",
           shadowOpacity: 0.2,
           shadowOffset: { width: 0, height: 2 },
           shadowRadius: 3,
@@ -30,9 +42,10 @@ export default function LoginButtons() {
       >
         <Text
           style={{
-            color: "#fff",
+            color: "#d6461f",
             fontSize: 16,
-            fontWeight: "600",
+            fontWeight:"bold",
+            fontFamily: "Garet-Book",
           }}
         >
           Scan
@@ -43,11 +56,12 @@ export default function LoginButtons() {
       <TouchableOpacity
         onPress={() => router.push("/login-business")}
         style={{
-          backgroundColor: "#1e293b",
+          backgroundColor: "#FFFFFF",
           paddingVertical: 12,
-          paddingHorizontal: 24,
-          borderRadius: 8,
-          shadowColor: "#000",
+          paddingHorizontal: 45,
+          borderRadius: 50,
+          borderWidth: 1.3,
+          shadowColor: "#000000",
           shadowOpacity: 0.2,
           shadowOffset: { width: 0, height: 2 },
           shadowRadius: 3,
@@ -55,12 +69,13 @@ export default function LoginButtons() {
       >
         <Text
           style={{
-            color: "#fff",
+            color: "#d6461f",
             fontSize: 16,
-            fontWeight: "600",
+            fontWeight: "bold",
+            fontFamily: "Garet-Book",
           }}
         >
-          Login as Business
+          Register
         </Text>
       </TouchableOpacity>
     </View>
