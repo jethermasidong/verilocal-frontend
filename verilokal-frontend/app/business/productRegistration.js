@@ -1,20 +1,23 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Picker } from "@react-native-picker/picker";
 import axios from "axios";
 import { useFonts } from "expo-font";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
+  Alert,
   Image,
-  Picker,
+  Platform,
   Pressable,
   ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   View
 } from "react-native";
 
-export default function ProductRegistration() {
+export default function RegisterProduct() {
   const [form, setForm] = useState({
     name: "",
     type: "",
@@ -25,66 +28,117 @@ export default function ProductRegistration() {
     image: null,
   });
 
+  const [fontsLoaded] = useFonts({
+    "Garet-Book": require("../../assets/fonts/garet/Garet-Book.ttf"),
+    "Garet-Heavy": require("../../assets/fonts/garet/Garet-Heavy.ttf"),
+    "Montserrat-Regular": require("../../assets/fonts/Montserrat/static/Montserrat-Regular.ttf"),
+  });
+
   const [errors, setErrors] = useState({});
   const [statusMessage, setStatusMessage] = useState("");
-  const [statusType, setStatusType] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
-    if (!result.canceled) setForm({ ...form, image: result.assets[0].uri });
+    try {
+      if (Platform.OS === "web") {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+        input.onchange = (event) => {
+          const file = event.target.files[0];
+          if (file) {
+            setForm((prev) => ({
+              ...prev,
+              image: {
+                uri: URL.createObjectURL(file),
+                file,
+                name: file.name,
+                type: file.type,
+              },
+            }));
+          }
+        };
+        input.click();
+      } else {
+        const result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          quality: 1,
+        });
+
+        if (!result.canceled) {
+          const asset = result.assets[0];
+          setForm((prev) => ({
+            ...prev,
+            image: {
+              uri: asset.uri,
+              name: asset.fileName || "product.jpg",
+              type: asset.mimeType || "image/jpeg",
+            },
+          }));
+        }
+      }
+    } catch (err) {
+      console.log(err);
+      Alert.alert("Error selecting image");
+    }
+  };
+
+  const handleInputChange = (name, value) => {
+    setForm({ ...form, [name]: value });
   };
 
   const handleSubmit = async () => {
     const newErrors = {};
-    if (!form.name.trim()) newErrors.name = "Product name is required.";
-    if (!form.type) newErrors.type = "Product type is required.";
-    if (!form.materials.trim()) newErrors.materials = "Materials are required.";
-    if (!form.origin.trim()) newErrors.origin = "Origin is required.";
-    if (!form.productionDate.trim())
-      newErrors.productionDate = "Production date is required.";
-    if (!form.description.trim())
-      newErrors.description = "Description is required.";
-    if (!form.image) newErrors.product_image = "Product image is required.";
+
+    if (!form.name) newErrors.name = "Product name is required";
+    if (!form.type) newErrors.type = "Product type is required";
+    if (!form.materials) newErrors.materials = "Materials are required";
+    if (!form.origin) newErrors.origin = "Origin is required";
+    if (!form.productionDate) newErrors.productionDate = "Production date required";
+    else if (!/^\d{4}-\d{2}-\d{2}$/.test(form.productionDate)) {
+      newErrors.productionDate = "Date must be in YYYY-MM-DD format";
+    }
+    if (!form.description) newErrors.description = "Description required";
+    if (!form.image) newErrors.image = "Product image is required";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      setStatusMessage("Please fix the errors before submitting.");
-      setStatusType("error");
       return;
     }
 
     setErrors({});
-    setStatusMessage("");
-    setStatusType("");
+    setIsSubmitting(true);
+    setStatusMessage("Registering product...");
 
     try {
       const token = await AsyncStorage.getItem("token");
       const formData = new FormData();
+      formData.append("name", form.name);
+      formData.append("type", form.type);
+      formData.append("materials", form.materials);
+      formData.append("origin", form.origin);
+      formData.append("productionDate", form.productionDate);
+      formData.append("description", form.description);
+      if (Platform.OS === "web") {
+        formData.append("product_image", form.image.file);
+      } else {
+        formData.append("product_image", {
+          uri: form.image.uri,
+          name: form.image.name,
+          type: form.image.type,
+        });
+      }
 
-      Object.entries(form).forEach(([key, value]) => {
-        if (key === "image" && value)
-          formData.append("product_image", {
-            uri: value,
-            name: "upload.jpg",
-            type: "image/jpeg",
-          });
-        else formData.append(key, value);
-      });
-
-      await axios.post("http://localhost:3000/api/products", formData, {
+      await axios.post("https://backend1-al4l.onrender.com/api/products", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
         },
       });
 
-      setStatusMessage("Product successfully registered!");
-      setStatusType("success");
+      setStatusMessage("Product registered successfully!");
+      setIsSubmitting(false);
       setForm({
         name: "",
         type: "",
@@ -95,309 +149,168 @@ export default function ProductRegistration() {
         image: null,
       });
 
-      router.push("/business");
     } catch (err) {
-      console.error("Error submitting:", err);
-      setStatusMessage("Something went wrong. Please try again.");
-      setStatusType("error");
+      console.error("Submit error:", err);
+      Alert.alert("Registration failed", "Error saving product.");
+      setStatusMessage("");
+      setIsSubmitting(false);
     }
   };
 
-  const [fontsLoaded] = useFonts({
-    "Garet-Book": require("../../assets/fonts/garet/Garet-Book.ttf"),
-    "Garet-Heavy": require("../../assets/fonts/garet/Garet-Heavy.ttf"),
-    "Montserrat-Regular": require("../../assets/fonts/Montserrat/static/Montserrat-Regular.ttf"),
-    "Montserrat-Bold": require("../../assets/fonts/Montserrat/static/Montserrat-Bold.ttf"),
-  });
-
-  if (!fontsLoaded) {
-    return (
-      <View>
-        <Text>Loading fonts...</Text>
-      </View>
-    );
-  }
-
-  const getInputStyle = (field) => ({
-    borderWidth: 1,
-    borderColor: errors[field] ? "red" : "#000",
-    borderRadius: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    marginBottom: 5,
-    backgroundColor: "#FFFFFF",
-    fontFamily: "Montserrat-Regular",
-    fontSize: 13,
-  });
-
-  const errorText = {
-    color: "red",
-    fontSize: 12,
-    marginBottom: 10,
-    fontFamily: "Montserrat-Regular",
-  };
-
   return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: "rgba(231, 229, 226, 0.87)",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <ScrollView
-          contentContainerStyle={{
-            paddingHorizontal: 27,
-            paddingVertical: 70,
-          }}
+    <ScrollView contentContainerStyle={styles.container}>
+      {/* Header aligned with form */}
+      <View style={styles.header}>
+        <Text style={styles.title}>Product Registration</Text>
+        <Pressable
+          style={styles.backButton}
+          onPress={() => router.push("/business")}
         >
-          <Text
-            style={{
-              fontSize: 34,
-              fontWeight: "bold",
-              marginBottom: 30,
-              color: "#000",
-              fontFamily: "Garet-Heavy",
-            }}
-          >
-            Register Product
-          </Text>
-
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              flexWrap: "wrap",
-              gap: 40,
-            }}
-          >
-            {/* LEFT COLUMN */}
-            <View style={{ flex: 1 }}>
-              {/* Product Name */}
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontWeight: "700",
-                  fontFamily: "Montserrat-Regular",
-                  marginBottom: 6,
-                }}
-              >
-                PRODUCT NAME*
-              </Text>
-              <TextInput
-                placeholder="Name of your product"
-                value={form.name}
-                onChangeText={(t) => setForm({ ...form, name: t })}
-                style={getInputStyle("name")}
-              />
-              {errors.name && <Text style={errorText}>{errors.name}</Text>}
-
-              {/* Product Type */}
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontWeight: "700",
-                  fontFamily: "Montserrat-Regular",
-                  marginBottom: 6,
-                }}
-              >
-                PRODUCT TYPE*
-              </Text>
-              <Picker
-                selectedValue={form.type}
-                onValueChange={(value) => setForm({ ...form, type: value })}
-                style={getInputStyle("type")}
-              >
-                <Picker.Item label="Select product type" value="" />
-                <Picker.Item label="Woodcraft" value="woodcraft" />
-                <Picker.Item label="Textile" value="textile" />
-                <Picker.Item label="Pottery" value="pottery" />
-              </Picker>
-              {errors.type && <Text style={errorText}>{errors.type}</Text>}
-
-              {/* Materials */}
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontWeight: "700",
-                  fontFamily: "Montserrat-Regular",
-                  marginBottom: 6,
-                }}
-              >
-                MATERIALS*
-              </Text>
-              <TextInput
-                placeholder="What materials did you use?"
-                value={form.materials}
-                onChangeText={(t) => setForm({ ...form, materials: t })}
-                style={getInputStyle("materials")}
-              />
-              {errors.materials && (
-                <Text style={errorText}>{errors.materials}</Text>
-              )}
-
-              {/* Origin */}
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontWeight: "700",
-                  fontFamily: "Montserrat-Regular",
-                  marginBottom: 6,
-                }}
-              >
-                ORIGIN*
-              </Text>
-              <TextInput
-                placeholder="Where is your product from?"
-                value={form.origin}
-                onChangeText={(t) => setForm({ ...form, origin: t })}
-                style={getInputStyle("origin")}
-              />
-              {errors.origin && <Text style={errorText}>{errors.origin}</Text>}
-
-              {/* Production Date */}
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontWeight: "700",
-                  fontFamily: "Montserrat-Regular",
-                  marginBottom: 6,
-                }}
-              >
-                PRODUCTION DATE*
-              </Text>
-              <TextInput
-                placeholder="When was your product made?"
-                value={form.productionDate}
-                onChangeText={(t) => setForm({ ...form, productionDate: t })}
-                style={getInputStyle("productionDate")}
-              />
-              {errors.productionDate && (
-                <Text style={errorText}>{errors.productionDate}</Text>
-              )}
-            </View>
-
-            {/* RIGHT COLUMN */}
-            <View style={{ flex: 0.9 }}>
-              {/* Description */}
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontWeight: "700",
-                  fontFamily: "Montserrat-Regular",
-                  marginBottom: 6,
-                }}
-              >
-                DESCRIPTION*
-              </Text>
-              <TextInput
-                placeholder="Can you describe your product..."
-                multiline
-                value={form.description}
-                onChangeText={(t) => setForm({ ...form, description: t })}
-                style={{
-                  ...getInputStyle("description"),
-                  height: 140,
-                  textAlignVertical: "top",
-                }}
-              />
-              {errors.description && (
-                <Text style={errorText}>{errors.description}</Text>
-              )}
-
-              {/* Image Upload */}
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontWeight: "700",
-                  fontFamily: "Montserrat-Regular",
-                  marginBottom: 6,
-                }}
-              >
-                PRODUCT IMAGE*
-              </Text>
-              <Pressable
-                onPress={pickImage}
-                style={{
-                  borderWidth: 1,
-                  borderColor: errors.product_image ? "red" : "#000",
-                  borderRadius: 12,
-                  height: 163,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  backgroundColor: "#fff",
-                }}
-              >
-                {form.image ? (
-                  <Image
-                    source={{ uri: form.image }}
-                    style={{
-                      width: "100%",
-                      height: 150,
-                      borderRadius: 10,
-                    }}
-                  />
-                ) : (
-                  <>
-                    <Text style={{ fontSize: 36, marginBottom: 6 }}>☁️</Text>
-                    <Text
-                      style={{ fontSize: 14, fontFamily: "Montserrat-Regular" }}
-                    >
-                      UPLOAD IMAGE
-                    </Text>
-                  </>
-                )}
-              </Pressable>
-              {errors.product_image && (
-                <Text style={errorText}>{errors.product_image}</Text>
-              )}
-            </View>
-          </View>
-
-          {/* Submit Button */}
-          <Pressable
-            onPress={handleSubmit}
-            style={{
-              backgroundColor: "#e98669",
-              paddingVertical: 14,
-              borderRadius: 20,
-              alignSelf: "center",
-              width: 160,
-              marginTop: 30,
-            }}
-          >
-            <Text
-              style={{
-                color: "#000",
-                fontWeight: "700",
-                fontFamily: "Montserrat-Bold",
-                textAlign: "center",
-                letterSpacing: 1,
-              }}
-            >
-              SUBMIT
-            </Text>
-          </Pressable>
-
-          {/* Status Message */}
-          {statusMessage ? (
-            <Text
-              style={{
-                padding: 10,
-                borderRadius: 8,
-                textAlign: "center",
-                fontWeight: "600",
-                marginTop: 10,
-                backgroundColor:
-                  statusType === "success" ? "#d4edda" : "#f8d7da",
-                color: statusType === "success" ? "#155724" : "#721c24",
-              }}
-            >
-              {statusMessage}
-            </Text>
-          ) : null}
-        </ScrollView>
+          <Text style={styles.backText}>Back</Text>
+        </Pressable>
       </View>
+
+      {/* Status */}
+      {statusMessage !== "" && (
+        <Text style={styles.statusMessage}>{statusMessage}</Text>
+      )}
+
+      {/* Inputs */}
+      <InputField
+        label="Product Name"
+        value={form.name}
+        onChange={(v) => handleInputChange("name", v)}
+        error={errors.name}
+      />
+
+      <View style={styles.inputContainer}>
+        <Picker
+          selectedValue={form.type}
+          onValueChange={(v) => handleInputChange("type", v)}
+          style={styles.input}
+        >
+          <Picker.Item label="Select Type" value="" />
+          <Picker.Item label="Woodcraft" value="woodcraft" />
+          <Picker.Item label="Textile" value="textile" />
+          <Picker.Item label="Jewelry" value="jewelry" />
+        </Picker>
+        {errors.type && <Text style={styles.errorText}>{errors.type}</Text>}
+      </View>
+
+      <InputField
+        label="Materials"
+        value={form.materials}
+        onChange={(v) => handleInputChange("materials", v)}
+        error={errors.materials}
+      />
+
+      <InputField
+        label="Origin"
+        value={form.origin}
+        onChange={(v) => handleInputChange("origin", v)}
+        error={errors.origin}
+      />
+
+      <InputField
+        label="Production Date (YYYY-MM-DD)"
+        value={form.productionDate}
+        onChange={(v) => {
+          const cleanValue = v.replace(/[^0-9-]/g, '');
+          handleInputChange("productionDate", cleanValue.slice(0, 10));
+        }}
+        error={errors.productionDate}
+      />
+
+      <InputField
+        label="Description"
+        value={form.description}
+        onChange={(v) => handleInputChange("description", v)}
+        multiline
+        error={errors.description}
+      />
+
+      {/* Image Picker */}
+      <Pressable style={styles.imagePicker} onPress={pickImage}>
+        {form.image ? (
+          <Image source={{ uri: form.image.uri }} style={styles.imagePreview} />
+        ) : (
+          <Text style={styles.imageText}>Select Product Image</Text>
+        )}
+      </Pressable>
+      {errors.image && <Text style={styles.errorText}>{errors.image}</Text>}
+
+      {/* Submit */}
+      <Pressable
+        style={styles.submitButton}
+        onPress={handleSubmit}
+        disabled={isSubmitting}
+      >
+        <Text style={styles.submitText}>Submit</Text>
+      </Pressable>
+    </ScrollView>
   );
 }
+
+function InputField({ label, value, onChange, multiline, error }) {
+  return (
+    <View style={styles.inputContainer}>
+      <TextInput
+        placeholder={label}
+        value={value}
+        onChangeText={onChange}
+        style={[styles.input, multiline && styles.textArea, error && styles.errorInput]}
+        multiline={multiline}
+      />
+      {error && <Text style={styles.errorText}>{error}</Text>}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { padding: 20, backgroundColor: "#fff" },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+    width: "50%", 
+    justifyContent: "space-between",
+    alignSelf: "center",
+  },
+  statusMessage: {
+  alignSelf: "center",
+  fontsize: 8,
+  fontFamily: "Montserrat-Regular",
+  color: "#67AA61",
+},
+  title: {
+    fontSize: 28,
+    fontFamily: "Garet-Heavy",
+    color: "#000",
+  },
+  backButton: {
+    backgroundColor: "#e98669",
+    height: 40,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  backText: {
+    color: "#000", 
+    fontWeight: "700",
+    fontFamily: "Montserrat-Regular",
+  },
+  inputContainer: { marginBottom: 15 },
+  input: { borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8, backgroundColor: "#fafafa", width: "50%", alignSelf: "center" },
+  textArea: { height: 100 },
+  errorInput: { borderColor: "red" },
+  errorText: { color: "red", marginTop: 4, width: "50%", alignSelf: "center", textAlign: "left" },
+  imagePicker: { borderWidth: 1, borderColor: "#ccc", padding: 20, borderRadius: 10, alignItems: "center", backgroundColor: "#fafafa", height: 200, justifyContent: "center", marginBottom: 10, width: "50%", alignSelf: "center" },
+  imagePreview: { width: "100%", height: "100%", borderRadius: 10 },
+  submitButton: { backgroundColor: "#e98669", padding: 14, borderRadius: 10, alignItems: "center", alignSelf: "center", marginTop: 10, width: "15%", borderRadius: 50, borderWidth: 1.3, shadowRadius: 3,  },
+  submitText: { color: "black", fontSize: 16, fontWeight: "600" },
+});

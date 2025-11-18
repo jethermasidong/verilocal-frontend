@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 70,
     right: 20,
-    backgroundColor: "gray",
+    backgroundColor: "#FFFFFF",
     padding: 15,
     borderRadius: 10,
     shadowColor: "#000",

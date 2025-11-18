@@ -29,7 +29,7 @@ export default function BusinessLogin() {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/login",
+        "https://backend1-al4l.onrender.com/api/login",
         qs.stringify({ email, password }),
         { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
       );
@@ -150,10 +150,11 @@ export default function BusinessLogin() {
               marginBottom: 10,
               width: "40%",
               alignSelf: "center",
+              height: 35,
             }}
             onPress={handleBusinessLogin}
           >
-            <Text style={{ color: "#fff", fontWeight: "600", fontSize: 16 }}>Login</Text>
+            <Text style={{ color: "#fff", fontWeight: "600", fontSize: 16, top: -6,}}>Login</Text>
           </TouchableOpacity>
 
           {/* Sign Up Text */}

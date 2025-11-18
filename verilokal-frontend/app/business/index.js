@@ -6,11 +6,12 @@ import { useEffect, useState } from "react";
 import {
   FlatList,
   Image,
+  Linking,
   Modal,
   Pressable,
   ScrollView,
   Text,
-  View,
+  View
 } from "react-native";
 
 export default function BusinessDashboard() {
@@ -24,7 +25,7 @@ export default function BusinessDashboard() {
     const fetchProducts = async () => {
       try {
         const token = await AsyncStorage.getItem("token");
-        const res = await axios.get("http://localhost:3000/api/products/my-products", {
+        const res = await axios.get("https://backend1-al4l.onrender.com/api/products/my-products", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setProducts(res.data);
@@ -40,6 +41,23 @@ export default function BusinessDashboard() {
   const openModal = (product) => {
     setSelectedProduct(product);
     setModalVisible(true);
+  };
+
+  const downloadQRCode = async (qrUrl) => {
+    try {
+      const response = await fetch(qrUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `qr_${Date.now()}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.log("QR Download Error:", error);
+    }
   };
 
   const [fontsLoaded] = useFonts({
@@ -58,26 +76,20 @@ export default function BusinessDashboard() {
 
   return (
     <ScrollView
-      style={{
-        flex: 1,
-        backgroundColor: "#FFFFFF",
-      }}
-      contentContainerStyle={{
-        alignItems: "center",
-        paddingVertical: 60,
-        paddingHorizontal: 40,
-      }}
+      style={{ flex: 1, backgroundColor: "#FFFFFF" }}
+      contentContainerStyle={{ alignItems: "center", paddingVertical: 60, paddingHorizontal: 40 }}
     >
-      {/* Header - Centered */}
+      {/* Header */}
       <View
         style={{
           width: "100%",
+          maxWidth: 900,
           flexDirection: "row",
-          justifyContent: "center",
+          justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: 40,
+          marginBottom: 50,
           gap: 20,
-          flexWrap: "wrap", // responsive layout
+          flexWrap: "wrap",
         }}
       >
         <Text
@@ -94,8 +106,8 @@ export default function BusinessDashboard() {
         <Pressable
           style={{
             backgroundColor: "#e98669",
-            paddingVertical: 10,
-            paddingHorizontal: 18,
+            paddingVertical: 12,
+            paddingHorizontal: 24,
             borderRadius: 30,
             shadowColor: "#000",
             shadowOpacity: 0.1,
@@ -116,17 +128,12 @@ export default function BusinessDashboard() {
         </Pressable>
       </View>
 
-      {/* Product List - Static on left side */}
-      <View
-        style={{
-          width: "100%",
-          alignItems: "flex-start", // keep list on the left
-          maxWidth: 900,
-        }}
-      >
+      {/* Product List */}
+      <View style={{ width: "100%", maxWidth: 900, alignSelf: "center" }}>
         <FlatList
           data={products.slice(0, visibleCount)}
           keyExtractor={(item) => item.id}
+          scrollEnabled={false}
           contentContainerStyle={{ paddingBottom: 20 }}
           renderItem={({ item }) => (
             <View
@@ -135,7 +142,7 @@ export default function BusinessDashboard() {
                 borderWidth: 2,
                 borderColor: "#000",
                 borderRadius: 12,
-                padding: 18,
+                padding: 20,
                 marginBottom: 20,
                 width: "100%",
               }}
@@ -168,33 +175,16 @@ export default function BusinessDashboard() {
         />
       </View>
 
-      {/* Show More - only when many products */}
+      {/* Show More */}
       {products.length > visibleCount && (
-        <View
-          style={{
-            alignItems: "center",
-            justifyContent: "center",
-            width: "100%",
-            marginTop: 10,
-          }}
-        >
-          <Pressable onPress={() => setVisibleCount(products.length)}>
-            <Text style={{ fontSize: 22, color: "#000" }}>⌄</Text>
-            <Text
-              style={{
-                fontSize: 14,
-                color: "#444",
-                fontWeight: "500",
-                textDecorationLine: "underline",
-              }}
-            >
-              SHOW MORE
-            </Text>
-          </Pressable>
-        </View>
+        <Pressable onPress={() => setVisibleCount(products.length)} style={{ marginTop: 5, marginBottom: 20 }}>
+          <Text style={{ fontSize: 14, color: "#444", fontWeight: "500", textDecorationLine: "underline" }}>
+            Show More
+          </Text>
+        </Pressable>
       )}
 
-      {/* Product Details Modal */}
+      {/* Modal */}
       <Modal visible={modalVisible} animationType="fade" transparent={true}>
         <View
           style={{
@@ -208,78 +198,163 @@ export default function BusinessDashboard() {
           <View
             style={{
               backgroundColor: "#fff",
-              padding: 20,
-              borderRadius: 10,
-              alignItems: "center",
-              maxWidth: 400,
+              padding: 25,
+              borderRadius: 16,
               width: "90%",
+              maxWidth: 450,
+              elevation: 5,
             }}
           >
             {selectedProduct && (
               <>
+                {/* HEADER IMAGE */}
                 <Image
                   source={{
-                    uri: `http://localhost:3000/${selectedProduct?.product_image?.replace(
-                      /\\/g,
-                      "/"
-                    )}`,
+                    uri: `https://backend1-al4l.onrender.com/${selectedProduct?.product_image?.replace(/\\/g, "/")}`,
                   }}
-                  style={{
-                    width: 250,
-                    height: 250,
-                    borderRadius: 10,
-                    marginBottom: 10,
-                  }}
+                  style={{ width: "100%", height: 200, borderRadius: 12, marginBottom: 15 }}
+                  resizeMode="contain"
                 />
-                <Text
-                  style={{ fontSize: 22, fontWeight: "bold", marginBottom: 10 }}
-                >
+
+                {/* PRODUCT NAME */}
+                <Text style={{ fontSize: 24, fontFamily: "Garet-Heavy", marginBottom: 6 }}>
                   {selectedProduct.name}
                 </Text>
-                <Text>Type: {selectedProduct.type}</Text>
-                <Text>Materials: {selectedProduct.materials}</Text>
-                <Text>Origin: {selectedProduct.origin}</Text>
-                <Text>Production Date: {selectedProduct.productionDate}</Text>
-                <Text style={{ marginTop: 8, fontWeight: "600" }}>
-                  Description:
-                </Text>
-                <Text>{selectedProduct.description}</Text>
 
-                <View style={{ marginTop: 18, alignItems: "center" }}>
-                  {selectedProduct?.qr_code && (
-                    <Image
-                      source={{
-                        uri: `http://localhost:3000/${selectedProduct.qr_code.replace(
-                          /\\/g,
-                          "/"
-                        )}`,
-                      }}
-                      style={{
-                        width: 160,
-                        height: 160,
-                        borderRadius: 8,
-                      }}
-                      resizeMode="contain"
-                    />
-                  )}
-                  <Text
-                    style={{
-                      marginTop: 8,
-                      fontWeight: "600",
-                      color: "#444",
-                    }}
-                  >
-                    Product QR Code
+                {/* PRODUCT DETAILS */}
+                <View style={{ marginBottom: 12 }}>
+                  <Text style={{ fontFamily: "Montserrat-Regular" }}>
+                    <Text style={{ fontWeight: "600" }}>Type:</Text> {selectedProduct.type}
+                  </Text>
+                  <Text style={{ fontFamily: "Montserrat-Regular" }}>
+                    <Text style={{ fontWeight: "600" }}>Materials:</Text> {selectedProduct.materials}
+                  </Text>
+                  <Text style={{ fontFamily: "Montserrat-Regular" }}>
+                    <Text style={{ fontWeight: "600" }}>Origin:</Text> {selectedProduct.origin}
+                  </Text>
+                  <Text style={{ fontFamily: "Montserrat-Regular" }}>
+                    <Text style={{ fontWeight: "600" }}>Production Date:</Text> {selectedProduct.productionDate}
                   </Text>
                 </View>
 
+                {/* DESCRIPTION */}
+                <Text style={{ marginTop: 8, fontWeight: "600", fontSize: 16, fontFamily: "Montserrat-Regular" }}>
+                  Description
+                </Text>
+                <Text style={{ fontFamily: "Montserrat-Regular", marginBottom: 20 }}>
+                  {selectedProduct.description}
+                </Text>
+
+                {/* QR + DOWNLOAD BUTTON STACKED */}
+                <View
+                  style={{
+                    alignItems: "center",
+                    backgroundColor: "#f9f9f9",
+                    padding: 14,
+                    borderRadius: 12,
+                    borderWidth: 1,
+                    borderColor: "#ccc",
+                    marginBottom: 20,
+                  }}
+                >
+                  {/* DOWNLOAD BUTTON ON TOP */}
+                  <Pressable
+                    onPress={() =>
+                      downloadQRCode(
+                        `https://backend1-al4l.onrender.com/${selectedProduct.qr_code.replace(/\\/g, "/")}`
+                      )
+                    }
+                    style={{
+                      backgroundColor: "#e98669",
+                      paddingVertical: 6,
+                      paddingHorizontal: 10,
+                      borderRadius: 6,
+                      marginBottom: 10,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: "#000",
+                        textAlign: "center",
+                        fontWeight: "700",
+                        fontFamily: "Montserrat-Regular",
+                        fontSize: 10,
+                      }}
+                    >
+                      DOWNLOAD QR
+                    </Text>
+                  </Pressable>
+
+                  {/* QR IMAGE */}
+                  {selectedProduct?.qr_code && (
+                    <Image
+                      source={{ uri: `http://"https://backend1-al4l.onrender.com/${selectedProduct.qr_code.replace(/\\/g, "/")}` }}
+                      style={{ width: 130, height: 130, borderRadius: 8 }}
+                      resizeMode="contain"
+                    />
+                  )}
+                </View>
+                {/* BLOCKCHAIN INFO */}
+                  <View
+                    style={{
+                      backgroundColor: "#f4f4f4",
+                      padding: 14,
+                      borderRadius: 12,
+                      borderWidth: 1,
+                      borderColor: "#d9d9d9",
+                      marginBottom: 20,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 16,
+                        fontWeight: "700",
+                        marginBottom: 8,
+                        fontFamily: "Montserrat-Regular",
+                      }}
+                    >
+                      Blockchain Information
+                    </Text>
+                    <Text style={{ fontFamily: "Montserrat-Regular", marginBottom: 10 }}>
+                      <Text style={{ fontWeight: "600" }}>Transaction Hash:</Text>{" "}
+                      {selectedProduct.tx_hash}
+                    </Text>
+
+                    
+                    {selectedProduct.tx_hash && (
+                      <Pressable
+                        onPress={() =>
+                          Linking.openURL(
+                            `https://eth-sepolia.blockscout.com/tx/${selectedProduct.tx_hash}`
+                          )
+                        }
+                        style={{
+                          backgroundColor: "#e98669",
+                          paddingVertical: 10,
+                          borderRadius: 6,
+                          marginTop: 5,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontWeight: "700",
+                            fontFamily: "Montserrat-Regular",
+                            textAlign: "center",
+                            color: "#000",
+                          }}
+                        >
+                          VIEW BLOCKCHAIN
+                        </Text>
+                      </Pressable>
+                    )}
+                  </View>
+
+                {/* CLOSE */}
                 <Pressable
                   style={{
                     backgroundColor: "#000",
-                    padding: 12,
-                    borderRadius: 8,
-                    marginTop: 15,
-                    width: "100%",
+                    paddingVertical: 12,
+                    borderRadius: 10,
                   }}
                   onPress={() => setModalVisible(false)}
                 >
@@ -287,10 +362,11 @@ export default function BusinessDashboard() {
                     style={{
                       color: "#fff",
                       textAlign: "center",
-                      fontWeight: "600",
+                      fontWeight: "700",
+                      fontFamily: "Montserrat-Regular",
                     }}
                   >
-                    Close
+                    CLOSE
                   </Text>
                 </Pressable>
               </>

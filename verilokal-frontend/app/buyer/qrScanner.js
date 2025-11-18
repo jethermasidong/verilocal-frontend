@@ -1,7 +1,7 @@
-"use client";
-
 import axios from "axios";
+import { useFonts } from "expo-font";
 import { useRef, useState } from "react";
+import { Image, Modal, Pressable, ScrollView, Text, View } from "react-native";
 
 export default function ProductScanner() {
   const [isScanning, setIsScanning] = useState(false);
@@ -9,6 +9,8 @@ export default function ProductScanner() {
   const [product, setProduct] = useState(null);
   const [productDetails, setProductDetails] = useState(null);
   const [error, setError] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [registered_business_name, setBusinessName] = useState("");
 
   const Html5QrcodeRef = useRef(null);
 
@@ -42,7 +44,7 @@ export default function ProductScanner() {
             let res;
             try {
               res = await axios.post(
-                "http://localhost:3000/api/products/verify",
+                "https://backend1-al4l.onrender.com/api/products/verify",
                 { product_id, blockchain_hash }
               );
               setProduct(res.data);
@@ -58,11 +60,24 @@ export default function ProductScanner() {
             if (res.data.verified) {
               try {
                 const allRes = await axios.get(
-                  "http://localhost:3000/api/products"
+                  "https://backend1-al4l.onrender.com/api/products"
                 );
                 const matched = allRes.data.find((p) => p.id === product_id);
-                if (matched) setProductDetails(matched);
-                else setError("Verified but product not found in list");
+                if (matched) {
+                  setProductDetails(matched);
+                  if (matched.business_id) {
+                    try {
+                      const businessRes = await axios.get(
+                        `https://backend1-al4l.onrender.com/api/business/${matched.business_id}`
+                      );
+                      setBusinessName(businessRes.data.registered_business_name);
+                    } catch (err) {
+                      console.error("Failed to fetch business:", err);
+                      setBusinessName("Unknown Business");
+                    }
+                  }
+                  setModalVisible(true);
+                } else setError("Verified but product not found");
               } catch {
                 setError("Verified but failed to fetch product details");
               }
@@ -86,107 +101,338 @@ export default function ProductScanner() {
     }
   };
 
+  const [fontsLoaded] = useFonts({
+    "Garet-Book": require("../../assets/fonts/garet/Garet-Book.ttf"),
+    "Garet-Heavy": require("../../assets/fonts/garet/Garet-Heavy.ttf"),
+    "Montserrat-Regular": require("../../assets/fonts/Montserrat/static/Montserrat-Regular.ttf"),
+  });
+
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Loading fonts...</Text>
+      </View>
+    );
+  }
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-gray-100 to-gray-50 p-6">
-      <div className="w-full max-w-md bg-white/80 backdrop-blur-md rounded-3xl shadow-2xl p-8 border border-gray-200">
-        {/* Header */}
-        <h2 className="text-3xl font-bold text-gray-900 text-center mb-1">
-          Product Verification
-        </h2>
-        <p className="text-gray-500 text-center mb-6">
-          Scan the QR code to confirm authenticity
-        </p>
+    <ScrollView
+      style={{ flex: 1, backgroundColor: "#FFFFFF" }}
+      contentContainerStyle={{
+        alignItems: "center",
+        paddingVertical: 60,
+        paddingHorizontal: 40,
+      }}
+    >
+      {/* Header */}
+      <Text
+        style={{
+          fontSize: 32,
+          fontFamily: "Garet-Heavy",
+          color: "#000",
+          textAlign: "center",
+          marginBottom: 30,
+        }}
+      >
+        Product Verification
+      </Text>
 
-        {/* Scanner Box */}
-        <div
-          id="qr-reader"
-          className="relative mx-auto w-72 h-72 rounded-xl overflow-hidden shadow-inner border-4 border-dashed border-gray-300"
-          style={{ backgroundColor: "#f9fafb" }}
+      {/* Scanner Box */}
+      <View
+        id="qr-reader"
+        style={{
+          width: 250,
+          height: 250,
+          borderWidth: 2,
+          borderColor: "#000",
+          borderRadius: 16,
+          justifyContent: "center",
+          alignItems: "center",
+          marginBottom: 20,
+          backgroundColor: "#f9fafb",
+          shadowColor: "#000",
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+          elevation: 3,
+        }}
+      >
+        <Text style={{ textAlign: "center", color: "#888" }}>
+          {isScanning ? "Scanning..." : "Scanner Inactive"}
+        </Text>
+      </View>
+
+      {/* Buttons */}
+      <View style={{ flexDirection: "row", gap: 15, marginBottom: 20 }}>
+        <Pressable
+          onPress={startScanner}
+          style={{
+            backgroundColor: "#e98669",
+            paddingVertical: 12,
+            paddingHorizontal: 24,
+            borderRadius: 30,
+            shadowColor: "#000",
+            shadowOpacity: 0.1,
+            shadowRadius: 3,
+            elevation: 3,
+          }}
         >
-          {/* Overlay frame */}
-          <div className="absolute inset-0 border-4 border-indigo-400 rounded-xl pointer-events-none animate-pulse"></div>
-        </div>
+          <Text
+            style={{
+              fontFamily: "Montserrat-Regular",
+              fontWeight: "700",
+              color: "#000",
+            }}
+          >
+            START
+          </Text>
+        </Pressable>
 
-        {/* Buttons */}
-        <div className="flex justify-center gap-4 mt-6">
-          {!isScanning ? (
-            <button
-              onClick={startScanner}
-              className="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold px-6 py-3 rounded-xl shadow-md transition-transform transform hover:scale-105"
-            >
-              Start
-            </button>
-          ) : (
-            <button
-              onClick={stopScanner}
-              className="bg-gray-800 hover:bg-gray-900 text-white font-semibold px-6 py-3 rounded-xl shadow-md transition-transform transform hover:scale-105"
-            >
-              Stop
-            </button>
-          )}
-        </div>
+        <Pressable
+          onPress={stopScanner}
+          style={{
+            backgroundColor: "#444",
+            paddingVertical: 12,
+            paddingHorizontal: 24,
+            borderRadius: 30,
+            shadowColor: "#000",
+            shadowOpacity: 0.1,
+            shadowRadius: 3,
+            elevation: 3,
+          }}
+        >
+          <Text
+            style={{
+              fontFamily: "Montserrat-Regular",
+              fontWeight: "700",
+              color: "#fff",
+            }}
+          >
+            STOP
+          </Text>
+        </Pressable>
+      </View>
 
-        {/* Results */}
-        {qrData && (
-          <p className="mt-6 text-center text-gray-700 break-words font-medium">
-            <span className="font-semibold text-gray-900">Scanned:</span>{" "}
-            {qrData}
-          </p>
-        )}
-
-        {/* Feedback */}
-        {error && (
-          <div className="mt-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-center shadow-sm">
+      {/* Error / Success */}
+      {error && (
+        <View
+          style={{
+            backgroundColor: "#fde2e2",
+            borderWidth: 1,
+            borderColor: "#f5c2c2",
+            borderRadius: 12,
+            padding: 12,
+            marginBottom: 20,
+            width: "100%",
+          }}
+        >
+          <Text
+            style={{
+              color: "#b71c1c",
+              fontWeight: "600",
+              textAlign: "center",
+            }}
+          >
             ❌ {error}
-          </div>
-        )}
-        {product && product.verified && (
-          <div className="mt-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl text-center shadow-sm">
-            ✅ {product.message}
-          </div>
-        )}
-        {product && !product.verified && (
-          <div className="mt-6 bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-xl text-center shadow-sm">
-            ⚠️ {product.message}
-          </div>
-        )}
+          </Text>
+        </View>
+      )}
 
-        {/* Product Details */}
-        {productDetails && (
-          <div className="bg-white/80 backdrop-blur-md rounded-2xl p-5 mt-8 border border-gray-200 shadow-sm">
-            <h3 className="text-xl font-semibold text-gray-800 mb-3">
-              {productDetails.name}
-            </h3>
-            <div className="text-gray-700 space-y-1">
-              <p>
-                <strong>Description:</strong> {productDetails.description}
-              </p>
-              <p>
-                <strong>Type:</strong> {productDetails.type}
-              </p>
-              <p>
-                <strong>Origin:</strong> {productDetails.origin}
-              </p>
-              <p>
-                <strong>Materials:</strong> {productDetails.materials}
-              </p>
-              <p>
-                <strong>Production Date:</strong>{" "}
-                {productDetails.productionDate}
-              </p>
-            </div>
-            {productDetails.product_image && (
-              <div className="mt-4 flex justify-center">
-                <img
-                  src={`http://localhost:3000/${productDetails.product_image}`}
-                  alt={productDetails.name}
-                  className="rounded-xl shadow-md max-h-60 object-contain border border-gray-100"
+      {product && product.verified && (
+        <View
+          style={{
+            backgroundColor: "#e2f8e2",
+            borderWidth: 1,
+            borderColor: "#b5e6b5",
+            borderRadius: 12,
+            padding: 12,
+            marginBottom: 20,
+            width: "100%",
+          }}
+        >
+          <Text
+            style={{
+              color: "#2e7d32",
+              fontWeight: "600",
+              textAlign: "center",
+            }}
+          >
+            ✅ {product.message}
+          </Text>
+        </View>
+      )}
+
+      {product && !product.verified && (
+        <View
+          style={{
+            backgroundColor: "#fff7e2",
+            borderWidth: 1,
+            borderColor: "#ffe6b5",
+            borderRadius: 12,
+            padding: 12,
+            marginBottom: 20,
+            width: "100%",
+          }}
+        >
+          <Text
+            style={{
+              color: "#ff8c00",
+              fontWeight: "600",
+              textAlign: "center",
+            }}
+          >
+            ⚠️ {product.message}
+          </Text>
+        </View>
+      )}
+
+    <Modal visible={modalVisible} animationType="fade" transparent>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: "rgba(0,0,0,0.6)",
+          justifyContent: "center",
+          alignItems: "center",
+          padding: 20,
+        }}
+      >
+        <View
+          style={{
+            width: "92%",
+            maxWidth: 420,
+            borderRadius: 20,
+            padding: 0,
+            backgroundColor: "rgba(255,255,255,0.97)",
+            shadowColor: "#000",
+            shadowOpacity: 0.2,
+            shadowRadius: 10,
+            elevation: 10,
+            overflow: "hidden",
+          }}
+        >
+          {productDetails && (
+            <>
+              {/* IMAGE ON TOP */}
+              {productDetails.product_image && (
+                <Image
+                  source={{
+                    uri: `https://backend1-al4l.onrender.com/${productDetails.product_image.replace(
+                      /\\/g,
+                      "/"
+                    )}`,
+                  }}
+                  style={{
+                    width: "100%",
+                    height: 240,
+                    backgroundColor: "#eee",
+                  }}
+                  resizeMode="cover"
                 />
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
+              )}
+
+              {/* CONTENT */}
+              <View style={{ padding: 20 }}>
+                <Text
+                  style={{
+                    fontSize: 24,
+                    fontFamily: "Garet-Heavy",
+                    marginBottom: 10,
+                    textAlign: "center",
+                    color: "#333",
+                  }}
+                >
+                  {productDetails.name}
+                </Text>
+
+                <View
+                  style={{
+                    height: 1,
+                    backgroundColor: "#e0e0e0",
+                    marginVertical: 10,
+                  }}
+                />
+
+                {/* Details */}
+                <Text
+                  style={{
+                    fontSize: 18,
+                    fontFamily: "Montserrat-Regular",
+                    marginBottom: 10,
+                    color: "#555",
+                    textAlign: "center",
+                    fontWeight: "700",
+                  }}
+                >
+                  {registered_business_name ? `Registered Artisan: ${registered_business_name}` : ""}
+                </Text>
+                <View style={{ gap: 6 }}>
+                  <Text style={{ fontSize: 16, color: "#444" }}>
+                    <Text style={{ fontWeight: "700" }}>Type: </Text>
+                    {productDetails.type}
+                  </Text>
+
+                  <Text style={{ fontSize: 16, color: "#444" }}>
+                    <Text style={{ fontWeight: "700" }}>Materials: </Text>
+                    {productDetails.materials}
+                  </Text>
+
+                  <Text style={{ fontSize: 16, color: "#444" }}>
+                    <Text style={{ fontWeight: "700" }}>Origin: </Text>
+                    {productDetails.origin}
+                  </Text>
+
+                  <Text style={{ fontSize: 16, color: "#444" }}>
+                    <Text style={{ fontWeight: "700" }}>Production Date: </Text>
+                    {productDetails.productionDate}
+                  </Text>
+
+                  <Text
+                    style={{
+                      marginTop: 10,
+                      fontWeight: "700",
+                      fontSize: 16,
+                      color: "#333",
+                    }}
+                  >
+                    Description:
+                  </Text>
+                  <Text style={{ color: "#555", lineHeight: 20 }}>
+                    {productDetails.description}
+                  </Text>
+                </View>
+
+                {/* Close button */}
+                <Pressable
+                  onPress={() => setModalVisible(false)}
+                  style={{
+                    marginTop: 20,
+                    backgroundColor: "#000",
+                    paddingVertical: 14,
+                    borderRadius: 12,
+                    alignItems: "center",
+                    shadowColor: "#000",
+                    shadowOpacity: 0.15,
+                    shadowRadius: 5,
+                    elevation: 5,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "#fff",
+                      fontSize: 16,
+                      fontWeight: "700",
+                      fontFamily: "Montserrat-Regular",
+                    }}
+                  >
+                    Close
+                  </Text>
+                </Pressable>
+              </View>
+            </>
+          )}
+        </View>
+      </View>
+    </Modal>
+
+    </ScrollView>
   );
 }
