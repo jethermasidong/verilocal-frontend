@@ -52,7 +52,7 @@ export default function ProductScanner() {
             let res;
             try {
               res = await axios.post(
-                "http://localhost:3000/api/products/verify",
+                "https://backend1-al4l.onrender.com/api/products/verify",
                 { product_id, blockchain_hash }
               );
               setProduct(res.data);
@@ -68,7 +68,7 @@ export default function ProductScanner() {
             if (res.data.verified) {
               try {
                 const allRes = await axios.get(
-                  "http://localhost:3000/api/products"
+                  "https://backend1-al4l.onrender.com/api/products"
                 );
                 const matched = allRes.data.find((p) => p.id === product_id);
                 if (matched) {
@@ -76,7 +76,7 @@ export default function ProductScanner() {
                   if (matched.business_id) {
                     try {
                       const businessRes = await axios.get(
-                        `http://localhost:3000/api/business/${matched.business_id}`
+                        `https://backend1-al4l.onrender.com/api/business/${matched.business_id}`
                       );
                       setBusinessName(businessRes.data.registered_business_name);
                     } catch (err) {

@@ -30,27 +30,11 @@ export default function BusinessDashboard() {
   const [isTallImage, setIsTallImage] = useState(false);
 
   useEffect(() => {
-    const fetchBusinessProfile = async () => {
-      try {
-        const token = await AsyncStorage.getItem("token");
-        const businessId = await AsyncStorage.getItem("business_id");
-        const res = await axios.get(
-          `http://localhost:3000/api/business/profile/${business_id}`,
-          { headers: {Authorization: `Bearer ${token}`}}
-        );
-        setBusiness(res.data);
-      } catch (err) {
-        console.lob("Error loading business profile:", err);
-      }
-    }
-  })
-
-  useEffect(() => {
     const fetchProducts = async () => {
       try {
         const token = await AsyncStorage.getItem("token");
         const res = await axios.get(
-          "http://localhost:3000/api/products/my-products",
+          "https://backend1-al4l.onrender.com/api/products/my-products",
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setProducts(res.data);

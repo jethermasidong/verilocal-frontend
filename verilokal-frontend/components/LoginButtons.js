@@ -27,7 +27,7 @@ export default function LoginButtons() {
     >
       {/* Continue as Buyer */}
       <TouchableOpacity
-        onPress={() => router.push("/buyer/qrScanner")}
+        onPress={() => router.push("/buyer/qrscanner")}
         style={{
           backgroundColor: "#FFFFFF",
           paddingVertical: 12,

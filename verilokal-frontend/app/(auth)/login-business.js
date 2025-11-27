@@ -4,7 +4,7 @@ import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
 import qs from "qs";
 import { useEffect, useState } from "react";
-import { Dimensions, Image, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, Dimensions, Image, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export default function BusinessLogin() {
   const router = useRouter();
@@ -18,16 +18,14 @@ export default function BusinessLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({}); 
-
   const [isMobile, setIsMobile] = useState(false);
-    
-    useEffect(() => {
-      const handleResize = () => setIsMobile(Dimensions.get("window").width < 600);
-      handleResize();
-      Dimensions.addEventListener("change", handleResize);
-      return () => Dimensions.removeEventListener("change", handleResize);
-    }, []);
 
+  useEffect(() => {
+    const handleResize = () => setIsMobile(Dimensions.get("window").width < 600);
+    handleResize();
+    Dimensions.addEventListener("change", handleResize);
+    return () => Dimensions.removeEventListener("change", handleResize);
+  }, []);
 
   const handleBusinessLogin = async () => {
     const newErrors = {};
@@ -38,17 +36,39 @@ export default function BusinessLogin() {
     if (Object.keys(newErrors).length > 0) return;
 
     try {
+      // ---------- ADMIN LOGIN ----------
+      const adminRes = await axios.post(
+        "https://backend1-al4l.onrender.com/api/admin/login",
+        qs.stringify({ email, password }),
+        { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+      );
+
+      if (adminRes.data.admin) {
+        await AsyncStorage.setItem("token", adminRes.data.token);
+        Alert.alert("Success", "Admin login successful!");
+        router.replace("/admin"); // redirect to admin dashboard
+        return;
+      }
+    } catch (adminErr) {
+      // Admin login failed, continue to business login
+    }
+
+    try {
+      // ---------- BUSINESS LOGIN ----------
       const response = await axios.post(
-        "http://localhost:3000/api/login",
+        "https://backend1-al4l.onrender.com/api/login",
         qs.stringify({ email, password }),
         { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
       );
 
       await AsyncStorage.setItem("token", response.data.token);
-      router.replace("/business");
+      Alert.alert("Success", "Business login successful!");
+      router.replace("/business"); // redirect to business dashboard
     } catch (error) {
       if (error.response?.status === 404) {
         setErrors({ email: " ", password: "Incorrect Username or Password" });
+      } else if (error.response?.status === 403) {
+        setErrors({ email: " ", password: "Business not verified yet!" });
       } else {
         setErrors({ email: "Invalid Login", password: "Invalid Login" });
       }
@@ -80,9 +100,9 @@ export default function BusinessLogin() {
         }}
       >
         {/* Left: Logo + Welcome Text */}
-        <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 20, }}>
+        <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 20 }}>
           <View
-            style={[{
+            style={{
               backgroundColor: "#fff",
               borderRadius: 20,
               paddingVertical: 20,
@@ -95,10 +115,10 @@ export default function BusinessLogin() {
               shadowOpacity: 0.05,
               shadowRadius: 5,
               elevation: 3,
-            }]}
+            }}
           >
             <Image source={require("../../assets/images/verilokal_logo.png")} style={{ width: isMobile ? 80: 120, height:isMobile ? 100 : 150, marginBottom: 20 }} />
-            <Text style={[{ fontSize:isMobile ? 22: 28, fontWeight: "570", color: "#000", textAlign: "center", fontFamily: "Montserrat-Regular" }]}>
+            <Text style={{ fontSize:isMobile ? 22: 28, fontWeight: "570", color: "#000", textAlign: "center", fontFamily: "Montserrat-Regular" }}>
               Welcome{"\n"}to{"\n"}
               <Text style={{ color: "#b04224", fontWeight: "800", fontFamily: "Montserrat-Bold" }}>VeriLocal</Text>
             </Text>
@@ -107,7 +127,7 @@ export default function BusinessLogin() {
 
         {/* Right: Login Form */}
         <View style={{ flex: 1, padding: 20, justifyContent: "center", marginLeft: isMobile ? -25: 0 }}>
-          <Text style={{ fontSize: 22, fontWeight: "700", fontFamily: "Montserrat-Bold", color: "#000", marginBottom: isMobile ? 10: 20, }}>Login</Text>
+          <Text style={{ fontSize: 22, fontWeight: "700", fontFamily: "Montserrat-Bold", color: "#000", marginBottom: isMobile ? 10: 20 }}>Login</Text>
 
           {/* Email */}
           <Text style={{ fontSize: 10, marginBottom: 5, fontFamily: "Montserrat-Regular" }}>Email*</Text>
@@ -162,9 +182,9 @@ export default function BusinessLogin() {
               alignSelf: "center",
               height: 35,
             }}
-            onPress={handleBusinessLogin}
+            onPress={handleBusinessLogin} // <-- handles both admin & business login
           >
-            <Text style={{ color: "#fff", fontWeight: "600", fontSize: isMobile ? 13: 16,top: isMobile ? 0: -6 }}>Login</Text>
+            <Text style={{ color: "#fff", fontWeight: "600", fontSize: isMobile ? 13: 16, top: isMobile ? 0: -6 }}>Login</Text>
           </TouchableOpacity>
 
           {/* Sign Up Text */}

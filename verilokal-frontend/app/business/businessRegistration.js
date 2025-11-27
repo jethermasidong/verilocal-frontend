@@ -124,12 +124,12 @@ export default function RegisterProduct() {
       appendFile("certificates", certificates);
       appendFile("logo", logo);
 
-      const response = await axios.post("http://localhost:3000/api/business", formData, {
+      const response = await axios.post("https://backend1-al4l.onrender.com/api/business", formData, {
         headers: { "Content-Type": "multipart/form-data", Authorization: `Bearer ${token}` },
       });
 
       Alert.alert("Success", "Business registered successfully!");
-      setStatusMessage("✅ Business Registered Successfully!");
+      setStatusMessage("✅ Business Submitted, Wait for the confirmation on your email account!");
       setStatusType("success");
       setOwnerName(""); setAddress(""); setRegisteredBusinessName("");
       setDescription(""); setProductImage(null); setCertificates(null); setBusinessLogo(null);
