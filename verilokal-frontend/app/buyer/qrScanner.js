@@ -52,7 +52,7 @@ export default function ProductScanner() {
             let res;
             try {
               res = await axios.post(
-                "https://backend1-al4l.onrender.com/api/products/verify",
+                "http://localhost:3000/api/products/verify",
                 { product_id, blockchain_hash }
               );
               setProduct(res.data);
@@ -68,7 +68,7 @@ export default function ProductScanner() {
             if (res.data.verified) {
               try {
                 const allRes = await axios.get(
-                  "https://backend1-al4l.onrender.com/api/products"
+                  "http://localhost:3000/api/products"
                 );
                 const matched = allRes.data.find((p) => p.id === product_id);
                 if (matched) {
@@ -76,7 +76,7 @@ export default function ProductScanner() {
                   if (matched.business_id) {
                     try {
                       const businessRes = await axios.get(
-                        `https://backend1-al4l.onrender.com/api/business/${matched.business_id}`
+                        `http://localhost:3000/api/business/${matched.business_id}`
                       );
                       setBusinessName(businessRes.data.registered_business_name);
                     } catch (err) {
@@ -167,8 +167,8 @@ export default function ProductScanner() {
         <View
           id="qr-reader"
           style={{
-            width: 300, // Increased from 250 to 300
-            height: 300, // Increased from 250 to 300
+            width: isMobile ? 300: 400, // Increased from 250 to 300
+            height: isMobile ? 300: 400, // Increased from 250 to 300
             borderWidth: 2,
             borderColor: "#000",
             borderRadius: 16,
@@ -189,8 +189,8 @@ export default function ProductScanner() {
         {/* Instructions Box */}
         <View
           style={{
-            width: 300, // Increased from 250 to 300
-            height: 300, // Increased from 250 to 300
+            width: isMobile ? 300: 400, // Increased from 250 to 300
+            height: isMobile ? 300: 400, // Increased from 250 to 300
             borderWidth: 2,
             borderColor: "#000",
             borderRadius: 16,
@@ -199,7 +199,7 @@ export default function ProductScanner() {
             shadowOpacity: 0.1,
             shadowRadius: 4,
             elevation: 3,
-            padding: 20,
+            padding: isMobile ? 10  : 40,
           }}
         >
           <Text

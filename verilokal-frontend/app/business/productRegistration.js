@@ -148,7 +148,7 @@ export default function RegisterProduct() {
         });
       }
 
-      await axios.post("https://backend1-al4l.onrender.com/api/products", formData, {
+      await axios.post("http://localhost:3000/api/products", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,

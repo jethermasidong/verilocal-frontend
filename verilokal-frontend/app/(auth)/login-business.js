@@ -39,7 +39,7 @@ export default function BusinessLogin() {
 
     try {
       const response = await axios.post(
-        "https://backend1-al4l.onrender.com/api/login",
+        "http://localhost:3000/api/login",
         qs.stringify({ email, password }),
         { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
       );

@@ -124,7 +124,7 @@ export default function RegisterProduct() {
       appendFile("certificates", certificates);
       appendFile("logo", logo);
 
-      const response = await axios.post("https://backend1-al4l.onrender.com/api/business", formData, {
+      const response = await axios.post("http://localhost:3000/api/business", formData, {
         headers: { "Content-Type": "multipart/form-data", Authorization: `Bearer ${token}` },
       });
 
@@ -232,7 +232,7 @@ export default function RegisterProduct() {
         </View>
 
         {/* RIGHT COLUMN */}
-        <View style={{ flex: 1, top: isMobile ? -175 : 0 }}>
+        <View style={{ flex: 1, top: isMobile ? -250 : 0 }}>
           {/** Description */}
           <Text style={styles.label}>DESCRIPTION*</Text>
           <TextInput
@@ -324,7 +324,7 @@ const styles = StyleSheet.create({
   checkmark: { color: "#fff", fontWeight: "bold" },
   submitButton: (isMobile) => ({ backgroundColor: "#e98669", paddingVertical: 14, borderRadius: 20, alignSelf: "center", width: 160, marginTop: 10 }),
   submitText: { color: "#000", fontWeight: "700", fontFamily: "Montserrat-Regular", textAlign: "center", letterSpacing: 1 },
-  statusMessage: (isMobile) => ({ padding: 10, borderRadius: 8, textAlign: "center", fontWeight: "600", marginTop: isMobile ? -160 : 20 }),
+  statusMessage: (isMobile) => ({ padding: 10, borderRadius: 8, textAlign: "center", fontWeight: "600", marginTop: isMobile ? -235 : 20 }),
   successMessage: { backgroundColor: "#d4edda", color: "#155724", fontFamily: "Montserrat-Regular" },
   errorMessage: { backgroundColor: "#f8d7da", color: "#721c24", fontFamily: "Montserrat-Regular" },
   passwordWrapper: { position: "relative", width: "100%", justifyContent: "center" },
