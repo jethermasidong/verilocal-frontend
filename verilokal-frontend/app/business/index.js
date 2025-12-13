@@ -136,7 +136,20 @@ export default function BusinessDashboard() {
       contentContainerStyle={{ alignItems: "center", paddingVertical: 40, paddingHorizontal: 20 }}
     >
       {/* Welcome Section */}
-      <View style={{ width: "100%", maxWidth: 900, marginBottom: 10 }}>
+      <View style={{ 
+        width: "100%", 
+        maxWidth: 900, 
+        marginBottom: 10,
+        backgroundColor: "#fffff",
+        borderWidth: 2, 
+        borderColor: "#000",
+        borderRadius: 20,
+        paddingVertical: 20, 
+        paddingHorizontal: 25,
+        shadowColor: "#000",
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        elevation: 4,}}>
         <Text
           style={{
             fontSize: isMobile ? 22 : 32,
@@ -149,11 +162,11 @@ export default function BusinessDashboard() {
         </Text>
         <Text
           style={{
-            fontSize: 20,
+            fontSize: isMobile ? 20 : 28,
             fontFamily: "Montserrat-Black",
             color: "#4A70A9",
             textAlign: isMobile ? "center" : "left",
-            marginTop: 4,
+            marginTop: 5,
           }}
         >
           {businessname || ""}
@@ -165,28 +178,49 @@ export default function BusinessDashboard() {
         style={{
           width: "100%",
           maxWidth: 900,
-          flexDirection: "column",
-          alignItems: "stretch",
-          gap: 12,
-          marginBottom: 30,
+          backgroundColor: "#fff",
+          borderWidth: 2,
+          borderColor: "#000",
+          borderRadius: 20,
+          paddingVertical: 15,
+          paddingHorizontal: 20,
+          shadowColor: "#000",
+          shadowOpacity: 0.1,
+          shadowRadius: 5,
+          elevation: 4,
+          marginBottom: 20,
+          gap: 10,
         }}
       >
         <Text
           style={{
-            fontSize: isMobile ? 22 : 26,
+            fontSize: isMobile ? 18 : 28,
             fontFamily: "Garet-Heavy",
             color: "#000",
+            letterSpacing: 1,
             textAlign: isMobile ? "center" : "left",
           }}
         >
           Business Dashboard
         </Text>
-
+      </View>
+        <View
+          style={{
+            width: "100%",
+            flexDirection: isMobile ? "column" : "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 10,
+            maxWidth: 900,
+            alignSelf: "center",
+            marginBottom: 15,
+          }}
+        >
         <TextInput
           placeholder="Search products..."
           placeholderTextColor="#999"
           style={{
-            width: "100%",
+            width: isMobile ? "100%" : "70%",
             paddingVertical: 12,
             paddingHorizontal: 18,
             borderWidth: 2,
@@ -203,7 +237,7 @@ export default function BusinessDashboard() {
 
         <Pressable
           style={{
-            width: "100%",
+            width: isMobile ? "100%" : "30%",
             backgroundColor: "#4A70A9",
             paddingVertical: 14,
             borderRadius: 999,
@@ -212,7 +246,10 @@ export default function BusinessDashboard() {
             shadowColor: "#000",
             shadowOpacity: 0.1,
             shadowRadius: 3,
+            borderColor: "#000",
+            borderWidth: 2,
             elevation: 3,
+            borderRadius: 20,
           }}
           onPress={() => router.push("/business/productRegistration")}
         >
@@ -221,10 +258,10 @@ export default function BusinessDashboard() {
               color: "#fff",
               fontFamily: "Montserrat-Bold",
               fontSize: 14,
-              letterSpacing: 0.5,
+              letterSpacing: 0.5
             }}
           >
-            + Register Product
+            + Register
           </Text>
         </Pressable>
       </View>

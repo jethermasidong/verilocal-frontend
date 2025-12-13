@@ -352,6 +352,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginBottom: 20,
     textAlign: "center",
+    fontFamily: "Montserrat-Bold",
   },
   row: {
     flexDirection: "row",

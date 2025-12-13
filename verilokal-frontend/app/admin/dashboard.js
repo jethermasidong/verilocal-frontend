@@ -108,7 +108,7 @@ export default function AdminDashboard() {
                 textAlign: "center",
               }}
             >
-              Product Image
+              Business Permit
             </Text>
 
             <Text
