@@ -50,7 +50,7 @@ export default function ProductScanner() {
     setProductDetails(null);
     setIsScanning(true);
 
-  //QR CODE FUNCTION
+  //QR CODE FUNCTIONS
     try {
       const { Html5Qrcode } = await import("html5-qrcode");
       const qrCodeScanner = new Html5Qrcode("qr-reader");
@@ -58,7 +58,7 @@ export default function ProductScanner() {
 
       await qrCodeScanner.start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 300, height: 300 } }, //
+        { fps: 10, qrbox: { width: 300, height: 300 } }, 
         async (decodedText) => {
           try {
             setQrData(decodedText);
