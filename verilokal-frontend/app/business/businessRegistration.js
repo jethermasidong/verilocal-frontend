@@ -1,10 +1,14 @@
+import { faFileUpload } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useFonts } from "expo-font";
 import * as ImagePicker from "expo-image-picker";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
+  Animated,
   Dimensions,
   Image,
   Platform,
@@ -13,7 +17,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  View,
+  View
 } from "react-native";
 
 export default function RegisterBusiness() {
@@ -27,12 +31,38 @@ export default function RegisterBusiness() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [contact_no, setContactNo] = useState("");
+  const [social_link, setSocialLink] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
   const [statusType, setStatusType] = useState("");
   const [errors, setErrors] = useState({});
   const [isMobile, setIsMobile] = useState(false);
   const [consent, setConsent] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [showConsentModal, setShowConsentModal] = useState(false);
+  const [submitting, setIsSubmitting] = useState(false);
+  
+  const loadGooglePlaces = () =>
+  new Promise((resolve, reject) => {
+    if (
+      window.google?.maps?.places ||
+      document.querySelector('script[src*="maps.googleapis.com/maps/api/js"]')
+    ) {
+      resolve();
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src =
+      "https://maps.googleapis.com/maps/api/js?key=AIzaSyA493-QTAo8nnU_qzSNEXhc5sQDINRz2TU&libraries=places";
+    script.async = true;
+    script.defer = true;
+    script.onload = resolve;
+    script.onerror = reject;
+
+    document.head.appendChild(script);
+  });
+  const addressInputRef = useRef(null);
+  const autocompleteRef = useRef(null); 
 
   const pickImage = async (setter) => {
     try {
@@ -99,34 +129,26 @@ export default function RegisterBusiness() {
     const e = validate();
     if (Object.keys(e).length > 0) {
       setErrors(e);
+      Alert.alert("Incomplete Form", "Please fill all required fields.");
+      setIsSubmitting(false);
       return;
     }
     setShowConsentModal(true);
   };
 
  
-  const handleConfirmConsent = () => {
+  const handleConfirmConsent = async () => {
     setConsent(true);
     setShowConsentModal(false);
-    handleSubmit();
+    await handleSubmit();
   };
 
   const handleSubmit = async () => {
-    const e = validate();
-    if (Object.keys(e).length > 0) {
-      setErrors(e);
-      return;
-    }
-
-    if (!consent) {
-      Alert.alert("Consent Required", "You must agree to proceed.");
-      return;
-    }
-
     try {
+      setIsLoading(true);
+
       const token = await AsyncStorage.getItem("token");
-      setStatusMessage("Registering business......");
-      setStatusType("success");
+
       const formData = new FormData();
       formData.append("name", name);
       formData.append("registered_business_name", business_name);
@@ -134,6 +156,7 @@ export default function RegisterBusiness() {
       formData.append("password", password);
       formData.append("address", address);
       formData.append("contact_no", contact_no);
+      formData.append("social_link", social_link);
       formData.append("description", description);
 
       const appendFile = (key, file) => {
@@ -146,7 +169,7 @@ export default function RegisterBusiness() {
       appendFile("certificates", certificates);
       appendFile("logo", logo);
 
-      await axios.post("https://backend1-al4l.onrender.com/api/business", formData, {
+      await axios.post("http://localhost:3000/api/business", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
@@ -158,22 +181,80 @@ export default function RegisterBusiness() {
       setStatusType("success");
       setName(""); setBusinessName(""); setAddress(""); setDescription("");
       setProductImage(null); setCertificates(null); setLogo(null);
-      setEmail(""); setPassword(""); setContactNo(""); setErrors({}); setConsent(false);
+      setEmail(""); setPassword(""); setContactNo(""); setSocialLink(""); setErrors({}); setConsent(false);
 
-    } catch {
+    } catch (error){
       Alert.alert("Error", "Submission failed.");
       setStatusMessage("Failed to register business!");
       setStatusType(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(20)).current; 
+  
   const [fontsLoaded] = useFonts({
     "Montserrat-Regular": require("../../assets/fonts/Montserrat/static/Montserrat-Regular.ttf"),
+    "Montserrat-Bold": require("../../assets/fonts/Montserrat/static/Montserrat-Bold.ttf"),
   });
+  
   if (!fontsLoaded) return null;
 
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+
+    let listener;
+
+    loadGooglePlaces().then(() => {
+      if (!addressInputRef.current) return;
+
+      autocompleteRef.current =
+        new window.google.maps.places.Autocomplete(
+          addressInputRef.current,
+          {
+            types: ["address"],
+            componentRestrictions: { country: "ph" },
+          }
+        );
+
+      listener = autocompleteRef.current.addListener("place_changed", () => {
+        const place = autocompleteRef.current.getPlace();
+        if (!place?.formatted_address) return;
+        setAddress(place.formatted_address);
+      });
+    });
+
+    return () => {
+      if (listener) listener.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }, []);
+
   return (
+    <Animated.View style = 
+      {{ 
+        opacity: fadeAnim,
+        flex: 1,
+        transform: [{ translateY: slideAnim }],
+      }}>
     <ScrollView
+      keyboardShouldPersistTaps="handled"
       style={{ flex: 1, backgroundColor: "#f6f7fb" }}
       contentContainerStyle={{ alignItems: "center", paddingVertical: 20 }}
     >
@@ -189,13 +270,15 @@ export default function RegisterBusiness() {
 
         {/* RIGHT FORM */}
         <View style={[styles.rightPanel, isMobile && { width: "100%" }]}>
-          <Text style={styles.title}>Register Business</Text>
+          <Text style={styles.title}>Business Registration</Text>
+          <Text style={styles.subtitle}>Register your business to be part of our community</Text>
           <View style={[styles.row, isMobile && { flexDirection: "column" }]}>
             <View style={[styles.col, isMobile && { minWidth: "100%"}]}>
               <Text style={styles.label}>Owner Name*</Text>
               <TextInput
                 style={[styles.input, errors.name && styles.inputError]}
                 value={name}
+                placeholder='Enter owner full name'
                 onChangeText={setName}
               />
               {errors.name && <Text style={styles.error}>{errors.name}</Text>}
@@ -204,74 +287,109 @@ export default function RegisterBusiness() {
               <TextInput
                 style={[styles.input, errors.business_name && styles.inputError]}
                 value={business_name}
+                placeholder='Enter your registered business name'
                 onChangeText={setBusinessName}
               />
               {errors.business_name && <Text style={styles.error}>{errors.business_name}</Text>}
 
-              <Text style={styles.label}>Email*</Text>
+              <Text style={styles.label}>Address*</Text>
+                <View style={{ position: "relative", zIndex: 9999 }}>
+                  {Platform.OS === "web" ? (
+                    <TextInput
+                      style={[ styles.input, errors.address && styles.inputError ]}
+                      ref={addressInputRef}
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder="Enter your complete business address"
+                      className="web-address-input"
+                      autoComplete="off"
+                    />
+                  ) : (
+                    <TextInput
+                      style={[styles.input]}
+                      value={address}
+                      onChangeText={setAddress}
+                    />
+                  )}
+                  {errors.address && <Text style={styles.error}>{errors.address}</Text>}
+                </View>
+              </View>
+            <View style={[styles.col, isMobile && { minWidth: "100%"}]}>
+              <Text style={[styles.label,isMobile && { marginTop: -10}]}>Email*</Text>
               <TextInput
                 style={[styles.input, errors.email && styles.inputError]}
                 value={email}
+                placeholder='Enter your professional email address'
                 onChangeText={setEmail}
                 keyboardType="email-address"
               />
               {errors.email && <Text style={styles.error}>{errors.email}</Text>}
-            </View>
-
-            <View style={[styles.col, isMobile && { minWidth: "100%"}]}>
-              <Text style={styles.label}>Address*</Text>
-              <TextInput
-                style={[styles.input, errors.address && styles.inputError]}
-                value={address}
-                onChangeText={setAddress}
-              />
-              {errors.address && <Text style={styles.error}>{errors.address}</Text>}
-
-              <Text style={styles.label}>Contact Number*</Text>
-              <TextInput
-                style={[styles.input, errors.contact_no && styles.inputError]}
-                value={contact_no}
-                keyboardType="numeric"
-                maxLength={11}
-                onChangeText={(t) => setContactNo(t.replace(/[^0-9]/g, ""))}
-              />
-              {errors.contact_no && <Text style={styles.error}>{errors.contact_no}</Text>}
 
               <Text style={styles.label}>Password*</Text>
               <TextInput
                 secureTextEntry
                 style={[styles.input, errors.password && styles.inputError]}
                 value={password}
+                placeholder='Enter your strong password'
                 onChangeText={setPassword}
               />
               {errors.password && <Text style={styles.error}>{errors.password}</Text>}
+
+              <Text style={styles.label}>Contact Number*</Text>
+              <TextInput
+                style={[styles.input, errors.contact_no && styles.inputError]}
+                value={contact_no}
+                keyboardType="numeric"
+                placeholder='Enter your mobile or landline number'
+                maxLength={11}
+                onChangeText={(t) => setContactNo(t.replace(/[^0-9]/g, ""))}
+              />
+              {errors.contact_no && <Text style={styles.error}>{errors.contact_no}</Text>}
+            </View>
+
+            <View style={[styles.col, isMobile && { minWidth: "100%"}]}>
+            {/* pachange na lang ng error message sa social links */}
+              <Text style={[styles.label,isMobile && { marginTop: -22}]}>Social Link*</Text>
+              <TextInput
+                style={[styles.input, errors.social_link && styles.inputError]}
+                value={social_link}
+                placeholder='Paste your Facebook, Instagram, or LinkedIn profile URL'
+                onChangeText={setSocialLink}
+                keyboardType="social_link"
+              />
+              {errors.social_link && <Text style={styles.error}>{errors.social_link}</Text>}
+
+              <Text style={styles.label}>Description*</Text>
+              <TextInput
+                multiline
+                style={[styles.textArea, errors.description && styles.inputError]}
+                value={description}
+                placeholder='Tell us a little bit about what your business does...'
+                onChangeText={setDescription}
+              />
+              {errors.description && <Text style={styles.error}>{errors.description}</Text>}
             </View>
           </View>
 
-          <Text style={styles.label}>Description*</Text>
-          <TextInput
-            multiline
-            style={[styles.textArea, errors.description && styles.inputError]}
-            value={description}
-            onChangeText={setDescription}
-          />
-          {errors.description && <Text style={styles.error}>{errors.description}</Text>}
 
+          <Text style={styles.label}>Certificate* (DENR, DTI, BIR) </Text>
           <Pressable style={styles.upload} onPress={() => pickImage(setProductImage)}>
-            <Text>{product_img ? product_img.name : "Upload Certificate*"}</Text>
+            <Text>{product_img ? product_img.name : <FontAwesomeIcon icon={faFileUpload} size="2x" />}</Text>
           </Pressable>
           {errors.product_img && <Text style={styles.error}>{errors.product_img}</Text>}
-
+          
+          <Text style={styles.label}>Business Permit* (Mayor's Permit)</Text>
           <Pressable style={styles.upload} onPress={() => pickImage(setCertificates)}>
-            <Text>{certificates ? certificates.name : "Upload Business Permit*"}</Text>
+            <Text>{certificates ? certificates.name : <FontAwesomeIcon icon={faFileUpload} size="2x" />}</Text>
           </Pressable>
           {errors.certificates && <Text style={styles.error}>{errors.certificates}</Text>}
 
+          <Text style={styles.label}>Business Logo (Optional)</Text>
           <Pressable style={styles.upload} onPress={() => pickImage(setLogo)}>
-            <Text>{logo ? logo.name : "Upload Business Logo"}</Text>
+            <Text>{logo ? logo.name : <FontAwesomeIcon icon={faFileUpload} size="2x" />}</Text>
           </Pressable>
 
-          <Pressable style={styles.submitBtn} onPress={handleRegisterClick}>
+          <Pressable style={[styles.submitBtn, isMobile && { minWidth: "100%"}]} onPress={handleRegisterClick}>
             <Text style={styles.submitText}>Submit</Text>
           </Pressable>
 
@@ -313,15 +431,43 @@ export default function RegisterBusiness() {
           </View>
         </View>
       )}
+      {isLoading && (
+        <View
+          style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0,0,0,0.4)",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 9999,
+        }}
+      >
+        <View
+          style={{
+          backgroundColor: "#fff",
+          padding: 20,
+          borderRadius: 12,
+          alignItems: "center",
+        }}
+      >
+        <ActivityIndicator size="large" color="#5177b0" />
+        <Text style={{ marginTop: 10 }}>Submitting Business.....</Text>
+      </View>
+    </View>
+  )}
     </ScrollView>
+  </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    width: "85%",
-    maxWidth: 1100,
-    minHeight: 400,
+    width: "100%",
+    maxWidth: 1500,
+    minHeight: 600,
     backgroundColor: "#fff",
     borderRadius: 20,
     overflow: "hidden",
@@ -329,7 +475,7 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   leftPanel: {
-    width: "40%",
+    width: "30%",
     justifyContent: "center",
     alignItems: "center",
     padding: 0,
@@ -348,11 +494,18 @@ const styles = StyleSheet.create({
   successMessage: { backgroundColor: "#d4edda", color: "#155724", fontFamily: "Montserrat-Regular" },
   errorMessage: { backgroundColor: "#f8d7da", color: "#721c24", fontFamily: "Montserrat-Regular" },
   title: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: "700",
-    marginBottom: 20,
-    textAlign: "center",
+    marginBottom: 2,
+    textAlign: "left",
     fontFamily: "Montserrat-Bold",
+  },
+  subtitle: {
+    fontSize: 16,
+    fontWeight: "500",
+    marginBottom: 14,
+    textAlign: "left",
+    fontFamily: "Montserrat-Regular",
   },
   row: {
     flexDirection: "row",
@@ -361,11 +514,13 @@ const styles = StyleSheet.create({
   col: {
     flex: 1,
     minWidth: 280,
+
     width: "100%",
   },
   label: {
     fontWeight: "600",
-    marginBottom: 6,
+    marginTop: 0,
+    marginBottom: 4,
   },
   input: {
     width: "100%",
@@ -382,7 +537,7 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderRadius: 12,
     padding: 16,
-    height: 100,
+    height: 125,
     textAlignVertical: "top",
     marginBottom: 4,
   },
@@ -398,9 +553,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderStyle: "dashed",
     borderColor: "#aaa",
-    padding: 14,
+    padding: 35,
     borderRadius: 12,
-    marginTop: 10,
+    marginTop: 6,
     alignItems: "center",
   },
   submitBtn: {
@@ -415,4 +570,5 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "600",
   },
+
 });

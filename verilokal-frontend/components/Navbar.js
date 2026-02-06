@@ -18,8 +18,9 @@ export default function Navbar() {
 
   const links = [
     { name: "HOME", route: "/" },
-    { name: "ABOUT", route: "/about" },
+    { name: "ABOUT", route: "/aboutme" },
     { name: "CONTACT", route: "/contact" },
+    { name: "JOIN US", route: "/login-business"},
   ];
 
   useEffect(() => {
@@ -114,16 +115,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#ffffff",
     paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingVertical: 19,
     position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     zIndex: 1000,
     borderBottomWidth: 1,
-    borderBottomColor: "#eaeaea",
+    borderBottomColor: "#ffffff",
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -139,8 +140,11 @@ const styles = StyleSheet.create({
   },
   navText: {
     fontSize: 14,
-    color: "#000",
+    color: "#000000",
     fontFamily: "Montserrat-Regular",
+
+    justifyContent: "center",
+
   },
   activeNavText: {
     color: "#5177b0",

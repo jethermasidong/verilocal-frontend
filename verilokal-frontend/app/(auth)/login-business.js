@@ -3,9 +3,10 @@ import axios from "axios";
 import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
 import qs from "qs";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-  Alert,
+  ActivityIndicator, Alert,
+  Animated,
   Dimensions,
   Image,
   ScrollView,
@@ -17,6 +18,7 @@ import {
 
 export default function BusinessLogin() {
   const router = useRouter();
+
   const [fontsLoaded] = useFonts({
     "Garet-Book": require("../../assets/fonts/garet/Garet-Book.ttf"),
     "Garet-Heavy": require("../../assets/fonts/garet/Garet-Heavy.ttf"),
@@ -28,9 +30,15 @@ export default function BusinessLogin() {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
   const [isMobile, setIsMobile] = useState(false);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(20)).current;
+  const [isLoading, setIsLoading] = useState(false);
+
+
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(Dimensions.get("window").width < 600);
+    const handleResize = () =>
+      setIsMobile(Dimensions.get("window").width < 600);
     handleResize();
     Dimensions.addEventListener("change", handleResize);
     return () => Dimensions.removeEventListener("change", handleResize);
@@ -43,6 +51,8 @@ export default function BusinessLogin() {
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
 
+    setIsLoading(true);
+
     const ADMIN_EMAIL = "admin@verilokal.com";
     const ADMIN_PASSWORD = "verilokal@2025";
 
@@ -50,12 +60,12 @@ export default function BusinessLogin() {
       await AsyncStorage.setItem("isAdmin", "true");
       Alert.alert("Success", "Admin login successful!");
       router.replace("/admin/dashboard");
-      return; 
+      return;
     }
-///"https://backend1-al4l.onrender.com
+
     try {
       const response = await axios.post(
-        "https://backend1-al4l.onrender.com/api/login",
+        "http://localhost:3000/api/login",
         qs.stringify({ email, password }),
         { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
       );
@@ -64,10 +74,13 @@ export default function BusinessLogin() {
       await AsyncStorage.setItem("token", token);
       await AsyncStorage.setItem("business_id", business.id.toString());
       await AsyncStorage.setItem("name", business.name);
-      await AsyncStorage.setItem("registered_business_name", business.registered_business_name);
+      await AsyncStorage.setItem(
+        "registered_business_name",
+        business.registered_business_name
+      );
+
       Alert.alert("Success", "Business login successful!");
       router.replace("/business");
-
     } catch (error) {
       if (error.response?.status === 404) {
         setErrors({ email: " ", password: "Incorrect Username or Password" });
@@ -76,175 +89,224 @@ export default function BusinessLogin() {
       } else {
         setErrors({ email: "Invalid Login", password: "Invalid Login" });
       }
+    } finally {
+      setIsLoading(false);
     }
   };
+  
 
-  if (!fontsLoaded) {
-    return (
-      <View>
-        <Text>Loading fonts...</Text>
-      </View>
-    );
-  }
-
+  useEffect(() => {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }, []);
+    
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: "#FFFFFF" }}
-      contentContainerStyle={{
-        justifyContent: "center",
-        alignItems: "center",
-        paddingVertical: isMobile ? 40 : 0,
-        minHeight: "100%",
-      }}
-      keyboardShouldPersistTaps="handled"
-      scrollEnabled={isMobile}
-    >
-      <View
+      <Animated.View
         style={{
-          flexDirection: isMobile ? "column" : "row",
-          backgroundColor: "#E3E3E3",
-          borderRadius: 20,
-          shadowColor: "#000",
-          shadowOpacity: 0.1,
-          shadowRadius: 10,
-          shadowOffset: { width: 0, height: 5 },
-          elevation: 6,
-          width: "100%",
-          maxWidth: 800,
+          flex: 1,
+          backgroundColor: "rgba(255,255,255,0.85)", 
+          opacity: fadeAnim,
+          transform: [{ translateY: slideAnim }],
         }}
       >
-        {/* Left Box */}
-        <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 20 }}>
+        <ScrollView
+          contentContainerStyle={{
+            justifyContent: "center",
+            alignItems: "center",
+            paddingVertical: isMobile ? 40 : 0,
+            minHeight: "100%",
+          }}
+          keyboardShouldPersistTaps="handled"
+          scrollEnabled={isMobile}
+        >
           <View
             style={{
-              backgroundColor: "#fff",
+              flexDirection: isMobile ? "column" : "row",
+              backgroundColor: "#E3E3E3",
               borderRadius: 20,
-              paddingVertical: 20,
-              paddingHorizontal: 20,
-              width: "100%",
-              minHeight: isMobile ? 280 : "100%",
-              justifyContent: "center",
-              alignItems: "center",
               shadowColor: "#000",
-              shadowOpacity: 0.05,
-              shadowRadius: 5,
-              elevation: 3,
+              shadowOpacity: 0.1,
+              shadowRadius: 10,
+              shadowOffset: { width: 0, height: 5 },
+              elevation: 6,
+              width: "100%",
+              maxWidth: 800,
             }}
           >
-            <Image
-              source={require("../../assets/images/login.png")}
+            {/* LEFT IMAGE */}
+            <View
               style={{
-                width: isMobile ? 220 : 350,
-                height: isMobile ? 220 : 350,
-                marginBottom: 20
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 20,
               }}
-              resizeMode="contain"
-            />
-          </View>
-        </View>
-
-        {/* Right Form */}
-        <View style={{ flex: 1, padding: 20, justifyContent: "center" }}>
-          <Text style={{
-            fontSize: 25,
-            fontWeight: "500",
-            fontFamily: "Montserrat-Bold",
-            color: "#000",
-            marginBottom: isMobile ? 10 : 20
-          }}>
-            LOGIN
-          </Text>
-
-          {/* Email */}
-          <Text style={{ fontSize: 12, marginBottom: 5, fontFamily: "Montserrat-Regular" }}>Email*</Text>
-          <TextInput
-            placeholder="Enter your email"
-            value={email}
-            onChangeText={(text) => {
-              setEmail(text);
-              setErrors(prev => ({ ...prev, email: null }));
-            }}
-            style={{
-              borderWidth: 1,
-              borderColor: errors.email ? "#ff4d4d" : "#000",
-              borderRadius: 10,
-              backgroundColor: "#ffffffff",
-              paddingVertical: isMobile ? 12 : 14,
-              paddingHorizontal: 15,
-              marginBottom: errors.email ? 4 : 15,
-              fontFamily: "Montserrat-Regular",
-              fontSize: isMobile ? 10 : 12,
-              height: 44
-            }}
-          />
-          {errors.email && <Text style={{ color: "#ff4d4d", fontSize: 12, marginBottom: 10 }}>{errors.email}</Text>}
-
-          {/* Password */}
-          <Text style={{ fontSize: 12, marginBottom: 5, fontFamily: "Montserrat-Regular" }}>Password*</Text>
-          <TextInput
-            placeholder="Enter your password"
-            secureTextEntry
-            value={password}
-            onChangeText={(text) => {
-              setPassword(text);
-              setErrors(prev => ({ ...prev, password: null }));
-            }}
-            style={{
-              borderWidth: 1,
-              borderColor: errors.password ? "#ff4d4d" : "#000",
-              borderRadius: 10,
-              backgroundColor: "#ffffffff",
-              paddingVertical: isMobile ? 12 : 14,
-              paddingHorizontal: 15,
-              marginBottom: errors.password ? 4 : 20,
-              fontFamily: "Montserrat-Regular",
-              fontSize: isMobile ? 10 : 12,
-              height: 44
-            }}
-          />
-          {errors.password && <Text style={{ color: "#ff4d4d", fontSize: 12, marginBottom: 10 }}>{errors.password}</Text>}
-
-          {/* Login Button */}
-          <TouchableOpacity
-            style={{
-              backgroundColor: "#4A70A9",
-              paddingVertical: 10,
-              borderRadius: 25,
-              alignItems: "center",
-              marginBottom: 20,
-              marginTop: 10,
-              width: "60%",
-              alignSelf: "center",
-              height: 44,
-              borderWidth: 1
-            }}
-            onPress={handleBusinessLogin}
-          >
-            <Text style={{
-              color: "#fff",
-              fontWeight: "600",
-              fontSize: isMobile ? 13 : 16
-            }}>
-              Login
-            </Text>
-          </TouchableOpacity>
-
-          {/* Sign Up */}
-          <Text style={{
-            textAlign: "center",
-            fontFamily: "Montserrat-Regular",
-            fontSize: isMobile ? 11 : 13
-          }}>
-            Don’t have an account?{" "}
-            <Text
-              style={{ color: "#4A70A9", fontFamily: "Montserrat-Bold" }}
-              onPress={() => router.push("/business/businessRegistration")}
             >
-              Sign up
-            </Text>
-          </Text>
-        </View>
-      </View>
-    </ScrollView>
+              <View
+                style={{
+                  borderRadius: 20,
+                  width: "100%",
+                  minHeight: isMobile ? 280 : "100%",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  shadowColor: "#000",
+                  shadowOpacity: 0.05,
+                  shadowRadius: 5,
+                  elevation: 3,
+                }}
+              >
+                <Image
+                  source={require("../../assets/images/login.png")}
+                  style={{
+                    width: isMobile ? 460 : 360,
+                    height: isMobile ? 290 : 380,
+                    borderRadius: 20,
+                  }}
+                  resizeMode="wrap"
+                />
+              </View>
+            </View>
+
+            {/* RIGHT FORM */}
+            <View style={{ flex: 1, padding: 20, justifyContent: "center" }}>
+              <Text
+                style={{
+                  fontSize: 25,
+                  fontFamily: "Montserrat-Bold",
+                  color: "#000",
+                  marginBottom: 20,
+                }}
+              >
+                LOGIN
+              </Text>
+
+              {/* EMAIL */}
+              <Text style={{ fontSize: 12, marginBottom: 5 }}>
+                Email*
+              </Text>
+              <TextInput
+                placeholder="Enter your email"
+                value={email}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  setErrors((prev) => ({ ...prev, email: null }));
+                }}
+                style={{
+                  borderWidth: 1,
+                  borderColor: errors.email ? "#ff4d4d" : "#000",
+                  borderRadius: 10,
+                  backgroundColor: "#fff",
+                  paddingHorizontal: 15,
+                  height: 44,
+                  marginBottom: 10,
+                }}
+              />
+              {errors.email && (
+                <Text style={{ color: "#ff4d4d", fontSize: 12 }}>
+                  {errors.email}
+                </Text>
+              )}
+
+              {/* PASSWORD */}
+              <Text style={{ fontSize: 12, marginBottom: 5 }}>
+                Password*
+              </Text>
+              <TextInput
+                placeholder="Enter your password"
+                secureTextEntry
+                value={password}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  setErrors((prev) => ({ ...prev, password: null }));
+                }}
+                style={{
+                  borderWidth: 1,
+                  borderColor: errors.password ? "#ff4d4d" : "#000",
+                  borderRadius: 10,
+                  backgroundColor: "#fff",
+                  paddingHorizontal: 15,
+                  height: 44,
+                  marginBottom: 15,
+                }}
+              />
+              {errors.password && (
+                <Text style={{ color: "#ff4d4d", fontSize: 12 }}>
+                  {errors.password}
+                </Text>
+              )}
+
+              {/* LOGIN BUTTON */}
+              <TouchableOpacity
+                onPress={handleBusinessLogin}
+                disabled={isLoading}
+                style={{
+                  backgroundColor: "#4A70A9",
+                  height: 44,
+                  borderRadius: 25,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginVertical: 15,
+                  width: "60%",
+                  alignSelf: "center",
+                }}
+              >
+                <Text style={{ color: "#fff", fontSize: 16 }}>
+                  Login
+                </Text>
+              </TouchableOpacity>
+
+              {/* SIGN UP */}
+              <Text style={{ textAlign: "center", fontSize: 13 }}>
+                Don’t have an account?{" "}
+                <Text
+                  style={{ color: "#4A70A9", fontWeight: "bold" }}
+                  onPress={() =>
+                    router.push("/business/businessRegistration")
+                  }
+                >
+                  Sign up
+                </Text>
+              </Text>
+            </View>
+          </View>
+          {isLoading && (
+            <View
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: "rgba(0,0,0,0.4)",
+                justifyContent: "center",
+                alignItems: "center",
+                zIndex: 9999,
+              }}
+            >
+              <View
+                style={{
+                  backgroundColor: "#fff",
+                  padding: 20,
+                  borderRadius: 12,
+                  alignItems: "center",
+                }}
+              >
+                <ActivityIndicator size="large" color="#5177b0" />
+                <Text style={{ marginTop: 10 }}>Logging in...</Text>
+              </View>
+            </View>
+          )}
+        </ScrollView>
+      </Animated.View>
   );
 }

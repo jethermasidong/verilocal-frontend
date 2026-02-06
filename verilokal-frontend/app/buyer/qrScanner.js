@@ -1,17 +1,35 @@
+import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import { useFonts } from "expo-font";
 import { useEffect, useRef, useState } from "react";
-import { Dimensions, Image, Modal, Pressable, ScrollView, Text, View } from "react-native";
-
+import { Animated, Dimensions, Image, Modal, Pressable, ScrollView, Text, View } from "react-native";
 export default function ProductScanner() {
   const [isScanning, setIsScanning] = useState(false);
   const [qrData, setQrData] = useState(null);
+
+  //MODAL
   const [product, setProduct] = useState(null);
   const [productDetails, setProductDetails] = useState(null);
   const [error, setError] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [registered_business_name, setBusinessName] = useState("");
 
+  //CAROUSEL
+  const ITEM_WIDTH = 350;
+  const scrollRef = useRef(null);
+  const isProgrammaticScroll = useRef(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const leftScale = useRef(new Animated.Value(1)).current;
+  const rightScale = useRef(new Animated.Value(1)).current;
+
+  //PROCESS IMAGES
+  const processImages = Array.isArray(productDetails?.process_images)
+    ? productDetails.process_images
+    : typeof productDetails?.process_images === "string"
+    ? JSON.parse(productDetails.process_images)
+    : [];
+
+  //MOBILE DIMENSION
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const handleResize = () => setIsMobile(Dimensions.get("window").width < 600);
@@ -20,8 +38,11 @@ export default function ProductScanner() {
     return () => Dimensions.removeEventListener("change", handleResize);
   }, []);
 
-  const Html5QrcodeRef = useRef(null);
+  //HOVER CLOSE BUTTON
+  const [hoverClose, setHoverClose] = useState(false);
 
+  //QRCODE SCANNER
+  const Html5QrcodeRef = useRef(null);
   const startScanner = async () => {
     setError(null);
     setProduct(null);
@@ -29,6 +50,7 @@ export default function ProductScanner() {
     setProductDetails(null);
     setIsScanning(true);
 
+  //QR CODE FUNCTION
     try {
       const { Html5Qrcode } = await import("html5-qrcode");
       const qrCodeScanner = new Html5Qrcode("qr-reader");
@@ -52,7 +74,7 @@ export default function ProductScanner() {
             let res;
             try {
               res = await axios.post(
-                "https://backend1-al4l.onrender.com/api/products/verify",
+                "http://localhost:3000/api/products/verify",
                 { product_id, blockchain_hash }
               );
               setProduct(res.data);
@@ -68,7 +90,7 @@ export default function ProductScanner() {
             if (res.data.verified) {
               try {
                 const allRes = await axios.get(
-                  "https://backend1-al4l.onrender.com/api/products"
+                  "http://localhost:3000/api/products"
                 );
                 const matched = allRes.data.find((p) => p.id === product_id);
                 if (matched) {
@@ -76,7 +98,7 @@ export default function ProductScanner() {
                   if (matched.business_id) {
                     try {
                       const businessRes = await axios.get(
-                        `https://backend1-al4l.onrender.com/api/business/${matched.business_id}`
+                        `http://localhost:3000/api/business/${matched.business_id}`
                       );
                       setBusinessName(businessRes.data.registered_business_name);
                     } catch (err) {
@@ -109,6 +131,11 @@ export default function ProductScanner() {
     }
   };
 
+  //PAGE ANIMATION
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(20)).current;
+
+  //FONTS
   const [fontsLoaded] = useFonts({
     "Garet-Book": require("../../assets/fonts/garet/Garet-Book.ttf"),
     "Garet-Heavy": require("../../assets/fonts/garet/Garet-Heavy.ttf"),
@@ -123,6 +150,7 @@ export default function ProductScanner() {
     );
   }
 
+  //RIGHTBOX 
   const instructions = [
     "Press START to activate the scanner.",
     "Allow camera permissions if prompted.",
@@ -132,7 +160,53 @@ export default function ProductScanner() {
     "If scanning fails, reposition the QR or adjust lighting.",
   ];
 
+
+  //PAGE ANIMATION
+  useEffect(() => {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }, []);
+
+    //PROCESS IMAGE LEFT AND RIGHT BUTTONS
+    const pressIn = (anim) => {
+      Animated.spring(anim, {
+        toValue: 0.92,
+        useNativeDriver: true,
+      }).start();
+    };
+  
+    const pressOut = (anim) => {
+      Animated.spring(anim, {
+        toValue: 1,
+        friction: 5,
+        useNativeDriver: true,
+      }).start();
+    };
+  
+    //PROCESS IMAGE LEFT AND RIGHT BUTTONS ANIMATION
+    const [hoverLeft, setHoverLeft] = useState(false);
+    const [hoverRight, setHoverRight] = useState(false);
+
+
+
   return (
+    <Animated.View style = 
+      {{ 
+        opacity: fadeAnim,
+        flex: 1,
+        transform: [{ translateY: slideAnim }],
+        }}>
+    
     <ScrollView
       style={{ flex: 1, backgroundColor: "#FFFFFF" }}
       contentContainerStyle={{
@@ -141,7 +215,8 @@ export default function ProductScanner() {
         paddingHorizontal: 40,
       }}
     >
-      {/* Header */}
+
+      {/* HEADER */}
       <Text
         style={{
           fontSize: 32,
@@ -154,7 +229,7 @@ export default function ProductScanner() {
         Product Verification
       </Text>
 
-      {/* Scanner and Instructions Container */}
+      {/* SCANNER AND INSTRUCTION BOX*/}
       <View
         style={{
           flexDirection: isMobile ? "column" : "row",
@@ -163,7 +238,7 @@ export default function ProductScanner() {
           alignItems: "center",
         }}
       >
-        {/* Scanner Box */}
+        {/* SCANNER BOX */}
         <View
           id="qr-reader"
           style={{
@@ -186,7 +261,7 @@ export default function ProductScanner() {
           </Text>
         </View>
 
-        {/* Instructions Box */}
+        {/* INSTRUCTION BOX */}
         <View
           style={{
             width: isMobile ? 300: 400, 
@@ -240,7 +315,7 @@ export default function ProductScanner() {
         </View>
       </View>
 
-      {/* Buttons */}
+      {/* BUTTONS */}
       <View style={{ flexDirection: "row", gap: 15, marginBottom: 20 }}>
         <Pressable
           onPress={startScanner}
@@ -291,7 +366,7 @@ export default function ProductScanner() {
         </Pressable>
       </View>
 
-      {/* Error / Success */}
+      {/* ALERT MESSAGES*/}
       {error && (
         <View
           style={{
@@ -364,7 +439,7 @@ export default function ProductScanner() {
         </View>
       )}
 
-    {/* Modal */}
+    {/* MODAL */}
       <Modal visible={modalVisible} animationType="fade" transparent>
     <View
       style={{
@@ -379,7 +454,7 @@ export default function ProductScanner() {
         style={{
           width: "92%",
           maxWidth: 420,
-          maxHeight: "85%", // limit height so modal is scrollable
+          maxHeight: "85%", 
           borderRadius: 20,
           backgroundColor: "rgba(255,255,255,0.97)",
           shadowColor: "#000",
@@ -391,116 +466,295 @@ export default function ProductScanner() {
       >
         {productDetails && (
           <>
-            {/* Product Image */}
+            {/* PRODUCT IMAGE */}
             {productDetails.product_image && (
               <Image
                 source={{ uri: productDetails.product_image }}
-                style={{ width: "100%", height: 200, borderRadius: 12, resizeMode: "contain" }}
+                style={{ width: "100%", height: 280, borderRadius: 12, resizeMode: "wrap" }}
               />
             )}
+            {/* NEW CODE */}
+            {/* Close Button */}
+            <View style={{position: "absolute", top: 15, right: 15, zIndex: 10,}}>
+              <Pressable
+                onHoverIn={() => setHoverClose(true)}
+                onHoverOut={() => setHoverClose(false)}
+                onPress={() => setModalVisible(false)}
+                style={{
+                borderWidth: 1,
+                borderColor: "#000",
+                backgroundColor: hoverClose
+                  ? "#C0392B"
+                  : "#fff",
+                borderRadius: 50,
+                paddingVertical: 8,
+                paddingHorizontal: 12,
+                
+              }}
+              >
+              <Ionicons name="close" size={18} color="#000" />
+              </Pressable>
+            </View>
 
-            {/* Scrollable content */}
+            {/* Registered Product Name */}
+              <View style={{ paddingHorizontal: 20, paddingVertical: 10, alignItems: "center" }}>
+                <Text
+                  style={{
+                    fontSize: 24,
+                    fontFamily: "Garet-Heavy",
+                    marginBottom: 1,
+                    textAlign: "center",
+                    color: "#333",
+                  }}
+                >
+                  {productDetails.name}
+                </Text>
+              </View>
+            {/* END NEW CODE */}
+
+            {/* SCROLL FUNCTION */}
             <ScrollView
               style={{ flex: 1 }}
-              contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
+              contentContainerStyle={{ padding: 20, paddingBottom: 10, paddingTop: 0 }}
               showsVerticalScrollIndicator={true}
-              nestedScrollEnabled={true} // important for mobile scrolling
+              nestedScrollEnabled={true} 
             >
+
+              <View style={{ height: 1, backgroundColor: "#e0e0e0", marginVertical: 5, }} />
+
+              {/* REGISTERED ARTISAN NAME*/}
               <Text
                 style={{
-                  fontSize: 24,
-                  fontFamily: "Garet-Heavy",
-                  marginBottom: 10,
-                  textAlign: "center",
-                  color: "#333",
+                  fontSize: 16,
+                  fontFamily: "Montserrat-Regular",
+                  marginBottom: 2,
+                  color: "#555",
+                  textAlign: "left",
+                  fontWeight: "700",
                 }}
               >
-                {productDetails.name}
+                Registered Artisan:
               </Text>
-
-              <View style={{ height: 1, backgroundColor: "#e0e0e0", marginVertical: 10 }} />
-
-              {/* Registered Artisan */}
               <Text
                 style={{
                   fontSize: 18,
                   fontFamily: "Montserrat-Regular",
                   marginBottom: 10,
-                  color: "#555",
-                  textAlign: "center",
+                  color: "#000000",
+                  textAlign: "left",
                   fontWeight: "700",
                 }}
               >
-                {registered_business_name ? `Registered Artisan: ${registered_business_name}` : ""}
+                {registered_business_name ? `${registered_business_name}` : ""}
               </Text>
-
-              <View style={{ gap: 6 }}>
-                <Text style={{ fontSize: 16, color: "#444" }}>
+              
+              { /* */}
+              <View style={{ gap: 6, borderColor: "#706d6d", borderWidth: 1, borderRadius: 5, }}>
+                <Text style={{ fontSize: 16, fontFamily: "Montserrat-Regular", color: "#444" }}>
                   <Text style={{ fontWeight: "700" }}>Type: </Text>{productDetails.type}
                 </Text>
-                <Text style={{ fontSize: 16, color: "#444" }}>
+                <Text style={{ fontSize: 16, fontFamily: "Montserrat-Regular", color: "#444" }}>
                   <Text style={{ fontWeight: "700" }}>Materials: </Text>{productDetails.materials}
                 </Text>
-                <Text style={{ fontSize: 16, color: "#444" }}>
+                <Text style={{ fontSize: 16, fontFamily: "Montserrat-Regular", color: "#444" }}>
                   <Text style={{ fontWeight: "700" }}>Origin: </Text>{productDetails.origin}
                 </Text>
-                <Text style={{ fontSize: 16, color: "#444" }}>
+                <Text style={{ fontSize: 16, fontFamily: "Montserrat-Regular", color: "#444" }}>
                   <Text style={{ fontWeight: "700" }}>Production Date: </Text>{productDetails.productionDate}
                 </Text>
-
-                <Text style={{ marginTop: 10, fontWeight: "700", fontSize: 16, color: "#333" }}>
+              </View>
+              <View style={{ gap: 6 }}>
+                <Text style={{ marginTop: 10, fontWeight: "700", fontSize: 16, fontFamily: "Montserrat-Regular", color: "#000000" }}>
                   Description:
                 </Text>
-                <Text style={{ color: "#555", lineHeight: 20 }}>
+                <Text style={{ color: "#000000", fontFamily: "Montserrat-Regular", lineHeight: 20, borderColor: "#706d6d", borderWidth: 1, borderRadius: 5, }}>
                   {productDetails.description}
                 </Text>
               </View>
+              {processImages.length > 0 && (
+                    <View style={{ marginBottom: 20, marginTop: 20,}}>
+                      <Text
+                        style={{
+                          fontFamily: "Montserrat-Regular",
+                          fontWeight: "600",
+                          marginBottom: 8,
+                        }}
+                      >
+                        Images of the Process
+                      </Text>
 
-              {/* Process Image Below Details */}
-              {productDetails.process_image && (
-                <View style={{ marginTop: 20, alignItems: "center" }}>
-                  <Text style={{ fontFamily: "Montserrat-Regular", fontWeight: "600", marginBottom: 6 }}>
-                    Image of the Process
-                  </Text>
-                  <Image
-                    source={{ uri: productDetails.process_image }}
-                    style={{ width: "100%", height: 200, borderRadius: 12, resizeMode: "contain" }}
-                  />
-                </View>
-              )}
+                      <View style={{ position: "relative" }}>
+                        {/* LEFT BUTTON */}
+                        {activeIndex > 0 && (
+                          <Animated.View
+                            style={{
+                              transform: [{ scale: leftScale }],
+                              position: "absolute",
+                              left: 6,
+                              top: "45%",
+                              zIndex: 10,
+                            }}
+                          >
+                            <Pressable
+                              onHoverIn={() => setHoverLeft(true)}
+                              onHoverOut={() => setHoverLeft(false)}
+                              onPressIn={() => pressIn(leftScale)}
+                              onPressOut={() => pressOut(leftScale)}
+                              onPress={() => {
+                                const newIndex = activeIndex - 1;
+                                isProgrammaticScroll.current = true;
+                                setActiveIndex(newIndex);
 
-              <Pressable
-                onPress={() => setModalVisible(false)}
-                style={{
-                  marginTop: 20,
-                  backgroundColor: "#000",
-                  paddingVertical: 14,
-                  borderRadius: 12,
-                  alignItems: "center",
-                  shadowColor: "#000",
-                  shadowOpacity: 0.15,
-                  shadowRadius: 5,
-                  elevation: 5,
-                }}
-              >
-                <Text
-                  style={{
-                    color: "#fff",
-                    fontSize: 16,
-                    fontWeight: "700",
-                    fontFamily: "Montserrat-Regular",
-                  }}
-                >
-                  Close
-                </Text>
-              </Pressable>
+                                scrollRef.current?.scrollTo({
+                                  x: newIndex * ITEM_WIDTH,
+                                  animated: true,
+                                });
+
+                                setTimeout(() => {
+                                  isProgrammaticScroll.current = false;
+                                }, 300);
+                              }}
+                              style={{
+                                backgroundColor: hoverLeft
+                                  ? "rgba(0,0,0,0.65)"
+                                  : "rgba(0,0,0,0.4)",
+                                borderRadius: 20,
+                                padding: 6,
+                              }}
+                            >
+                              <Ionicons
+                                name="chevron-back"
+                                size={22}
+                                color={hoverLeft ? "#fff" : "#e6e6e6"}
+                              />
+                            </Pressable>
+                          </Animated.View>
+                        )}
+
+                        {/* RIGHT BUTTON */}
+                        {activeIndex < processImages.length - 1 && (
+                          <Animated.View
+                            style={{
+                              transform: [{ scale: rightScale }],
+                              position: "absolute",
+                              right: 6,
+                              top: "45%",
+                              zIndex: 10,
+                            }}
+                          >
+                            <Pressable
+                              onHoverIn={() => setHoverRight(true)}
+                              onHoverOut={() => setHoverRight(false)}
+                              onPressIn={() => pressIn(rightScale)}
+                              onPressOut={() => pressOut(rightScale)}
+                              onPress={() => {
+                                const newIndex = activeIndex + 1;
+                                isProgrammaticScroll.current = true;
+                                setActiveIndex(newIndex);
+
+                                scrollRef.current?.scrollTo({
+                                  x: newIndex * ITEM_WIDTH,
+                                  animated: true,
+                                });
+
+                                setTimeout(() => {
+                                  isProgrammaticScroll.current = false;
+                                }, 300);
+                              }}
+                              style={{
+                                backgroundColor: hoverRight
+                                  ? "rgba(0,0,0,0.65)"
+                                  : "rgba(0,0,0,0.4)",
+                                borderRadius: 20,
+                                padding: 6,
+                              }}
+                            >
+                              <Ionicons
+                                name="chevron-forward"
+                                size={22}
+                                color={hoverRight ? "#fff" : "#e6e6e6"}
+                              />
+                            </Pressable>
+                          </Animated.View>
+                        )}
+
+                      
+                        <ScrollView
+                          ref={scrollRef}
+                          horizontal
+                          showsHorizontalScrollIndicator={false}
+                          snapToInterval={ITEM_WIDTH}
+                          decelerationRate="fast"
+                          contentContainerStyle={{ paddingRight: 10 }}
+                          onScroll={(e) => {
+                            if (isProgrammaticScroll.current) return;
+
+                            const offsetX = e.nativeEvent.contentOffset.x;
+                            const index = Math.round(offsetX / ITEM_WIDTH);
+
+                            setActiveIndex(
+                              Math.max(0, Math.min(index, processImages.length - 1))
+                            );
+                          }}
+                          scrollEventThrottle={16}
+
+
+                        >
+                          {processImages.map((img, index) => (
+                            <View
+                              key={index}
+                              style={{
+                                width: 350,
+                                height: 350,
+                                marginRight: 10,
+                                borderRadius: 16,
+                                overflow: "hidden",
+                                backgroundColor: "#f2f2f2",
+                              }}
+                            >
+                              <Image
+                                source={{ uri: img }}
+                                style={{
+                                  width: "100%",
+                                  height: "100%",
+                                  resizeMode: "cover",
+                                }}
+                              />
+                            </View>
+                          ))}
+                       
+                        </ScrollView>
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            justifyContent: "center",
+                            marginTop: 10,
+                          }}
+                        >
+                          {processImages.map((_, index) => (
+                            <View
+                              key={index}
+                              style={{
+                                width: 8,
+                                height: 8,
+                                borderRadius: 4,
+                                marginHorizontal: 4,
+                                backgroundColor:
+                                  activeIndex === index ? "#000" : "#cfcfcf",
+                              }}
+                            />
+                          ))}
+                        </View>
+                      </View>
+                    </View>
+                  )}
             </ScrollView>
           </>
         )}
       </View>
     </View>
   </Modal>
-
-    </ScrollView>
+</ScrollView>
+</Animated.View>
   );
 }

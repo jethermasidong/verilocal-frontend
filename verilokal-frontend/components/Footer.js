@@ -26,7 +26,7 @@ export default function Footer() {
 
 const styles = StyleSheet.create({
   footer: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#ffffff",
     paddingVertical: 16,
     paddingHorizontal: 20,
     alignItems: "center",
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   copyright: {
-    color: "#000",
+    color: "#000000",
     fontSize: 14,
     marginBottom: 8,
     fontFamily: "Montserrat-Regular",
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   linkText: {
-    color: "#5177b0",
+    color: "#000000",
     fontSize: 14,
     fontFamily: "Montserrat-Regular",
   },

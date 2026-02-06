@@ -1,10 +1,13 @@
 import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
-import { Text, TouchableOpacity, View } from "react-native";
+import { useState } from "react";
+import { Pressable, Text, View, } from "react-native";
 
 export default function LoginButtons() {
   
   const router = useRouter();
+  const [ hoveredJoin, setHoveredJoin ] = useState(false);
+  const [ hoveredScan, setHoveredScan ] = useState(false)
   const [fontsLoaded] = useFonts({
       "Garet-Book": require("../assets/fonts/garet/Garet-Book.ttf"),
       "Garet-Heavy": require("../assets/fonts/garet/Garet-Heavy.ttf"),
@@ -21,28 +24,31 @@ export default function LoginButtons() {
         flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
-        gap: 16,
+        gap: 30,
         marginTop: 10,
       }}
     >
       {/* Continue as Buyer */}
-      <TouchableOpacity
-        onPress={() => router.push("/buyer/qrScanner")}
+      <Pressable
+        onHoverIn={() => setHoveredScan(true)}
+        onHoverOut={() => setHoveredScan(false)}
+        onPress={() => router.push("/buyer/qrscanner")}
         style={{
-          backgroundColor: "#FFFFFF",
+          backgroundColor: hoveredScan ? "#a7a5a5" : "#ffffff",
           paddingVertical: 12,
           paddingHorizontal: 54,
           borderRadius: 50,
           borderWidth: 1.3,
           shadowColor: "#000000",
-          shadowOpacity: 0.2,
+          shadowOpacity: 0.5,
           shadowOffset: { width: 0, height: 2 },
           shadowRadius: 3,
+          cursor: "pointer",
         }}
       >
         <Text
           style={{
-            color: "#5177b0",
+            color: "#000000",
             fontSize: 16,
             fontWeight:"bold",
             fontFamily: "Garet-Book",
@@ -50,26 +56,30 @@ export default function LoginButtons() {
         >
           Scan
         </Text>
-      </TouchableOpacity>
+      </Pressable>
+      
 
       {/* Login as Business */}
-      <TouchableOpacity
+      <Pressable
+        onHoverIn={() => setHoveredJoin(true)}
+        onHoverOut={() => setHoveredJoin(false)}
         onPress={() => router.push("/login-business")}
         style={{
-          backgroundColor: "#FFFFFF",
+          backgroundColor: hoveredJoin ? "#a7a5a5" : "#ffffff",
           paddingVertical: 12,
           paddingHorizontal: 45,
           borderRadius: 50,
           borderWidth: 1.3,
           shadowColor: "#000000",
-          shadowOpacity: 0.2,
+          shadowOpacity: 0.5,
           shadowOffset: { width: 0, height: 2 },
           shadowRadius: 3,
+          cursor: "pointer",
         }}
       >
         <Text
           style={{
-            color: "#5177b0",
+            color: "#000000",
             fontSize: 16,
             fontWeight: "bold",
             fontFamily: "Garet-Book",
@@ -77,7 +87,7 @@ export default function LoginButtons() {
         >
           Join us
         </Text>
-      </TouchableOpacity>
+      </Pressable>
     </View>
 
     
