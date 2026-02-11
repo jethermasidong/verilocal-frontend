@@ -42,6 +42,34 @@ export default function BusinessDashboard() {
   const [selectedTypes, setSelectedTypes] = useState("");
   const [selectedMaterials, setSelectedMaterials] = useState("");
 
+  const hoverAnimReport = useRef(new Animated.Value(0)).current;
+  const hoverAnimFilter = useRef(new Animated.Value(0)).current;
+  const onHoverIn = () => {
+    Animated.spring(hoverAnimReport, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
+  const onHoverOut = () => {
+    Animated.spring(hoverAnimReport, {
+      toValue: 0, 
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const onHoverIn1 = () => {
+    Animated.spring(hoverAnimFilter, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
+  const onHoverOut1 = () => {
+    Animated.spring(hoverAnimFilter, {
+      toValue: 0, 
+      useNativeDriver: true,
+    }).start();
+  };
+
 
   //FILTER AND CATEGORIZATION:
   const typeOptions = [...new Set(products.map(p => p.type).filter(Boolean))]
@@ -264,6 +292,9 @@ const deleteProduct = async (productId) => {
     "Montserrat-Bold": require("../../assets/fonts/Montserrat/static/Montserrat-Bold.ttf"),
     "Montserrat-Black": require("../../assets/fonts/Montserrat/static/Montserrat-Black.ttf"),
   });
+
+
+
 
   useEffect(() => {
       Animated.parallel([
@@ -533,8 +564,29 @@ const deleteProduct = async (productId) => {
               setVisibleCount(9999);
             }}
           />
-          
+          <Animated.View 
+            style={{
+              transform: [
+                {
+                  translateY: hoverAnimFilter.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, -6],
+                  }),
+                },
+              ],
+            }}
+          >
           <Pressable
+            onHoverIn={onHoverIn1}
+            onHoverOut={onHoverOut1}
+            style={{
+              paddingVertical: 14,
+              paddingHorizontal: 10,
+              borderRadius: 20,
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer", 
+            }}
             ref={filterRef}
             onPress={() => {
               filterRef.current?.measureInWindow((x, y, width, height) => {
@@ -549,15 +601,39 @@ const deleteProduct = async (productId) => {
           >
             <Ionicons name="funnel-outline" size={30} />
           </Pressable>
+          </Animated.View>
 
           {/* Report Generation Button */}
+          <Animated.View 
+            style={{
+              transform: [
+                {
+                  translateY: hoverAnimReport.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, -6],
+                  }),
+                },
+              ],
+            }}
+          >
           <Pressable
+          onHoverIn={onHoverIn}
+          onHoverOut={onHoverOut}
+          style={{
+            paddingVertical: 14,
+            paddingHorizontal: 10,
+            borderRadius: 20,
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer", 
+          }}
             ref={filterRef}
             onPress={() => {
             }}
           >
             <Ionicons name="archive-outline" size={30} />
           </Pressable>
+          </Animated.View>
         </View>
         <Pressable
           style={{
