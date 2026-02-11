@@ -25,8 +25,8 @@ export default function RegisterBusiness() {
   const [address, setAddress] = useState("");
   const [business_name, setBusinessName] = useState("");
   const [description, setDescription] = useState("");
-  const [product_img, setProductImage] = useState(null);
-  const [certificates, setCertificates] = useState(null);
+  const [permit, setPermit] = useState(null);
+  const [certificates, setCertificates] = useState([]);
   const [logo, setLogo] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -101,6 +101,37 @@ export default function RegisterBusiness() {
     }
   };
 
+  const multipleImages = async () => {
+      try {
+        const result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsMultipleSelection: true,
+          quality: 1,
+        });
+  
+        if (!result.canceled) {
+          const selectedImages = await Promise.all(
+            result.assets.map(async (asset) => {
+              const response = await fetch(asset.uri);
+              const blob = await response.blob();
+  
+              return {
+                uri: asset.uri,
+                name: asset.fileName || `certificates${Date.now()}.jpg`,
+                type: asset.mimeType || "image/jpeg",
+                file: blob, 
+              };
+            })
+          );
+  
+          setCertificates(prev => [...prev, ...selectedImages]);
+        }
+      } catch (err) {
+        console.error(err);
+        Alert.alert("Error selecting images");
+      }
+    };
+
   useEffect(() => {
     const resize = () => {
       const w = Dimensions.get("window").width;
@@ -120,8 +151,8 @@ export default function RegisterBusiness() {
     if (!address) e.address = "Address is required";
     if (!contact_no) e.contact_no = "Contact number is required";
     if (!description) e.description = "Description is required";
-    if (!product_img) e.product_img = "Certificate is required";
-    if (!certificates) e.certificates = "Business permit is required";
+    if (!permit) e.permit = "Permit is required";
+    if (!certificates || certificates.length === 0) e.certificates = "Certificate is required";
     return e;
   };
 
@@ -161,12 +192,22 @@ export default function RegisterBusiness() {
 
       const appendFile = (key, file) => {
         if (!file) return;
-        if (Platform.OS === "web") formData.append(key, file.file);
+        if (Platform.OS === "web") formData.append(key, file.file, file.name);
         else formData.append(key, { uri: file.uri, name: file.name, type: file.type });
       };
 
-      appendFile("product_img", product_img);
-      appendFile("certificates", certificates);
+      appendFile("permit", permit);
+      certificates.forEach(file => {
+        if (Platform.OS === "web") {
+          formData.append("certificates", file.file, file.name);
+        } else {
+          formData.append("certificates", {
+            uri: file.uri,
+            name: file.name,
+            type: file.type,
+          });
+        }
+      });
       appendFile("logo", logo);
 
       await axios.post("http://localhost:3000/api/business", formData, {
@@ -180,7 +221,7 @@ export default function RegisterBusiness() {
       setStatusMessage("✅ Business Submitted, Wait for the confirmation on your email account!");
       setStatusType("success");
       setName(""); setBusinessName(""); setAddress(""); setDescription("");
-      setProductImage(null); setCertificates(null); setLogo(null);
+      setPermit(null); setCertificates([]); setLogo(null);
       setEmail(""); setPassword(""); setContactNo(""); setSocialLink(""); setErrors({}); setConsent(false);
 
     } catch (error){
@@ -372,15 +413,19 @@ export default function RegisterBusiness() {
           </View>
 
 
-          <Text style={styles.label}>Certificate* (DENR, DTI, BIR) </Text>
-          <Pressable style={styles.upload} onPress={() => pickImage(setProductImage)}>
-            <Text>{product_img ? product_img.name : <FontAwesomeIcon icon={faFileUpload} size="2x" />}</Text>
+          <Text style={styles.label}>Business Permit* (Mayor's Permit) </Text>
+          <Pressable style={styles.upload} onPress={() => pickImage(setPermit)}>
+            <Text>{permit ? permit.name : <FontAwesomeIcon icon={faFileUpload} size="2x" />}</Text>
           </Pressable>
-          {errors.product_img && <Text style={styles.error}>{errors.product_img}</Text>}
+          {errors.permit && <Text style={styles.error}>{errors.permit}</Text>}
           
-          <Text style={styles.label}>Business Permit* (Mayor's Permit)</Text>
-          <Pressable style={styles.upload} onPress={() => pickImage(setCertificates)}>
-            <Text>{certificates ? certificates.name : <FontAwesomeIcon icon={faFileUpload} size="2x" />}</Text>
+          <Text style={styles.label}>Certificates* (DENR / DTI)</Text>
+          <Pressable style={styles.upload} onPress={multipleImages}>
+            <Text>
+              {certificates.length > 0
+                ? `${certificates.length} files selected`
+                : <FontAwesomeIcon icon={faFileUpload} size="2x" />}
+            </Text>
           </Pressable>
           {errors.certificates && <Text style={styles.error}>{errors.certificates}</Text>}
 

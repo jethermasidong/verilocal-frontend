@@ -34,7 +34,7 @@ export default function LoginButtons() {
         onHoverOut={() => setHoveredScan(false)}
         onPress={() => router.push("/buyer/qrscanner")}
         style={{
-          backgroundColor: hoveredScan ? "#a7a5a5" : "#ffffff",
+          backgroundColor: hoveredScan ? "#000000" : "#5177b0",
           paddingVertical: 12,
           paddingHorizontal: 54,
           borderRadius: 50,
@@ -48,7 +48,7 @@ export default function LoginButtons() {
       >
         <Text
           style={{
-            color: "#000000",
+            color: "#ffffff",
             fontSize: 16,
             fontWeight:"bold",
             fontFamily: "Garet-Book",
@@ -65,7 +65,7 @@ export default function LoginButtons() {
         onHoverOut={() => setHoveredJoin(false)}
         onPress={() => router.push("/login-business")}
         style={{
-          backgroundColor: hoveredJoin ? "#a7a5a5" : "#ffffff",
+          backgroundColor: hoveredJoin ? "#000000" : "#5177b0",
           paddingVertical: 12,
           paddingHorizontal: 45,
           borderRadius: 50,
@@ -79,7 +79,7 @@ export default function LoginButtons() {
       >
         <Text
           style={{
-            color: "#000000",
+            color: "#ffffff",
             fontSize: 16,
             fontWeight: "bold",
             fontFamily: "Garet-Book",

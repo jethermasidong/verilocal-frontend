@@ -9,12 +9,14 @@ import {
   Animated,
   Dimensions,
   Image,
+  ImageBackground,
+  Pressable,
   ScrollView,
   Text,
   TextInput,
-  TouchableOpacity,
   View
 } from "react-native";
+import bgImage from "../../assets/bg1.jpg";
 
 export default function BusinessLogin() {
   const router = useRouter();
@@ -29,11 +31,15 @@ export default function BusinessLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
+
   const [isMobile, setIsMobile] = useState(false);
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
+
   const [isLoading, setIsLoading] = useState(false);
 
+  const [ hoveredScan, setHoveredScan ] = useState(false)
 
 
   useEffect(() => {
@@ -119,6 +125,12 @@ export default function BusinessLogin() {
           transform: [{ translateY: slideAnim }],
         }}
       >
+      <ImageBackground
+          source={bgImage} 
+          style={{flex: 1, width: '100%', height: '100%',}}
+          imageStyle={{ opacity: 0.3}}
+          resizeMode="cover"
+        >
         <ScrollView
           contentContainerStyle={{
             justifyContent: "center",
@@ -246,11 +258,13 @@ export default function BusinessLogin() {
               )}
 
               {/* LOGIN BUTTON */}
-              <TouchableOpacity
+              <Pressable
+                onHoverIn={() => setHoveredScan(true)}
+                onHoverOut={() => setHoveredScan(false)}
                 onPress={handleBusinessLogin}
                 disabled={isLoading}
                 style={{
-                  backgroundColor: "#4A70A9",
+                  backgroundColor: hoveredScan ? "#000000" : "#5177b0",
                   height: 44,
                   borderRadius: 25,
                   alignItems: "center",
@@ -258,12 +272,17 @@ export default function BusinessLogin() {
                   marginVertical: 15,
                   width: "60%",
                   alignSelf: "center",
+                  shadowColor: "#000000",
+                  shadowOpacity: 0.5,
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowRadius: 3,
+                  cursor: "pointer",
                 }}
               >
                 <Text style={{ color: "#fff", fontSize: 16 }}>
                   Login
                 </Text>
-              </TouchableOpacity>
+              </Pressable>
 
               {/* SIGN UP */}
               <Text style={{ textAlign: "center", fontSize: 13 }}>
@@ -307,6 +326,7 @@ export default function BusinessLogin() {
             </View>
           )}
         </ScrollView>
+        </ImageBackground>
       </Animated.View>
   );
 }

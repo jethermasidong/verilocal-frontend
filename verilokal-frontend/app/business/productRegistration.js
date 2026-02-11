@@ -27,6 +27,8 @@ export default function RegisterProduct() {
     type: "",
     materials: "",
     origin: "",
+    productionStartDate: "",
+    productionEndDate: "",
     productionDate: "",
     description: "",
     productImage: null,
@@ -56,13 +58,30 @@ export default function RegisterProduct() {
   //IMAGE UPLOAD STATUS MESSAGE
   const [uploadError, setUploadError] = useState("");
 
-  //DATE FORMAT
-  const formatDate = (date) => date.toISOString().split("T")[0];
+  const [dateType, setDateType] = useState(null);
 
-  const onDateChange = (event, selectedDate) => {
-    setShowDatePicker(false);
-    if (selectedDate) handleInputChange("productionDate", formatDate(selectedDate));
-  };
+
+  //DATE FORMAT
+ const formatDate = (date) => {
+  return new Date(date).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
+
+
+ const onDateChange = (event, selectedDate) => {
+  setShowDatePicker(false);
+  if (!selectedDate) return;
+
+  if (dateType === "start") {
+    handleInputChange("productionStartDate", selectedDate);
+  } else if (dateType === "end") {
+    handleInputChange("productionEndDate", selectedDate);
+  }
+};
+
 
   //IMAGE SIZE LIMIT
   const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -272,6 +291,17 @@ export default function RegisterProduct() {
         ]).start();
       }, []);
 
+  useEffect(() => {
+    if (form.productionStartDate && form.productionEndDate) {
+      const start = formatDate(form.productionStartDate);
+      const end = formatDate(form.productionEndDate);
+      setForm(prev => ({
+        ...prev,
+        productionDate: `${start} - ${end}`,
+      }));
+    }
+  }, [form.productionStartDate, form.productionEndDate]);
+
 
   return (
     <Animated.View style = 
@@ -287,7 +317,7 @@ export default function RegisterProduct() {
       <View style={[styles.card, isMobile && {flexDirection: "column"}]}>
       {/* LEFT BANNER IMAGE */}
         <View style={[styles.leftPanel, isMobile && { width: "100%", height: 200 }]}>
-          <Image source={require("../../assets/business.png")} 
+          <Image source={require("../../assets/business1.png")} 
           style={styles.bannerImage} 
           resizeMode="cover" 
           />
@@ -374,35 +404,56 @@ export default function RegisterProduct() {
             </View>
 
             <View style={[styles.col, isMobile && { minWidth: "100%"}]}>
-              <Text style={styles.label}>Production Date*</Text>
+              <Text style={styles.label}>Production Date* (Start to End)</Text>
                 {Platform.OS === "web" ? (
+                  <>
                   <input
                     type="date"
-                    value={form.productionDate}
-                    max={new Date().toISOString().split("T")[0]}
+                    value={form.productionStartDate}
                     onChange={(e) =>
-                      handleInputChange("productionDate", e.target.value)
+                    setForm({...form, productionStartDate: e.target.value})
                     }
-                    style={{
-                      height: 20,
-                      borderRadius: 8,
-                      padding: 12,
-                      fontFamily: "Montserrat-Regular",
-                      borderWidth: 1,
-                      marginBottom: 10,
-                      borderColor: "#ccc",
-                      backgroundColor: "#fafafa",
-                    }}
+                    style={styles.webDateInput}
                   />
+                   <input
+                    type="date"
+                    value={form.productionEndDate}
+                    onChange={(e) =>
+                      setForm({...form, productionEndDate: e.target.value})
+                    }
+                    style={styles.webDateInput}
+                  />
+                </>
                 ) : (
+                  <>
                   <Pressable
                     style={styles.dateWrapper}
-                    onPress={() => setShowDatePicker(true)}
+                    onPress={() => {
+                      setDateType("start");
+                      setShowDatePicker(true);
+                    }}
                   >
                     <Text>
-                      {form.productionDate || "Select Production Date"}
+                      {form.productionStartDate
+                        ? formatDate(form.productionStartDate)
+                        : "Select Start Date"}
                     </Text>
                   </Pressable>
+
+                  <Pressable
+                    style={styles.dateWrapper}
+                    onPress={() => {
+                      setDateType("end");
+                      setShowDatePicker(true);
+                    }}
+                  >
+                    <Text>
+                      {form.productionEndDate
+                        ? formatDate(form.productionEndDate)
+                        : "Select End Date"}
+                    </Text>
+                  </Pressable>
+                </>
                 )}
 
                 {errors.productionDate && (
@@ -423,23 +474,51 @@ export default function RegisterProduct() {
             </Text>
 
             <Pressable style={styles.imagePicker} onPress={pickProcessImages}>
-              <Text style={styles.imageText}>Add Process Images</Text>
+              <Text style={styles.imageText}>Upload process photos (e.g., raw materials, artisan at work, finished product) </Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                {form.processImages.map((img, index) => (
+                  <View key={index} style={{ marginRight: 10 }}>
+                    
+                    <Image
+                      source={{ uri: img.uri }}
+                      style={{
+                        width: 120,
+                        height: 120,
+                        borderRadius: 10,
+                      }}
+                    />
+                    <Pressable
+                      onPress={() => {
+                        const updatedImages = form.processImages.filter(
+                          (_, i) => i !== index
+                        );
+
+                        setForm({
+                          ...form,
+                          processImages: updatedImages,
+                        });
+                      }}
+                      style={{
+                        position: "absolute",
+                        top: -6,
+                        right: -6,
+                        backgroundColor: "#ff4444",
+                        width: 24,
+                        height: 24,
+                        borderRadius: 12,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        elevation: 3,
+                      }}
+                    >
+                      <Text style={{ color: "white", fontWeight: "bold" }}>×</Text>
+                    </Pressable>
+                    
+                  </View>
+                ))}
+              </ScrollView>
             </Pressable>
 
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {form.processImages.map((img, index) => (
-                <Image
-                  key={index}
-                  source={{ uri: img.uri }}
-                  style={{
-                    width: 120,
-                    height: 120,
-                    borderRadius: 10,
-                    marginRight: 10,
-                  }}
-                />
-              ))}
-            </ScrollView>
 
             {errors.processImages && (
               <Text style={styles.errorText}>{errors.processImages}</Text>
@@ -450,7 +529,15 @@ export default function RegisterProduct() {
 
           {showDatePicker && (
             <DateTimePicker
-              value={form.productionDate ? new Date(form.productionDate) : new Date()}
+              value={
+                dateType === "start"
+                ? form.productionStartDate
+                  ? new Date(form.productionStartDate)
+                    : new Date()
+                  : form.productionEndDate
+                  ? new Date(form.productionEndDate)
+                    : new Date()
+              }
               mode="date"
               maximumDate={new Date()}
               onChange={onDateChange}
@@ -512,8 +599,8 @@ const styles = StyleSheet.create({
   },
   card: {
     width: "100%",
-    maxWidth: 1200,
-    minHeight: 400,
+    maxWidth: 1300,
+    maxHeight: 1000,
     backgroundColor: "#fff",
     borderRadius: 20,
     overflow: "hidden",
@@ -599,8 +686,19 @@ const styles = StyleSheet.create({
   },
   imagePicker: { borderWidth: 1, borderColor: "#ccc", padding: 20, borderRadius: 10, alignItems: "center", backgroundColor: "#fafafa", height: 200, justifyContent: "center", marginBottom: 15, width: "100%" },
   imagePreview: { width: "100%", height: "100%", borderRadius: 10 },
-  imageText: { color: "#666", fontFamily: "Montserrat-Regular", },
+  imageText: { color: "#666", fontFamily: "Montserrat-Regular", paddingBottom: 20,},
 
   submitButton: { backgroundColor: "#4A70A9", padding: 14, borderRadius: 50, alignItems: "center", marginTop: 10 },
   submitText: { color: "#fff", fontSize: 16, fontWeight: "600" },
+
+  webDateInput: 
+  {
+    height: 20,
+    borderRadius: 8,
+    padding: 12,
+    fontFamily: "Montserrat-Regular",
+    borderWidth: 1,
+    marginBottom: 10,
+    borderColor: "#ccc",
+    backgroundColor: "#fafafa",}
 });

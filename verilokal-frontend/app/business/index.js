@@ -11,6 +11,7 @@ import {
   Easing,
   FlatList,
   Image,
+  ImageBackground,
   Linking,
   Modal,
   Pressable,
@@ -19,6 +20,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import bgImage from "../../assets/bg1.jpg";
 
 const windowWidth = Dimensions.get("window").width;
 const isMobile = windowWidth < 768;
@@ -42,8 +44,11 @@ export default function BusinessDashboard() {
 
 
   //FILTER AND CATEGORIZATION:
-  const typeOptions = [...new Set(products.map(p => p.type).filter(Boolean))];
-  const materialOptions = [...new Set(products.map(p => p.materials).filter(Boolean))];
+  const typeOptions = [...new Set(products.map(p => p.type).filter(Boolean))]
+  .sort((a, b) => a.localeCompare(b));
+  const materialOptions = [...new Set(products.map(p => p.materials).filter(Boolean))]
+  .sort((a, b) => a.localeCompare(b));
+
   const toggleFilter = (value, selected, setSelected) => {
     setSelected(prev =>
       prev.includes(value)
@@ -404,6 +409,13 @@ const deleteProduct = async (productId) => {
 
   return (
 
+    <ImageBackground
+      source={bgImage} 
+      style={{flex: 1, width: '100%', height: '100%',}}
+      imageStyle={{ opacity: 0.3}}
+      resizeMode="cover"
+    >
+
     <Animated.View style = 
       {{ 
         opacity: fadeAnim,
@@ -411,7 +423,7 @@ const deleteProduct = async (productId) => {
         transform: [{ translateY: slideAnim }],
       }}>
     <ScrollView
-      style={{ flex: 1, backgroundColor: "#FFFFFF" }}
+      style={{ flex: 1, }}
       contentContainerStyle={{ alignItems: "center", paddingVertical: 40, paddingHorizontal: 20 }}
     >
       {/* Welcome Section */}
@@ -419,7 +431,6 @@ const deleteProduct = async (productId) => {
         width: "100%", 
         maxWidth: 900, 
         marginBottom: 10,
-        backgroundColor: "#fffff",
         borderWidth: 2, 
         borderColor: "#000",
         borderRadius: 20,
@@ -458,7 +469,6 @@ const deleteProduct = async (productId) => {
         style={{
           width: "100%",
           maxWidth: 900,
-          backgroundColor: "#ffffff",
           borderWidth: 2,
           borderColor: "#000",
           borderRadius: 20,
@@ -507,7 +517,7 @@ const deleteProduct = async (productId) => {
           }}>
           <TextInput
             placeholder="Search products..."
-            placeholderTextColor="#999"
+            placeholderTextColor="#000000"
             style={{
               flex: 1,
               paddingVertical: 12,
@@ -592,7 +602,6 @@ const deleteProduct = async (productId) => {
           renderItem={({ item }) => (
             <View
               style={{
-                backgroundColor: "#fff",
                 borderWidth: 2,
                 borderColor: "#000",
                 borderRadius: 14,
@@ -1440,7 +1449,7 @@ const deleteProduct = async (productId) => {
         </View>
       </Pressable>
     </Modal>
-    {/* End New Code */}
   </Animated.View>
+</ImageBackground>
   );
 }
