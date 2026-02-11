@@ -549,6 +549,15 @@ const deleteProduct = async (productId) => {
           >
             <Ionicons name="funnel-outline" size={30} />
           </Pressable>
+
+          {/* Report Generation Button */}
+          <Pressable
+            ref={filterRef}
+            onPress={() => {
+            }}
+          >
+            <Ionicons name="archive-outline" size={30} />
+          </Pressable>
         </View>
         <Pressable
           style={{
