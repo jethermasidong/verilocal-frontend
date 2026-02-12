@@ -26,21 +26,44 @@ const windowWidth = Dimensions.get("window").width;
 const isMobile = windowWidth < 768;
 
 export default function BusinessDashboard() {
+
   const [business, setBusiness] = useState(null);
   const [products, setProducts] = useState([]);
+
+  //Product Count
   const [visibleCount, setVisibleCount] = useState(5);
+
+  //Loading
   const [loading, setLoading] = useState(true);
+
+
   const [selectedProduct, setSelectedProduct] = useState(null);
+
+  //Modal
   const [modalVisible, setModalVisible] = useState(false);
+
+  //Search
   const [searchQuery, setSearchQuery] = useState("");
+
+
   const [isTallImage, setIsTallImage] = useState(false);
+
+  //Business Name
   const [businessname, setRegisteredBusinessName] = useState(null);
+
+  //Edit Modal
   const [editModalVisible, setEditModalVisible] =useState(false);
+
+  //Profile Sidebar
   const [profileSidebarVisible, setProfileSidebarVisible] = useState(false);
   const profileBtnOpacity = useRef(new Animated.Value(1)).current;
   const [showProfileBtn, setShowProfileBtn] = useState(true);
+
+  //Types and Materials
   const [selectedTypes, setSelectedTypes] = useState("");
   const [selectedMaterials, setSelectedMaterials] = useState("");
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const hoverAnimReport = useRef(new Animated.Value(0)).current;
   const hoverAnimFilter = useRef(new Animated.Value(0)).current;
@@ -813,12 +836,26 @@ const deleteProduct = async (productId) => {
             >
               {/* PROFILE */}
               <View style={{ alignItems: "center", marginBottom: 20 }}>
-                <Ionicons
-                  name="storefront-outline"
-                  size={60}
-                  color="#4A70A9"
-                  style={{ marginBottom: 6 }}
-                />
+                {business?.logo ? (
+                    <Image
+                      source={{ uri: business.logo }}
+                      style={{
+                        width: 80,
+                        height: 80,
+                        borderRadius: 50,
+                        resizeMode: "contain",
+                        borderWidth: 1,
+                        borderColor: "#000",
+                        backgroundColor: "#fff",
+                      }}
+                    />
+                  ) : (
+                    <Ionicons
+                      name="person-circle-outline"
+                      size={60}
+                      color="#000"
+                    />
+                  )}
                 <Text style={{ fontSize: 16, fontWeight: "700" }}>
                   {businessname || "Your Business"}
                 </Text>
@@ -967,9 +1004,7 @@ const deleteProduct = async (productId) => {
                         {/* DELETE PRODUCT BUTTON */}
                         <Pressable
                           onPress={() => {
-                            if (window.confirm("Are you sure you want to delete this product?")) {
-                              deleteProduct(selectedProduct.id);
-                            }
+                            setShowDeleteModal(true);
                           }}
                           onHoverIn={() => setHoverDelete(true)}
                           onHoverOut={() => setHoverDelete(false)}
@@ -989,6 +1024,76 @@ const deleteProduct = async (productId) => {
                       </View>
                     </View>
                   </Text>
+
+                  {/* Delete Modal */}
+                  <Modal transparent visible={showDeleteModal} animationType="fade">
+                    <View
+                      style={{
+                        flex: 1,
+                        backgroundColor: "rgba(0,0,0,0.5)",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <View
+                        style={{
+                          width: 300,
+                          backgroundColor: "#fff",
+                          padding: 20,
+                          borderRadius: 12,
+                          elevation: 5,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: 18,
+                            fontWeight: "bold",
+                            marginBottom: 10,
+                          }}
+                        >
+                          Delete Product
+                        </Text>
+
+                        <Text style={{ marginBottom: 20 }}>
+                          Are you sure you want to delete this product?
+                        </Text>
+
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            justifyContent: "flex-end",
+                            gap: 10,
+                          }}
+                        >
+                          <Pressable
+                            style={{
+                              padding: 10,
+                              backgroundColor: "#eee",
+                              borderRadius: 8,
+                            }}
+                            onPress={() => setShowDeleteModal(false)}
+                          >
+                            <Text>Cancel</Text>
+                          </Pressable>
+
+                          <Pressable
+                            style={{
+                              padding: 10,
+                              backgroundColor: "#be4848",
+                              borderRadius: 8,
+                            }}
+                            onPress={() => {
+                              deleteProduct(selectedProduct.id);
+                              setShowDeleteModal(false);
+                            }}
+                          >
+                            <Text style={{ color: "#fff" }}>Delete</Text>
+                          </Pressable>
+                        </View>
+                      </View>
+                    </View>
+                  </Modal>
+
 
                   <View style={{ marginBottom: 12 }}>
                     <Text style={{ fontFamily: "Montserrat-Regular" }}>
