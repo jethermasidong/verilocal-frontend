@@ -102,7 +102,6 @@ export default function BusinessDashboard() {
     ? JSON.parse(selectedProduct.process_images)
     : [];
 
-  const CAROUSEL_WIDTH = 350;
   
   console.log("Process images:", processImages);
 
@@ -394,7 +393,7 @@ const deleteProduct = async (productId) => {
   const leftScale = useRef(new Animated.Value(1)).current;
   const rightScale = useRef(new Animated.Value(1)).current;
 
-  {/* Product Modal Left and Right Button Animations */}
+  //Product Modal Left and Right Button Animations 
   const pressIn = (anim) => {
     Animated.spring(anim, {
       toValue: 0.92,
@@ -410,29 +409,17 @@ const deleteProduct = async (productId) => {
     }).start();
   };
 
-  {/* Product Modal Left and Right Button Hover Animation */}
+  //Product Modal Left and Right Button Hover Animation 
   const [hoverLeft, setHoverLeft] = useState(false);
   const [hoverRight, setHoverRight] = useState(false);
 
-  {/* Close, Edit, and Delete Button Product Modal Hover Animation */}
+  //Close, Edit, Delete, Print, Download Button Product Modal Hover Animation 
   const [hoverClose, setHoverClose] = useState(false);
   const [hoverEdit, setHoverEdit] = useState(false);
   const [hoverDelete, setHoverDelete] = useState(false);
+  const [hoverPrint, setHoverPrint] = useState(false);
+  const [hoverDownload, setHoverDownload] = useState(false);
 
-  const animateIn = (anim) => {
-    Animated.spring(anim, {
-      toValue: 1.15,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const animateOut = (anim) => {
-    Animated.spring(anim, {
-      toValue: 1,
-      friction: 6,
-      useNativeDriver: true,
-    }).start();
-  }
 
   const filterRef = useRef(null);
   const [showFilter, setShowFilter] = useState(false);
@@ -913,7 +900,7 @@ const deleteProduct = async (productId) => {
                 backgroundColor: hoverClose
                   ? "#C0392B"
                   : "#fff",
-                borderRadius: 50,
+                borderRadius: 100,
                 paddingVertical: 8,
                 paddingHorizontal: 12,
                 
@@ -963,7 +950,7 @@ const deleteProduct = async (productId) => {
                         onHoverOut={() => setHoverEdit(false)}
                         style={{
                           borderWidth: 1,
-                          borderColor: "#000",
+                          borderColor: "rgb(139, 132, 132)",
                           borderRadius: 50,
                           backgroundColor: hoverEdit
                             ? "#a7a5a5"
@@ -988,6 +975,7 @@ const deleteProduct = async (productId) => {
                           onHoverOut={() => setHoverDelete(false)}
                           style={{
                             borderWidth: 1,
+                            borderColor: "rgb(139, 132, 132)",
                             backgroundColor: hoverDelete
                               ? "#a7a5a5"
                               : "#fff",
@@ -1213,58 +1201,56 @@ const deleteProduct = async (productId) => {
                       marginBottom: 20,
                     }}
                   >
+                  <View 
+                    style={{
+                      flexDirection: "row", gap: 3, position: "absolute", right: 5, top: 5,
+                    }}
+                  >
                     <Pressable
+                      onHoverIn={() => setHoverPrint(true)}
+                      onHoverOut={() => setHoverPrint(false)}
                       onPress={() => printQRCode(selectedProduct.qr_code)}
                       style={{
-                        backgroundColor: "#4A70A9",
-                        paddingVertical: 6,
-                        paddingHorizontal: 10,
-                        borderRadius: 6,
-                        marginBottom: 6,
-                        width: 90,
+                        borderWidth: 1,
+                        borderColor: "rgb(139, 132, 132)",
+                        borderRadius: 50,
+                        backgroundColor: hoverPrint
+                          ? "#a7a5a5"
+                          : "#fff",
+                        paddingVertical: 8,
+                        paddingHorizontal: 12,
+                        alignItems: "center",
+                        justifyContent: "center",
                       }}
                     >
-                      <Text
-                        style={{
-                          color: "#ffffffff",
-                          textAlign: "center",
-                          fontWeight: "700",
-                          fontFamily: "Montserrat-Regular",
-                          fontSize: 10,
-                        }}
-                      >
-                        PRINT QR
-                      </Text>
+                      <Ionicons name="print-outline" size={16} color="#000" />
                     </Pressable>
 
                     <Pressable
+                      onHoverIn={() => setHoverDownload(true)}
+                      onHoverOut={() => setHoverDownload(false)}
                       onPress={() => downloadQRCode(selectedProduct.qr_code)}
                       style={{
-                        backgroundColor: "#4A70A9",
-                        paddingVertical: 6,
-                        paddingHorizontal: 10,
-                        borderRadius: 6,
-                        marginBottom: 10,
-                        width: 90,
+                        borderWidth: 1,
+                        borderColor: "rgb(139, 132, 132)",
+                        borderRadius: 20,
+                        backgroundColor: hoverDownload
+                          ? "#a7a5a5"
+                          : "#fff",
+                        paddingVertical: 8,
+                        paddingHorizontal: 12,
+                        alignItems: "center",
+                        justifyContent: "center",
                       }}
                     >
-                      <Text
-                        style={{
-                          color: "#ffffffff",
-                          textAlign: "center",
-                          fontWeight: "700",
-                          fontFamily: "Montserrat-Regular",
-                          fontSize: 10,
-                        }}
-                      >
-                        DOWNLOAD
-                      </Text>
+                      <Ionicons name="download-outline" size={16} color="#000" />
                     </Pressable>
+                    </View>
 
                     {selectedProduct?.qr_code && (
                       <Image
                         source={{ uri: selectedProduct.qr_code }}
-                        style={{ width: 220, height: 220, borderRadius: 8 }}
+                        style={{ width: 200, height: 220, borderRadius: 8 }}
                         resizeMode="contain"
                       />
                     )}
