@@ -26,21 +26,72 @@ const windowWidth = Dimensions.get("window").width;
 const isMobile = windowWidth < 768;
 
 export default function BusinessDashboard() {
+
   const [business, setBusiness] = useState(null);
   const [products, setProducts] = useState([]);
+
+  //Product Count
   const [visibleCount, setVisibleCount] = useState(5);
+
+  //Loading
   const [loading, setLoading] = useState(true);
+
+
   const [selectedProduct, setSelectedProduct] = useState(null);
+
+  //Modal
   const [modalVisible, setModalVisible] = useState(false);
+
+  //Search
   const [searchQuery, setSearchQuery] = useState("");
+
+
   const [isTallImage, setIsTallImage] = useState(false);
+
+  //Business Name
   const [businessname, setRegisteredBusinessName] = useState(null);
+
+  //Edit Modal
   const [editModalVisible, setEditModalVisible] =useState(false);
+
+  //Profile Sidebar
   const [profileSidebarVisible, setProfileSidebarVisible] = useState(false);
   const profileBtnOpacity = useRef(new Animated.Value(1)).current;
   const [showProfileBtn, setShowProfileBtn] = useState(true);
+
+  //Types and Materials
   const [selectedTypes, setSelectedTypes] = useState("");
   const [selectedMaterials, setSelectedMaterials] = useState("");
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const hoverAnimReport = useRef(new Animated.Value(0)).current;
+  const hoverAnimFilter = useRef(new Animated.Value(0)).current;
+  const onHoverIn = () => {
+    Animated.spring(hoverAnimReport, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
+  const onHoverOut = () => {
+    Animated.spring(hoverAnimReport, {
+      toValue: 0, 
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const onHoverIn1 = () => {
+    Animated.spring(hoverAnimFilter, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
+  const onHoverOut1 = () => {
+    Animated.spring(hoverAnimFilter, {
+      toValue: 0, 
+      useNativeDriver: true,
+    }).start();
+  };
 
 
   //FILTER AND CATEGORIZATION:
@@ -73,6 +124,7 @@ export default function BusinessDashboard() {
     : typeof selectedProduct?.process_images === "string"
     ? JSON.parse(selectedProduct.process_images)
     : [];
+
   
   console.log("Process images:", processImages);
 
@@ -261,6 +313,9 @@ const deleteProduct = async (productId) => {
     "Montserrat-Black": require("../../assets/fonts/Montserrat/static/Montserrat-Black.ttf"),
   });
 
+
+
+
   useEffect(() => {
       Animated.parallel([
         Animated.timing(fadeAnim, {
@@ -359,7 +414,7 @@ const deleteProduct = async (productId) => {
   const leftScale = useRef(new Animated.Value(1)).current;
   const rightScale = useRef(new Animated.Value(1)).current;
 
-  {/* Product Modal Left and Right Button Animations */}
+  //Product Modal Left and Right Button Animations 
   const pressIn = (anim) => {
     Animated.spring(anim, {
       toValue: 0.92,
@@ -375,29 +430,17 @@ const deleteProduct = async (productId) => {
     }).start();
   };
 
-  {/* Product Modal Left and Right Button Hover Animation */}
+  //Product Modal Left and Right Button Hover Animation 
   const [hoverLeft, setHoverLeft] = useState(false);
   const [hoverRight, setHoverRight] = useState(false);
 
-  {/* Close, Edit, and Delete Button Product Modal Hover Animation */}
+  //Close, Edit, Delete, Print, Download Button Product Modal Hover Animation 
   const [hoverClose, setHoverClose] = useState(false);
   const [hoverEdit, setHoverEdit] = useState(false);
   const [hoverDelete, setHoverDelete] = useState(false);
+  const [hoverPrint, setHoverPrint] = useState(false);
+  const [hoverDownload, setHoverDownload] = useState(false);
 
-  const animateIn = (anim) => {
-    Animated.spring(anim, {
-      toValue: 1.15,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const animateOut = (anim) => {
-    Animated.spring(anim, {
-      toValue: 1,
-      friction: 6,
-      useNativeDriver: true,
-    }).start();
-  }
 
   const filterRef = useRef(null);
   const [showFilter, setShowFilter] = useState(false);
@@ -529,8 +572,29 @@ const deleteProduct = async (productId) => {
               setVisibleCount(9999);
             }}
           />
-          
+          <Animated.View 
+            style={{
+              transform: [
+                {
+                  translateY: hoverAnimFilter.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, -6],
+                  }),
+                },
+              ],
+            }}
+          >
           <Pressable
+            onHoverIn={onHoverIn1}
+            onHoverOut={onHoverOut1}
+            style={{
+              paddingVertical: 14,
+              paddingHorizontal: 10,
+              borderRadius: 20,
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer", 
+            }}
             ref={filterRef}
             onPress={() => {
               filterRef.current?.measureInWindow((x, y, width, height) => {
@@ -545,15 +609,39 @@ const deleteProduct = async (productId) => {
           >
             <Ionicons name="funnel-outline" size={30} />
           </Pressable>
+          </Animated.View>
 
           {/* Report Generation Button */}
+          <Animated.View 
+            style={{
+              transform: [
+                {
+                  translateY: hoverAnimReport.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, -6],
+                  }),
+                },
+              ],
+            }}
+          >
           <Pressable
+          onHoverIn={onHoverIn}
+          onHoverOut={onHoverOut}
+          style={{
+            paddingVertical: 14,
+            paddingHorizontal: 10,
+            borderRadius: 20,
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer", 
+          }}
             ref={filterRef}
             onPress={() => {
             }}
           >
             <Ionicons name="archive-outline" size={30} />
           </Pressable>
+          </Animated.View>
         </View>
         <Pressable
           style={{
@@ -745,12 +833,26 @@ const deleteProduct = async (productId) => {
             >
               {/* PROFILE */}
               <View style={{ alignItems: "center", marginBottom: 20 }}>
-                <Ionicons
-                  name="storefront-outline"
-                  size={60}
-                  color="#4A70A9"
-                  style={{ marginBottom: 6 }}
-                />
+                {business?.logo ? (
+                    <Image
+                      source={{ uri: business.logo }}
+                      style={{
+                        width: 80,
+                        height: 80,
+                        borderRadius: 50,
+                        resizeMode: "contain",
+                        borderWidth: 1,
+                        borderColor: "#000",
+                        backgroundColor: "#fff",
+                      }}
+                    />
+                  ) : (
+                    <Ionicons
+                      name="person-circle-outline"
+                      size={60}
+                      color="#000"
+                    />
+                  )}
                 <Text style={{ fontSize: 16, fontWeight: "700" }}>
                   {businessname || "Your Business"}
                 </Text>
@@ -832,7 +934,7 @@ const deleteProduct = async (productId) => {
                 backgroundColor: hoverClose
                   ? "#C0392B"
                   : "#fff",
-                borderRadius: 50,
+                borderRadius: 100,
                 paddingVertical: 8,
                 paddingHorizontal: 12,
                 
@@ -882,7 +984,7 @@ const deleteProduct = async (productId) => {
                         onHoverOut={() => setHoverEdit(false)}
                         style={{
                           borderWidth: 1,
-                          borderColor: "#000",
+                          borderColor: "rgb(139, 132, 132)",
                           borderRadius: 50,
                           backgroundColor: hoverEdit
                             ? "#a7a5a5"
@@ -899,14 +1001,13 @@ const deleteProduct = async (productId) => {
                         {/* DELETE PRODUCT BUTTON */}
                         <Pressable
                           onPress={() => {
-                            if (window.confirm("Are you sure you want to delete this product?")) {
-                              deleteProduct(selectedProduct.id);
-                            }
+                            setShowDeleteModal(true);
                           }}
                           onHoverIn={() => setHoverDelete(true)}
                           onHoverOut={() => setHoverDelete(false)}
                           style={{
                             borderWidth: 1,
+                            borderColor: "rgb(139, 132, 132)",
                             backgroundColor: hoverDelete
                               ? "#a7a5a5"
                               : "#fff",
@@ -920,6 +1021,76 @@ const deleteProduct = async (productId) => {
                       </View>
                     </View>
                   </Text>
+
+                  {/* Delete Modal */}
+                  <Modal transparent visible={showDeleteModal} animationType="fade">
+                    <View
+                      style={{
+                        flex: 1,
+                        backgroundColor: "rgba(0,0,0,0.5)",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <View
+                        style={{
+                          width: 300,
+                          backgroundColor: "#fff",
+                          padding: 20,
+                          borderRadius: 12,
+                          elevation: 5,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: 18,
+                            fontWeight: "bold",
+                            marginBottom: 10,
+                          }}
+                        >
+                          Delete Product
+                        </Text>
+
+                        <Text style={{ marginBottom: 20 }}>
+                          Are you sure you want to delete this product?
+                        </Text>
+
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            justifyContent: "flex-end",
+                            gap: 10,
+                          }}
+                        >
+                          <Pressable
+                            style={{
+                              padding: 10,
+                              backgroundColor: "#eee",
+                              borderRadius: 8,
+                            }}
+                            onPress={() => setShowDeleteModal(false)}
+                          >
+                            <Text>Cancel</Text>
+                          </Pressable>
+
+                          <Pressable
+                            style={{
+                              padding: 10,
+                              backgroundColor: "#be4848",
+                              borderRadius: 8,
+                            }}
+                            onPress={() => {
+                              deleteProduct(selectedProduct.id);
+                              setShowDeleteModal(false);
+                            }}
+                          >
+                            <Text style={{ color: "#fff" }}>Delete</Text>
+                          </Pressable>
+                        </View>
+                      </View>
+                    </View>
+                  </Modal>
+
 
                   <View style={{ marginBottom: 12 }}>
                     <Text style={{ fontFamily: "Montserrat-Regular" }}>
@@ -1132,58 +1303,56 @@ const deleteProduct = async (productId) => {
                       marginBottom: 20,
                     }}
                   >
+                  <View 
+                    style={{
+                      flexDirection: "row", gap: 3, position: "absolute", right: 5, top: 5,
+                    }}
+                  >
                     <Pressable
+                      onHoverIn={() => setHoverPrint(true)}
+                      onHoverOut={() => setHoverPrint(false)}
                       onPress={() => printQRCode(selectedProduct.qr_code)}
                       style={{
-                        backgroundColor: "#4A70A9",
-                        paddingVertical: 6,
-                        paddingHorizontal: 10,
-                        borderRadius: 6,
-                        marginBottom: 6,
-                        width: 90,
+                        borderWidth: 1,
+                        borderColor: "rgb(139, 132, 132)",
+                        borderRadius: 50,
+                        backgroundColor: hoverPrint
+                          ? "#a7a5a5"
+                          : "#fff",
+                        paddingVertical: 8,
+                        paddingHorizontal: 12,
+                        alignItems: "center",
+                        justifyContent: "center",
                       }}
                     >
-                      <Text
-                        style={{
-                          color: "#ffffffff",
-                          textAlign: "center",
-                          fontWeight: "700",
-                          fontFamily: "Montserrat-Regular",
-                          fontSize: 10,
-                        }}
-                      >
-                        PRINT QR
-                      </Text>
+                      <Ionicons name="print-outline" size={16} color="#000" />
                     </Pressable>
 
                     <Pressable
+                      onHoverIn={() => setHoverDownload(true)}
+                      onHoverOut={() => setHoverDownload(false)}
                       onPress={() => downloadQRCode(selectedProduct.qr_code)}
                       style={{
-                        backgroundColor: "#4A70A9",
-                        paddingVertical: 6,
-                        paddingHorizontal: 10,
-                        borderRadius: 6,
-                        marginBottom: 10,
-                        width: 90,
+                        borderWidth: 1,
+                        borderColor: "rgb(139, 132, 132)",
+                        borderRadius: 20,
+                        backgroundColor: hoverDownload
+                          ? "#a7a5a5"
+                          : "#fff",
+                        paddingVertical: 8,
+                        paddingHorizontal: 12,
+                        alignItems: "center",
+                        justifyContent: "center",
                       }}
                     >
-                      <Text
-                        style={{
-                          color: "#ffffffff",
-                          textAlign: "center",
-                          fontWeight: "700",
-                          fontFamily: "Montserrat-Regular",
-                          fontSize: 10,
-                        }}
-                      >
-                        DOWNLOAD
-                      </Text>
+                      <Ionicons name="download-outline" size={16} color="#000" />
                     </Pressable>
+                    </View>
 
                     {selectedProduct?.qr_code && (
                       <Image
                         source={{ uri: selectedProduct.qr_code }}
-                        style={{ width: 220, height: 220, borderRadius: 8 }}
+                        style={{ width: 200, height: 220, borderRadius: 8 }}
                         resizeMode="contain"
                       />
                     )}
