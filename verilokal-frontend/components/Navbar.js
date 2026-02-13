@@ -3,7 +3,7 @@ import { usePathname, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-export default function Navbar() {
+export default function Navbar({ links }) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -15,13 +15,6 @@ export default function Navbar() {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-
-  const links = [
-    { name: "HOME", route: "/" },
-    { name: "ABOUT", route: "/aboutme" },
-    { name: "CONTACT", route: "/contact" },
-    { name: "JOIN US", route: "/login-business"},
-  ];
 
   useEffect(() => {
     const handleResize = () => {
@@ -103,9 +96,7 @@ export default function Navbar() {
           ))}
         </View>
       )}
-
-      {/* Spacer to prevent content overlap */}
-      <View style={{ height: 70 }} />
+      
     </>
   );
 }
@@ -129,6 +120,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 5,
+    
   },
   logo: {
     width: 140,

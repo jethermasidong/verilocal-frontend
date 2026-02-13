@@ -465,6 +465,7 @@ const deleteProduct = async (productId) => {
       style={{ flex: 1, }}
       contentContainerStyle={{ alignItems: "center", paddingVertical: 40, paddingHorizontal: 20 }}
     >
+    
       {/* Welcome Section */}
       <View style={{ 
         width: "100%", 
@@ -872,7 +873,7 @@ const deleteProduct = async (productId) => {
                 }}
                 onPress={() => {
                   setProfileSidebarVisible(false);
-                  router.push("/business/manageAccount");
+                  router.push("/business/businessProfile");
                 }}
               >
                 <Text style={{ textAlign: "center", fontWeight: "600" }}>
@@ -1439,15 +1440,17 @@ const deleteProduct = async (productId) => {
               Edit Product
             </Text>
 
-            <TextInput
-              placeholder="Product Name"
-              value={editForm.name}
-              onChangeText={(t) => setEditForm({ ...editForm, name: t })}
-              style={{ borderWidth: 1, borderRadius: 8, padding: 10, marginBottom: 8 }}
-            />
+            <View style={{marginBottom: 7 }}>
+              <TextInput
+                placeholder="Product Name"
+                value={editForm.name}
+                onChangeText={(t) => setEditForm({ ...editForm, name: t })}
+                style={{ borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 16}}
+              />
+            </View>
 
             <View
-              style={{ borderWidth: 1, borderRadius: 8, padding: 10, marginBottom: 8 }}>
+              style={{marginBottom: 7 }}>
               <Picker
                 selectedValue={editForm.type}
                 onValueChange={(v) => {
@@ -1463,7 +1466,7 @@ const deleteProduct = async (productId) => {
             </Picker>
             </View>
             {editForm.type === "woodcraft" && (
-              <View style={{ borderWidth: 1, borderRadius: 8, padding: 10, marginBottom: 8 }}>
+              <View style={{marginBottom: 7 }}>
                 <Picker 
                 selectedValue={editForm.materials}
                 onValueChange={(v) => handleInputChange("materials", v)}
@@ -1477,70 +1480,75 @@ const deleteProduct = async (productId) => {
                 </View>
             )}  
 
-            <TextInput
-              placeholder="Origin"
-              value={editForm.origin}
-              onChangeText={(t) => setEditForm({ ...editForm, origin: t })}
-              style={{ borderWidth: 1, borderRadius: 8, padding: 10, marginBottom: 8 }}
-            />
+            <View style={{marginBottom: 7 }}>
+              <TextInput
+                placeholder="Origin"
+                value={editForm.origin}
+                onChangeText={(t) => setEditForm({ ...editForm, origin: t })}
+                style={{ borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 16}}
+              />
+            </View>
 
-            <TextInput
-              placeholder="Production Date"
-              value={editForm.productionDate}
-              onChangeText={(t) =>
-                setEditForm({ ...editForm, productionDate: t })
-              }
-              style={{ borderWidth: 1, borderRadius: 8, padding: 10, marginBottom: 8 }}
-            />
-
-            <TextInput
-              placeholder="Description"
-              multiline
-              value={editForm.description}
-              onChangeText={(t) =>
-                setEditForm({ ...editForm, description: t })
-              }
-              style={{
-                borderWidth: 1,
-                borderRadius: 8,
-                padding: 10,
-                height: 80,
-                marginBottom: 12,
-              }}
-            />
-
-            <Pressable
-              onPress={() => {
-                if (selectedProduct?.id) {
-                  updateProduct(selectedProduct.id);
-                } else {
-                  alert("No product selected!");
+            <View style={{marginBottom: 7 }}>
+              <TextInput
+                placeholder="Production Date"
+                value={editForm.productionDate}
+                onChangeText={(t) =>
+                  setEditForm({ ...editForm, productionDate: t })
                 }
-              }}
-              style={{
-                backgroundColor: "#4A70A9",
-                paddingVertical: 10,
-                borderRadius: 8,
-                marginBottom: 8,
-              }}
-            >
-              <Text style={{ color: "#fff", textAlign: "center", fontWeight: "700" }}>
-                SAVE
-              </Text>
-            </Pressable>
+                style={{ borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 16}}
+              />
+            </View>
 
-            <Pressable
-              style={{
-                backgroundColor: "#000",
-                paddingVertical: 10,
-                borderRadius: 8,
-              }}
-              onPress={() => setEditModalVisible(false)}
-            >
-              <Text style={{ color: "#fff", textAlign: "center", fontWeight: "700" }}>
-                CANCEL
-              </Text>
-            </Pressable>
+            <View style={{marginBottom: 7 }}>
+              <TextInput
+                placeholder="Description"
+                multiline
+                value={editForm.description}
+                onChangeText={(t) =>
+                  setEditForm({ ...editForm, description: t })
+                }
+                style={{ borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 16, height: 300,}}
+              />
+            </View>
+
+            <View style={{ flex: 1 , flexDirection: "row", alignSelf: "flex-end", gap: 8, }}>
+              <Pressable
+                onPress={() => {
+                  if (selectedProduct?.id) {
+                    updateProduct(selectedProduct.id);
+                  } else {
+                    alert("No product selected!");
+                  }
+                }}
+                style={{
+                  backgroundColor: "#4A70A9",
+                  paddingVertical: 10,
+                  borderRadius: 8,
+                  padding: 10,
+                  minWidth: 70,
+                }}
+              >
+                <Text style={{ color: "#fff", textAlign: "center", fontWeight: "700" }}>
+                  SAVE
+                </Text>
+              </Pressable>
+
+              <Pressable
+                style={{
+                  backgroundColor: "#000",
+                  paddingVertical: 10,
+                  borderRadius: 8,
+                  padding: 10,
+                  minWidth: 70,
+                }}
+                onPress={() => setEditModalVisible(false)}
+              >
+                <Text style={{ color: "#fff", textAlign: "center", fontWeight: "700" }}>
+                  CANCEL
+                </Text>
+              </Pressable>
+            </View>
           </View>
         </View>
       </Modal>
@@ -1568,7 +1576,7 @@ const deleteProduct = async (productId) => {
             elevation: 50,
             zIndex: 99999,
             shadowColor: "#000",
-            shadowOpacity: 0.2,
+            shadowOpacity: 0.1,
             shadowRadius: 6,
           }}
         >

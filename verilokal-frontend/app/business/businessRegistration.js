@@ -389,7 +389,6 @@ export default function RegisterBusiness() {
             </View>
 
             <View style={[styles.col, isMobile && { minWidth: "100%"}]}>
-            {/* pachange na lang ng error message sa social links */}
               <Text style={[styles.label,isMobile && { marginTop: -22}]}>Social Link*</Text>
               <TextInput
                 style={[styles.input, errors.social_link && styles.inputError]}
