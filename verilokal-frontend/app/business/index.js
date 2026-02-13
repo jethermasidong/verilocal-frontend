@@ -258,6 +258,7 @@ export default function BusinessDashboard() {
     }
   };
 
+  //QRCODE PRINT - using html
   const printQRCode = (qrUrl) => {
     if (!qrUrl) return;
 
@@ -283,6 +284,188 @@ export default function BusinessDashboard() {
     printWindow.print();
     printWindow.close();
   };
+
+  //REPORT GENERATION PRINT - using html
+
+  const reportGenerator = () => {
+    if (!business || products.length === 0) return;
+    const today = new Date().toLocaleDateString();
+
+    const html = `
+    <html>
+    <head>
+      <title>Business Report</title>
+      <style>
+        body {
+            font-family: Arial;
+            padding: 40px;
+            color: #111;
+        }
+        h1, h2, h3 {
+            margin-top: 12px;
+            margin-bottom: 5px;
+            font-family:Arial, Helvetica, sans-serif;
+        }
+        .cover {
+            text-align:center;
+            margin-top: 120px;
+        }
+        .section {
+            margin-top: 30px;
+        }
+        .information {
+            margin-top: 30px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding-left: 20px;
+        }
+        .products {
+            margin-top: 30px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding-left: 20px;
+            padding-right: 20px;
+            padding-bottom: 20px;
+        }
+        .summary-box {
+            display:flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        .card {
+            border: 1px solid #ccc;
+            padding: 14px;
+            border-radius: 8px;
+            flex: 1;
+            text-align: center;
+        }  
+        .product {
+            border: 1px solid #ccc;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 18px;
+            page-break-inside: avoid;
+        }
+        img {
+            max-width: 140px;
+            margin-top: 8px;
+        }
+        table {
+            width: 100%px;
+            margin-top: 10px;
+        }
+        td {
+            padding: 4px;
+        }
+        .blockchain {
+            background: #f4f4f4;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 2px;
+
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+        }
+        @media print {
+          button {display:none}
+        }
+        .image-box {
+          margin-top: 20px;
+          width: 100px;
+          height: 100px;
+          border-radius: 12px;
+          overflow: hidden;
+          border: 1px solid #ccc;
+        }
+
+        .image-box img {
+          width: 100%;
+          height: 100%;
+          object-fit: wrap;
+        }
+        </style>
+      </head>
+    
+      <body>
+        <div class="cover">
+            <h1>${businessname}</h1>
+            <h2>Business Report</h2>
+            <p>Generated ${today}</p>
+            <p><strong>BY: VERILOCAL PH</strong></p>
+        </div>
+
+        <div class="information">
+            <h1>Business Information</h1>
+            <p><strong>Owner:</strong>${business.name || "-"} </p>
+            <p><strong>Email:</strong>${business.email || "-"} </p>
+            <p><strong>Address:</strong>${business.address || "-"} </p>
+            <p><strong>Contact Number:</strong>${business.contact_no || "-"} </p>
+        </div>
+
+        <div class="section">
+            <h2>Business Summary</h2>
+            <div class="summary-box">
+                <div class="card">
+                    <h3>${products.length}</h3>
+                    <p>Total Products</p>
+                </div>
+                <div class="card">
+                    <h3>${[...new Set(products.map(p => p.type))].length}</h3>
+                    <p>Product Types</p>
+                </div>
+                <div class="card">
+                    <h3>${[...new Set(products.map(p => p.materials))].length}</h3>
+                    <p>Materials</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="products">
+            <h2>Product Catalog</h2>
+            ${products.map(p => `<div class="products">
+                <div class="image-box">
+                ${p.product_image ? `<img src="${p.product_image}"/>` : ""}
+                </div>
+                <h3>${p.name}</h3>
+                <table>
+                    <tr><td><strong>Type:</strong></td><td>${p.type}</td></tr>
+                    <tr><td><strong>Materials:</strong></td><td>${p.materials}</td></tr>
+                    <tr><td><strong>Origin:</strong></td><td>${p.origin}</td></tr>
+                    <tr><td><strong>Production Date:</strong></td><td>${p.productionDate}</td></tr>
+                </table>
+                <p><strong>Description:</strong></p>
+                <p>${p.description}</p>
+
+                <div class="blockchain">
+                    <p><strong>Transaction Hash:</strong></p>
+                    <p>${p.tx_hash  || "-"}</p>
+                    ${p.qr_code ? ` <img src="${p.qr_code}"/>` : ""}
+                </div>
+
+            </div>
+            `).join("")}
+            </div>
+
+            <div class="footer">
+                <p>Confidential - Generated by VERILOCAL.</p>
+            </div>
+            
+            <script>
+                window.onload = () => window.print();           
+            </script>
+      </body>
+      </html>
+      `;
+
+      const win = window.open("", "_blank");
+      win.document.write(html);
+      win.document.close();
+  };
+
 
 const deleteProduct = async (productId) => {
   try {
@@ -638,8 +821,7 @@ const deleteProduct = async (productId) => {
             cursor: "pointer", 
           }}
             ref={filterRef}
-            onPress={() => {
-            }}
+            onPress={reportGenerator}
           >
             <Ionicons name="archive-outline" size={30} />
           </Pressable>
