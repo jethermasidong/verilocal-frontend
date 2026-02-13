@@ -73,12 +73,8 @@ export default function BusinessDashboard() {
     : typeof selectedProduct?.process_images === "string"
     ? JSON.parse(selectedProduct.process_images)
     : [];
-
-  const CAROUSEL_WIDTH = 350;
   
   console.log("Process images:", processImages);
-
-
 
   useEffect(() => {
     const loadBusinessesName = async () => {
@@ -573,7 +569,6 @@ const deleteProduct = async (productId) => {
             borderColor: "#000",
             borderWidth: 2,
             elevation: 3,
-            borderRadius: 20,
           }}
           onPress={() => router.push("/business/productRegistration")}
         >
