@@ -267,7 +267,7 @@ export default function BusinessDashboard() {
         <head>
           <style>
             body { text-align: center; padding: 20px; font-family: Arial; }
-            img { width: 220px; height: 220px; margin-top: 20px; }
+            img { width: 250px; height: 250px; margin-top: 50px; }
           </style>
         </head>
         <body>

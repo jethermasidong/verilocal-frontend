@@ -1,26 +1,49 @@
-import React, { useEffect, useRef, useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { useEffect, useRef, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  TextInput,
-  Pressable,
-  ScrollView,
   Animated,
   Dimensions,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 
 const { width } = Dimensions.get("window");
 
 export default function BusinessProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [activePanel, setActivePanel] = useState(null);
+  const [business, setBusiness] = useState("");
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
   const dropdownAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+        const fetchBusinessProfile = async () => {
+          try {
+            const token = await AsyncStorage.getItem("token");
+  
+            const res = await axios.get(
+              "http://localhost:3000/api/business/profile",
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              }
+            );
+  
+            setBusiness(res.data);
+          } catch (err) {
+            console.error("Failed to load business profile:", err);
+          }
+        };
+        fetchBusinessProfile();
+      }, []);
 
   useEffect(() => {
     Animated.parallel([
@@ -77,8 +100,8 @@ export default function BusinessProfile() {
           />
 
           <View style={styles.headerText}>
-            <Text style={styles.name}>Mondiguing Woodcrafts</Text>
-            <Text style={styles.location}>Baguio City</Text>
+            <Text style={styles.name}>{business.registered_business_name}</Text>
+            <Text style={styles.location}>{business.address}</Text>
           </View>
 
           <Pressable
@@ -102,17 +125,17 @@ export default function BusinessProfile() {
           <View style={styles.left}>
             <DetailItem
               icon="location-outline"
-              value="Asin Rd. Baguio City, Philippines"
+              value={business.address}
               editable={isEditing}
             />
             <DetailItem
               icon="call-outline"
-              value="09676767676"
+              value={business.contact_no}
               editable={isEditing}
             />
             <DetailItem
               icon="mail-outline"
-              value="mondiguing@gmail.com"
+              value={business.email}
               editable={isEditing}
             />
           </View>
