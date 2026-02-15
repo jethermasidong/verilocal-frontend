@@ -52,7 +52,7 @@ export default function BusinessDashboard() {
   const [businessname, setRegisteredBusinessName] = useState(null);
 
   //Edit Modal
-  const [editModalVisible, setEditModalVisible] =useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
 
   //Profile Sidebar
   const [profileSidebarVisible, setProfileSidebarVisible] = useState(false);
@@ -306,7 +306,7 @@ export default function BusinessDashboard() {
         }
         .cover {
             text-align:center;
-            margin-top: 120px;
+            margin-top: 40px;
         }
         .section {
             margin-top: 30px;
@@ -344,12 +344,14 @@ export default function BusinessDashboard() {
             margin-bottom: 18px;
             page-break-inside: avoid;
         }
-        img {
-            max-width: 140px;
-            margin-top: 8px;
+        .products img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: wrap;
+            
         }
         table {
-            width: 100%px;
+            width: 100%;
             margin-top: 10px;
         }
         td {
@@ -362,6 +364,10 @@ export default function BusinessDashboard() {
             margin-top: 2px;
 
         }
+        .blockchain img {
+            width: 100px;
+            height: auto;
+        }
         .footer {
             margin-top: 50px;
             text-align: center;
@@ -372,24 +378,38 @@ export default function BusinessDashboard() {
           button {display:none}
         }
         .image-box {
-          margin-top: 20px;
-          width: 100px;
-          height: 100px;
-          border-radius: 12px;
-          overflow: hidden;
-          border: 1px solid #ccc;
+              margin-top: 20px;
+              width: 150px;
+              height: 100px;     
+              border-radius: 12px;
+              background: #fff;
+              border: 1px solid #ccc;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              overflow: hidden;
         }
 
-        .image-box img {
-          width: 100%;
-          height: 100%;
-          object-fit: wrap;
+        .logo_img {
+            display: block;
+            margin: 0 auto 25px;
+            width: 320px !important;
+            max-width: none !important;
+            height: auto;
+        }
+
+        
+        .logo_img {
+            margin-bottom: 20px;
+            width: 300px;
+            height: auto;
         }
         </style>
       </head>
     
       <body>
         <div class="cover">
+            <img src="https://i.ibb.co/fVP96C9G/1771116726361-8a57e78d-bdd5-4b52-94f5-a008e1dfcf33.png" class="logo_img">
             <h1>${businessname}</h1>
             <h2>Business Report</h2>
             <p>Generated ${today}</p>
@@ -437,10 +457,10 @@ export default function BusinessDashboard() {
                 </table>
                 <p><strong>Description:</strong></p>
                 <p>${p.description}</p>
+                <p><strong>Transaction Hash:</strong></p>
+                <p>${p.tx_hash  || "-"}</p>
 
                 <div class="blockchain">
-                    <p><strong>Transaction Hash:</strong></p>
-                    <p>${p.tx_hash  || "-"}</p>
                     ${p.qr_code ? ` <img src="${p.qr_code}"/>` : ""}
                 </div>
 
