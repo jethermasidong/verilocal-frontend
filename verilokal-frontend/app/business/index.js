@@ -1201,6 +1201,7 @@ const deleteProduct = async (productId) => {
                         </Pressable>
                       </View>
                     <View style={{position: "auto",}}>
+
                         {/* DELETE PRODUCT BUTTON */}
                         <Pressable
                           onPress={() => {
@@ -1247,6 +1248,7 @@ const deleteProduct = async (productId) => {
                         <Text
                           style={{
                             fontSize: 18,
+                            fontFamily: "Montserrat-Regular",
                             fontWeight: "bold",
                             marginBottom: 10,
                           }}
@@ -1254,7 +1256,7 @@ const deleteProduct = async (productId) => {
                           Delete Product
                         </Text>
 
-                        <Text style={{ marginBottom: 20 }}>
+                        <Text style={{ marginBottom: 20, fontFamily: "Montserrat-Regular"}}>
                           Are you sure you want to delete this product?
                         </Text>
 
@@ -1273,7 +1275,7 @@ const deleteProduct = async (productId) => {
                             }}
                             onPress={() => setShowDeleteModal(false)}
                           >
-                            <Text>Cancel</Text>
+                            <Text style={{fontFamily: "Montserrat-Regular"}}>Cancel</Text>
                           </Pressable>
 
                           <Pressable
@@ -1287,7 +1289,7 @@ const deleteProduct = async (productId) => {
                               setShowDeleteModal(false);
                             }}
                           >
-                            <Text style={{ color: "#fff" }}>Delete</Text>
+                            <Text style={{ color: "#fff", fontFamily: "Montserrat-Regular" }}>Delete</Text>
                           </Pressable>
                         </View>
                       </View>

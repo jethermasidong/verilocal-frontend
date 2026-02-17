@@ -76,17 +76,12 @@ export default function BusinessLogin() {
         { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
       );
 
-      const { token, business } = response.data;
-      await AsyncStorage.setItem("token", token);
-      await AsyncStorage.setItem("business_id", business.id.toString());
-      await AsyncStorage.setItem("name", business.name);
-      await AsyncStorage.setItem(
-        "registered_business_name",
-        business.registered_business_name
-      );
-
-      Alert.alert("Success", "Business login successful!");
-      router.replace("/business");
+      Alert.alert("OTP Sent", "Check your email for OTP");
+      router.push({
+        pathname: "/otp",
+        params: {email}
+      });
+      
     } catch (error) {
       if (error.response?.status === 404) {
         setErrors({ email: " ", password: "Incorrect Username or Password" });
@@ -100,7 +95,6 @@ export default function BusinessLogin() {
     }
   };
   
-
   useEffect(() => {
       Animated.parallel([
         Animated.timing(fadeAnim, {

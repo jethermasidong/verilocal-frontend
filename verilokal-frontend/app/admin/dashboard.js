@@ -44,6 +44,17 @@ export default function AdminDashboard() {
     }
   };
 
+  const deleteBusiness = async (id) => {
+    try {
+      await axios.delete(`${serverUrl}/api/admin/delete/${id}`);
+      Alert.alert("Success", "Business Deleted");
+      setPendingBusinesses((prev) => prev.filter((b) => b.id !== id));
+    } catch (error) {
+      Alert.alert("Error", "Delete failed");
+      console.error(error);
+    }
+  };
+
   const showImage = (imgPath) => {
     if (!imgPath) return;
 
@@ -176,11 +187,11 @@ export default function AdminDashboard() {
                 <Text style={{ flex: 1.2 }}>{b.registered_business_name}</Text>
                 <Text style={{ flex: 2 }}>{b.description}</Text>
 
-                {/* Product Image */}
+                {/* Business Permit */}
                 <View style={{ flex: 1, alignItems: "center" }}>
-                  {b.product_img ? (
+                  {b.permit ? (
                     <TouchableOpacity
-                      onPress={() => showImage(b.product_img)}
+                      onPress={() => showImage(b.permit)}
                       style={{
                         backgroundColor: "#146C94",
                         paddingVertical: 6,
@@ -188,31 +199,48 @@ export default function AdminDashboard() {
                         borderRadius: 6,
                       }}
                     >
-                      <Text style={{ color: "white", fontWeight: "700" }}>
-                        View
-                      </Text>
+                      <Text style={{ color: "white", fontWeight: "700" }}>View</Text>
                     </TouchableOpacity>
                   ) : (
                     <Text>-</Text>
                   )}
                 </View>
 
+
                 {/* Certificates */}
                 <View style={{ flex: 1, alignItems: "center" }}>
                   {b.certificates ? (
-                    <TouchableOpacity
-                      onPress={() => showImage(b.certificates)}
-                      style={{
-                        backgroundColor: "#146C94",
-                        paddingVertical: 6,
-                        paddingHorizontal: 10,
-                        borderRadius: 6,
-                      }}
-                    >
-                      <Text style={{ color: "white", fontWeight: "700" }}>
-                        View
-                      </Text>
-                    </TouchableOpacity>
+                    (() => {
+                      let certArray = [];
+                      try {
+                        certArray = typeof b.certificates === "string" 
+                          ? JSON.parse(b.certificates)  
+                          : b.certificates;
+                      } catch (e) {
+                        certArray = [b.certificates];
+                      }
+                      return certArray.length > 0 ? (
+                        certArray.map((cert, idx) => (
+                          <TouchableOpacity
+                            key={idx}
+                            onPress={() => showImage(cert)}
+                            style={{
+                              backgroundColor: "#146C94",
+                              paddingVertical: 6,
+                              paddingHorizontal: 10,
+                              borderRadius: 6,
+                              marginBottom: 4,
+                            }}
+                          >
+                            <Text style={{ color: "white", fontWeight: "700" }}>
+                              View {idx + 1}
+                            </Text>
+                          </TouchableOpacity>
+                        ))
+                      ) : (
+                        <Text>-</Text>
+                      );
+                    })()
                   ) : (
                     <Text>-</Text>
                   )}
@@ -242,12 +270,14 @@ export default function AdminDashboard() {
                 <Text style={{ flex: 1.1 }}>{b.contact_no}</Text>
 
                 {/* Verify Button */}
+                <View style={{gap: 5, flexDirection: 'row'}}>
                 <TouchableOpacity
                   onPress={() => handleVerify(b.id)}
                   style={{
                     flex: 0.9,
-                    backgroundColor: "#FF8C00",
+                    backgroundColor: "#5cbe7a",
                     paddingVertical: 8,
+                    paddingHorizontal: 8,
                     borderRadius: 8,
                     alignItems: "center",
                   }}
@@ -256,6 +286,22 @@ export default function AdminDashboard() {
                     Verify
                   </Text>
                 </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => deleteBusiness(b.id)}
+                  style={{
+                    flex: 0.9,
+                    backgroundColor: "#aa4a4a",
+                    paddingVertical: 8,
+                    paddingHorizontal: 8,
+                    borderRadius: 8,
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={{ color: "white", fontWeight: "700" }}>
+                    Delete
+                  </Text>
+                </TouchableOpacity>
+                </View>
               </View>
             ))
           )}
