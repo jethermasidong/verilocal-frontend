@@ -256,6 +256,9 @@ export default function BusinessDashboard() {
     }
   };
 
+
+
+
   //QRCODE PRINT - using html
   const printQRCode = (qrUrl) => {
     if (!qrUrl) return;
@@ -283,8 +286,10 @@ export default function BusinessDashboard() {
     printWindow.close();
   };
 
-  //REPORT GENERATION PRINT - using html
 
+
+
+  //REPORT GENERATION PRINT - using html
   const reportGenerator = () => {
     if (!business || products.length === 0) return;
     const today = new Date().toLocaleDateString();
@@ -588,10 +593,9 @@ const deleteProduct = async (productId) => {
         duration: 200,
         useNativeDriver: true,
       }).start(() => {
-        setShowProfileBtn(false); // unmount after fade-out
+        setShowProfileBtn(false);
       });
     } else {
-      // mount first, then fade IN
       setShowProfileBtn(true);
       Animated.timing(profileBtnOpacity, {
         toValue: 1,
@@ -605,7 +609,7 @@ const deleteProduct = async (productId) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const isProgrammaticScroll = useRef(false);
 
-  const ITEM_WIDTH = 350 + 10; // image width + marginRight
+  const ITEM_WIDTH = 350 + 10; 
 
   {/* Register Button Hover Animations */}
   const [hoverRegister, setHoverRegister] = useState(false);

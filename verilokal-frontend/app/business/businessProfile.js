@@ -19,6 +19,10 @@ const { width } = Dimensions.get("window");
 export default function BusinessProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [activePanel, setActivePanel] = useState(null);
+  const togglePanel = (panel) => {
+    setActivePanel(prev => prev === panel ? null : panel);
+  };
+
   const [business, setBusiness] = useState("");
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -45,6 +49,16 @@ export default function BusinessProfile() {
         fetchBusinessProfile();
       }, []);
 
+  let certificatesArray = [];
+  try {
+    certificatesArray =
+      typeof business.certificates === "string"
+        ? JSON.parse(business.certificates)
+        : business.certificates;
+  } catch {
+    certificatesArray = [];
+  }
+
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -60,22 +74,13 @@ export default function BusinessProfile() {
     ]).start();
   }, [isEditing]);
 
-  const togglePanel = (panel) => {
-    if (activePanel === panel) {
-      Animated.timing(dropdownAnim, {
-        toValue: 0,
-        duration: 250,
-        useNativeDriver: true,
-      }).start(() => setActivePanel(null));
-    } else {
-      setActivePanel(panel);
-      Animated.timing(dropdownAnim, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
-    }
-  };
+  useEffect(() => {
+    Animated.timing(dropdownAnim, {
+      toValue: activePanel ? 1 : 0,
+      duration: 250,
+      useNativeDriver: true,
+    }).start();
+  }, [activePanel]);
 
   const dropdownStyle = {
     opacity: dropdownAnim,
@@ -95,7 +100,7 @@ export default function BusinessProfile() {
         {/* Header */}
         <View style={styles.header}>
           <Image
-            source={{ uri: "https://via.placeholder.com/300" }}
+            source={business.logo}
             style={styles.avatar}
           />
 
@@ -148,30 +153,60 @@ export default function BusinessProfile() {
               <IconButton
                 icon="images-outline"
                 label="Certificates"
-                active={activePanel === "gallery"}
-                onPress={() => togglePanel("gallery")}
+                active={activePanel === "certificates"}
+                onPress={() => togglePanel("certificates")}
               />
               <IconButton
                 icon="cube-outline"
                 label="Permits"
-                active={activePanel === "products"}
-                onPress={() => togglePanel("products")}
+                active={activePanel === "permits"}
+                onPress={() => togglePanel("permits")}
               />
               <IconButton
                 icon="construct-outline"
-                label="Products"
-                active={activePanel === "process"}
-                onPress={() => togglePanel("process")}
+                label="Logo"
+                active={activePanel === "logo"}
+                onPress={() => togglePanel("logo")}
               />
             </View>
 
-            {activePanel && (
+            {activePanel === "permits" && (
               <Animated.View style={[styles.dropdown, dropdownStyle]}>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  {[1, 2, 3].map((item) => (
+                  {[1].map((item) => (
                     <Image
                       key={item}
-                      source={{ uri: "https://via.placeholder.com/240x160" }}
+                      source={business.permit}
+                      style={styles.dropdownImage}
+                    />
+                  ))}
+                </ScrollView>
+              </Animated.View>
+            )}
+            {activePanel === "certificates" &&(
+              <Animated.View style={[styles.dropdown, dropdownStyle]}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  {certificatesArray.length > 0 ? (
+                    certificatesArray.map((cert, index) => (
+                        <Image
+                          key={index}
+                          source={{uri: cert}}
+                          style={styles.dropdownImage}
+                        />
+                    ))
+                  ) : (
+                    <Text>No certificates</Text>    
+                  )}
+                </ScrollView>
+              </Animated.View>
+            )}
+            {activePanel === "logo" && (
+              <Animated.View style={[styles.dropdown, dropdownStyle]}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  {[1].map((item) => (
+                    <Image
+                      key={item}
+                      source={business.logo}
                       style={styles.dropdownImage}
                     />
                   ))}
@@ -245,7 +280,7 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    backgroundColor: "#dcd6ff",
+    backgroundColor: "#acbffc5d",
     padding: 32,
     flexDirection: "row",
     alignItems: "center",
@@ -253,8 +288,8 @@ const styles = StyleSheet.create({
   },
 
   avatar: {
-    width: 300,
-    height: 300,
+    width: 230,
+    height: 230,
     borderRadius: 200,
     borderWidth: 4,
     borderColor: "#fff",
@@ -267,19 +302,21 @@ const styles = StyleSheet.create({
   },
 
   name: {
-    fontSize: 40,
+    fontSize: 44,
     fontWeight: "800",
+    fontFamily: 'Montserrat-Bold'
   },
 
   location: {
-    fontSize: 26,
+    fontSize: 22,
     color: "#444",
     marginTop: 6,
+    fontFamily: 'Montserrat-Regular'
   },
 
   editButton: {
     flexDirection: "row",
-    backgroundColor: "#4f46e5",
+    backgroundColor: "#466be5",
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 24,
@@ -295,6 +332,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 14,
     fontWeight: "700",
+    fontFamily: 'Montserrat-Regular'
   },
 
   details: {
@@ -330,14 +368,15 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    fontSize: 16,
+    fontSize: 14,
+    fontFamily: 'Montserrat-Regular',
     borderWidth: 1,
     borderColor: "#d1d5db",
   },
 
   inputEditable: {
     backgroundColor: "#fff",
-    borderColor: "#4f46e5",
+    borderColor: "#466be5",
   },
 
   previewImage: {
@@ -359,6 +398,7 @@ const styles = StyleSheet.create({
   hintText: {
     fontSize: 14,
     color: "#555",
+    fontFamily: 'Montserrat-Regular'
   },
   iconRow: {
     flexDirection: "row",
@@ -380,13 +420,14 @@ const styles = StyleSheet.create({
   },
 
   iconButtonActive: {
-    backgroundColor: "#4f46e5",
-    borderColor: "#4f46e5",
+    backgroundColor: "#466be5",
+    borderColor: "#466be5",
   },
 
   iconLabel: {
     fontSize: 13,
     fontWeight: "600",
+    fontFamily: 'Montserrat-Regular'
   },
 
   dropdown: {
