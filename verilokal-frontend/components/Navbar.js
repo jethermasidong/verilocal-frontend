@@ -1,9 +1,17 @@
 import { useFonts } from "expo-font";
 import { usePathname, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Dimensions,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
-export default function Navbar({ links }) {
+export default function Navbar({ links, showProfile, onProfilePress }) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -17,27 +25,21 @@ export default function Navbar({ links }) {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const handleResize = () => {
+    const updateLayout = () => {
       setIsMobile(Dimensions.get("window").width < 600);
     };
-    handleResize();
-    Dimensions.addEventListener("change", handleResize);
-    return () => Dimensions.removeEventListener("change", handleResize);
+    updateLayout();
+    Dimensions.addEventListener("change", updateLayout);
+    return () =>
+      Dimensions.removeEventListener("change", updateLayout);
   }, []);
 
-  if (!fontsLoaded) {
-    return (
-      <View>
-        <Text>Loading fonts...</Text>
-      </View>
-    );
-  }
+  if (!fontsLoaded) return null;
 
   return (
     <>
-      {/* Navbar Container */}
       <View style={styles.navbar}>
-        {/* Logo */}
+        {/* LOGO */}
         <TouchableOpacity onPress={() => router.push("/")}>
           <Image
             source={require("../assets/images/verilokal_text.png")}
@@ -46,7 +48,7 @@ export default function Navbar({ links }) {
           />
         </TouchableOpacity>
 
-        {/* Links */}
+        {/* LINKS */}
         {isMobile ? (
           <TouchableOpacity onPress={() => setMenuOpen(!menuOpen)}>
             <Text style={styles.menuIcon}>☰</Text>
@@ -68,11 +70,25 @@ export default function Navbar({ links }) {
                 </Text>
               </TouchableOpacity>
             ))}
+
+            {/* PROFILE BUTTON */}
+            {showProfile && (
+              <TouchableOpacity
+                onPress={onProfilePress}
+                style={{ marginLeft: 5 }}
+              >
+                <Ionicons
+                  name="person-circle-outline"
+                  size={30}
+                  color="#000"
+                />
+              </TouchableOpacity>
+            )}
           </View>
         )}
       </View>
 
-      {/* Mobile Dropdown Menu */}
+      {/* MOBILE MENU */}
       {menuOpen && isMobile && (
         <View style={styles.mobileMenu}>
           {links.map((link) => (
@@ -84,19 +100,25 @@ export default function Navbar({ links }) {
               }}
               style={styles.mobileLink}
             >
-              <Text
-                style={[
-                  styles.mobileText,
-                  pathname === link.route && styles.activeNavText,
-                ]}
-              >
-                {link.name}
-              </Text>
+              <Text style={styles.mobileText}>{link.name}</Text>
             </TouchableOpacity>
           ))}
+
+          {showProfile && (
+            <TouchableOpacity
+              onPress={() => {
+                onProfilePress();
+                setMenuOpen(false);
+              }}
+              style={styles.mobileLink}
+            >
+              <Text style={styles.mobileText}>
+                PROFILE
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       )}
-      
     </>
   );
 }
@@ -114,13 +136,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 1000,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ffffff",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
     elevation: 5,
-    
   },
   logo: {
     width: 140,
@@ -128,23 +144,20 @@ const styles = StyleSheet.create({
   },
   navLinks: {
     flexDirection: "row",
+    alignItems: "center",
     gap: 24,
   },
   navText: {
     fontSize: 14,
-    color: "#000000",
+    color: "#000",
     fontFamily: "Montserrat-Regular",
-
-    justifyContent: "center",
-
   },
   activeNavText: {
     color: "#5177b0",
-    fontWeight: "bold",
+    fontWeight: "700",
   },
   menuIcon: {
     fontSize: 26,
-    color: "#000",
   },
   mobileMenu: {
     position: "absolute",
@@ -153,10 +166,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     padding: 15,
     borderRadius: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
     zIndex: 999,
   },
   mobileLink: {
@@ -164,7 +173,6 @@ const styles = StyleSheet.create({
   },
   mobileText: {
     fontSize: 14,
-    color: "#000",
     fontFamily: "Montserrat-Regular",
   },
 });
