@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from 'axios';
 import { Slot, usePathname, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -40,7 +41,6 @@ export default function BusinessLayout() {
                 headers: { Authorization: `Bearer ${token}` },
               }
             );
-  
             setBusiness(res.data);
           } catch (err) {
             console.error("Failed to load business profile:", err);
@@ -115,21 +115,25 @@ export default function BusinessLayout() {
           >
             {/* PROFILE */}
             <View style={{ alignItems: "center", marginBottom: 20 }}>
-              {business?.logo ? (
+              {business && business.logo ? (
                  <Image
                 source={{uri: business.logo}}
-                style={{width: 80, height: 80}}
+                style={{width: 100, height: 100, borderRadius: 100, borderColor: '#000' ,borderWidth: 2, marginBottom: 10}}
               />
               ) : (
                 <Ionicons
                   name="person-circle-outline"
-                  size={90}
+                  size={100}
                   color="#000"
                 />
               )}
-              <Text style={{ fontSize: 16, fontWeight: "700", fontFamily: 'Montserrat-Bold' }}>
-                Your Business
-              </Text>
+                {business && business.registered_business_name ? (
+                  <Text style={{ fontSize: 16, fontWeight: "700", fontFamily: 'Montserrat-Bold' }}>
+                  {business.registered_business_name}
+                  </Text>
+                ) : (
+                  <Text style={{ fontSize: 16, fontWeight: "700", fontFamily: 'Montserrat-Bold' }}> Your Business </Text>
+                )}
               <Text style={{ fontSize: 12, color: "#666", fontFamily: 'Montserrat-Regular' }}>
                 Business Account
               </Text>
