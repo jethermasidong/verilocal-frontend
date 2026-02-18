@@ -284,7 +284,7 @@ export default function BusinessLogin() {
                 <Text
                   style={{ color: "#4A70A9", fontWeight: "bold" }}
                   onPress={() =>
-                    router.push("/business/businessRegistration")
+                    router.push("/businessRegistration")
                   }
                 >
                   Sign up

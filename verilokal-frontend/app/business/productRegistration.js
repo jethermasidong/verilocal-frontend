@@ -302,6 +302,7 @@ export default function RegisterProduct() {
     }
   }, [form.productionStartDate, form.productionEndDate]);
 
+  const STANDARD_INPUT_HEIGHT = 44;
 
   return (
     <Animated.View style = 
@@ -310,8 +311,9 @@ export default function RegisterProduct() {
         flex: 1,
         transform: [{ translateY: slideAnim }],
       }}>
-    <ScrollView 
-      style={{ flex: 1, backgroundColor: "#f6f7fb" }}
+    <View 
+      style={{ flex: 1, backgroundColor: "#f6f7fb", paddingHorizontal: 16, paddingTop: 12, justifyContent: 'center',
+  alignItems: 'center'}}
       contentContainerStyle={{ alignItems: "center", paddingVertical: 20 }}
     >
       <View style={[styles.card, isMobile && {flexDirection: "column"}]}>
@@ -572,7 +574,7 @@ export default function RegisterProduct() {
           </View>
         </View>
       )}
-    </ScrollView>
+    </View>
   </Animated.View>
   );
 }
@@ -598,9 +600,9 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   card: {
-    width: "100%",
-    maxWidth: 1300,
-    maxHeight: 1000,
+    width: "75%",
+    minHeight: "100%",
+    maxWidth: 1850,
     backgroundColor: "#fff",
     borderRadius: 20,
     overflow: "hidden",
@@ -636,6 +638,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginTop: 0,
     marginBottom: 4,
+    fontSize: 13,
   },
   leftPanel: {
     width: "30%",
@@ -648,16 +651,16 @@ const styles = StyleSheet.create({
   statusMessage: { fontSize: 12, color: "#67AA61", marginBottom: 10 },
 
   formTitle: {
-    fontSize: 30,
+    fontSize: 26,
     fontWeight: "700",
-    marginBottom: 2,
+    marginBottom: 4,
     textAlign: "left",
     fontFamily: "Montserrat-Bold",
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "500",
-    marginBottom: 14,
+    marginBottom: 12,
     textAlign: "left",
     fontFamily: "Montserrat-Regular",
   },
@@ -665,11 +668,21 @@ const styles = StyleSheet.create({
   columnsWrapper: { justifyContent: "space-between", gap: 20 },
   column: { flex: 1, minWidth: 0, marginBottom: 20 },
 
-  inputContainer: { marginBottom: 15, },
-  input: { borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", },
-  picker: { borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 16, },
+  inputContainer: { marginBottom: 10, },
+  input: {
+  borderWidth: 1,
+  borderColor: "#ccc",
+  paddingHorizontal: 12,
+  height: 44,
+  borderRadius: 8,
+  backgroundColor: "#fafafa",
+  width: "100%",
+  fontFamily: "Montserrat-Regular",
+  fontSize: 14, 
+},
+  picker: { height: 44, borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 14, },
   errorInput: { borderColor: "red" },
-  errorText: { color: "red", marginTop: 4, marginBottom: 6, fontFamily: "Montserrat-Regular", },
+  errorText: { color: "red", marginTop: 1, marginBottom: 2, fontFamily: "Montserrat-Regular", fontSize: 12,},
 
   dateWrapper: { flexDirection: "row", alignItems: "center", padding: 12, borderWidth: 1, borderColor: "#ccc", borderRadius: 8, backgroundColor: "#fafafa", marginBottom: 10 },
   webDateWrapper: { display: "flex", flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 10 },
@@ -681,11 +694,11 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderRadius: 12,
     padding: 10,
-    height: 135,
+    height: 96,
     textAlignVertical: "top",
   },
-  imagePicker: { borderWidth: 1, borderColor: "#ccc", padding: 20, borderRadius: 10, alignItems: "center", backgroundColor: "#fafafa", height: 200, justifyContent: "center", marginBottom: 15, width: "100%" },
-  imagePreview: { width: "100%", height: "100%", borderRadius: 10 },
+  imagePicker: { borderWidth: 1, borderColor: "#ccc", padding: 20, borderRadius: 10, alignItems: "center", backgroundColor: "#fafafa", height: 140, justifyContent: "center", marginBottom: 15, width: "100%" },
+  imagePreview: { width: "100%", height: "100%", borderRadius: 8, objectFit: "cover", },
   imageText: { color: "#666", fontFamily: "Montserrat-Regular", paddingBottom: 20,},
 
   submitButton: { backgroundColor: "#4A70A9", padding: 14, borderRadius: 50, alignItems: "center", marginTop: 10 },
