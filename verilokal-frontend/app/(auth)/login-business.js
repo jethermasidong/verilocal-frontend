@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
@@ -58,16 +57,6 @@ export default function BusinessLogin() {
     if (Object.keys(newErrors).length > 0) return;
 
     setIsLoading(true);
-
-    const ADMIN_EMAIL = "admin@verilokal.com";
-    const ADMIN_PASSWORD = "verilokal@2025";
-
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      await AsyncStorage.setItem("isAdmin", "true");
-      Alert.alert("Success", "Admin login successful!");
-      router.replace("/admin/dashboard");
-      return;
-    }
 
     try {
       const response = await axios.post(

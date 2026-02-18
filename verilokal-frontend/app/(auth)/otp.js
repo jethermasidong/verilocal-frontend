@@ -17,13 +17,20 @@ export default function OtpScreen() {
       const response = await axios.post("http://localhost:3000/api/verify-otp", { email, otp });
 
       const { token, business } = response.data;
-
       await AsyncStorage.setItem("token", token);
       await AsyncStorage.setItem("business_id", business.id.toString());
       await AsyncStorage.setItem("name", business.name);
 
-      Alert.alert("Login success");
-      router.replace("/business");
+      const ADMIN_EMAIL = 'verilocalphi@gmail.com'
+      if (email.toLowerCase() === ADMIN_EMAIL) {
+        await AsyncStorage.setItem("isAdmin", "true");
+        Alert.alert("Admin Login Success!");
+        router.replace("/admin/dashboard");
+      } else {
+        await AsyncStorage.removeItem("isAdmin");
+        Alert.alert("Login success");
+        router.replace("/business");
+      }
 
     } catch (error) {
       console.error(error.response?.data || error.message);

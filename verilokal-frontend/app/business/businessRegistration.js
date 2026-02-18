@@ -225,9 +225,17 @@ export default function RegisterBusiness() {
       setEmail(""); setPassword(""); setContactNo(""); setSocialLink(""); setErrors({}); setConsent(false);
 
     } catch (error){
+      const serverMessage = error.response?.data?.message || "Submission failed. Please try again.";
       Alert.alert("Error", "Submission failed.");
       setStatusMessage("Failed to register business!");
       setStatusType(error);
+
+      if (serverMessage.toLowerCase().includes('email')) {
+        setErrors(prev => ({ ...prev, email: "This email is already registered!"}));
+      }
+      if (serverMessage.toLowerCase().includes('registered_business_name')) {
+        setErrors(prev => ({ ...prev, email: "This business name is already taken!"}));
+      }
     } finally {
       setIsLoading(false);
     }
