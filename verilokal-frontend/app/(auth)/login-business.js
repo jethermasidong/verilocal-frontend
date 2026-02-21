@@ -176,17 +176,18 @@ export default function BusinessLogin() {
             <View style={{ flex: 1, padding: 20, justifyContent: "center" }}>
               <Text
                 style={{
-                  fontSize: 25,
-                  fontFamily: "Montserrat-Bold",
+                  fontSize: 24,
+                  fontFamily: "Montserrat-Regular",
+                  fontWeight: 'bold',
                   color: "#000",
                   marginBottom: 20,
                 }}
               >
-                LOGIN
+                Business Login
               </Text>
 
               {/* EMAIL */}
-              <Text style={{ fontSize: 12, marginBottom: 5 }}>
+              <Text style={{ fontSize: 13, marginBottom: 5, fontFamily: 'Montserrat-Regular' }}>
                 Email*
               </Text>
               <TextInput
@@ -198,22 +199,24 @@ export default function BusinessLogin() {
                 }}
                 style={{
                   borderWidth: 1,
+                  fontFamily: 'Montserrat-Regular',
+                  fontSize: 13,
                   borderColor: errors.email ? "#ff4d4d" : "#000",
                   borderRadius: 10,
                   backgroundColor: "#fff",
                   paddingHorizontal: 15,
                   height: 44,
-                  marginBottom: 10,
+                  marginBottom: 5,
                 }}
               />
               {errors.email && (
-                <Text style={{ color: "#ff4d4d", fontSize: 12 }}>
+                <Text style={{ color: "#ff4d4d", fontSize: 10, fontFamily: 'Montserrat-Regular', alignSelf: 'flex-end'}}>
                   {errors.email}
                 </Text>
               )}
 
               {/* PASSWORD */}
-              <Text style={{ fontSize: 12, marginBottom: 5 }}>
+              <Text style={{ fontSize: 13, marginBottom: 5, fontFamily: 'Montserrat-Regular' }}>
                 Password*
               </Text>
               <TextInput
@@ -228,14 +231,16 @@ export default function BusinessLogin() {
                   borderWidth: 1,
                   borderColor: errors.password ? "#ff4d4d" : "#000",
                   borderRadius: 10,
+                  fontSize: 13,
+                  fontFamily: 'Montserrat-Regular',
                   backgroundColor: "#fff",
                   paddingHorizontal: 15,
                   height: 44,
-                  marginBottom: 15,
+                  marginBottom: 5,
                 }}
               />
               {errors.password && (
-                <Text style={{ color: "#ff4d4d", fontSize: 12 }}>
+                <Text style={{ color: "#ff4d4d", fontSize: 10, fontFamily: 'Montserrat-Regular', alignSelf: 'flex-end' }}>
                   {errors.password}
                 </Text>
               )}
@@ -248,12 +253,12 @@ export default function BusinessLogin() {
                 disabled={isLoading}
                 style={{
                   backgroundColor: hoveredScan ? "#000000" : "#5177b0",
-                  height: 44,
+                  height: 40,
                   borderRadius: 25,
                   alignItems: "center",
                   justifyContent: "center",
                   marginVertical: 15,
-                  width: "60%",
+                  width: "40%",
                   alignSelf: "center",
                   shadowColor: "#000000",
                   shadowOpacity: 0.5,
@@ -262,13 +267,13 @@ export default function BusinessLogin() {
                   cursor: "pointer",
                 }}
               >
-                <Text style={{ color: "#fff", fontSize: 16 }}>
+                <Text style={{ color: "#fff", fontSize: 14, fontFamily: 'Montserrat-Regular' }}>
                   Login
                 </Text>
               </Pressable>
 
               {/* SIGN UP */}
-              <Text style={{ textAlign: "center", fontSize: 13 }}>
+              <Text style={{ textAlign: "center", fontSize: 13, fontFamily: 'Montserrat-Regular' }}>
                 Don’t have an account?{" "}
                 <Text
                   style={{ color: "#4A70A9", fontWeight: "bold" }}

@@ -76,11 +76,18 @@ export default function RegisterProduct() {
   if (!selectedDate) return;
 
   if (dateType === "start") {
+    if (form.productionEndDate && selectedDate > new Date(form.productionEndDate)) {
+      handleInputChange("productionEndDate", "");
+    }
     handleInputChange("productionStartDate", selectedDate);
   } else if (dateType === "end") {
-    handleInputChange("productionEndDate", selectedDate);
-  }
-};
+      if (form.productionStartDate && selectedDate < new Date(form.productionStartDate)) {
+      Alert.alert("Invalid Date", "End date cannot be earlier than the start date.");
+      return;
+      }
+      handleInputChange("productionEndDate", selectedDate);
+    }
+  };
 
 
   //IMAGE SIZE LIMIT
@@ -419,10 +426,16 @@ export default function RegisterProduct() {
                   />
                    <input
                     type="date"
+                    min={form.productionStartDate}
                     value={form.productionEndDate}
-                    onChange={(e) =>
-                      setForm({...form, productionEndDate: e.target.value})
-                    }
+                    onChange={(e) => {
+                      const selectedEnd = e.target.value;
+                      if (form.productionStartDate && selectedEnd < form.productionStartDate) {
+                        Alert.alert("Error", "End date cannot be before start date");
+                        return;
+                      }
+                      setForm({...form, productionEndDate: selectedEnd });
+                    }}
                     style={styles.webDateInput}
                   />
                 </>
@@ -494,7 +507,6 @@ export default function RegisterProduct() {
                         const updatedImages = form.processImages.filter(
                           (_, i) => i !== index
                         );
-
                         setForm({
                           ...form,
                           processImages: updatedImages,
@@ -541,6 +553,7 @@ export default function RegisterProduct() {
                     : new Date()
               }
               mode="date"
+              minimumDate={dateType === "end" && form.productionStartDate ? new Date(form.productionStartDate) : undefined}
               maximumDate={new Date()}
               onChange={onDateChange}
             />
@@ -639,6 +652,7 @@ const styles = StyleSheet.create({
     marginTop: 0,
     marginBottom: 4,
     fontSize: 13,
+    fontFamily: 'Montserrat-Regular'
   },
   leftPanel: {
     width: "30%",

@@ -1,15 +1,16 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { useLocalSearchParams, useRouter } from "expo-router";
 import { useFonts } from "expo-font";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
+  Animated,
   Pressable,
   Text,
   TextInput,
   View,
-  Animated,
 } from "react-native";
 
 const OTP_LENGTH = 6;
@@ -21,7 +22,9 @@ export default function OtpScreen() {
   const [otp, setOtp] = useState("");
   const inputRef = useRef(null);
 
-  /* Cursor blink animation */
+  const [isLoading, setIsLoading] = useState(false);
+
+ 
   const blinkAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -46,6 +49,8 @@ export default function OtpScreen() {
       return Alert.alert("Please enter the 6-digit OTP");
     }
 
+    setIsLoading(true);
+
     try {
       const response = await axios.post(
         "http://localhost:3000/api/verify-otp",
@@ -57,6 +62,7 @@ export default function OtpScreen() {
       await AsyncStorage.setItem("business_id", business.id.toString());
       await AsyncStorage.setItem("name", business.name);
 
+      
       const ADMIN_EMAIL = 'verilocalphi@gmail.com'
       if (email.toLowerCase() === ADMIN_EMAIL) {
         await AsyncStorage.setItem("isAdmin", "true");
@@ -72,6 +78,8 @@ export default function OtpScreen() {
       Alert.alert(
         error.response?.data?.message || "Invalid or expired OTP"
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -84,6 +92,7 @@ export default function OtpScreen() {
       Alert.alert("Error resending OTP");
     }
   };
+
 
   useFonts({
     "Garet-Book": require("../../assets/fonts/garet/Garet-Book.ttf"),
@@ -237,6 +246,33 @@ export default function OtpScreen() {
           The OTP (One-Time Password) will expire in 5 minutes of activation.
         </Text>
       </View>
+      {isLoading && (
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0,0,0,0.4)",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999,
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: "#fff",
+              padding: 20,
+              borderRadius: 12,
+              alignItems: "center",
+            }}
+          >
+            <ActivityIndicator size="large" color="#5177b0" />
+            <Text style={{ marginTop: 10 }}>Logging in...</Text>
+          </View>
+        </View>
+      )}  
     </View>
   );
 }

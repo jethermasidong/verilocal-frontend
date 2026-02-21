@@ -517,9 +517,9 @@ export default function RegisterBusiness() {
 
 const styles = StyleSheet.create({
   card: {
-    width: "100%",
-    maxWidth: 1500,
-    minHeight: 600,
+    width: "80%",
+    maxWidth: 1300,
+    minHeight: 400,
     backgroundColor: "#fff",
     borderRadius: 20,
     overflow: "hidden",
@@ -527,7 +527,7 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   leftPanel: {
-    width: "30%",
+    width: "25%",
     justifyContent: "center",
     alignItems: "center",
     padding: 0,
@@ -542,7 +542,7 @@ const styles = StyleSheet.create({
     padding: 28,
     backgroundColor: "#fff",
   },
-  statusMessage: { padding: 10, borderRadius: 8, textAlign: "center", fontWeight: "600", marginTop: 20 },
+  statusMessage: { padding: 10, borderRadius: 8, textAlign: "center", fontWeight: "600", marginTop: 20, fontFamily: "Montserrat-Regular" },
   successMessage: { backgroundColor: "#d4edda", color: "#155724", fontFamily: "Montserrat-Regular" },
   errorMessage: { backgroundColor: "#f8d7da", color: "#721c24", fontFamily: "Montserrat-Regular" },
   title: {
@@ -553,7 +553,7 @@ const styles = StyleSheet.create({
     fontFamily: "Montserrat-Bold",
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "500",
     marginBottom: 14,
     textAlign: "left",
@@ -573,7 +573,9 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginTop: 0,
     marginBottom: 4,
-  },
+    fontFamily: "Montserrat-Regular",
+    fontSize: 12
+  },  
   input: {
     width: "100%",
     borderWidth: 1,
@@ -582,6 +584,8 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 4,
     alignItems: "center",
+    fontFamily: "Montserrat-Regular",
+    fontSize: 12
   },
   textArea: {
     width: "100%",
@@ -592,6 +596,9 @@ const styles = StyleSheet.create({
     height: 125,
     textAlignVertical: "top",
     marginBottom: 4,
+    fontFamily: "Montserrat-Regular",
+    fontSize: 12
+
   },
   inputError: {
     borderColor: "red",
@@ -605,7 +612,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderStyle: "dashed",
     borderColor: "#aaa",
-    padding: 35,
+    padding: 30,
     borderRadius: 12,
     marginTop: 6,
     alignItems: "center",
@@ -621,6 +628,7 @@ const styles = StyleSheet.create({
   submitText: {
     color: "#fff",
     fontWeight: "600",
+    fontFamily: "Montserrat-Regular"
   },
 
 });

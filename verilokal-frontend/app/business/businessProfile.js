@@ -162,12 +162,6 @@ export default function BusinessProfile() {
                 active={activePanel === "permits"}
                 onPress={() => togglePanel("permits")}
               />
-              <IconButton
-                icon="construct-outline"
-                label="Logo"
-                active={activePanel === "logo"}
-                onPress={() => togglePanel("logo")}
-              />
             </View>
 
             {activePanel === "permits" && (
@@ -200,19 +194,6 @@ export default function BusinessProfile() {
                 </ScrollView>
               </Animated.View>
             )}
-            {activePanel === "logo" && (
-              <Animated.View style={[styles.dropdown, dropdownStyle]}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  {[1].map((item) => (
-                    <Image
-                      key={item}
-                      source={business.logo}
-                      style={styles.dropdownImage}
-                    />
-                  ))}
-                </ScrollView>
-              </Animated.View>
-            )}
           </View>
         </View>
 
@@ -233,7 +214,6 @@ export default function BusinessProfile() {
   );
 }
 
-/* ---------- COMPONENTS ---------- */
 
 function DetailItem({ icon, value, editable }) {
   return (

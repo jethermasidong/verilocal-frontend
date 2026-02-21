@@ -14,6 +14,7 @@ import {
   ImageBackground,
   Linking,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   Text,
@@ -110,14 +111,53 @@ export default function BusinessDashboard() {
 
 
   //EDIT FORM
-  const [editForm, setEditForm] =useState({
+  const [editForm, setEditForm] = useState({
     name: "",
     type: "",
     materials: "",
     origin: "",
+    productionStartDate: "",
+    productionEndDate: "",
     productionDate: "",
     description: "",
   });
+
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  const onDateChange = (event, selectedDate) => {
+    setShowDatePicker(false);
+    if (!selectedDate) return;
+
+    if(dateType === "start") {
+      if (editForm.productionEndDate && selectedDate > new Date(editForm.productionEndDate)) {
+        handleInputChange
+      }
+      handleInputChange("productionStartDate", selectedDate);
+    } else if (dateType === "end") {
+        if (editForm.productionStartDate && selectedDate < new Date(editForm.productionStartDate)) {
+          Alert.alert("Invalid Date", "End date cannot be earlier than the start date.");
+          return;
+          }
+          handleInputChange("productionEndDate", selectedDate);
+        }
+      };
+
+    useEffect(() => {
+        if (editForm.productionStartDate && editForm.productionEndDate) {
+          const start = formatDate(editForm.productionStartDate);
+          const end = formatDate(editForm.productionEndDate);
+          setEditForm(prev => ({
+            ...prev,
+            productionDate: `${start} - ${end}`,
+          }));
+        }
+      }, [editForm.productionStartDate, editForm.productionEndDate]);
 
   const processImages = Array.isArray(selectedProduct?.process_images)
     ? selectedProduct.process_images
@@ -227,6 +267,14 @@ export default function BusinessDashboard() {
 };
 
   const openEditModal = (product) => {
+    let start = "";
+    let end = "";
+
+    if (product.productionDate?.includes(" - ")) {
+      const parts = product.productionDate.split(" - ");
+      start = parts[0];
+      end = parts[1];
+    }
     setSelectedProduct(product);
     setEditForm({
       name: product.name || "",
@@ -234,10 +282,22 @@ export default function BusinessDashboard() {
       materials: product.materials || "",
       description: product.description || "",
       type: product.type?.toLowerCase() || "",
+      productionStart: start,
+      productionEnd: end,
       productionDate: product.productionDate || "",
     });
     setEditModalVisible(true);
   };
+
+  useEffect(() => {
+    if (editForm.productionStart && editForm.productionEnd) {
+      setEditForm(prev => ({
+        ...prev,
+        productionDate: `${prev.productionStart} - ${prev.productionEnd}`,
+      }));
+    }
+  }, [editForm.productionStart, editForm.productionEnd]);
+
 
   const downloadQRCode = async (qrUrl) => {
     try {
@@ -415,7 +475,7 @@ export default function BusinessDashboard() {
       <body>
         <div class="cover">
             <img src="https://i.ibb.co/fVP96C9G/1771116726361-8a57e78d-bdd5-4b52-94f5-a008e1dfcf33.png" class="logo_img">
-            <h1>${businessname}</h1>
+            <h1>${business.registered_business_name}</h1>
             <h2>Business Report</h2>
             <p>Generated ${today}</p>
             <p><strong>BY: VERILOCAL PH</strong></p>
@@ -1506,6 +1566,7 @@ const deleteProduct = async (productId) => {
             </Text>
 
             <View style={{marginBottom: 7 }}>
+              <Text style={{fontWeight: "600", marginTop: 0, marginBottom: 4, fontSize: 13, fontFamily: 'Montserrat-Regular',}}>Product Name*</Text>
               <TextInput
                 placeholder="Product Name"
                 value={editForm.name}
@@ -1516,6 +1577,7 @@ const deleteProduct = async (productId) => {
 
             <View
               style={{marginBottom: 7 }}>
+              <Text style={{fontWeight: "600", marginTop: 0, marginBottom: 4, fontSize: 13, fontFamily: 'Montserrat-Regular',}}>Type*</Text>
               <Picker
                 selectedValue={editForm.type}
                 onValueChange={(v) => {
@@ -1525,10 +1587,11 @@ const deleteProduct = async (productId) => {
               style={{ borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 16}}
             >
               <Picker.Item label="Select Type" value="" />
-              <Picker.Item label="Woodcraft" value="woodcraft" />
-              <Picker.Item label="Textile" value="textile" />
-              <Picker.Item label="Jewelry" value="jewelry" />
+              <Picker.Item label="Woodcrafts" value="woodcraft" />
+              <Picker.Item label="Weaving and Textiles" value="textile" />
+              <Picker.Item label="Pottery" value="pottery" />
             </Picker>
+            <Text style={{fontWeight: "600", marginTop: 6, marginBottom: 1, fontSize: 13, fontFamily: 'Montserrat-Regular',}}>Materials*</Text>
             </View>
             {editForm.type === "woodcraft" && (
               <View style={{marginBottom: 7 }}>
@@ -1538,14 +1601,49 @@ const deleteProduct = async (productId) => {
                 style={{ borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 16 }}
                 >
                   <Picker.Item label="Select Material" value="" />
-                  <Picker.Item label="Kamagong Wood" value="Kamagong Wood" />
-                  <Picker.Item label="Acacia Wood" value="Acacia Wood" />
-                  <Picker.Item label="Pine Wood" value="Pine Wood" />
+                  <Picker.Item label="Kamagong" value="Kamagong" />
+                  <Picker.Item label="Acacia" value="Acacia" />
+                  <Picker.Item label="Narra" value="Narra" />
+                  <Picker.Item label="Molave" value="Molave" />
+                  <Picker.Item label="Mahogany" value="Mahogany" />
+                  <Picker.Item label="Batikuling" value="Batikuling" />
+                  <Picker.Item label="Gmelina" value="Gmelina" />
                 </Picker>
                 </View>
             )}  
+            {editForm.type === "textile" && (
+              <View style={{marginBottom: 7 }}>
+                <Picker 
+                selectedValue={editForm.materials}
+                onValueChange={(v) => handleInputChange("materials", v)}
+                style={{ borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 16 }}
+                >
+                  <Picker.Item label="Select Material" value="" />
+                  <Picker.Item label="Abaca" value="Abaca" />
+                  <Picker.Item label="Piña" value="Piña" />
+                  <Picker.Item label="Cotton" value="Cotton" />
+                  <Picker.Item label="Silk" value="Silk" />
+                  <Picker.Item label="Maguay" value="Maguay" />
+                </Picker>
+                </View>
+            )} 
+            {editForm.type === "pottery" && (
+              <View style={{marginBottom: 7 }}>
+                <Picker 
+                selectedValue={editForm.materials}
+                onValueChange={(v) => handleInputChange("materials", v)}
+                style={{ borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 16 }}
+                >
+                  <Picker.Item label="Select Material" value="" />
+                  <Picker.Item label="Red Clay (Lutang Pula)" value="Stoneware Clay" />
+                  <Picker.Item label="White Clay (Kaolin" value="White Clay (Kaolin)" />
+                  <Picker.Item label="Stoneware Clay" value="Stoneware Clay" />
+                </Picker>
+                </View>
+            )}    
 
             <View style={{marginBottom: 7 }}>
+              <Text style={{fontWeight: "600", marginTop: 0, marginBottom: 4, fontSize: 13, fontFamily: 'Montserrat-Regular',}}>Origin* (Start to End)</Text>
               <TextInput
                 placeholder="Origin"
                 value={editForm.origin}
@@ -1555,17 +1653,67 @@ const deleteProduct = async (productId) => {
             </View>
 
             <View style={{marginBottom: 7 }}>
-              <TextInput
-                placeholder="Production Date"
-                value={editForm.productionDate}
-                onChangeText={(t) =>
-                  setEditForm({ ...editForm, productionDate: t })
-                }
-                style={{ borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 16}}
-              />
-            </View>
+              <Text style={{fontWeight: "600", marginTop: 0, marginBottom: 4, fontSize: 13, fontFamily: 'Montserrat-Regular',}}>Production Date* (Start to End)</Text>
+                {Platform.OS === "web" ? (
+                  <>
+                  <input
+                    type="date"
+                    value={editForm.productionStartDate}
+                    onChange={(e) =>
+                    setEditForm({...editForm, productionStartDate: e.target.value})
+                    }
+                    style={{borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8, backgroundColor: "#fafafa", width: "93%",fontFamily: "Montserrat-Regular", fontSize: 16, marginBottom: 7}}
+                  />
+                   <input
+                    type="date"
+                    min={editForm.productionStartDate}
+                    value={editForm.productionEndDate}
+                    onChange={(e) => {
+                      const selectedEnd = e.target.value;
+                      if (editForm.productionStartDate && selectedEnd < editForm.productionStartDate) {
+                        Alert.alert("Error", "End date cannot be before start date");
+                        return;
+                      }
+                      setEditForm({...editForm, productionEndDate: selectedEnd });
+                    }}
+                    style={{borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8, backgroundColor: "#fafafa", width: "93%",fontFamily: "Montserrat-Regular", fontSize: 16}}
+                  />
+                </>
+                ) : (
+                  <>
+                  <Pressable
+                    style={{flexDirection: "row", alignItems: "center", padding: 12, borderWidth: 1, borderColor: "#ccc", borderRadius: 8, backgroundColor: "#fafafa", marginBottom: 10}}
+                    onPress={() => {
+                      setDateType("start");
+                      setShowDatePicker(true);
+                    }}
+                  >
+                    <Text>
+                      {editForm.productionStartDate
+                        ? formatDate(editForm.productionStartDate)
+                        : "Select Start Date"}
+                    </Text>
+                  </Pressable>
 
+                  <Pressable
+                    style={{flexDirection: "row", alignItems: "center", padding: 12, borderWidth: 1, borderColor: "#ccc", borderRadius: 8, backgroundColor: "#fafafa", marginBottom: 10}}
+                    onPress={() => {
+                      setDateType("end");
+                      setShowDatePicker(true);
+                    }}
+                  >
+                    <Text>
+                      {editForm.productionEndDate
+                        ? formatDate(editForm.productionEndDate)
+                        : "Select End Date"}
+                    </Text>
+                  </Pressable>
+                </>
+                )}
+            </View>
+            
             <View style={{marginBottom: 7 }}>
+              <Text style={{fontWeight: "600", marginTop: 0, marginBottom: 4, fontSize: 13, fontFamily: 'Montserrat-Regular',}}>Description*</Text>
               <TextInput
                 placeholder="Description"
                 multiline
