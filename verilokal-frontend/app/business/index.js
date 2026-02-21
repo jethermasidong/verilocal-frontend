@@ -610,6 +610,10 @@ const deleteProduct = async (productId) => {
           );
 
           setBusiness(res.data);
+
+          if (res.data.registered_business_name) {
+            setRegisteredBusinessName(res.data.registered_business_name);
+          }
         } catch (err) {
           console.error("Failed to load business profile:", err);
         }
@@ -765,7 +769,7 @@ const deleteProduct = async (productId) => {
             marginTop: 5,
           }}
         >
-          {businessname || ""}
+          {business?.registered_business_name || "Loading..."}
         </Text>
       </View>
 
