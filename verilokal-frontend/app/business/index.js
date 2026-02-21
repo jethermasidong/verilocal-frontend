@@ -273,7 +273,7 @@ export default function BusinessDashboard() {
   }  
 };
 
-  const openEditModal = (product) => {
+  const openEditModal = (product) => { 
     let start = "";
     let end = "";
 
@@ -1095,7 +1095,7 @@ const deleteProduct = async (productId) => {
                   contentContainerStyle={{ paddingBottom: 20 }}
                   showsVerticalScrollIndicator={false}
                 >
-                  <Text style={{ fontSize: 24, fontFamily: "Garet-Heavy", marginBottom: 6, }}>
+                  <Text style={{ fontSize: 24, fontFamily: "Montserrat-Bold", marginBottom: 6, }}>
                     {selectedProduct.name}
                     <View style={{ flexDirection: "row", gap: 3, position: "absolute", right: 0, top: 0, }}>
                       <View style={{position: "auto", }}>
@@ -1217,26 +1217,27 @@ const deleteProduct = async (productId) => {
 
 
                   <View style={{ marginBottom: 12 }}>
-                    <Text style={{ fontFamily: "Montserrat-Regular" }}>
+                    <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 14 }}>
                       <Text style={{ fontWeight: "600" }}>Type:</Text> {selectedProduct.type}
                     </Text>
-                    <Text style={{ fontFamily: "Montserrat-Regular" }}>
+                    <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 14 }}>
                       <Text style={{ fontWeight: "600" }}>Materials:</Text> {selectedProduct.materials}
                     </Text>
-                    <Text style={{ fontFamily: "Montserrat-Regular" }}>
+                    <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 14 }}>
                       <Text style={{ fontWeight: "600" }}>Origin:</Text> {selectedProduct.origin}
                     </Text>
-                    <Text style={{ fontFamily: "Montserrat-Regular" }}>
+                    <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 14 }}>
                       <Text style={{ fontWeight: "600" }}>Production Date:</Text> {selectedProduct.productionDate}
                     </Text>
                   </View>
-
-                  <Text style={{ marginTop: 8, fontWeight: "600", fontSize: 16, fontFamily: "Montserrat-Regular" }}>
-                    Description
+                  <Text style={{ marginTop: 8, fontWeight: "600", fontSize: 14, fontFamily: "Montserrat-Regular" }}>
+                    Description:
                   </Text>
+                  <View style={{ backgroundColor: "#f4f4f4", padding: 13, borderRadius: 12, borderWidth: 1, borderColor: "#d9d9d9", marginBottom: 15, marginTop: 5,}}>
                   <Text style={{ fontFamily: "Montserrat-Regular", marginBottom: 20 }}>
                     {selectedProduct.description}
                   </Text>
+                  </View>
                   {Array.isArray(processImages) && processImages.length > 0 && (
                     <View style={{ marginBottom: 20 }}>
                       <Text
