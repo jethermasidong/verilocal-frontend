@@ -1561,7 +1561,7 @@ const deleteProduct = async (productId) => {
               maxWidth: 420,
             }}
           >
-            <Text style={{ fontSize: 20, fontWeight: "700", marginBottom: 12 }}>
+            <Text style={{ fontSize: 18, fontWeight: "700", marginBottom: 12, fontFamily: 'Montserrat-Bold' }}>
               Edit Product
             </Text>
 
@@ -1571,7 +1571,7 @@ const deleteProduct = async (productId) => {
                 placeholder="Product Name"
                 value={editForm.name}
                 onChangeText={(t) => setEditForm({ ...editForm, name: t })}
-                style={{ borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 16}}
+                style={{ borderWidth: 1, borderColor: "#ccc", padding: 8, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 13}}
               />
             </View>
 
@@ -1584,7 +1584,7 @@ const deleteProduct = async (productId) => {
                 handleInputChange("type", v);
                 handleInputChange("materials", "");
               }}
-              style={{ borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 16}}
+              style={{ borderWidth: 1, borderColor: "#ccc", padding: 8, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 13}}
             >
               <Picker.Item label="Select Type" value="" />
               <Picker.Item label="Woodcrafts" value="woodcraft" />
@@ -1598,7 +1598,7 @@ const deleteProduct = async (productId) => {
                 <Picker 
                 selectedValue={editForm.materials}
                 onValueChange={(v) => handleInputChange("materials", v)}
-                style={{ borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 16 }}
+                style={{ borderWidth: 1, borderColor: "#ccc", padding: 8, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 13 }}
                 >
                   <Picker.Item label="Select Material" value="" />
                   <Picker.Item label="Kamagong" value="Kamagong" />
@@ -1616,7 +1616,7 @@ const deleteProduct = async (productId) => {
                 <Picker 
                 selectedValue={editForm.materials}
                 onValueChange={(v) => handleInputChange("materials", v)}
-                style={{ borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 16 }}
+                style={{ borderWidth: 1, borderColor: "#ccc", padding: 8, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 13 }}
                 >
                   <Picker.Item label="Select Material" value="" />
                   <Picker.Item label="Abaca" value="Abaca" />
@@ -1632,7 +1632,7 @@ const deleteProduct = async (productId) => {
                 <Picker 
                 selectedValue={editForm.materials}
                 onValueChange={(v) => handleInputChange("materials", v)}
-                style={{ borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 16 }}
+                style={{ borderWidth: 1, borderColor: "#ccc", padding: 8, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 13 }}
                 >
                   <Picker.Item label="Select Material" value="" />
                   <Picker.Item label="Red Clay (Lutang Pula)" value="Stoneware Clay" />
@@ -1643,12 +1643,12 @@ const deleteProduct = async (productId) => {
             )}    
 
             <View style={{marginBottom: 7 }}>
-              <Text style={{fontWeight: "600", marginTop: 0, marginBottom: 4, fontSize: 13, fontFamily: 'Montserrat-Regular',}}>Origin* (Start to End)</Text>
+              <Text style={{fontWeight: "600", marginTop: 0, marginBottom: 4, fontSize: 13, fontFamily: 'Montserrat-Regular',}}>Origin*</Text>
               <TextInput
                 placeholder="Origin"
                 value={editForm.origin}
                 onChangeText={(t) => setEditForm({ ...editForm, origin: t })}
-                style={{ borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 16}}
+                style={{ borderWidth: 1, borderColor: "#ccc", padding: 8, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 13}}
               />
             </View>
 
@@ -1662,7 +1662,7 @@ const deleteProduct = async (productId) => {
                     onChange={(e) =>
                     setEditForm({...editForm, productionStartDate: e.target.value})
                     }
-                    style={{borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8, backgroundColor: "#fafafa", width: "93%",fontFamily: "Montserrat-Regular", fontSize: 16, marginBottom: 7}}
+                    style={{borderWidth: 1, borderColor: "#ccc", padding: 8, borderRadius: 8, backgroundColor: "#fafafa", width: "95%",fontFamily: "Montserrat-Regular", fontSize: 13, marginBottom: 7}}
                   />
                    <input
                     type="date"
@@ -1675,14 +1675,14 @@ const deleteProduct = async (productId) => {
                         return;
                       }
                       setEditForm({...editForm, productionEndDate: selectedEnd });
-                    }}
-                    style={{borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8, backgroundColor: "#fafafa", width: "93%",fontFamily: "Montserrat-Regular", fontSize: 16}}
+                    }}s
+                    style={{borderWidth: 1, borderColor: "#ccc", padding: 8, borderRadius: 8, backgroundColor: "#fafafa", width: "95%",fontFamily: "Montserrat-Regular", fontSize: 13}}
                   />
                 </>
                 ) : (
                   <>
                   <Pressable
-                    style={{flexDirection: "row", alignItems: "center", padding: 12, borderWidth: 1, borderColor: "#ccc", borderRadius: 8, backgroundColor: "#fafafa", marginBottom: 10}}
+                    style={{flexDirection: "row", alignItems: "center", padding: 8, borderWidth: 1, borderColor: "#ccc", borderRadius: 8, backgroundColor: "#fafafa", marginBottom: 10}}
                     onPress={() => {
                       setDateType("start");
                       setShowDatePicker(true);
@@ -1696,7 +1696,7 @@ const deleteProduct = async (productId) => {
                   </Pressable>
 
                   <Pressable
-                    style={{flexDirection: "row", alignItems: "center", padding: 12, borderWidth: 1, borderColor: "#ccc", borderRadius: 8, backgroundColor: "#fafafa", marginBottom: 10}}
+                    style={{flexDirection: "row", alignItems: "center", padding: 8, borderWidth: 1, borderColor: "#ccc", borderRadius: 8, backgroundColor: "#fafafa", marginBottom: 10}}
                     onPress={() => {
                       setDateType("end");
                       setShowDatePicker(true);
@@ -1721,7 +1721,7 @@ const deleteProduct = async (productId) => {
                 onChangeText={(t) =>
                   setEditForm({ ...editForm, description: t })
                 }
-                style={{ borderWidth: 1, borderColor: "#ccc", padding: 12, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 16, height: 300,}}
+                style={{ borderWidth: 1, borderColor: "#ccc", padding: 8, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 14, height: 220,}}
               />
             </View>
 
@@ -1742,7 +1742,7 @@ const deleteProduct = async (productId) => {
                   minWidth: 70,
                 }}
               >
-                <Text style={{ color: "#fff", textAlign: "center", fontWeight: "700" }}>
+                <Text style={{ color: "#fff", textAlign: "center", fontWeight: "600", fontFamily: 'Montserrat-Regular'}}>
                   SAVE
                 </Text>
               </Pressable>
@@ -1757,7 +1757,7 @@ const deleteProduct = async (productId) => {
                 }}
                 onPress={() => setEditModalVisible(false)}
               >
-                <Text style={{ color: "#fff", textAlign: "center", fontWeight: "700" }}>
+                <Text style={{ color: "#fff", textAlign: "center", fontWeight: "600", fontFamily: 'Montserrat-Regular' }}>
                   CANCEL
                 </Text>
               </Pressable>
