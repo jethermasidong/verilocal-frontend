@@ -6,6 +6,7 @@ import { useFonts } from "expo-font";
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Animated,
   Dimensions,
   Easing,
@@ -68,6 +69,10 @@ export default function BusinessDashboard() {
 
   const hoverAnimReport = useRef(new Animated.Value(0)).current;
   const hoverAnimFilter = useRef(new Animated.Value(0)).current;
+
+  const [isLoading, setIsLoading] = useState(false);
+
+
   const onHoverIn = () => {
     Animated.spring(hoverAnimReport, {
       toValue: 1,
@@ -159,6 +164,7 @@ export default function BusinessDashboard() {
         }
       }, [editForm.productionStartDate, editForm.productionEndDate]);
 
+
   const processImages = Array.isArray(selectedProduct?.process_images)
     ? selectedProduct.process_images
     : typeof selectedProduct?.process_images === "string"
@@ -242,6 +248,7 @@ export default function BusinessDashboard() {
   };
 
   const updateProduct = async (id) => {
+  setIsLoading(true);
   try {
     const token = await AsyncStorage.getItem("token");
 
@@ -258,12 +265,12 @@ export default function BusinessDashboard() {
     setSelectedProduct(res.data);
     setEditModalVisible(false);
     setModalVisible(false);
-
+    setIsLoading(false);
     alert("Product updated successfully!");
   } catch (err) {
     console.error("Update failed:", err);
     alert("Failed to update product");
-  }
+  }  
 };
 
   const openEditModal = (product) => {
@@ -288,15 +295,6 @@ export default function BusinessDashboard() {
     });
     setEditModalVisible(true);
   };
-
-  useEffect(() => {
-    if (editForm.productionStart && editForm.productionEnd) {
-      setEditForm(prev => ({
-        ...prev,
-        productionDate: `${prev.productionStart} - ${prev.productionEnd}`,
-      }));
-    }
-  }, [editForm.productionStart, editForm.productionEnd]);
 
 
   const downloadQRCode = async (qrUrl) => {
@@ -1710,7 +1708,35 @@ const deleteProduct = async (productId) => {
                   </Pressable>
                 </>
                 )}
-            </View>
+            </View>    
+            
+            {isLoading && (
+              <View
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: "rgba(0,0,0,0.4)",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  zIndex: 9999,
+                }}
+              >
+                <View
+                  style={{
+                    backgroundColor: "#fff",
+                    padding: 20,
+                    borderRadius: 12,
+                    alignItems: "center",
+                  }}
+                >
+                  <ActivityIndicator size="large" color="#5177b0" />
+                  <Text style={{ marginTop: 10 }}>Logging in...</Text>
+                </View>
+              </View>
+            )}                    
             
             <View style={{marginBottom: 7 }}>
               <Text style={{fontWeight: "600", marginTop: 0, marginBottom: 4, fontSize: 13, fontFamily: 'Montserrat-Regular',}}>Description*</Text>
@@ -1767,9 +1793,8 @@ const deleteProduct = async (productId) => {
       </Modal>
     </ScrollView>
 
-     {/* New Code */}
+
     <Modal visible={showFilter} transparent animationType="fade">
-      {/* Click outside to close */}
       <Pressable
         style={{ flex: 1 }}
         onPress={() => setShowFilter(false)}
