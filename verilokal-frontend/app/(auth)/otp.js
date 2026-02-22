@@ -180,8 +180,8 @@ export default function OtpScreen() {
               <View
                 key={index}
                 style={{
-                  width: 52,
-                  height: 60,
+                  width: 50,
+                  height: 50,
                   borderWidth: 1.5,
                   borderRadius: 10,
                   borderColor: isActive

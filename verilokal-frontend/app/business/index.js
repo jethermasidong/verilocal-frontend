@@ -38,7 +38,6 @@ export default function BusinessDashboard() {
   //Loading
   const [loading, setLoading] = useState(true);
 
-
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   //Modal
@@ -46,7 +45,6 @@ export default function BusinessDashboard() {
 
   //Search
   const [searchQuery, setSearchQuery] = useState("");
-
 
   const [isTallImage, setIsTallImage] = useState(false);
 
@@ -65,14 +63,40 @@ export default function BusinessDashboard() {
   const [selectedTypes, setSelectedTypes] = useState("");
   const [selectedMaterials, setSelectedMaterials] = useState("");
 
+  //Delete Confirmation
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+  //Filter and Report Generation Animation
   const hoverAnimReport = useRef(new Animated.Value(0)).current;
   const hoverAnimFilter = useRef(new Animated.Value(0)).current;
 
   const [isLoading, setIsLoading] = useState(false);
 
+    //Product Modal Left and Right Button Hover Animation 
+  const [hoverLeft, setHoverLeft] = useState(false);
+  const [hoverRight, setHoverRight] = useState(false);
 
+  //Close, Edit, Delete, Print, Download Button Product Modal Hover Animation 
+  const [hoverClose, setHoverClose] = useState(false);
+  const [hoverEdit, setHoverEdit] = useState(false);
+  const [hoverDelete, setHoverDelete] = useState(false);
+  const [hoverPrint, setHoverPrint] = useState(false);
+  const [hoverDownload, setHoverDownload] = useState(false);
+
+  //Filter Function
+  const filterRef = useRef(null);
+  const [showFilter, setShowFilter] = useState(false);
+  const [filterPos, setFilterPos] = useState({ x: 0, y: 0, width: 0 });
+
+  const scrollRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const isProgrammaticScroll = useRef(false);
+  const ITEM_WIDTH = 350 + 10; 
+
+  const leftScale = useRef(new Animated.Value(1)).current;
+  const rightScale = useRef(new Animated.Value(1)).current;
+
+  //ANIMATION FUNCTIONS
   const onHoverIn = () => {
     Animated.spring(hoverAnimReport, {
       toValue: 1,
@@ -172,7 +196,6 @@ export default function BusinessDashboard() {
     : [];
 
   
-  console.log("Process images:", processImages);
 
   useEffect(() => {
     const loadBusinessesName = async () => {
@@ -182,7 +205,6 @@ export default function BusinessDashboard() {
     loadBusinessesName();
   }, []);
 
-  useEffect(() => {
     const fetchProducts = async () => {
       try {
         const token = await AsyncStorage.getItem("token");
@@ -197,27 +219,10 @@ export default function BusinessDashboard() {
         setLoading(false);
       }
     };
-    fetchProducts();
-  }, []);
+    useEffect(() => {
+      fetchProducts();
+    }, []);
 
-    const fetchProducts = async () => {
-      try {
-        const token = await AsyncStorage.getItem("token");
-        const res = await axios.get(
-          "http://localhost:3000/api/products/my-products",
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setProducts(res.data);
-      } catch (err) {
-        console.error("Error loading products:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-   useEffect(() => {
-    fetchProducts();
-  }, []);
 
   //Filter Function
   const filteredProducts = products.filter((p) => {
@@ -233,6 +238,8 @@ export default function BusinessDashboard() {
     return matchesSearch && matchesType && matchesMaterials;
 });
 
+
+
   const openModal = (product) => {
     setSelectedProduct(product);
     if (product.product_image) {
@@ -247,6 +254,8 @@ export default function BusinessDashboard() {
     setModalVisible(true);
   };
 
+
+  //UPDATE FUNCTION
   const updateProduct = async (id) => {
   setIsLoading(true);
   try {
@@ -273,6 +282,7 @@ export default function BusinessDashboard() {
   }  
 };
 
+//EDIT MODAL
   const openEditModal = (product) => { 
     let start = "";
     let end = "";
@@ -296,7 +306,7 @@ export default function BusinessDashboard() {
     setEditModalVisible(true);
   };
 
-
+  //QRCODE DOWNLOAD FUNCTION
   const downloadQRCode = async (qrUrl) => {
     try {
       const response = await fetch(qrUrl);
@@ -548,21 +558,22 @@ export default function BusinessDashboard() {
   };
 
 
-const deleteProduct = async (productId) => {
-  try {
-    const token = await AsyncStorage.getItem("token");
-    await axios.delete(
-      `http://localhost:3000/api/products/${productId}`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    setProducts((prev) => prev.filter((p) => p.id !== productId));
-    setModalVisible(false);
-    alert("Product deleted successfully!");
-  } catch (error) {
-    console.error("Delete Failed", error);
-    alert("Failed to delete product");
-  }
-};
+  //DELETE PRODUCT FUNCTION
+  const deleteProduct = async (productId) => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      await axios.delete(
+        `http://localhost:3000/api/products/${productId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setProducts((prev) => prev.filter((p) => p.id !== productId));
+      setModalVisible(false);
+      alert("Product deleted successfully!");
+    } catch (error) {
+      console.error("Delete Failed", error);
+      alert("Failed to delete product");
+    }
+  };
 
  const handleInputChange = (field, value) => {
     setEditForm((prev) => ({ ...prev, [field]: value }));
@@ -580,8 +591,6 @@ const deleteProduct = async (productId) => {
   });
 
 
-
-
   useEffect(() => {
       Animated.parallel([
         Animated.timing(fadeAnim, {
@@ -596,7 +605,9 @@ const deleteProduct = async (productId) => {
         }),
       ]).start();
     }, []);
+    
 
+    //BUSINESS PROFILE
     useEffect(() => {
       const fetchBusinessProfile = async () => {
         try {
@@ -620,7 +631,9 @@ const deleteProduct = async (productId) => {
       };
       fetchBusinessProfile();
     }, []);
+  
 
+    //BUSINESS PROFILE SIDEBAR
   const SIDEBAR_WIDTH = 280;
   const slideX = useRef(new Animated.Value(SIDEBAR_WIDTH)).current;
   const [sidebarMounted, setSidebarMounted] = useState(false);
@@ -667,21 +680,6 @@ const deleteProduct = async (productId) => {
     }
   }, [profileSidebarVisible]);
 
-  const scrollRef = useRef(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const isProgrammaticScroll = useRef(false);
-
-  const ITEM_WIDTH = 350 + 10; 
-
-  {/* Register Button Hover Animations */}
-  const [hoverRegister, setHoverRegister] = useState(false);
-
-  {/* Image Carousel Scroll and Button on Click Animations */}
-  const leftAnim = useRef(new Animated.Value(1)).current;
-  const rightAnim = useRef(new Animated.Value(1)).current;
-
-  const leftScale = useRef(new Animated.Value(1)).current;
-  const rightScale = useRef(new Animated.Value(1)).current;
 
   //Product Modal Left and Right Button Animations 
   const pressIn = (anim) => {
@@ -699,21 +697,6 @@ const deleteProduct = async (productId) => {
     }).start();
   };
 
-  //Product Modal Left and Right Button Hover Animation 
-  const [hoverLeft, setHoverLeft] = useState(false);
-  const [hoverRight, setHoverRight] = useState(false);
-
-  //Close, Edit, Delete, Print, Download Button Product Modal Hover Animation 
-  const [hoverClose, setHoverClose] = useState(false);
-  const [hoverEdit, setHoverEdit] = useState(false);
-  const [hoverDelete, setHoverDelete] = useState(false);
-  const [hoverPrint, setHoverPrint] = useState(false);
-  const [hoverDownload, setHoverDownload] = useState(false);
-
-
-  const filterRef = useRef(null);
-  const [showFilter, setShowFilter] = useState(false);
-  const [filterPos, setFilterPos] = useState({ x: 0, y: 0, width: 0 });
 
   return (
 
@@ -815,7 +798,6 @@ const deleteProduct = async (productId) => {
             marginBottom: 15,
           }}
         >
-        {/* New Code */}
         <View 
           style={{
             flexDirection: "row",
