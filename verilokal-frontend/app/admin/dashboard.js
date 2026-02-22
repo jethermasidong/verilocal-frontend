@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useFonts } from "expo-font";
 import {
   Alert,
   Dimensions,
@@ -11,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import bgImage from "../../assets/bg1.jpg";
 
 export default function AdminDashboard() {
   const [pendingBusinesses, setPendingBusinesses] = useState([]);
@@ -66,254 +68,488 @@ export default function AdminDashboard() {
     setShowModal(true);
   };
 
+  const [fontsLoaded] = useFonts({
+    "Garet-Book": require("../../assets/fonts/garet/Garet-Book.ttf"),
+    "Garet-Heavy": require("../../assets/fonts/garet/Garet-Heavy.ttf"),
+    "Montserrat-Regular": require("../../assets/fonts/Montserrat/static/Montserrat-Regular.ttf"),
+    "Montserrat-Bold": require("../../assets/fonts/Montserrat/static/Montserrat-Bold.ttf"),
+    "Montserrat-Black": require("../../assets/fonts/Montserrat/static/Montserrat-Black.ttf"),
+  });
+
+
+  const totalPending = pendingBusinesses.length;
+  const withPermit = pendingBusinesses.filter(b => b.permit).length;
+  const withCertificates = pendingBusinesses.filter(b => b.certificates).length;
+  const withLogo = pendingBusinesses.filter(b => b.logo).length;
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const [selectedBusiness, setSelectedBusiness] = useState(null);
+
   return (
-    <View style={{ flex: 1, padding: 22, backgroundColor: "#F5F5F7" }}>
-      
-      {/* Title */}
-      <Text
+    <View style={{ flex: 1, backgroundColor: "#E9EDF5", padding: 30, paddingHorizontal: 220, }}>
+      <View style={{ 
+        width: "100%",  
+        marginBottom: 10,
+        borderWidth: 2, 
+        borderColor: "#000",
+        borderRadius: 20,
+        paddingVertical: 20, 
+        paddingHorizontal: 25,
+        shadowColor: "#000",
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        elevation: 4,}}>
+        <Text
+          style={{
+            fontSize: 32,
+            fontFamily: "Garet-Heavy",
+            color: "#000",
+            marginBottom: 5,
+          }}
+        >
+          Admin Dashboard
+        </Text>
+      </View>
+
+    <Text
+      style={{
+        fontSize: 18,
+        fontWeight: "600",
+        color: "#6B7280",
+        marginBottom: 20,
+      }}
+    >
+      Pending Business Accounts
+    </Text>
+    {/* ===== SUMMARY CARDS ===== */}
+    <View style={{ flexDirection: "row", gap: 20, marginBottom: 25 }}>
+
+      {/* Total Pending */}
+      <View style={{
+        flex: 1,
+        backgroundColor: "#FFFFFF",
+        borderRadius: 18,
+        padding: 20,
+        shadowColor: "#000",
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        elevation: 4,
+      }}>
+        <Text style={{
+          fontFamily: "Montserrat-Bold",
+          fontSize: 14,
+          color: "#6B7280",
+          marginBottom: 6
+        }}>
+          TOTAL PENDING
+        </Text>
+        <Text style={{
+          fontFamily: "Montserrat-Black",
+          fontSize: 28,
+          color: "#111827"
+        }}>
+          {totalPending}
+        </Text>
+      </View>
+
+      {/* With Permit */}
+      <View style={{
+        flex: 1,
+        backgroundColor: "#FFFFFF",
+        borderRadius: 18,
+        padding: 20,
+        shadowColor: "#000",
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        elevation: 4,
+      }}>
+        <Text style={{
+          fontFamily: "Montserrat-Bold",
+          fontSize: 14,
+          color: "#6B7280",
+          marginBottom: 6
+        }}>
+          WITH PERMIT
+        </Text>
+        <Text style={{
+          fontFamily: "Montserrat-Black",
+          fontSize: 28,
+          color: "#2563EB"
+        }}>
+          {withPermit}
+        </Text>
+      </View>
+
+      {/* With Certificates */}
+      <View style={{
+        flex: 1,
+        backgroundColor: "#FFFFFF",
+        borderRadius: 18,
+        padding: 20,
+        shadowColor: "#000",
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        elevation: 4,
+      }}>
+        <Text style={{
+          fontFamily: "Montserrat-Bold",
+          fontSize: 14,
+          color: "#6B7280",
+          marginBottom: 6
+        }}>
+          WITH CERTIFICATES
+        </Text>
+        <Text style={{
+          fontFamily: "Montserrat-Black",
+          fontSize: 28,
+          color: "#7C3AED"
+        }}>
+          {withCertificates}
+        </Text>
+      </View>
+
+      {/* With Logo */}
+      <View style={{
+        flex: 1,
+        backgroundColor: "#FFFFFF",
+        borderRadius: 18,
+        padding: 20,
+        shadowColor: "#000",
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        elevation: 4,
+      }}>
+        <Text style={{
+          fontFamily: "Montserrat-Bold",
+          fontSize: 14,
+          color: "#6B7280",
+          marginBottom: 6
+        }}>
+          WITH LOGO
+        </Text>
+        <Text style={{
+          fontFamily: "Montserrat-Black",
+          fontSize: 28,
+          color: "#059669"
+        }}>
+          {withLogo}
+        </Text>
+      </View>
+    </View>
+      <View
+  style={{
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
+    padding: 25,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
+  }}
+>
+
+  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+    <View>
+
+      {/* HEADER */}
+      <View
         style={{
-          fontSize: 32,
-          fontWeight: "800",
-          marginBottom: 10,
-          color: "#333",
+          flexDirection: "row",
+          paddingVertical: 18,
+          paddingHorizontal: 15,
+          minWidth: 1400,
+          borderBottomWidth: 1,
+          borderBottomColor: "#E5E7EB",
         }}
       >
-        Admin Dashboard
-      </Text>
+        <Text style={{ flex: 1.2, fontFamily: "Montserrat-Bold", fontSize: 13, color: "#6B7280" }}>NAME</Text>
+        <Text style={{ flex: 1.2, fontFamily: "Montserrat-Bold", fontSize: 13, color: "#6B7280" }}>ADDRESS</Text>
+        <Text style={{ flex: 1.2, fontFamily: "Montserrat-Bold", fontSize: 13, color: "#6B7280" }}>REGISTERED NAME</Text>
+        <Text style={{ flex: 2, fontFamily: "Montserrat-Bold", fontSize: 13, color: "#6B7280" }}>DESCRIPTION</Text>
+        <Text style={{ flex: 1, textAlign: "center", fontFamily: "Montserrat-Bold", fontSize: 13, color: "#6B7280" }}>PERMIT</Text>
+        <Text style={{ flex: 1, textAlign: "center", fontFamily: "Montserrat-Bold", fontSize: 13, color: "#6B7280" }}>CERTIFICATES</Text>
+        <Text style={{ flex: 1, textAlign: "center", fontFamily: "Montserrat-Bold", fontSize: 13, color: "#6B7280" }}>LOGO</Text>
+        <Text style={{ flex: 1.1, fontFamily: "Montserrat-Bold", fontSize: 13, color: "#6B7280" }}>CONTACT</Text>
+        <Text style={{ flex: 1, textAlign: "center", fontFamily: "Montserrat-Bold", fontSize: 13, color: "#6B7280" }}>ACTION</Text>
+      </View>
 
-      <Text
-        style={{
-          fontSize: 22,
-          fontWeight: "600",
-          marginBottom: 15,
-          color: "#555",
-        }}
-      >
-        Pending Business Accounts
-      </Text>
-
-      <ScrollView horizontal>
-        <View>
-          {/* Table Header */}
+      {/* ROWS */}
+      {pendingBusinesses.length === 0 ? (
+        <Text style={{ marginTop: 25, fontFamily: "Montserrat-Regular", color: "#9CA3AF" }}>
+          No pending businesses
+        </Text>
+      ) : (
+        pendingBusinesses.map((b) => (
           <View
+            key={b.id}
             style={{
               flexDirection: "row",
-              backgroundColor: "#D9D9D9",
-              paddingVertical: 14,
-              paddingHorizontal: 10,
+              paddingVertical: 20,
+              paddingHorizontal: 15,
               minWidth: 1400,
-              borderRadius: 8,
+              borderBottomWidth: 1,
+              borderBottomColor: "#F3F4F6",
+              alignItems: "center",
             }}
           >
-            <Text style={{ flex: 1.2, fontWeight: "800" }}>Name</Text>
-            <Text style={{ flex: 1.2, fontWeight: "800" }}>Address</Text>
-            <Text style={{ flex: 1.2, fontWeight: "800" }}>
-              Registered Name
-            </Text>
-            <Text style={{ flex: 2, fontWeight: "800" }}>Description</Text>
+            <Text style={{ flex: 1.2, fontFamily: "Montserrat-Regular", color: "#111827" }}>{b.name}</Text>
+            <Text style={{ flex: 1.2, fontFamily: "Montserrat-Regular", color: "#111827" }}>{b.address}</Text>
+            <Text style={{ flex: 1.2, fontFamily: "Montserrat-Regular", color: "#111827" }}>{b.registered_business_name}</Text>
+            <Text style={{ flex: 2, fontFamily: "Montserrat-Regular", color: "#111827" }}>{b.description}</Text>
 
-            <Text
-              style={{
-                flex: 1,
-                fontWeight: "800",
-                textAlign: "center",
-              }}
-            >
-              Business Permit
+            {/* Permit */}
+            <View style={{ flex: 1, alignItems: "center" }}>
+              {b.permit ? (
+                <TouchableOpacity
+                  onPress={() => showImage(b.permit)}
+                  style={{
+                    backgroundColor: "#E0E7FF",
+                    paddingVertical: 6,
+                    paddingHorizontal: 16,
+                    borderRadius: 10,
+                  }}
+                >
+                  <Text style={{ color: "#4338CA", fontFamily: "Montserrat-Bold", fontSize: 12 }}>View</Text>
+                </TouchableOpacity>
+              ) : <Text>-</Text>}
+            </View>
+
+            {/* Certificates */}
+            <View style={{ flex: 1, alignItems: "center" }}>
+              {b.certificates ? (
+                <TouchableOpacity
+                  onPress={() => showImage(
+                    typeof b.certificates === "string"
+                      ? JSON.parse(b.certificates)[0]
+                      : b.certificates[0]
+                  )}
+                  style={{
+                    backgroundColor: "#EDE9FE",
+                    paddingVertical: 6,
+                    paddingHorizontal: 16,
+                    borderRadius: 10,
+                  }}
+                >
+                  <Text style={{ color: "#6D28D9", fontFamily: "Montserrat-Bold", fontSize: 12 }}>View</Text>
+                </TouchableOpacity>
+              ) : <Text>-</Text>}
+            </View>
+
+            {/* Logo */}
+            <View style={{ flex: 1, alignItems: "center" }}>
+              {b.logo ? (
+                <TouchableOpacity
+                  onPress={() => showImage(b.logo)}
+                  style={{
+                    backgroundColor: "#DBEAFE",
+                    paddingVertical: 6,
+                    paddingHorizontal: 16,
+                    borderRadius: 10,
+                  }}
+                >
+                  <Text style={{ color: "#1D4ED8", fontFamily: "Montserrat-Bold", fontSize: 12 }}>View</Text>
+                </TouchableOpacity>
+              ) : <Text>-</Text>}
+            </View>
+
+            <Text style={{ flex: 1.1, fontFamily: "Montserrat-Regular", color: "#111827" }}>
+              {b.contact_no}
             </Text>
 
-            <Text
-              style={{
-                flex: 1,
-                fontWeight: "800",
-                textAlign: "center",
-              }}
-            >
-              Certificates
-            </Text>
-
-            <Text
-              style={{
-                flex: 1,
-                fontWeight: "800",
-                textAlign: "center",
-              }}
-            >
-              Logo
-            </Text>
-
-            <Text style={{ flex: 1.1, fontWeight: "800" }}>Contact No</Text>
-
-            <Text
-              style={{
-                flex: 0.9,
-                fontWeight: "800",
-                textAlign: "center",
-              }}
-            >
-              Action
-            </Text>
-          </View>
-
-          {/* Table Rows */}
-          {pendingBusinesses.length === 0 ? (
-            <Text
-              style={{
-                marginTop: 20,
-                fontSize: 18,
-                color: "#888",
-                fontStyle: "italic",
-              }}
-            >
-              No pending businesses
-            </Text>
-          ) : (
-            pendingBusinesses.map((b) => (
-              <View
-                key={b.id}
+            {/* Actions */}
+            <View style={{ flexDirection: "row", gap: 10 }}>
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedBusiness(b);
+                  setShowVerifyModal(true);
+                }}
                 style={{
-                  flexDirection: "row",
-                  paddingVertical: 16,
-                  paddingHorizontal: 10,
-                  minWidth: 1400,
-                  backgroundColor: "#FFFFFF",
-                  borderBottomWidth: 1,
-                  borderBottomColor: "#E0E0E0",
-                  alignItems: "center",
+                  backgroundColor: "#DCFCE7",
+                  paddingVertical: 6,
+                  paddingHorizontal: 14,
+                  borderRadius: 10,
                 }}
               >
-                <Text style={{ flex: 1.2 }}>{b.name}</Text>
-                <Text style={{ flex: 1.2 }}>{b.address}</Text>
-                <Text style={{ flex: 1.2 }}>{b.registered_business_name}</Text>
-                <Text style={{ flex: 2 }}>{b.description}</Text>
+                <Text style={{ color: "#15803D", fontFamily: "Montserrat-Bold", fontSize: 12 }}>
+                  Verify
+                </Text>
+              </TouchableOpacity>
 
-                {/* Business Permit */}
-                <View style={{ flex: 1, alignItems: "center" }}>
-                  {b.permit ? (
-                    <TouchableOpacity
-                      onPress={() => showImage(b.permit)}
-                      style={{
-                        backgroundColor: "#146C94",
-                        paddingVertical: 6,
-                        paddingHorizontal: 10,
-                        borderRadius: 6,
-                      }}
-                    >
-                      <Text style={{ color: "white", fontWeight: "700" }}>View</Text>
-                    </TouchableOpacity>
-                  ) : (
-                    <Text>-</Text>
-                  )}
-                </View>
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedBusiness(b);
+                  setShowDeleteModal(true);
+                }}
+                style={{
+                  backgroundColor: "#FEE2E2",
+                  paddingVertical: 6,
+                  paddingHorizontal: 14,
+                  borderRadius: 10,
+                }}
+              >
+                <Text style={{ color: "#B91C1C", fontFamily: "Montserrat-Bold", fontSize: 12 }}>
+                  Delete
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ))
+      )}
+    </View>
+  </ScrollView>
+</View>
 
+      {/* Delete Business Modal */}
+      <Modal transparent visible={showDeleteModal} animationType="fade">
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <View
+            style={{
+              width: 300,
+              backgroundColor: "#fff",
+              padding: 20,
+              borderRadius: 12,
+              elevation: 5,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 18,
+                fontFamily: "Montserrat-Bold",
+                marginBottom: 10,
+              }}
+            >
+              Delete Business
+            </Text>
 
-                {/* Certificates */}
-                <View style={{ flex: 1, alignItems: "center" }}>
-                  {b.certificates ? (
-                    (() => {
-                      let certArray = [];
-                      try {
-                        certArray = typeof b.certificates === "string" 
-                          ? JSON.parse(b.certificates)  
-                          : b.certificates;
-                      } catch (e) {
-                        certArray = [b.certificates];
-                      }
-                      return certArray.length > 0 ? (
-                        certArray.map((cert, idx) => (
-                          <TouchableOpacity
-                            key={idx}
-                            onPress={() => showImage(cert)}
-                            style={{
-                              backgroundColor: "#146C94",
-                              paddingVertical: 6,
-                              paddingHorizontal: 10,
-                              borderRadius: 6,
-                              marginBottom: 4,
-                            }}
-                          >
-                            <Text style={{ color: "white", fontWeight: "700" }}>
-                              View {idx + 1}
-                            </Text>
-                          </TouchableOpacity>
-                        ))
-                      ) : (
-                        <Text>-</Text>
-                      );
-                    })()
-                  ) : (
-                    <Text>-</Text>
-                  )}
-                </View>
+            <Text style={{ marginBottom: 20, fontFamily: "Montserrat-Regular" }}>
+              Are you sure you want to delete this business?
+            </Text>
 
-                {/* Logo */}
-                <View style={{ flex: 1, alignItems: "center" }}>
-                  {b.logo ? (
-                    <TouchableOpacity
-                      onPress={() => showImage(b.logo)}
-                      style={{
-                        backgroundColor: "#146C94",
-                        paddingVertical: 6,
-                        paddingHorizontal: 10,
-                        borderRadius: 6,
-                      }}
-                    >
-                      <Text style={{ color: "white", fontWeight: "700" }}>
-                        View
-                      </Text>
-                    </TouchableOpacity>
-                  ) : (
-                    <Text>-</Text>
-                  )}
-                </View>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "flex-end",
+                gap: 10,
+              }}
+            >
+              <Pressable
+                style={{
+                  padding: 10,
+                  backgroundColor: "#eee",
+                  borderRadius: 8,
+                }}
+                onPress={() => setShowDeleteModal(false)}
+              >
+                <Text style={{ fontFamily: "Montserrat-Regular" }}>Cancel</Text>
+              </Pressable>
 
-                <Text style={{ flex: 1.1 }}>{b.contact_no}</Text>
-
-                {/* Verify Button */}
-                <View style={{gap: 5, flexDirection: 'row'}}>
-                <TouchableOpacity
-                  onPress={() => handleVerify(b.id)}
-                  style={{
-                    flex: 0.9,
-                    backgroundColor: "#5cbe7a",
-                    paddingVertical: 8,
-                    paddingHorizontal: 8,
-                    borderRadius: 8,
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={{ color: "white", fontWeight: "700" }}>
-                    Verify
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => deleteBusiness(b.id)}
-                  style={{
-                    flex: 0.9,
-                    backgroundColor: "#aa4a4a",
-                    paddingVertical: 8,
-                    paddingHorizontal: 8,
-                    borderRadius: 8,
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={{ color: "white", fontWeight: "700" }}>
-                    Delete
-                  </Text>
-                </TouchableOpacity>
-                </View>
-              </View>
-            ))
-          )}
+              <Pressable
+                style={{
+                  padding: 10,
+                  backgroundColor: "#be4848",
+                  borderRadius: 8,
+                }}
+                onPress={() => {
+                  if (selectedBusiness) {
+                    deleteBusiness(selectedBusiness.id);
+                  }
+                  setShowDeleteModal(false);
+                }}
+              >
+                <Text style={{ color: "#fff", fontFamily: "Montserrat-Regular" }}>
+                  Delete
+                </Text>
+              </Pressable>
+            </View>
+          </View>
         </View>
-      </ScrollView>
+      </Modal>
+      {/* Verify Business Modal */}
+      <Modal transparent visible={showVerifyModal} animationType="fade">
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <View
+            style={{
+              width: 300,
+              backgroundColor: "#fff",
+              padding: 20,
+              borderRadius: 12,
+              elevation: 5,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 18,
+                fontFamily: "Montserrat-Bold",
+                marginBottom: 10,
+              }}
+            >
+              Verify Business
+            </Text>
 
+            <Text style={{ marginBottom: 20, fontFamily: "Montserrat-Regular" }}>
+              Are you sure you want to verify this business?
+            </Text>
+
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "flex-end",
+                gap: 10,
+              }}
+            >
+              <Pressable
+                style={{
+                  padding: 10,
+                  backgroundColor: "#eee",
+                  borderRadius: 8,
+                }}
+                onPress={() => setShowVerifyModal(false)}
+              >
+                <Text style={{ fontFamily: "Montserrat-Regular" }}>Cancel</Text>
+              </Pressable>
+
+              <Pressable
+                style={{
+                  padding: 10,
+                  backgroundColor: "#22C55E",
+                  borderRadius: 8,
+                }}
+                onPress={() => {
+                  if (selectedBusiness) {
+                    handleVerify(selectedBusiness.id);
+                  }
+                  setShowVerifyModal(false);
+                }}
+              >
+                <Text style={{ color: "#fff", fontFamily: "Montserrat-Regular" }}>
+                  Verify
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
       {/* Image Modal */}
       <Modal visible={showModal} transparent>
         <View
           style={{
             flex: 1,
-            backgroundColor: "rgba(0,0,0,0.85)",
+            backgroundColor: "rgba(0,0,0,0.8)",
             justifyContent: "center",
             alignItems: "center",
             padding: 20,
@@ -322,26 +558,24 @@ export default function AdminDashboard() {
           <Image
             source={{ uri: currentImage }}
             style={{
-              width: Dimensions.get("window").width * 0.9,
+              width: Dimensions.get("window").width * 0.85,
               height: Dimensions.get("window").height * 0.75,
               resizeMode: "contain",
-              borderRadius: 12,
+              borderRadius: 16,
             }}
           />
 
           <Pressable
             onPress={() => setShowModal(false)}
             style={{
-              marginTop: 25,
-              paddingVertical: 12,
+              marginTop: 20,
+              paddingVertical: 10,
               paddingHorizontal: 30,
-              backgroundColor: "#D9534F",
-              borderRadius: 10,
+              backgroundColor: "#EF4444",
+              borderRadius: 25,
             }}
           >
-            <Text style={{ color: "white", fontWeight: "700", fontSize: 16 }}>
-              Close
-            </Text>
+            <Text style={{ color: "white", fontWeight: "600" }}>Close</Text>
           </Pressable>
         </View>
       </Modal>
