@@ -86,7 +86,7 @@ export default function ProductScanner() {
               );
               return;
             }
-
+            
             if (res.data.verified) {
               try {
                 const allRes = await axios.get(
@@ -549,25 +549,25 @@ export default function ProductScanner() {
               </Text>
               
               { /* */}
-              <View style={{ gap: 6, borderColor: "#706d6d", borderWidth: 1, borderRadius: 5, }}>
-                <Text style={{ fontSize: 16, fontFamily: "Montserrat-Regular", color: "#444" }}>
+              <View style={{ gap: 6, backgroundColor: "#f4f4f4", padding: 13, borderRadius: 12, borderWidth: 1, borderColor: "#d9d9d9"}}>
+                <Text style={{ fontSize: 14, fontFamily: "Montserrat-Regular", color: "#444" }}>
                   <Text style={{ fontWeight: "700" }}>Type: </Text>{productDetails.type}
                 </Text>
-                <Text style={{ fontSize: 16, fontFamily: "Montserrat-Regular", color: "#444" }}>
+                <Text style={{ fontSize: 14, fontFamily: "Montserrat-Regular", color: "#444" }}>
                   <Text style={{ fontWeight: "700" }}>Materials: </Text>{productDetails.materials}
                 </Text>
-                <Text style={{ fontSize: 16, fontFamily: "Montserrat-Regular", color: "#444" }}>
+                <Text style={{ fontSize: 14, fontFamily: "Montserrat-Regular", color: "#444" }}>
                   <Text style={{ fontWeight: "700" }}>Origin: </Text>{productDetails.origin}
                 </Text>
-                <Text style={{ fontSize: 16, fontFamily: "Montserrat-Regular", color: "#444" }}>
+                <Text style={{ fontSize: 14, fontFamily: "Montserrat-Regular", color: "#444" }}>
                   <Text style={{ fontWeight: "700" }}>Production Date: </Text>{productDetails.productionDate}
                 </Text>
               </View>
-              <View style={{ gap: 6 }}>
-                <Text style={{ marginTop: 10, fontWeight: "700", fontSize: 16, fontFamily: "Montserrat-Regular", color: "#000000" }}>
+              <View style={{ gap: 6, backgroundColor: "#f4f4f4", padding: 13, borderRadius: 12, borderWidth: 1, borderColor: "#d9d9d9", marginTop: 15}}>
+                <Text style={{ marginTop: 3, fontWeight: "700", fontSize: 14, fontFamily: "Montserrat-Regular", color: "#000000" }}>
                   Description:
                 </Text>
-                <Text style={{ color: "#000000", fontFamily: "Montserrat-Regular", lineHeight: 20, borderColor: "#706d6d", borderWidth: 1, borderRadius: 5, }}>
+                <Text style={{ color: "#000000", fontFamily: "Montserrat-Regular"}}>
                   {productDetails.description}
                 </Text>
               </View>
