@@ -334,7 +334,7 @@ export default function RegisterProduct() {
       {/* RIGHT PANEL */}
         <View style={[styles.rightPanel, isMobile && { width: "100%" }]}>
           <Text style={styles.formTitle}>Product Registration</Text>
-          <Text style={styles.subtitle}>Register your product to be chuchuchu</Text>
+          <Text style={styles.subtitle}>Welcome! Register your product</Text>
           <View style={[styles.row, isMobile && { flexDirection: "column" }]}>
             <View style={[styles.col, isMobile && { minWidth: "100%"}]}>
               {statusMessage !== "" && <Text style={styles.statusMessage}>{statusMessage}</Text>}
@@ -352,9 +352,9 @@ export default function RegisterProduct() {
                   style={styles.picker}
                 >
                   <Picker.Item label="Select Type" value="" />
-                  <Picker.Item label="Woodcraft" value="woodcraft" />
-                  <Picker.Item label="Textile" value="textile" />
-                  <Picker.Item label="Jewelry" value="jewelry" />
+                  <Picker.Item label="Woodcrafts" value="woodcraft" />
+                  <Picker.Item label="Weaving and Textiles" value="textile" />
+                  <Picker.Item label="Pottery" value="pottery" />
                 </Picker>
                 {errors.type && <Text style={styles.errorText}>{errors.type}</Text>}
               </View>
@@ -367,9 +367,13 @@ export default function RegisterProduct() {
                     style={styles.picker}
                   >
                     <Picker.Item label="Select Material" value="" />
-                    <Picker.Item label="Kamagong Wood" value="Kamagong Wood" />
-                    <Picker.Item label="Acacia Wood" value="Acacia Wood" />
-                    <Picker.Item label="Pine Wood" value="Pine Wood" />
+                    <Picker.Item label="Kamagong" value="Kamagong" />
+                    <Picker.Item label="Acacia" value="Acacia" />
+                    <Picker.Item label="Narra" value="Narra" />
+                    <Picker.Item label="Molave" value="Molave" />
+                    <Picker.Item label="Mahogany" value="Mahogany" />
+                    <Picker.Item label="Batikuling" value="Batikuling" />
+                    <Picker.Item label="Gmelina" value="Gmelina" />
                   </Picker>
                   {errors.materials && <Text style={styles.errorText}>{errors.materials}</Text>}
                 </View>
@@ -383,15 +387,17 @@ export default function RegisterProduct() {
                     style={styles.picker}
                   >
                     <Picker.Item label="Select Material" value="" />
+                    <Picker.Item label="Abaca" value="Abaca" />
+                    <Picker.Item label="Piña" value="Piña" />
                     <Picker.Item label="Cotton" value="Cotton" />
-                    <Picker.Item label="Abaca Fiber" value="Abaca Fiber" />
-                    <Picker.Item label="Natural Plant Dyes" value="Natural Plant Dyes" />
+                    <Picker.Item label="Silk" value="Silk" />
+                    <Picker.Item label="Maguay" value="Maguay" />
                   </Picker>
                   {errors.materials && <Text style={styles.errorText}>{errors.materials}</Text>}
                 </View>
               )}
 
-              {form.type === "jewelry" && (
+              {form.type === "pottery" && (
                 <View style={styles.inputContainer}>
                   <Picker
                     selectedValue={form.materials}
@@ -399,9 +405,9 @@ export default function RegisterProduct() {
                     style={styles.picker}
                   >
                     <Picker.Item label="Select Material" value="" />
-                    <Picker.Item label="Gold" value="Gold" />
-                    <Picker.Item label="Silver" value="Silver" />
-                    <Picker.Item label="Shells / Beads" value="Shells / Beads" />
+                    <Picker.Item label="Red Clay (Lutang Pula)" value="Stoneware Clay" />
+                    <Picker.Item label="White Clay (Kaolin" value="White Clay (Kaolin)" />
+                    <Picker.Item label="Stoneware Clay" value="Stoneware Clay" />
                   </Picker>
                   {errors.materials && <Text style={styles.errorText}>{errors.materials}</Text>}
                 </View>
