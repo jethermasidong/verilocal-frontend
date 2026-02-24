@@ -29,6 +29,51 @@ export default function BusinessProfile() {
   const slideAnim = useRef(new Animated.Value(30)).current;
   const dropdownAnim = useRef(new Animated.Value(0)).current;
 
+  const certIndex = useRef(0);
+  const permitIndex = useRef(0);
+
+  const certScrollRef = useRef(null);
+  const permitScrollRef = useRef(null);
+
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
+  const [hoveredIndex, setHoveredIndex] = useState(null);
+
+  const [hoverClose, setHoverClose] = useState(false);
+
+  const openPreview = (image) => {
+    setPreviewImage(image);
+    setPreviewVisible(true);
+  };
+
+  const scrollCarousel = (type, direction, length) => {
+    const imageWidth = 292; // 280 + 12 margin
+
+    if (type === "certificates") {
+      certIndex.current =
+        direction === "right"
+          ? Math.min(certIndex.current + 1, length - 1)
+          : Math.max(certIndex.current - 1, 0);
+
+      certScrollRef.current?.scrollTo({
+        x: certIndex.current * imageWidth,
+        animated: true,
+      });
+    }
+
+    if (type === "permits") {
+      permitIndex.current =
+        direction === "right"
+          ? Math.min(permitIndex.current + 1, length - 1)
+          : Math.max(permitIndex.current - 1, 0);
+
+      permitScrollRef.current?.scrollTo({
+        x: permitIndex.current * imageWidth,
+        animated: true,
+      });
+    }
+  };
+
   useEffect(() => {
         const fetchBusinessProfile = async () => {
           try {
@@ -166,32 +211,112 @@ export default function BusinessProfile() {
 
             {activePanel === "permits" && (
               <Animated.View style={[styles.dropdown, dropdownStyle]}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  {[1].map((item) => (
-                    <Image
-                      key={item}
-                      source={business.permit}
-                      style={styles.dropdownImage}
-                    />
-                  ))}
-                </ScrollView>
+                <View style={{ position: "relative" }}>
+                  <ScrollView
+                    horizontal
+                    pagingEnabled
+                    ref={permitScrollRef}
+                    showsHorizontalScrollIndicator={false}
+                  >
+                    {business.permit && (
+                      <View
+                        style={styles.imageWrapper}
+                        onMouseEnter={() => setHoveredIndex("permit")}
+                        onMouseLeave={() => setHoveredIndex(null)}
+                      >
+                        <Pressable onPress={() => openPreview(business.permit)}>
+                          <Image
+                            source={business.permit}
+                            style={styles.dropdownImage}
+                          />
+
+                          {hoveredIndex === "permit" && (
+                            <View style={styles.overlay}>
+                              <Ionicons name="eye-outline" size={30} color="#fff" />
+                            </View>
+                          )}
+                        </Pressable>
+                      </View>
+                    )}
+                  </ScrollView>
+
+                  
+                </View>
               </Animated.View>
             )}
             {activePanel === "certificates" &&(
               <Animated.View style={[styles.dropdown, dropdownStyle]}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  {certificatesArray.length > 0 ? (
-                    certificatesArray.map((cert, index) => (
-                        <Image
+                <View style={{ position: "relative" }}>
+                  <ScrollView
+                    horizontal
+                    pagingEnabled
+                    ref={certScrollRef}
+                    showsHorizontalScrollIndicator={false}
+                  >
+                    {certificatesArray.length > 0 ? (
+                      certificatesArray.map((cert, index) => (
+                        <View
                           key={index}
-                          source={{uri: cert}}
-                          style={styles.dropdownImage}
-                        />
-                    ))
-                  ) : (
-                    <Text>No certificates</Text>    
+                          style={styles.imageWrapper}
+                          onMouseEnter={() => setHoveredIndex(index)}
+                          onMouseLeave={() => setHoveredIndex(null)}
+                        >
+                          <Pressable onPress={() => openPreview(cert)}>
+                            <Image
+                              source={{ uri: cert }}
+                              style={styles.dropdownImage}
+                            />
+
+                            {hoveredIndex === index && (
+                              <View style={styles.overlay}>
+                                <Ionicons name="eye-outline" size={30} color="#fff" />
+                              </View>
+                            )}
+                          </Pressable>
+                        </View>
+                      ))
+                    ) : (
+                      <Text>No certificates</Text>
+                    )}
+                  </ScrollView>
+                  {/* Left Arrow */}
+                  <Pressable
+                    style={styles.arrowLeft}
+                    onPress={() => scrollCarousel("permits", "left", 1)}
+                  >
+                    <Ionicons name="chevron-back" size={24} color="#fff" />
+                  </Pressable>
+
+                  {/* Right Arrow */}
+                  <Pressable
+                    style={styles.arrowRight}
+                    onPress={() => scrollCarousel("permits", "right", 1)}
+                  >
+                    <Ionicons name="chevron-forward" size={24} color="#fff" />
+                  </Pressable>
+
+                  {certificatesArray.length > 1 && (
+                    <>
+                      <Pressable
+                        style={styles.arrowLeft}
+                        onPress={() =>
+                          scrollCarousel("certificates", "left", certificatesArray.length)
+                        }
+                      >
+                        <Ionicons name="chevron-back" size={24} color="#fff" />
+                      </Pressable>
+
+                      <Pressable
+                        style={styles.arrowRight}
+                        onPress={() =>
+                          scrollCarousel("certificates", "right", certificatesArray.length)
+                        }
+                      >
+                        <Ionicons name="chevron-forward" size={24} color="#fff" />
+                      </Pressable>
+                    </>
                   )}
-                </ScrollView>
+                </View>
               </Animated.View>
             )}
           </View>
@@ -210,6 +335,43 @@ export default function BusinessProfile() {
           </Text>
         </Animated.View>
       </View>
+      {previewVisible && (
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Image
+              source={
+                typeof previewImage === "string"
+                  ? { uri: previewImage }
+                  : previewImage
+              }
+              style={styles.modalImage}
+              resizeMode="contain"
+            />
+
+            {/* CLOSE BUTTON */}
+            <View style={{position: "absolute", top: 0, right: 200, zIndex: 10,}}>
+              <Pressable
+                onHoverIn={() => setHoverClose(true)}
+                onHoverOut={() => setHoverClose(false)}
+                onPress={() => setPreviewVisible(false)}
+                style={{
+                borderWidth: 1,
+                borderColor: "#000",
+                backgroundColor: hoverClose
+                  ? "#C0392B"
+                  : "#fff",
+                borderRadius: 100,
+                paddingVertical: 8,
+                paddingHorizontal: 12,
+                
+              }}
+              >
+              <Ionicons name="close" size={18} color="#000" />
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      )}
     </ScrollView>
   );
 }
@@ -422,6 +584,77 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginRight: 12,
     backgroundColor: "#e5e7eb",
+  },
+  arrowLeft: {
+    position: "absolute",
+    top: "40%",
+    left: 5,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    padding: 8,
+    borderRadius: 20,
+  },
+
+  arrowRight: {
+    position: "absolute",
+    top: "40%",
+    right: 5,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    padding: 8,
+    borderRadius: 20,
+  },
+
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  modalContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.85)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 999,
+  },
+
+  modalContent: {
+    width: "90%",
+    height: "80%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  modalImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 16,
+  },
+
+  closeButton: {
+    position: "absolute",
+    top: 0,
+    right: 200,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    padding: 10,
+    borderRadius: 20,
+  },
+
+  imageWrapper: {
+    position: "relative",
+    width: 280,
+    height: 210,
+    marginRight: 12,
+    borderRadius: 12,
+    overflow: "hidden", 
   },
 
 });
