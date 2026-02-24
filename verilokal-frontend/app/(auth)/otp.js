@@ -27,6 +27,39 @@ export default function OtpScreen() {
  
   const blinkAnim = useRef(new Animated.Value(1)).current;
 
+  const shakeAnim = useRef(new Animated.Value(0)).current;
+  const triggerShake = () => {
+    shakeAnim.setValue(0);
+
+    Animated.sequence([
+      Animated.timing(shakeAnim, {
+        toValue: 10,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: -10,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: 8,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: -8,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: 0,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
@@ -74,12 +107,16 @@ export default function OtpScreen() {
         router.replace("/business");
       }
     } catch (error) {
-      console.error(error.response?.data || error.message);
-      Alert.alert(
-        error.response?.data?.message || "Invalid or expired OTP"
-      );
+        console.log("OTP ERROR:", error.response?.data || error.message);
+
+        setIsOtpError(true);
+        setErrorMessage(
+          error.response?.data?.message || "Invalid or expired OTP"
+        );
+
+        triggerShake();
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
   };
 
@@ -87,12 +124,19 @@ export default function OtpScreen() {
     try {
       await axios.post("http://localhost:3000/api/resend-otp", { email });
       Alert.alert("OTP resent");
-    } catch (err) {
-      console.error(err.response?.data || err.message);
-      Alert.alert("Error resending OTP");
+    } catch (error) {
+      console.error(error.response?.data || error.message);
+
+      setIsOtpError(true);
+      setErrorMessage(
+        error.response?.data?.message || "Invalid or expired OTP"
+      );
     }
   };
 
+
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isOtpError, setIsOtpError] = useState(false);
 
   useFonts({
     "Garet-Book": require("../../assets/fonts/garet/Garet-Book.ttf"),
@@ -155,6 +199,10 @@ export default function OtpScreen() {
           onChangeText={(text) => {
             if (/^\d*$/.test(text) && text.length <= OTP_LENGTH) {
               setOtp(text);
+              if (isOtpError) {
+                setIsOtpError(false);
+                setErrorMessage("");
+              }
             }
           }}
           keyboardType="number-pad"
@@ -164,53 +212,70 @@ export default function OtpScreen() {
         />
 
         {/* OTP Boxes with Cursor Indicator */}
-        <Pressable
-          onPress={() => inputRef.current.focus()}
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            marginBottom: 30,
-          }}
-        >
-          {Array.from({ length: OTP_LENGTH }).map((_, index) => {
-            const isActive = index === otp.length && otp.length < OTP_LENGTH;
-            const isFilled = Boolean(otp[index]);
+        <Animated.View style={{ marginBottom: 10, position: "relative", transform: [{ translateX: shakeAnim }], }}>
+          <Pressable
+            onPress={() => inputRef.current.focus()}
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            {Array.from({ length: OTP_LENGTH }).map((_, index) => {
+              const isActive = index === otp.length && otp.length < OTP_LENGTH;
+              const isFilled = Boolean(otp[index]);
 
-            return (
-              <View
-                key={index}
-                style={{
-                  width: 52,
-                  height: 60,
-                  borderWidth: 1.5,
-                  borderRadius: 10,
-                  borderColor: isActive
-                    ? "#5177b0"
-                    : isFilled
-                    ? "#5177b0"
-                    : "#ccc",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                {isActive ? (
-                  <Animated.View
-                    style={{
-                      width: 2,
-                      height: 24,
-                      backgroundColor: "#5177b0",
-                      opacity: blinkAnim,
-                    }}
-                  />
-                ) : (
-                  <Text style={{ fontSize: 22, fontWeight: "600" }}>
-                    {otp[index] || ""}
-                  </Text>
-                )}
-              </View>
-            );
-          })}
-        </Pressable>
+              return (
+                <View
+                  key={index}
+                  style={{
+                    width: 52,
+                    height: 60,
+                    borderWidth: 1.5,
+                    borderRadius: 10,
+                    borderColor: isOtpError
+                      ? "#ff3b30"
+                      : isActive
+                      ? "#5177b0"
+                      : isFilled
+                      ? "#5177b0"
+                      : "#ccc",
+                    overflow: "hidden",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  {isActive ? (
+                    <Animated.View
+                      style={{
+                        width: 2,
+                        height: 24,
+                        backgroundColor: "#5177b0",
+                        opacity: blinkAnim,
+                      }}
+                    />
+                  ) : (
+                    <Text style={{ fontSize: 22, fontWeight: "600" }}>
+                      {otp[index] || ""}
+                    </Text>
+                  )}
+                </View>
+              );
+            })}
+          </Pressable>
+
+            {isOtpError && (
+            <Text
+              style={{
+                color: "#ff3b30",
+                marginVertical: 6,
+                textAlign: "center",
+                fontSize: 12,
+              }}
+            >
+              {errorMessage}
+            </Text>
+          )}
+        </Animated.View>
 
         {/* Verify Button */}
         <Pressable
