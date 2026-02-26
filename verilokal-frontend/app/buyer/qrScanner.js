@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import { useFonts } from "expo-font";
 import { useEffect, useRef, useState } from "react";
+import BackButton from "../../components/BackButton";
 import { Animated, Dimensions, Image, Modal, Pressable, ScrollView, Text, View } from "react-native";
 export default function ProductScanner() {
   const [isScanning, setIsScanning] = useState(false);
@@ -215,6 +216,7 @@ export default function ProductScanner() {
         paddingHorizontal: 40,
       }}
     >
+    <BackButton />
 
       {/* HEADER */}
       <Text

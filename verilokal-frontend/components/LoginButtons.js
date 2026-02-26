@@ -32,7 +32,7 @@ export default function LoginButtons() {
       <Pressable
         onHoverIn={() => setHoveredScan(true)}
         onHoverOut={() => setHoveredScan(false)}
-        onPress={() => router.push("/buyer/qrscanner")}
+        onPress={() => router.push("/buyer/qrScanner")}
         style={{
           backgroundColor: hoveredScan ? "#000000" : "#5177b0",
           paddingVertical: 12,

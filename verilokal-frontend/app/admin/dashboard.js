@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useFonts } from "expo-font";
+import { Ionicons } from "@expo/vector-icons";
 import {
   Alert,
   Dimensions,
@@ -57,14 +58,28 @@ export default function AdminDashboard() {
     }
   };
 
-  const showImage = (imgPath) => {
-    if (!imgPath) return;
+  const showImage = (images) => {
+    if (!images) return;
 
-    const fullUrl = imgPath.startsWith("http")
-      ? imgPath
-      : `${serverUrl}/${imgPath}`;
+    let formattedImages = [];
 
-    setCurrentImage(fullUrl);
+    if (Array.isArray(images)) {
+      formattedImages = images;
+    } else if (typeof images === "string") {
+      try {
+        const parsed = JSON.parse(images);
+        formattedImages = Array.isArray(parsed) ? parsed : [images];
+      } catch {
+        formattedImages = [images];
+      }
+    }
+
+    const fullUrls = formattedImages.map((img) =>
+      img.startsWith("http") ? img : `${serverUrl}/${img}`
+    );
+
+    setCurrentImages(fullUrls);
+    setCurrentIndex(0);
     setShowModal(true);
   };
 
@@ -85,6 +100,11 @@ export default function AdminDashboard() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [selectedBusiness, setSelectedBusiness] = useState(null);
+
+  const [currentImages, setCurrentImages] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  
+  const [hoverClose, setHoverClose] = useState(false);
 
   return (
     <View style={{ flex: 1, backgroundColor: "#E9EDF5", padding: 30, paddingHorizontal: 220, }}>
@@ -319,11 +339,7 @@ export default function AdminDashboard() {
             <View style={{ flex: 1, alignItems: "center" }}>
               {b.certificates ? (
                 <TouchableOpacity
-                  onPress={() => showImage(
-                    typeof b.certificates === "string"
-                      ? JSON.parse(b.certificates)[0]
-                      : b.certificates[0]
-                  )}
+                  onPress={() => showImage(b.certificates)}
                   style={{
                     backgroundColor: "#EDE9FE",
                     paddingVertical: 6,
@@ -549,34 +565,92 @@ export default function AdminDashboard() {
         <View
           style={{
             flex: 1,
+            flexDirection: "row",
             backgroundColor: "rgba(0,0,0,0.8)",
             justifyContent: "center",
             alignItems: "center",
             padding: 20,
+            width: "75%%",
           }}
         >
-          <Image
-            source={{ uri: currentImage }}
-            style={{
-              width: Dimensions.get("window").width * 0.85,
-              height: Dimensions.get("window").height * 0.75,
-              resizeMode: "contain",
-              borderRadius: 16,
-            }}
-          />
+          {currentImages.length > 0 && (
+            <>
+              {/* Left Arrow */}
+              <View style={{ width: 0, alignItems: "center" }}>  
+                {currentIndex > 0 && (
+                  <Pressable
+                    disabled={currentIndex === 0}
+                    onPress={() => {
+                      if (currentIndex > 0) {
+                        setCurrentIndex((prev) => prev - 1);
+                      }
+                    }}
+                    style={{
+                      backgroundColor: "rgba(0,0,0,0.5)",
+                      padding: 12,
+                      borderRadius: 30,
+                    }}
+                  >
+                    <Ionicons name="chevron-back" size={24} color="#fff" />
+                  </Pressable>
+                )}
+              </View>
 
-          <Pressable
-            onPress={() => setShowModal(false)}
-            style={{
-              marginTop: 20,
-              paddingVertical: 10,
-              paddingHorizontal: 30,
-              backgroundColor: "#EF4444",
-              borderRadius: 25,
-            }}
-          >
-            <Text style={{ color: "white", fontWeight: "600" }}>Close</Text>
-          </Pressable>
+              {/* Image */}
+              <Image
+                source={{ uri: currentImages[currentIndex] }}
+                style={{
+                  width: Dimensions.get("window").width * 0.85,
+                  height: Dimensions.get("window").height * 0.75,
+                  resizeMode: "contain",
+                  borderRadius: 16,
+                }}
+              />
+
+              {/* Right Arrow */}
+              <View style={{ width: 0, alignItems: "center" }}>
+                {currentIndex < currentImages.length - 1 && (
+                  <Pressable
+                    disabled={currentIndex === currentImages.length - 1}
+                    onPress={() => {
+                      if (currentIndex < currentImages.length - 1) {
+                        setCurrentIndex((prev) => prev + 1);
+                      }
+                    }}
+                    style={{
+                      backgroundColor: "rgba(0,0,0,0.5)",
+                      padding: 12,
+                      borderRadius: 30,
+                    }}
+                  >
+                    <Ionicons name="chevron-forward" size={24} color="#fff" />
+                  </Pressable>
+                )}
+              </View>
+            </>
+          )}
+
+          {/* CLOSE BUTTON */}
+            <View style={{position: "absolute", top: 125, right: 120, zIndex: 10,}}>
+              <Pressable
+                onHoverIn={() => setHoverClose(true)}
+                onHoverOut={() => setHoverClose(false)}
+                onPress={() => setShowModal(false)}
+                style={{
+                borderWidth: 1,
+                borderColor: "#000",
+                backgroundColor: hoverClose
+                  ? "#C0392B"
+                  : "#fff",
+                borderRadius: 100,
+                paddingVertical: 8,
+                paddingHorizontal: 12,
+                
+              }}
+              >
+              <Ionicons name="close" size={18} color="#000" />
+              </Pressable>
+            </View>
         </View>
       </Modal>
     </View>

@@ -47,7 +47,7 @@ export default function BusinessProfile() {
   };
 
   const scrollCarousel = (type, direction, length) => {
-    const imageWidth = 292; // 280 + 12 margin
+    const imageWidth = 292;
 
     if (type === "certificates") {
       certIndex.current =

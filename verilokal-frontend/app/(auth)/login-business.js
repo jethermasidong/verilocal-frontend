@@ -3,6 +3,7 @@ import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
 import qs from "qs";
 import { useEffect, useRef, useState } from "react";
+import BackButton from "../../components/BackButton";
 import {
   ActivityIndicator, Alert,
   Animated,
@@ -124,6 +125,7 @@ export default function BusinessLogin() {
           keyboardShouldPersistTaps="handled"
           scrollEnabled={isMobile}
         >
+        <BackButton />
           <View
             style={{
               flexDirection: isMobile ? "column" : "row",

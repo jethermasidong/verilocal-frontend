@@ -74,7 +74,7 @@ export default function BusinessDashboard() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-    //Product Modal Left and Right Button Hover Animation 
+  //Product Modal Left and Right Button Hover Animation 
   const [hoverLeft, setHoverLeft] = useState(false);
   const [hoverRight, setHoverRight] = useState(false);
 

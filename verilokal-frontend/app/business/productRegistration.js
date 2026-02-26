@@ -2,7 +2,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
 import axios from "axios";
+import BackButton from "../../components/BackButton";
 import { useFonts } from "expo-font";
+import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -10,6 +12,7 @@ import {
   Alert,
   Animated,
   Dimensions,
+  Easing,
   Image,
   Platform,
   Pressable,
@@ -19,6 +22,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+
 
 //REGISTER PRODUCT 
 export default function RegisterProduct() {
@@ -54,6 +58,16 @@ export default function RegisterProduct() {
   //INDICATORS
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // RESULT MODAL STATE
+  const [resultVisible, setResultVisible] = useState(false);
+  const [resultType, setResultType] = useState(null);
+  const [resultMessage, setResultMessage] = useState("");
+
+  // RESULT ANIMATIONS
+  const scaleAnim = useRef(new Animated.Value(0.8)).current;
+  const opacityAnim = useRef(new Animated.Value(0)).current;
+  const shakeAnim = useRef(new Animated.Value(0)).current;
 
   //IMAGE UPLOAD STATUS MESSAGE
   const [uploadError, setUploadError] = useState("");
@@ -234,7 +248,6 @@ export default function RegisterProduct() {
     setErrors({});
     setIsSubmitting(true);
     setIsLoading(true);
-    setStatusMessage("Registering product...");
 
     //FORM HANDLING
     try {
@@ -259,7 +272,9 @@ export default function RegisterProduct() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      setStatusMessage("Product registered successfully!");
+      setResultType("success");
+      setResultMessage("Product registered successfully!");
+      setResultVisible(true);
       //RESET FORM
       setForm({
         name: "",
@@ -271,8 +286,16 @@ export default function RegisterProduct() {
         productImage: null,
         processImages: [],
       });
-    } catch {
-      Alert.alert("Registration failed");
+    } catch (error) {
+      const serverMessage =
+        error.response?.data?.message ||
+        error.reason ||
+        "Product Registration failed. Please try again.";
+
+      setResultType("error");
+      setResultMessage(serverMessage);
+      setResultVisible(true);
+
     } finally {
       setIsSubmitting(false);
       setIsLoading(false);
@@ -299,6 +322,48 @@ export default function RegisterProduct() {
       }, []);
 
   useEffect(() => {
+    if (resultVisible) {
+
+      if (resultType === "success") {
+        scaleAnim.setValue(0.8);
+        opacityAnim.setValue(0);
+
+        Animated.parallel([
+          Animated.timing(scaleAnim, {
+            toValue: 1,
+            duration: 350,
+            easing: Easing.out(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.timing(opacityAnim, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      }
+
+      if (resultType === "error") {
+        opacityAnim.setValue(0);
+        shakeAnim.setValue(0);
+
+        Animated.sequence([
+          Animated.timing(opacityAnim, {
+            toValue: 1,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+          Animated.timing(shakeAnim, { toValue: 10, duration: 50, useNativeDriver: true }),
+          Animated.timing(shakeAnim, { toValue: -10, duration: 50, useNativeDriver: true }),
+          Animated.timing(shakeAnim, { toValue: 6, duration: 50, useNativeDriver: true }),
+          Animated.timing(shakeAnim, { toValue: -6, duration: 50, useNativeDriver: true }),
+          Animated.timing(shakeAnim, { toValue: 0, duration: 50, useNativeDriver: true }),
+        ]).start();
+      }
+    }
+  }, [resultVisible, resultType]);
+
+  useEffect(() => {
     if (form.productionStartDate && form.productionEndDate) {
       const start = formatDate(form.productionStartDate);
       const end = formatDate(form.productionEndDate);
@@ -320,9 +385,10 @@ export default function RegisterProduct() {
       }}>
     <View 
       style={{ flex: 1, backgroundColor: "#f6f7fb", paddingHorizontal: 16, paddingTop: 12, justifyContent: 'center',
-  alignItems: 'center'}}
+      alignItems: 'center'}}
       contentContainerStyle={{ alignItems: "center", paddingVertical: 20 }}
     >
+    <BackButton />
       <View style={[styles.card, isMobile && {flexDirection: "column"}]}>
       {/* LEFT BANNER IMAGE */}
         <View style={[styles.leftPanel, isMobile && { width: "100%", height: 200 }]}>
@@ -334,7 +400,7 @@ export default function RegisterProduct() {
       {/* RIGHT PANEL */}
         <View style={[styles.rightPanel, isMobile && { width: "100%" }]}>
           <Text style={styles.formTitle}>Product Registration</Text>
-          <Text style={styles.subtitle}>Register your product to be chuchuchu</Text>
+          <Text style={styles.subtitle}>Welcome! Register your product</Text>
           <View style={[styles.row, isMobile && { flexDirection: "column" }]}>
             <View style={[styles.col, isMobile && { minWidth: "100%"}]}>
               {statusMessage !== "" && <Text style={styles.statusMessage}>{statusMessage}</Text>}
@@ -352,9 +418,9 @@ export default function RegisterProduct() {
                   style={styles.picker}
                 >
                   <Picker.Item label="Select Type" value="" />
-                  <Picker.Item label="Woodcraft" value="woodcraft" />
-                  <Picker.Item label="Textile" value="textile" />
-                  <Picker.Item label="Jewelry" value="jewelry" />
+                  <Picker.Item label="Woodcrafts" value="woodcraft" />
+                  <Picker.Item label="Weaving and Textiles" value="textile" />
+                  <Picker.Item label="Pottery" value="pottery" />
                 </Picker>
                 {errors.type && <Text style={styles.errorText}>{errors.type}</Text>}
               </View>
@@ -367,9 +433,13 @@ export default function RegisterProduct() {
                     style={styles.picker}
                   >
                     <Picker.Item label="Select Material" value="" />
-                    <Picker.Item label="Kamagong Wood" value="Kamagong Wood" />
-                    <Picker.Item label="Acacia Wood" value="Acacia Wood" />
-                    <Picker.Item label="Pine Wood" value="Pine Wood" />
+                    <Picker.Item label="Kamagong" value="Kamagong" />
+                    <Picker.Item label="Acacia" value="Acacia" />
+                    <Picker.Item label="Narra" value="Narra" />
+                    <Picker.Item label="Molave" value="Molave" />
+                    <Picker.Item label="Mahogany" value="Mahogany" />
+                    <Picker.Item label="Batikuling" value="Batikuling" />
+                    <Picker.Item label="Gmelina" value="Gmelina" />
                   </Picker>
                   {errors.materials && <Text style={styles.errorText}>{errors.materials}</Text>}
                 </View>
@@ -383,15 +453,17 @@ export default function RegisterProduct() {
                     style={styles.picker}
                   >
                     <Picker.Item label="Select Material" value="" />
+                    <Picker.Item label="Abaca" value="Abaca" />
+                    <Picker.Item label="Piña" value="Piña" />
                     <Picker.Item label="Cotton" value="Cotton" />
-                    <Picker.Item label="Abaca Fiber" value="Abaca Fiber" />
-                    <Picker.Item label="Natural Plant Dyes" value="Natural Plant Dyes" />
+                    <Picker.Item label="Silk" value="Silk" />
+                    <Picker.Item label="Maguay" value="Maguay" />
                   </Picker>
                   {errors.materials && <Text style={styles.errorText}>{errors.materials}</Text>}
                 </View>
               )}
 
-              {form.type === "jewelry" && (
+              {form.type === "pottery" && (
                 <View style={styles.inputContainer}>
                   <Picker
                     selectedValue={form.materials}
@@ -399,9 +471,9 @@ export default function RegisterProduct() {
                     style={styles.picker}
                   >
                     <Picker.Item label="Select Material" value="" />
-                    <Picker.Item label="Gold" value="Gold" />
-                    <Picker.Item label="Silver" value="Silver" />
-                    <Picker.Item label="Shells / Beads" value="Shells / Beads" />
+                    <Picker.Item label="Red Clay (Lutang Pula)" value="Stoneware Clay" />
+                    <Picker.Item label="White Clay (Kaolin" value="White Clay (Kaolin)" />
+                    <Picker.Item label="Stoneware Clay" value="Stoneware Clay" />
                   </Picker>
                   {errors.materials && <Text style={styles.errorText}>{errors.materials}</Text>}
                 </View>
@@ -583,11 +655,63 @@ export default function RegisterProduct() {
             }}
           >
             <ActivityIndicator size="large" color="#5177b0" />
-            <Text style={{ marginTop: 10 }}>Logging in...</Text>
+            <Text style={{ marginTop: 10 }}>Registering Product...</Text>
           </View>
         </View>
       )}
     </View>
+    {resultVisible && (
+    <View style={styles.resultOverlay}>
+      <Animated.View 
+        style={[
+          styles.resultContainer,
+          {
+            opacity: opacityAnim,
+            transform: [
+              { scale: resultType === "success" ? scaleAnim : 1 },
+              { translateX: resultType === "error" ? shakeAnim : 0 },
+            ],
+          },
+        ]}
+      >
+        <Ionicons
+          name={resultType === "success" ? "checkmark-circle" : "close-circle"}
+          size={70}
+          color={resultType === "success" ? "#4caf50" : "#d32f2f"}
+          style={styles.resultIcon}
+        />
+
+        <Text
+          style={[
+            styles.resultTitle,
+            { color: resultType === "success" ? "#2e7d32" : "#c62828" }
+          ]}
+        >
+          {resultType === "success" ? "Success" : "Submission Failed"}
+        </Text>
+
+        <Text style={styles.resultMessage}>
+          {resultMessage}
+        </Text>
+
+        <Pressable
+          onPress={() => setResultVisible(false)}
+          style={[
+            styles.resultButton,
+            {
+              backgroundColor:
+                resultType === "success" ? "#4caf50" : "#d32f2f",
+            },
+          ]}
+        >
+          <Text style={{ color: "#fff", fontWeight: "600" }}>
+            OK
+          </Text>
+        </Pressable>
+
+      </Animated.View>
+    </View>
+  )}
   </Animated.View>
   );
 }
@@ -714,6 +838,61 @@ const styles = StyleSheet.create({
   imagePicker: { borderWidth: 1, borderColor: "#ccc", padding: 20, borderRadius: 10, alignItems: "center", backgroundColor: "#fafafa", height: 140, justifyContent: "center", marginBottom: 15, width: "100%" },
   imagePreview: { width: "100%", height: "100%", borderRadius: 8, objectFit: "cover", },
   imageText: { color: "#666", fontFamily: "Montserrat-Regular", paddingBottom: 20,},
+
+  resultOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.45)",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    zIndex: 999,
+  },
+
+  resultContainer: {
+    width: "100%",
+    maxWidth: 380,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
+    paddingVertical: 28,
+    paddingHorizontal: 22,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+
+  resultTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+
+  resultMessage: {
+    fontSize: 14,
+    textAlign: "center",
+    color: "#4B5563",
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+
+  resultButton: {
+    width: "100%",
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  resultIcon: {
+    marginBottom: 15,
+  },
 
   submitButton: { backgroundColor: "#4A70A9", padding: 14, borderRadius: 50, alignItems: "center", marginTop: 10 },
   submitText: { color: "#fff", fontSize: 16, fontWeight: "600" },

@@ -3,6 +3,7 @@ import axios from "axios";
 import { useFonts } from "expo-font";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
+import BackButton from "../../components/BackButton";
 import {
   ActivityIndicator,
   Alert,
@@ -154,6 +155,7 @@ export default function OtpScreen() {
         padding: 20,
       }}
     >
+    <BackButton />
       <View
         style={{
           padding: 30,

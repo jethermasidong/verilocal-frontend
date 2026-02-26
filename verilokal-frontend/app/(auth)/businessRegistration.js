@@ -3,13 +3,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useFonts } from "expo-font";
+import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useRef, useState } from "react";
+import BackButton from "../../components/BackButton";
 import {
   ActivityIndicator,
   Alert,
   Animated,
   Dimensions,
+  Easing,
   Image,
   Platform,
   Pressable,
@@ -32,8 +35,6 @@ export default function RegisterBusiness() {
   const [password, setPassword] = useState("");
   const [contact_no, setContactNo] = useState("");
   const [social_link, setSocialLink] = useState("");
-  const [statusMessage, setStatusMessage] = useState("");
-  const [statusType, setStatusType] = useState("");
   const [errors, setErrors] = useState({});
   const [isMobile, setIsMobile] = useState(false);
   const [consent, setConsent] = useState(false);
@@ -174,6 +175,13 @@ export default function RegisterBusiness() {
     await handleSubmit();
   };
 
+  const [resultVisible, setResultVisible] = useState(false);
+  const [resultType, setResultType] = useState(null);
+  const [resultMessage, setResultMessage] = useState("");
+  const scaleAnim = useRef(new Animated.Value(0.8)).current;
+  const opacityAnim = useRef(new Animated.Value(0)).current;
+  const shakeAnim = useRef(new Animated.Value(0)).current;
+
   const handleSubmit = async () => {
     try {
       setIsLoading(true);
@@ -217,24 +225,34 @@ export default function RegisterBusiness() {
         },
       });
       
-      Alert.alert("Success", "Registration submitted.");
-      setStatusMessage("✅ Business Submitted, Wait for the confirmation on your email account!");
-      setStatusType("success");
+      setResultType("success");
+      setResultMessage("Your business registration has been submitted successfully.");
+      setResultVisible(true);
       setName(""); setBusinessName(""); setAddress(""); setDescription("");
       setPermit(null); setCertificates([]); setLogo(null);
       setEmail(""); setPassword(""); setContactNo(""); setSocialLink(""); setErrors({}); setConsent(false);
 
-    } catch (error){
-      const serverMessage = error.response?.data?.message || "Submission failed. Please try again.";
-      Alert.alert("Error", "Submission failed.");
-      setStatusMessage("Failed to register business!");
-      setStatusType(error);
+    } catch (error) {
+      const serverMessage =
+        error.response?.data?.message ||
+        "Submission failed. Please try again.";
 
-      if (serverMessage.toLowerCase().includes('email')) {
-        setErrors(prev => ({ ...prev, email: "This email is already registered!"}));
+      setResultType("error");
+      setResultMessage(serverMessage);
+      setResultVisible(true);
+
+      if (serverMessage.toLowerCase().includes("email")) {
+        setErrors(prev => ({
+          ...prev,
+          email: "This email is already registered!",
+        }));
       }
-      if (serverMessage.toLowerCase().includes('registered_business_name')) {
-        setErrors(prev => ({ ...prev, email: "This business name is already taken!"}));
+
+      if (serverMessage.toLowerCase().includes("registered_business_name")) {
+        setErrors(prev => ({
+          ...prev,
+          business_name: "This business name is already taken!",
+        }));
       }
     } finally {
       setIsLoading(false);
@@ -295,6 +313,48 @@ export default function RegisterBusiness() {
       ]).start();
     }, []);
 
+    useEffect(() => {
+      if (resultVisible) {
+
+        if (resultType === "success") {
+          scaleAnim.setValue(0.8);
+          opacityAnim.setValue(0);
+
+          Animated.parallel([
+            Animated.timing(scaleAnim, {
+              toValue: 1,
+              duration: 350,
+              easing: Easing.out(Easing.ease),
+              useNativeDriver: true,
+            }),
+            Animated.timing(opacityAnim, {
+              toValue: 1,
+              duration: 300,
+              useNativeDriver: true,
+            }),
+          ]).start();
+        }
+
+        if (resultType === "error") {
+          opacityAnim.setValue(0);
+          shakeAnim.setValue(0);
+
+          Animated.sequence([
+            Animated.timing(opacityAnim, {
+              toValue: 1,
+              duration: 200,
+              useNativeDriver: true,
+            }),
+            Animated.timing(shakeAnim, { toValue: 10, duration: 50, useNativeDriver: true }),
+            Animated.timing(shakeAnim, { toValue: -10, duration: 50, useNativeDriver: true }),
+            Animated.timing(shakeAnim, { toValue: 6, duration: 50, useNativeDriver: true }),
+            Animated.timing(shakeAnim, { toValue: -6, duration: 50, useNativeDriver: true }),
+            Animated.timing(shakeAnim, { toValue: 0, duration: 50, useNativeDriver: true }),
+          ]).start();
+        }
+      }
+    }, [resultVisible, resultType]);
+
   return (
     <Animated.View style = 
       {{ 
@@ -307,6 +367,7 @@ export default function RegisterBusiness() {
       style={{ flex: 1, backgroundColor: "#f6f7fb" }}
       contentContainerStyle={{ alignItems: "center", paddingVertical: 20 }}
     >
+    <BackButton />
       <View style={[styles.card, isMobile && { flexDirection: "column" }]}>
         {/* LEFT IMAGE */}
         <View style={[styles.leftPanel, isMobile && { width: "100%", height: 200 }]}>
@@ -445,11 +506,6 @@ export default function RegisterBusiness() {
             <Text style={styles.submitText}>Submit</Text>
           </Pressable>
 
-          {statusMessage ? (
-        <Text style={[styles.statusMessage, statusType === "success" ? styles.successMessage : styles.errorMessage]}>
-          {statusMessage}
-        </Text>  
-      ) : null}
         </View>
       </View>
       
@@ -511,7 +567,60 @@ export default function RegisterBusiness() {
     </View>
   )}
     </ScrollView>
+    {resultVisible && (
+      <View style={styles.resultOverlay}>
+        <Animated.View 
+          style={[
+            styles.resultContainer,
+            {
+              opacity: opacityAnim,
+              transform: [
+                { scale: resultType === "success" ? scaleAnim : 1 },
+                { translateX: resultType === "error" ? shakeAnim : 0 },
+              ],
+            },
+          ]}
+        >
+          <Ionicons
+            name={resultType === "success" ? "checkmark-circle" : "close-circle"}
+            size={70}
+            color={resultType === "success" ? "#4caf50" : "#d32f2f"}
+            style={styles.resultIcon}
+          />
+
+          <Text
+            style={[
+              styles.resultTitle,
+              { color: resultType === "success" ? "#2e7d32" : "#c62828" }
+            ]}
+          >
+            {resultType === "success" ? "Success" : "Submission Failed"}
+          </Text>
+
+          <Text style={styles.resultMessage}>
+            {resultMessage}
+          </Text>
+
+          <Pressable
+            onPress={() => setResultVisible(false)}
+            style={[
+              styles.resultButton,
+              {
+                backgroundColor:
+                  resultType === "success" ? "#4caf50" : "#d32f2f",
+              },
+            ]}
+          >
+            <Text style={{ color: "#fff", fontWeight: "600" }}>
+              OK
+            </Text>
+          </Pressable>
+
+        </Animated.View>
+      </View>
+    )}
   </Animated.View>
+  
   );
 }
 
@@ -542,7 +651,6 @@ const styles = StyleSheet.create({
     padding: 28,
     backgroundColor: "#fff",
   },
-  statusMessage: { padding: 10, borderRadius: 8, textAlign: "center", fontWeight: "600", marginTop: 20, fontFamily: "Montserrat-Regular" },
   successMessage: { backgroundColor: "#d4edda", color: "#155724", fontFamily: "Montserrat-Regular" },
   errorMessage: { backgroundColor: "#f8d7da", color: "#721c24", fontFamily: "Montserrat-Regular" },
   title: {
@@ -630,5 +738,57 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontFamily: "Montserrat-Regular"
   },
+  resultOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.45)",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    zIndex: 999,
+  },
 
+  resultContainer: {
+    width: "100%",
+    maxWidth: 380,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
+    paddingVertical: 28,
+    paddingHorizontal: 22,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+
+  resultTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+
+  resultMessage: {
+    fontSize: 14,
+    textAlign: "center",
+    color: "#4B5563",
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+
+  resultButton: {
+    width: "100%",
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  resultIcon: {
+    marginBottom: 15,
+  },
 });
