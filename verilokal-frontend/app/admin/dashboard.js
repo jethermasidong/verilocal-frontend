@@ -1,6 +1,6 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
 import { useFonts } from "expo-font";
+import { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import {
   Alert,
@@ -13,7 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import bgImage from "../../assets/bg1.jpg";
+
 
 export default function AdminDashboard() {
   const [pendingBusinesses, setPendingBusinesses] = useState([]);
@@ -95,7 +95,6 @@ export default function AdminDashboard() {
   const totalPending = pendingBusinesses.length;
   const withPermit = pendingBusinesses.filter(b => b.permit).length;
   const withCertificates = pendingBusinesses.filter(b => b.certificates).length;
-  const withLogo = pendingBusinesses.filter(b => b.logo).length;
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
@@ -170,90 +169,6 @@ export default function AdminDashboard() {
           color: "#111827"
         }}>
           {totalPending}
-        </Text>
-      </View>
-
-      {/* With Permit */}
-      <View style={{
-        flex: 1,
-        backgroundColor: "#FFFFFF",
-        borderRadius: 18,
-        padding: 20,
-        shadowColor: "#000",
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        elevation: 4,
-      }}>
-        <Text style={{
-          fontFamily: "Montserrat-Bold",
-          fontSize: 14,
-          color: "#6B7280",
-          marginBottom: 6
-        }}>
-          WITH PERMIT
-        </Text>
-        <Text style={{
-          fontFamily: "Montserrat-Black",
-          fontSize: 28,
-          color: "#2563EB"
-        }}>
-          {withPermit}
-        </Text>
-      </View>
-
-      {/* With Certificates */}
-      <View style={{
-        flex: 1,
-        backgroundColor: "#FFFFFF",
-        borderRadius: 18,
-        padding: 20,
-        shadowColor: "#000",
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        elevation: 4,
-      }}>
-        <Text style={{
-          fontFamily: "Montserrat-Bold",
-          fontSize: 14,
-          color: "#6B7280",
-          marginBottom: 6
-        }}>
-          WITH CERTIFICATES
-        </Text>
-        <Text style={{
-          fontFamily: "Montserrat-Black",
-          fontSize: 28,
-          color: "#7C3AED"
-        }}>
-          {withCertificates}
-        </Text>
-      </View>
-
-      {/* With Logo */}
-      <View style={{
-        flex: 1,
-        backgroundColor: "#FFFFFF",
-        borderRadius: 18,
-        padding: 20,
-        shadowColor: "#000",
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        elevation: 4,
-      }}>
-        <Text style={{
-          fontFamily: "Montserrat-Bold",
-          fontSize: 14,
-          color: "#6B7280",
-          marginBottom: 6
-        }}>
-          WITH LOGO
-        </Text>
-        <Text style={{
-          fontFamily: "Montserrat-Black",
-          fontSize: 28,
-          color: "#059669"
-        }}>
-          {withLogo}
         </Text>
       </View>
     </View>

@@ -148,7 +148,19 @@ export default function RegisterBusiness() {
     if (!name) e.name = "Owner name is required";
     if (!business_name) e.business_name = "Business name is required";
     if (!email) e.email = "Email is required";
+    else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        e.email = "Please enter a valid email address";
+      }
+    }
     if (!password) e.password = "Password is required";
+    else {
+      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+=[\]{};':"\\|,.<>/?~-]{8,}$/;
+      if (!passwordRegex.test(password)) {
+        e.password = "Password must be at least 8 characters long and include at least one letter & number"
+      }
+    }
     if (!address) e.address = "Address is required";
     if (!contact_no) e.contact_no = "Contact number is required";
     if (!description) e.description = "Description is required";
@@ -397,7 +409,7 @@ export default function RegisterBusiness() {
               <TextInput
                 style={[styles.input, errors.business_name && styles.inputError]}
                 value={business_name}
-                placeholder='Enter your registered business name'
+                placeholder='Enter your Business Registered Name'
                 onChangeText={setBusinessName}
               />
               {errors.business_name && <Text style={styles.error}>{errors.business_name}</Text>}
@@ -450,7 +462,7 @@ export default function RegisterBusiness() {
                 style={[styles.input, errors.contact_no && styles.inputError]}
                 value={contact_no}
                 keyboardType="numeric"
-                placeholder='Enter your mobile or landline number'
+                placeholder='09XXXXXXXXX'
                 maxLength={11}
                 onChangeText={(t) => setContactNo(t.replace(/[^0-9]/g, ""))}
               />
@@ -458,7 +470,7 @@ export default function RegisterBusiness() {
             </View>
 
             <View style={[styles.col, isMobile && { minWidth: "100%"}]}>
-              <Text style={[styles.label,isMobile && { marginTop: -22}]}>Social Link*</Text>
+              <Text style={[styles.label,isMobile && { marginTop: -22}]}>Social Media Account*</Text>
               <TextInput
                 style={[styles.input, errors.social_link && styles.inputError]}
                 value={social_link}

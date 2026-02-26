@@ -42,6 +42,32 @@ export default function ProductScanner() {
   //HOVER CLOSE BUTTON
   const [hoverClose, setHoverClose] = useState(false);
 
+
+
+  const uploadQrImage = async () => {
+    try{
+      const {Html5Qrcode} = await import("html5-qrcode");
+      const html5QrCode = new Html5Qrcode("qr-reader");
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*";
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        try {
+          const decodedText = await html5QrCode.scanFile(file, true);
+          handleDecodedQR(decodedText);
+        } catch (err) {
+          setError("Invalid QR image or unreadable.");
+        }
+      };
+      input.click();
+    } catch (err) {
+      setError("Failed to upload image");
+    }
+  };
+
   //QRCODE SCANNER
   const Html5QrcodeRef = useRef(null);
   const startScanner = async () => {
@@ -50,7 +76,7 @@ export default function ProductScanner() {
     setQrData(null);
     setProductDetails(null);
     setIsScanning(true);
-
+  
   //QR CODE FUNCTIONS
     try {
       const { Html5Qrcode } = await import("html5-qrcode");
@@ -62,68 +88,73 @@ export default function ProductScanner() {
         { fps: 10, qrbox: { width: 300, height: 300 } }, 
         async (decodedText) => {
           try {
-            setQrData(decodedText);
-            if (Html5QrcodeRef.current) await Html5QrcodeRef.current.stop();
-            setIsScanning(false);
-
-            const [product_id_str, blockchain_hash] = decodedText.split("|");
-            const product_id = Number(product_id_str);
-
-            if (!product_id || !blockchain_hash)
-              throw new Error("Invalid QR data format");
-
-            let res;
-            try {
-              res = await axios.post(
-                "http://localhost:3000/api/products/verify",
-                { product_id, blockchain_hash }
-              );
-              setProduct(res.data);
-              setError(null);
-            } catch (axiosErr) {
-              setError(
-                axiosErr.response?.data?.message ||
-                  "Verification failed. Please try again."
-              );
-              return;
-            }
-            
-            if (res.data.verified) {
-              try {
-                const allRes = await axios.get(
-                  "http://localhost:3000/api/products"
-                );
-                const matched = allRes.data.find((p) => p.id === product_id);
-                if (matched) {
-                  setProductDetails(matched);
-                  if (matched.business_id) {
-                    try {
-                      const businessRes = await axios.get(
-                        `http://localhost:3000/api/business/${matched.business_id}`
-                      );
-                      setBusinessName(businessRes.data.registered_business_name);
-                    } catch (err) {
-                      console.error("Failed to fetch business:", err);
-                      setBusinessName("Unknown Business");
-                    }
-                  }
-                  setModalVisible(true);
-                } else setError("Verified but product not found");
-              } catch {
-                setError("Verified but failed to fetch product details");
-              }
-            }
-          } catch (err) {
-            setError(err.message || "Invalid QR or backend error");
-          }
+            await Html5QrcodeRef.current.stop();
+          } catch {}
+          setIsScanning(false);
+          handleDecodedQR(decodedText);
         },
-        (scanError) => console.warn("Scan error:", scanError)
+        (scanError) => {
+          console.warn("Scan error:", scanError);
+        }
       );
+
     } catch (err) {
       setError("Failed to access camera");
       setIsScanning(false);
     }
   };
+
+    const handleDecodedQR = async (decodedText) => {
+      try {
+        setQrData(decodedText);
+        setIsScanning(false);
+
+        const [product_id_str, blockchain_hash] = decodedText.split("|");
+        const product_id = Number(product_id_str);
+
+        if (!product_id || !blockchain_hash)
+        throw new Error("Invalid QR data format");
+
+        let res;
+        try {
+          res = await axios.post(
+          "http://localhost:3000/api/products/verify",
+          { product_id, blockchain_hash }
+          );
+          setProduct(res.data);
+          setError(null);
+        } catch (axiosErr) {
+            setError(
+              axiosErr.response?.data?.message ||
+              "Verification failed. Please try again."
+          );
+        return;
+        }
+            
+        if (res.data.verified) {
+          const allRes = await axios.get(
+            "http://localhost:3000/api/products"
+            );
+          const matched = allRes.data.find((p) => p.id === product_id);
+          if (matched) {
+            setProductDetails(matched);
+            if (matched.business_id) {
+              try {
+                const businessRes = await axios.get(
+                  `http://localhost:3000/api/business/${matched.business_id}`
+                );
+                setBusinessName(businessRes.data.registered_business_name);
+              } catch (err) {
+                  setBusinessName("Unknown Business");
+              }
+            }
+            setModalVisible(true);
+          }
+        }
+      } catch (err) {
+            setError(err.message || "Invalid QR or backend error");
+      }
+  }; 
 
   const stopScanner = async () => {
     if (Html5QrcodeRef.current) {
@@ -339,7 +370,7 @@ export default function ProductScanner() {
               color: "#ffffffff",
             }}
           >
-            START
+            START QR
           </Text>
         </Pressable>
 
@@ -366,8 +397,31 @@ export default function ProductScanner() {
             STOP
           </Text>
         </Pressable>
+        <Pressable
+        onPress={uploadQrImage}
+        style={{
+          backgroundColor: "#656c75",
+          paddingVertical: 12,
+          paddingHorizontal: 24,
+          borderRadius: 30,
+          shadowColor: "#000",
+          shadowOpacity: 0.1,
+          shadowRadius: 3,
+          elevation: 3,
+        }}
+      >
+        <Text
+          style={{
+            fontFamily: "Montserrat-Regular",
+            fontWeight: "700",
+            color: "#ffffffff",
+          }}
+        >
+          UPLOAD QR
+        </Text>
+      </Pressable> 
       </View>
-
+           
       {/* ALERT MESSAGES*/}
       {error && (
         <View
@@ -472,7 +526,7 @@ export default function ProductScanner() {
             {productDetails.product_image && (
               <Image
                 source={{ uri: productDetails.product_image }}
-                style={{ width: "100%", height: 280, borderRadius: 12, resizeMode: "wrap" }}
+                style={{ width: "100%", height: 280, borderRadius: 12, resizeMode: "cover" }}
               />
             )}
             {/* NEW CODE */}
