@@ -29,8 +29,8 @@ export default function BackButton({ color = "#111", size = 20 }) {
             paddingHorizontal: 10,
             flexDirection: "row",
             position: "absolute",
-            top: 14,
-            left: 20,
+            top: 12,
+            left: 40,
             zIndex: 10,
         }}
       hitSlop={10}

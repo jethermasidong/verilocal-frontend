@@ -72,7 +72,16 @@ export default function BusinessDashboard() {
   const hoverAnimReport = useRef(new Animated.Value(0)).current;
   const hoverAnimFilter = useRef(new Animated.Value(0)).current;
 
+  //Loading State 
   const [isLoading, setIsLoading] = useState(false);
+
+  // Result Modal (Success / Error)
+  const [resultVisible, setResultVisible] = useState(false);
+  const [resultType, setResultType] = useState(null); // "success" | "error"
+  const [resultMessage, setResultMessage] = useState("");
+
+  const resultOpacity = useRef(new Animated.Value(0)).current;
+  const resultScale = useRef(new Animated.Value(0.8)).current;
 
   //Product Modal Left and Right Button Hover Animation 
   const [hoverLeft, setHoverLeft] = useState(false);
@@ -264,30 +273,34 @@ export default function BusinessDashboard() {
   };
 
   const updateProduct = async (id) => {
-  setIsLoading(true);
-  try {
-    const token = await AsyncStorage.getItem("token");
+    setIsLoading(true);
+    try {
+      const token = await AsyncStorage.getItem("token");
 
-    const res = await axios.put(
-      `http://localhost:3000/api/products/${id}`,
-      editForm,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    await fetchProducts();
-    setSelectedProduct(res.data);
-    setEditModalVisible(false);
-    setModalVisible(false);
-    setIsLoading(false);
-    alert("Product updated successfully!");
-  } catch (err) {
-    console.error("Update failed:", err);
-    alert("Failed to update product");
-  }  
-};
+      const res = await axios.put(
+        `http://localhost:3000/api/products/${id}`,
+        editForm,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      await fetchProducts();
+      setSelectedProduct(res.data);
+      setEditModalVisible(false);
+      setModalVisible(false);
+      setIsLoading(false);
+
+      showResult("success", "Product updated successfully!");
+
+    } catch (err) {
+      console.error("Update failed:", err);
+      setIsLoading(false);
+      showResult("error", "Failed to update product. Please try again.");
+    }
+  };
 
   const openEditModal = (product) => { 
     let start = "";
@@ -564,24 +577,60 @@ export default function BusinessDashboard() {
   };
 
 
-const deleteProduct = async (productId) => {
-  try {
-    const token = await AsyncStorage.getItem("token");
-    await axios.delete(
-      `http://localhost:3000/api/products/${productId}`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    setProducts((prev) => prev.filter((p) => p.id !== productId));
-    setModalVisible(false);
-    alert("Product deleted successfully!");
-  } catch (error) {
-    console.error("Delete Failed", error);
-    alert("Failed to delete product");
-  }
-};
+  const deleteProduct = async (id) => {
+    setIsLoading(true);
 
- const handleInputChange = (field, value) => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+
+      await axios.delete(
+        `http://localhost:3000/api/products/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      await fetchProducts();
+
+      setModalVisible(false); // close product view modal
+      setIsLoading(false);
+
+      showResult("success", `${selectedProduct?.name} deleted successfully!`);
+
+    } catch (err) {
+      console.error("Delete failed:", err);
+      setIsLoading(false);
+
+      showResult("error", "Failed to delete product. Please try again.");
+    }
+  };
+
+  const handleInputChange = (field, value) => {
     setEditForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const showResult = (type, message) => {
+    setResultType(type);
+    setResultMessage(message);
+    setResultVisible(true);
+
+    resultOpacity.setValue(0);
+    resultScale.setValue(0.8);
+
+    Animated.parallel([
+      Animated.timing(resultOpacity, {
+        toValue: 1,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+      Animated.spring(resultScale, {
+        toValue: 1,
+        friction: 6,
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -1737,7 +1786,7 @@ const deleteProduct = async (productId) => {
                   }}
                 >
                   <ActivityIndicator size="large" color="#5177b0" />
-                  <Text style={{ marginTop: 10 }}>Logging in...</Text>
+                  <Text style={{ marginTop: 10 }}>Updating Product Information...</Text>
                 </View>
               </View>
             )}                    
@@ -1871,6 +1920,74 @@ const deleteProduct = async (productId) => {
           </View>
         </View>
       </Pressable>
+    </Modal>
+    {/* RESULT MODAL (SUCCESS / ERROR) */}
+    <Modal visible={resultVisible} transparent animationType="none">
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: "rgba(0,0,0,0.5)",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Animated.View
+          style={{
+            opacity: resultOpacity,
+            transform: [{ scale: resultScale }],
+            backgroundColor: "#fff",
+            padding: 25,
+            borderRadius: 16,
+            width: "85%",
+            maxWidth: 350,
+            alignItems: "center",
+          }}
+        >
+          <Ionicons
+            name={
+              resultType === "success"
+                ? "checkmark-circle"
+                : "close-circle"
+            }
+            size={70}
+            color={resultType === "success" ? "#2ECC71" : "#E74C3C"}
+          />
+
+          <Text
+            style={{
+              marginTop: 15,
+              fontSize: 16,
+              fontWeight: "600",
+              textAlign: "center",
+              fontFamily: "Montserrat-Regular",
+            }}
+          >
+            {resultMessage}
+          </Text>
+
+          <Pressable
+            onPress={() => setResultVisible(false)}
+            style={{
+              marginTop: 20,
+              backgroundColor:
+                resultType === "success" ? "#2ECC71" : "#E74C3C",
+              paddingVertical: 10,
+              paddingHorizontal: 25,
+              borderRadius: 8,
+            }}
+          >
+            <Text
+              style={{
+                color: "#fff",
+                fontWeight: "600",
+                fontFamily: "Montserrat-Regular",
+              }}
+            >
+              OK
+            </Text>
+          </Pressable>
+        </Animated.View>
+      </View>
     </Modal>
   </Animated.View>
 </ImageBackground>
