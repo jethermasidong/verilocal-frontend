@@ -20,7 +20,7 @@ export default function AdminDashboard() {
   const [showModal, setShowModal] = useState(false);
   const [currentImage, setCurrentImage] = useState(null);
 
-  const serverUrl = "http://localhost:3000";
+  const serverUrl = "https://verilocal.onrender.com";
 
   const loadBusinesses = async () => {
     try {

@@ -87,7 +87,7 @@ export default function OtpScreen() {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/verify-otp",
+        "https://verilocal.onrender.com/api/verify-otp",
         { email, otp }
       );
 
@@ -123,7 +123,7 @@ export default function OtpScreen() {
 
   const resendOtp = async () => {
     try {
-      await axios.post("http://localhost:3000/api/resend-otp", { email });
+      await axios.post("https://verilocal.onrender.com/api/resend-otp", { email });
       Alert.alert("OTP resent");
     } catch (error) {
       console.error(error.response?.data || error.message);

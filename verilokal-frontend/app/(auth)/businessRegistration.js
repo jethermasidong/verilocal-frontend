@@ -230,7 +230,7 @@ export default function RegisterBusiness() {
       });
       appendFile("logo", logo);
 
-      await axios.post("http://localhost:3000/api/business", formData, {
+      await axios.post("https://verilocal.onrender.com/api/business", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,

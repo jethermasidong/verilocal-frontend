@@ -61,7 +61,7 @@ export default function BusinessLogin() {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/login",
+        "https://verilocal.onrender.com/api/login",
         qs.stringify({ email, password }),
         { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
       );
