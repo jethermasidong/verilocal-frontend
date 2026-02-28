@@ -1,10 +1,9 @@
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
 import axios from "axios";
-import BackButton from "../../components/BackButton";
 import { useFonts } from "expo-font";
-import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -22,6 +21,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import BackButton from "../../components/BackButton";
 
 
 //REGISTER PRODUCT 
@@ -268,7 +268,7 @@ export default function RegisterProduct() {
       }
 
       //BACKEND COMMUNICATION
-      await axios.post("http://localhost:3000/api/products", formData, {
+      await axios.post("https://verilocalph.onrender.com/api/products", formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

@@ -80,7 +80,7 @@ export default function BusinessProfile() {
             const token = await AsyncStorage.getItem("token");
   
             const res = await axios.get(
-              "https://verilocal.onrender.com/api/business/profile",
+              "https://verilocalph.onrender.com/api/business/profile",
               {
                 headers: { Authorization: `Bearer ${token}` },
               }

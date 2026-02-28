@@ -1,12 +1,11 @@
+import { Ionicons } from "@expo/vector-icons";
 import { faFileUpload } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useFonts } from "expo-font";
-import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useRef, useState } from "react";
-import BackButton from "../../components/BackButton";
 import {
   ActivityIndicator,
   Alert,
@@ -22,6 +21,7 @@ import {
   TextInput,
   View
 } from "react-native";
+import BackButton from "../../components/BackButton";
 
 export default function RegisterBusiness() {
   const [name, setName] = useState("");
@@ -230,7 +230,7 @@ export default function RegisterBusiness() {
       });
       appendFile("logo", logo);
 
-      await axios.post("https://verilocal.onrender.com/api/business", formData, {
+      await axios.post("https://verilocalph.onrender.com/api/business", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,

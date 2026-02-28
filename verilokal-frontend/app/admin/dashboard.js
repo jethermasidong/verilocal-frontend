@@ -1,7 +1,7 @@
+import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import { useFonts } from "expo-font";
 import { useEffect, useState } from "react";
-import { Ionicons } from "@expo/vector-icons";
 import {
   Alert,
   Dimensions,
@@ -20,7 +20,7 @@ export default function AdminDashboard() {
   const [showModal, setShowModal] = useState(false);
   const [currentImage, setCurrentImage] = useState(null);
 
-  const serverUrl = "https://verilocal.onrender.com";
+  const serverUrl = "https://verilocalph.onrender.com";
 
   const loadBusinesses = async () => {
     try {
