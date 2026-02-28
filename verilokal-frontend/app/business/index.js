@@ -229,7 +229,7 @@ export default function BusinessDashboard() {
       try {
         const token = await AsyncStorage.getItem("token");
         const res = await axios.get(
-          "http://localhost:3000/api/products/my-products",
+          "https://verilocalph.onrender.com/api/products/my-products",
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setProducts(res.data);
@@ -278,7 +278,7 @@ export default function BusinessDashboard() {
       const token = await AsyncStorage.getItem("token");
 
       const res = await axios.put(
-        `http://localhost:3000/api/products/${id}`,
+        `https://verilocalph.onrender.com/api/products/${id}`,
         editForm,
         {
           headers: {
@@ -584,7 +584,7 @@ export default function BusinessDashboard() {
       const token = await AsyncStorage.getItem("token");
 
       await axios.delete(
-        `http://localhost:3000/api/products/${id}`,
+        `https://verilocalph.onrender.com/api/products/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -668,7 +668,7 @@ export default function BusinessDashboard() {
           const token = await AsyncStorage.getItem("token");
 
           const res = await axios.get(
-            "http://localhost:3000/api/business/profile",
+            "https://verilocalph.onrender.com/api/business/profile",
             {
               headers: { Authorization: `Bearer ${token}` },
             }
