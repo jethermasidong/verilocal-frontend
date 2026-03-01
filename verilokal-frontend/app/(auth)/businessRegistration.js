@@ -382,11 +382,11 @@ export default function RegisterBusiness() {
     <BackButton />
       <View style={[styles.card, isMobile && { flexDirection: "column" }]}>
         {/* LEFT IMAGE */}
-        <View style={[styles.leftPanel, isMobile && { width: "100%", height: 200 }]}>
+        <View style={[styles.leftPanel, isMobile && { width: "100%", height: 200, }]}>
           <Image
-            source={require("../../assets/business.png")}
+            source={isMobile ? require("../../assets/images/mobile.png") : require("../../assets/business.png")}
             style={styles.leftImage}
-            resizeMode="cover"
+            resizeMode={isMobile ? "cover" : "wrap"}
           />
         </View>
 
@@ -638,7 +638,7 @@ export default function RegisterBusiness() {
 
 const styles = StyleSheet.create({
   card: {
-    width: "80%",
+    width: "92%",
     maxWidth: 1300,
     minHeight: 400,
     backgroundColor: "#fff",
@@ -646,13 +646,15 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     flexDirection: "row",
     elevation: 6,
+    alignSelf: "center",
   },
   leftPanel: {
-    width: "25%",
+    width: "30%",
     justifyContent: "center",
     alignItems: "center",
     padding: 0,
     height: "100%",
+    backgroundColor: "#f0f0f0",
   },
   leftImage: {
     width: "100%",
