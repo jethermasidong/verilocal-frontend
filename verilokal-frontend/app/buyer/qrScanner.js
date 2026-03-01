@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import { useFonts } from "expo-font";
 import { useEffect, useRef, useState } from "react";
-import { Animated, Dimensions, Image, Modal, Pressable, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, Animated, Dimensions, Image, Modal, Pressable, ScrollView, Text, View } from "react-native";
 export default function ProductScanner() {
   const [isScanning, setIsScanning] = useState(false);
   const [qrData, setQrData] = useState(null);
@@ -13,6 +13,8 @@ export default function ProductScanner() {
   const [error, setError] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [registered_business_name, setBusinessName] = useState("");
+
+  const [isLoading, setIsLoading] = useState(false);
 
   // RESULT MODAL SYSTEM
   const [resultVisible, setResultVisible] = useState(false);
@@ -62,11 +64,14 @@ export default function ProductScanner() {
         const file = e.target.files[0];
         if (!file) return;
 
+        setIsLoading(true);
+
         try {
           const decodedText = await html5QrCode.scanFile(file, true);
           handleDecodedQR(decodedText);
         } catch (err) {
           setError("Invalid QR image or unreadable.");
+          setIsLoading(false);
         }
       };
       input.click();
@@ -115,6 +120,7 @@ export default function ProductScanner() {
       try {
         setQrData(decodedText);
         setIsScanning(false);
+        setIsLoading
 
         const [product_id_str, blockchain_hash] = decodedText.split("|");
         const product_id = Number(product_id_str);
@@ -190,6 +196,8 @@ export default function ProductScanner() {
         const errorMessage = err.message || "Invalid QR or backend error";
         setError(errorMessage);
         showResult("error", errorMessage);
+      } finally {
+        setIsLoading(false);
       }
     }; 
 
@@ -806,6 +814,33 @@ export default function ProductScanner() {
     </View>
   </Modal>
 </ScrollView>
+{isLoading && (
+        <View
+          style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0,0,0,0.4)",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 9999,
+        }}
+      >
+        <View
+          style={{
+          backgroundColor: "#fff",
+          padding: 20,
+          borderRadius: 12,
+          alignItems: "center",
+        }}
+      >
+        <ActivityIndicator size="large" color="#5177b0" />
+        <Text style={{ marginTop: 10 }}>Verifying Product, Please wait.</Text>
+      </View>
+    </View>
+  )}
 {resultVisible && (
   <View
     style={{

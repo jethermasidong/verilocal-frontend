@@ -494,13 +494,13 @@ export default function RegisterBusiness() {
 
 
           <Text style={styles.label}>Business Permit* (Mayor's Permit) </Text>
-          <Pressable style={styles.upload} onPress={() => pickImage(setPermit)}>
+          <Pressable style={[styles.upload, errors.description && styles.inputError]} onPress={() => pickImage(setPermit)}>
             <Text>{permit ? permit.name : <FontAwesomeIcon icon={faFileUpload} size="2x" />}</Text>
           </Pressable>
           {errors.permit && <Text style={styles.error}>{errors.permit}</Text>}
           
           <Text style={styles.label}>Certificates* (DENR / DTI)</Text>
-          <Pressable style={styles.upload} onPress={multipleImages}>
+          <Pressable style={[styles.upload, errors.description && styles.inputError]} onPress={multipleImages}>
             <Text>
               {certificates.length > 0
                 ? `${certificates.length} files selected`
