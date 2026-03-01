@@ -594,7 +594,7 @@ export default function BusinessDashboard() {
 
       await fetchProducts();
 
-      setModalVisible(false); // close product view modal
+      setModalVisible(false);
       setIsLoading(false);
 
       showResult("success", `${selectedProduct?.name} deleted successfully!`);
@@ -865,10 +865,10 @@ export default function BusinessDashboard() {
         <View 
           style={{
             flexDirection: "row",
-            alignItems: "center",
+            alignItems: isMobile ? "flex-start" :"center",
             gap: 10,
             width: isMobile ? "100%" : "70%",
-            position: "relative",
+            position: isMobile ? "flex-start" : "relative",
           }}>
           <TextInput
             placeholder="Search products..."
@@ -1074,7 +1074,7 @@ export default function BusinessDashboard() {
       )}
 
 
-      {/* Modal */}
+      {/* PRODUCT MODAL */}
       <Modal visible={modalVisible} animationType="fade" transparent={true}>
         <View
           style={{
@@ -1082,13 +1082,12 @@ export default function BusinessDashboard() {
             backgroundColor: "rgba(0,0,0,0.5)",
             justifyContent: "center",
             alignItems: "center",
-            padding: 20,
           }}
         >
           <View
             style={{
               backgroundColor: "#fff",
-              padding: 25,
+              padding: 15,
               borderRadius: 16,
               width: "90%",
               maxWidth: 450,
@@ -1124,7 +1123,7 @@ export default function BusinessDashboard() {
                   style={{
                     width: "100%",
                     aspectRatio: 1.6,
-                    height: 250,
+                    height: isMobile ? 200 : 250,
                     borderRadius: 16,
                     overflow: "hidden",
                     backgroundColor: "#f2f2f2",
@@ -1136,7 +1135,7 @@ export default function BusinessDashboard() {
                     style={{
                       width: "100%",
                       height: "100%",
-                      resizeMode: "contain",
+                      resizeMode: "cover",
                     }}
                   />
                   </View>
@@ -1299,7 +1298,7 @@ export default function BusinessDashboard() {
                           marginBottom: 8,
                         }}
                       >
-                        Images of the Process
+                        Images of the Process:
                       </Text>
 
                       <View style={{ position: "relative" }}>
@@ -1423,8 +1422,8 @@ export default function BusinessDashboard() {
                             <View
                               key={index}
                               style={{
-                                width: 350,
-                                height: 350,
+                                width: isMobile ? 270 : 350,
+                                height: isMobile ? 270 : 350,
                                 marginRight: 10,
                                 borderRadius: 16,
                                 overflow: "hidden",
@@ -1480,112 +1479,112 @@ export default function BusinessDashboard() {
                       marginBottom: 20,
                     }}
                   >
-                  <View 
-                    style={{
-                      flexDirection: "row", gap: 3, position: "absolute", right: 5, top: 5,
-                    }}
-                  >
-                    <Pressable
-                      onHoverIn={() => setHoverPrint(true)}
-                      onHoverOut={() => setHoverPrint(false)}
-                      onPress={() => printQRCode(selectedProduct.qr_code)}
+                    <View 
                       style={{
-                        borderWidth: 1,
-                        borderColor: "rgb(139, 132, 132)",
-                        borderRadius: 50,
-                        backgroundColor: hoverPrint
-                          ? "#a7a5a5"
-                          : "#fff",
-                        paddingVertical: 8,
-                        paddingHorizontal: 12,
-                        alignItems: "center",
-                        justifyContent: "center",
+                        flexDirection: isMobile ? "column" : "row", gap: 3, position: "absolute", right: 5, top: 5,
                       }}
                     >
-                      <Ionicons name="print-outline" size={16} color="#000" />
-                    </Pressable>
-
-                    <Pressable
-                      onHoverIn={() => setHoverDownload(true)}
-                      onHoverOut={() => setHoverDownload(false)}
-                      onPress={() => downloadQRCode(selectedProduct.qr_code)}
-                      style={{
-                        borderWidth: 1,
-                        borderColor: "rgb(139, 132, 132)",
-                        borderRadius: 20,
-                        backgroundColor: hoverDownload
-                          ? "#a7a5a5"
-                          : "#fff",
-                        paddingVertical: 8,
-                        paddingHorizontal: 12,
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Ionicons name="download-outline" size={16} color="#000" />
-                    </Pressable>
-                    </View>
-
-                    {selectedProduct?.qr_code && (
-                      <Image
-                        source={{ uri: selectedProduct.qr_code }}
-                        style={{ width: 200, height: 220, borderRadius: 8 }}
-                        resizeMode="contain"
-                      />
-                    )}
-                  </View>
-
-                  {/* BLOCKCHAIN INFO */}
-                  <View
-                    style={{
-                      backgroundColor: "#f4f4f4",
-                      padding: 14,
-                      borderRadius: 12,
-                      borderWidth: 1,
-                      borderColor: "#d9d9d9",
-                      marginBottom: 20,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontSize: 16,
-                        fontWeight: "700",
-                        marginBottom: 8,
-                        fontFamily: "Montserrat-Regular",
-                      }}
-                    >
-                      Blockchain Information
-                    </Text>
-                    <Text style={{ fontFamily: "Montserrat-Regular", marginBottom: 10 }}>
-                      <Text style={{ fontWeight: "600" }}>Transaction Hash:</Text>{" "}
-                      {selectedProduct.tx_hash}
-                    </Text>
-
-                    {selectedProduct.tx_hash && (
                       <Pressable
-                        onPress={() =>
-                          Linking.openURL(`https://eth-sepolia.blockscout.com/tx/${selectedProduct.tx_hash}`)
-                        }
+                        onHoverIn={() => setHoverPrint(true)}
+                        onHoverOut={() => setHoverPrint(false)}
+                        onPress={() => printQRCode(selectedProduct.qr_code)}
                         style={{
-                          backgroundColor: "#4A70A9",
-                          paddingVertical: 10,
-                          borderRadius: 6,
-                          marginTop: 5,
+                          borderWidth: 1,
+                          borderColor: "rgb(139, 132, 132)",
+                          borderRadius: 50,
+                          backgroundColor: hoverPrint
+                            ? "#a7a5a5"
+                            : "#fff",
+                          paddingVertical: 8,
+                          paddingHorizontal: 12,
+                          alignItems: "center",
+                          justifyContent: "center",
                         }}
                       >
-                        <Text
+                        <Ionicons name="print-outline" size={16} color="#000" />
+                      </Pressable>
+
+                      <Pressable
+                        onHoverIn={() => setHoverDownload(true)}
+                        onHoverOut={() => setHoverDownload(false)}
+                        onPress={() => downloadQRCode(selectedProduct.qr_code)}
+                        style={{
+                          borderWidth: 1,
+                          borderColor: "rgb(139, 132, 132)",
+                          borderRadius: 20,
+                          backgroundColor: hoverDownload
+                            ? "#a7a5a5"
+                            : "#fff",
+                          paddingVertical: 8,
+                          paddingHorizontal: 12,
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Ionicons name="download-outline" size={16} color="#000" />
+                      </Pressable>
+                      </View>
+
+                      {selectedProduct?.qr_code && (
+                        <Image
+                          source={{ uri: selectedProduct.qr_code }}
+                          style={{ width: 220, height: 220, borderRadius: 8 }}
+                          resizeMode="contain"
+                        />
+                      )}
+                    </View>
+
+                    {/* BLOCKCHAIN INFO */}
+                    <View
+                      style={{
+                        backgroundColor: "#f4f4f4",
+                        padding: 14,
+                        borderRadius: 12,
+                        borderWidth: 1,
+                        borderColor: "#d9d9d9",
+                        marginBottom: 20,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          fontWeight: "700",
+                          marginBottom: 8,
+                          fontFamily: "Montserrat-Regular",
+                        }}
+                      >
+                        Blockchain Information
+                      </Text>
+                      <Text style={{ fontFamily: "Montserrat-Regular", marginBottom: 10 }}>
+                        <Text style={{ fontWeight: "600" }}>Transaction Hash:</Text>{" "}
+                        {selectedProduct.tx_hash}
+                      </Text>
+
+                      {selectedProduct.tx_hash && (
+                        <Pressable
+                          onPress={() =>
+                            Linking.openURL(`https://eth-sepolia.blockscout.com/tx/${selectedProduct.tx_hash}`)
+                          }
                           style={{
-                            fontWeight: "700",
-                            fontFamily: "Montserrat-Regular",
-                            textAlign: "center",
-                            color: "#ffffffff",
+                            backgroundColor: "#4A70A9",
+                            paddingVertical: 10,
+                            borderRadius: 6,
+                            marginTop: 5,
                           }}
                         >
-                          VIEW BLOCKCHAIN
-                        </Text>
-                      </Pressable>
-                    )}
-                  </View>
+                          <Text
+                            style={{
+                              fontWeight: "700",
+                              fontFamily: "Montserrat-Regular",
+                              textAlign: "center",
+                              color: "#ffffffff",
+                            }}
+                          >
+                            VIEW BLOCKCHAIN
+                          </Text>
+                        </Pressable>
+                      )}
+                    </View>
                 </ScrollView>
               </>
             )}

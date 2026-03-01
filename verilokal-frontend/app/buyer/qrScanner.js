@@ -14,6 +14,14 @@ export default function ProductScanner() {
   const [modalVisible, setModalVisible] = useState(false);
   const [registered_business_name, setBusinessName] = useState("");
 
+  // RESULT MODAL SYSTEM
+  const [resultVisible, setResultVisible] = useState(false);
+  const [resultType, setResultType] = useState(null);
+  const [resultMessage, setResultMessage] = useState("");
+
+  const resultScale = useRef(new Animated.Value(0.8)).current;
+  const resultOpacity = useRef(new Animated.Value(0)).current;
+
   //CAROUSEL
   const ITEM_WIDTH = 350;
   const scrollRef = useRef(null);
@@ -112,48 +120,78 @@ export default function ProductScanner() {
         const product_id = Number(product_id_str);
 
         if (!product_id || !blockchain_hash)
-        throw new Error("Invalid QR data format");
+          throw new Error("Invalid QR data format");
 
         let res;
+
         try {
           res = await axios.post(
-          "https://verilocal.onrender.com/api/products/verify",
-          { product_id, blockchain_hash }
+            "https://verilocal.onrender.com/api/products/verify",
+            { product_id, blockchain_hash }
           );
+
           setProduct(res.data);
           setError(null);
+
         } catch (axiosErr) {
-            setError(
-              axiosErr.response?.data?.message ||
-              "Verification failed. Please try again."
-          );
-        return;
+
+          const errorMessage =
+            axiosErr.response?.data?.message ||
+            "Verification failed. Please try again.";
+
+          setError(errorMessage);
+          showResult("error", errorMessage);
+          return;
         }
-            
+
         if (res.data.verified) {
+
+          showResult(
+            "success",
+            res.data.message || "Product Verified!",
+            () => {
+              setModalVisible(true);
+            }
+          );
+
           const allRes = await axios.get(
             "https://verilocal.onrender.com/api/products"
-            );
+          );
+
           const matched = allRes.data.find((p) => p.id === product_id);
+
           if (matched) {
             setProductDetails(matched);
+
             if (matched.business_id) {
               try {
                 const businessRes = await axios.get(
                   `https://verilocal.onrender.com/api/business/${matched.business_id}`
                 );
                 setBusinessName(businessRes.data.registered_business_name);
-              } catch (err) {
-                  setBusinessName("Unknown Business");
+              } catch {
+                setBusinessName("Unknown Business");
               }
             }
-            setModalVisible(true);
+
+            // Open product modal AFTER short delay
+            setTimeout(() => {
+              setModalVisible(true);
+            }, 1200);
           }
+
+        } else {
+
+          showResult("error", res.data.message || "Product not verified.");
         }
+
       } catch (err) {
-            setError(err.message || "Invalid QR or backend error");
+
+        const errorMessage = err.message || "Invalid QR or backend error";
+        setError(errorMessage);
+        showResult("error", errorMessage);
       }
-  }; 
+    }; 
 
   const stopScanner = async () => {
     if (Html5QrcodeRef.current) {
@@ -228,7 +266,35 @@ export default function ProductScanner() {
     const [hoverLeft, setHoverLeft] = useState(false);
     const [hoverRight, setHoverRight] = useState(false);
 
+    const showResult = (type, message, onSuccessDone = null) => {
+      setResultType(type);
+      setResultMessage(message);
+      setResultVisible(true);
 
+      resultScale.setValue(0.8);
+      resultOpacity.setValue(0);
+
+      Animated.parallel([
+        Animated.spring(resultScale, {
+          toValue: 1,
+          friction: 6,
+          useNativeDriver: true,
+        }),
+        Animated.timing(resultOpacity, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
+      // ✅ If success → auto close after 3 seconds
+      if (type === "success") {
+        setTimeout(() => {
+          setResultVisible(false);
+          if (onSuccessDone) onSuccessDone();
+        }, 3000);
+      }
+    };
 
   return (
     <Animated.View style = 
@@ -347,7 +413,7 @@ export default function ProductScanner() {
       </View>
 
       {/* BUTTONS */}
-      <View style={{ flexDirection: "row", gap: 15, marginBottom: 20 }}>
+      <View style={{ flexDirection: isMobile? "column": "row", gap: 15, marginBottom: 20 }}>
         <Pressable
           onPress={startScanner}
           style={{
@@ -366,6 +432,7 @@ export default function ProductScanner() {
               fontFamily: "Montserrat-Regular",
               fontWeight: "700",
               color: "#ffffffff",
+              textAlign: "center",
             }}
           >
             START QR
@@ -390,6 +457,7 @@ export default function ProductScanner() {
               fontFamily: "Montserrat-Regular",
               fontWeight: "700",
               color: "#fff",
+              textAlign: "center",
             }}
           >
             STOP
@@ -413,6 +481,7 @@ export default function ProductScanner() {
             fontFamily: "Montserrat-Regular",
             fontWeight: "700",
             color: "#ffffffff",
+            textAlign: "center",
           }}
         >
           UPLOAD QR
@@ -420,78 +489,7 @@ export default function ProductScanner() {
       </Pressable> 
       </View>
            
-      {/* ALERT MESSAGES*/}
-      {error && (
-        <View
-          style={{
-            backgroundColor: "#fde2e2",
-            borderWidth: 1,
-            borderColor: "#f5c2c2",
-            borderRadius: 12,
-            padding: 12,
-            marginBottom: 20,
-            width: "100%",
-          }}
-        >
-          <Text
-            style={{
-              color: "#4A70A9",
-              fontWeight: "600",
-              textAlign: "center",
-            }}
-          >
-            ❌ {error}
-          </Text>
-        </View>
-      )}
-
-      {product && product.verified && (
-        <View
-          style={{
-            backgroundColor: "#e2f8e2",
-            borderWidth: 1,
-            borderColor: "#b5e6b5",
-            borderRadius: 12,
-            padding: 12,
-            marginBottom: 20,
-            width: "100%",
-          }}
-        >
-          <Text
-            style={{
-              color: "#2e7d32",
-              fontWeight: "600",
-              textAlign: "center",
-            }}
-          >
-            ✅ {product.message}
-          </Text>
-        </View>
-      )}
-
-      {product && !product.verified && (
-        <View
-          style={{
-            backgroundColor: "#fff7e2",
-            borderWidth: 1,
-            borderColor: "#4A70A9",
-            borderRadius: 12,
-            padding: 12,
-            marginBottom: 20,
-            width: "100%",
-          }}
-        >
-          <Text
-            style={{
-              color: "#4A70A9",
-              fontWeight: "600",
-              textAlign: "center",
-            }}
-          >
-            ⚠️ {product.message}
-          </Text>
-        </View>
-      )}
+      
 
     {/* MODAL */}
       <Modal visible={modalVisible} animationType="fade" transparent>
@@ -501,7 +499,6 @@ export default function ProductScanner() {
         backgroundColor: "rgba(0,0,0,0.6)",
         justifyContent: "center",
         alignItems: "center",
-        padding: 10,
       }}
     >
       <View
@@ -516,6 +513,7 @@ export default function ProductScanner() {
           shadowRadius: 10,
           elevation: 10,
           overflow: "hidden",
+          padding: 10,
         }}
       >
         {productDetails && (
@@ -524,10 +522,9 @@ export default function ProductScanner() {
             {productDetails.product_image && (
               <Image
                 source={{ uri: productDetails.product_image }}
-                style={{ width: "100%", height: 280, borderRadius: 12, resizeMode: "cover" }}
+                style={{ width: "100%", height: isMobile? 240: 280, borderRadius: 12, resizeMode: "cover", }}
               />
             )}
-            {/* NEW CODE */}
             {/* Close Button */}
             <View style={{position: "absolute", top: 15, right: 15, zIndex: 10,}}>
               <Pressable
@@ -626,182 +623,182 @@ export default function ProductScanner() {
                 </Text>
               </View>
               {processImages.length > 0 && (
-                    <View style={{ marginBottom: 20, marginTop: 20,}}>
-                      <Text
+                <View style={{ marginBottom: 20, marginTop: 20,}}>
+                  <Text
+                    style={{
+                      fontFamily: "Montserrat-Regular",
+                      fontWeight: "600",
+                      marginBottom: 8,
+                    }}
+                  >
+                    Images of the Process:
+                  </Text>
+
+                  <View style={{ position: "relative" }}>
+                    {/* LEFT BUTTON */}
+                    {activeIndex > 0 && (
+                      <Animated.View
                         style={{
-                          fontFamily: "Montserrat-Regular",
-                          fontWeight: "600",
-                          marginBottom: 8,
+                          transform: [{ scale: leftScale }],
+                          position: "absolute",
+                          left: 6,
+                          top: "45%",
+                          zIndex: 10,
                         }}
                       >
-                        Images of the Process
-                      </Text>
+                        <Pressable
+                          onHoverIn={() => setHoverLeft(true)}
+                          onHoverOut={() => setHoverLeft(false)}
+                          onPressIn={() => pressIn(leftScale)}
+                          onPressOut={() => pressOut(leftScale)}
+                          onPress={() => {
+                            const newIndex = activeIndex - 1;
+                            isProgrammaticScroll.current = true;
+                            setActiveIndex(newIndex);
 
-                      <View style={{ position: "relative" }}>
-                        {/* LEFT BUTTON */}
-                        {activeIndex > 0 && (
-                          <Animated.View
-                            style={{
-                              transform: [{ scale: leftScale }],
-                              position: "absolute",
-                              left: 6,
-                              top: "45%",
-                              zIndex: 10,
-                            }}
-                          >
-                            <Pressable
-                              onHoverIn={() => setHoverLeft(true)}
-                              onHoverOut={() => setHoverLeft(false)}
-                              onPressIn={() => pressIn(leftScale)}
-                              onPressOut={() => pressOut(leftScale)}
-                              onPress={() => {
-                                const newIndex = activeIndex - 1;
-                                isProgrammaticScroll.current = true;
-                                setActiveIndex(newIndex);
+                            scrollRef.current?.scrollTo({
+                              x: newIndex * ITEM_WIDTH,
+                              animated: true,
+                            });
 
-                                scrollRef.current?.scrollTo({
-                                  x: newIndex * ITEM_WIDTH,
-                                  animated: true,
-                                });
-
-                                setTimeout(() => {
-                                  isProgrammaticScroll.current = false;
-                                }, 300);
-                              }}
-                              style={{
-                                backgroundColor: hoverLeft
-                                  ? "rgba(0,0,0,0.65)"
-                                  : "rgba(0,0,0,0.4)",
-                                borderRadius: 20,
-                                padding: 6,
-                              }}
-                            >
-                              <Ionicons
-                                name="chevron-back"
-                                size={22}
-                                color={hoverLeft ? "#fff" : "#e6e6e6"}
-                              />
-                            </Pressable>
-                          </Animated.View>
-                        )}
-
-                        {/* RIGHT BUTTON */}
-                        {activeIndex < processImages.length - 1 && (
-                          <Animated.View
-                            style={{
-                              transform: [{ scale: rightScale }],
-                              position: "absolute",
-                              right: 6,
-                              top: "45%",
-                              zIndex: 10,
-                            }}
-                          >
-                            <Pressable
-                              onHoverIn={() => setHoverRight(true)}
-                              onHoverOut={() => setHoverRight(false)}
-                              onPressIn={() => pressIn(rightScale)}
-                              onPressOut={() => pressOut(rightScale)}
-                              onPress={() => {
-                                const newIndex = activeIndex + 1;
-                                isProgrammaticScroll.current = true;
-                                setActiveIndex(newIndex);
-
-                                scrollRef.current?.scrollTo({
-                                  x: newIndex * ITEM_WIDTH,
-                                  animated: true,
-                                });
-
-                                setTimeout(() => {
-                                  isProgrammaticScroll.current = false;
-                                }, 300);
-                              }}
-                              style={{
-                                backgroundColor: hoverRight
-                                  ? "rgba(0,0,0,0.65)"
-                                  : "rgba(0,0,0,0.4)",
-                                borderRadius: 20,
-                                padding: 6,
-                              }}
-                            >
-                              <Ionicons
-                                name="chevron-forward"
-                                size={22}
-                                color={hoverRight ? "#fff" : "#e6e6e6"}
-                              />
-                            </Pressable>
-                          </Animated.View>
-                        )}
-
-                      
-                        <ScrollView
-                          ref={scrollRef}
-                          horizontal
-                          showsHorizontalScrollIndicator={false}
-                          snapToInterval={ITEM_WIDTH}
-                          decelerationRate="fast"
-                          contentContainerStyle={{ paddingRight: 10 }}
-                          onScroll={(e) => {
-                            if (isProgrammaticScroll.current) return;
-
-                            const offsetX = e.nativeEvent.contentOffset.x;
-                            const index = Math.round(offsetX / ITEM_WIDTH);
-
-                            setActiveIndex(
-                              Math.max(0, Math.min(index, processImages.length - 1))
-                            );
+                            setTimeout(() => {
+                              isProgrammaticScroll.current = false;
+                            }, 300);
                           }}
-                          scrollEventThrottle={16}
-
-
-                        >
-                          {processImages.map((img, index) => (
-                            <View
-                              key={index}
-                              style={{
-                                width: 350,
-                                height: 350,
-                                marginRight: 10,
-                                borderRadius: 16,
-                                overflow: "hidden",
-                                backgroundColor: "#f2f2f2",
-                              }}
-                            >
-                              <Image
-                                source={{ uri: img }}
-                                style={{
-                                  width: "100%",
-                                  height: "100%",
-                                  resizeMode: "cover",
-                                }}
-                              />
-                            </View>
-                          ))}
-                       
-                        </ScrollView>
-                        <View
                           style={{
-                            flexDirection: "row",
-                            justifyContent: "center",
-                            marginTop: 10,
+                            backgroundColor: hoverLeft
+                              ? "rgba(0,0,0,0.65)"
+                              : "rgba(0,0,0,0.4)",
+                            borderRadius: 20,
+                            padding: 6,
                           }}
                         >
-                          {processImages.map((_, index) => (
-                            <View
-                              key={index}
-                              style={{
-                                width: 8,
-                                height: 8,
-                                borderRadius: 4,
-                                marginHorizontal: 4,
-                                backgroundColor:
-                                  activeIndex === index ? "#000" : "#cfcfcf",
-                              }}
-                            />
-                          ))}
+                          <Ionicons
+                            name="chevron-back"
+                            size={22}
+                            color={hoverLeft ? "#fff" : "#e6e6e6"}
+                          />
+                        </Pressable>
+                      </Animated.View>
+                    )}
+
+                    {/* RIGHT BUTTON */}
+                    {activeIndex < processImages.length - 1 && (
+                      <Animated.View
+                        style={{
+                          transform: [{ scale: rightScale }],
+                          position: "absolute",
+                          right: 6,
+                          top: "45%",
+                          zIndex: 10,
+                        }}
+                      >
+                        <Pressable
+                          onHoverIn={() => setHoverRight(true)}
+                          onHoverOut={() => setHoverRight(false)}
+                          onPressIn={() => pressIn(rightScale)}
+                          onPressOut={() => pressOut(rightScale)}
+                          onPress={() => {
+                            const newIndex = activeIndex + 1;
+                            isProgrammaticScroll.current = true;
+                            setActiveIndex(newIndex);
+
+                            scrollRef.current?.scrollTo({
+                              x: newIndex * ITEM_WIDTH,
+                              animated: true,
+                            });
+
+                            setTimeout(() => {
+                              isProgrammaticScroll.current = false;
+                            }, 300);
+                          }}
+                          style={{
+                            backgroundColor: hoverRight
+                              ? "rgba(0,0,0,0.65)"
+                              : "rgba(0,0,0,0.4)",
+                            borderRadius: 20,
+                            padding: 6,
+                          }}
+                        >
+                          <Ionicons
+                            name="chevron-forward"
+                            size={22}
+                            color={hoverRight ? "#fff" : "#e6e6e6"}
+                          />
+                        </Pressable>
+                      </Animated.View>
+                    )}
+
+                  
+                    <ScrollView
+                      ref={scrollRef}
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      snapToInterval={ITEM_WIDTH}
+                      decelerationRate="fast"
+                      contentContainerStyle={{ paddingRight: 10 }}
+                      onScroll={(e) => {
+                        if (isProgrammaticScroll.current) return;
+
+                        const offsetX = e.nativeEvent.contentOffset.x;
+                        const index = Math.round(offsetX / ITEM_WIDTH);
+
+                        setActiveIndex(
+                          Math.max(0, Math.min(index, processImages.length - 1))
+                        );
+                      }}
+                      scrollEventThrottle={16}
+
+
+                    >
+                      {processImages.map((img, index) => (
+                        <View
+                          key={index}
+                          style={{
+                            width: isMobile ? 270: 350,
+                            height: isMobile ? 270: 350,
+                            marginRight: 10,
+                            borderRadius: 16,
+                            overflow: "hidden",
+                            backgroundColor: "#f2f2f2",
+                          }}
+                        >
+                          <Image
+                            source={{ uri: img }}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              resizeMode: "cover",
+                            }}
+                          />
                         </View>
-                      </View>
+                      ))}
+                    
+                    </ScrollView>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        marginTop: 10,
+                      }}
+                    >
+                      {processImages.map((_, index) => (
+                        <View
+                          key={index}
+                          style={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: 4,
+                            marginHorizontal: 4,
+                            backgroundColor:
+                              activeIndex === index ? "#000" : "#cfcfcf",
+                          }}
+                        />
+                      ))}
                     </View>
-                  )}
+                  </View>
+                </View>
+              )}
             </ScrollView>
           </>
         )}
@@ -809,6 +806,85 @@ export default function ProductScanner() {
     </View>
   </Modal>
 </ScrollView>
+{resultVisible && (
+  <View
+    style={{
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "rgba(0,0,0,0.5)",
+      justifyContent: "center",
+      alignItems: "center",
+      zIndex: 9999,
+    }}
+  >
+    <Animated.View
+      style={{
+        backgroundColor: "#fff",
+        padding: 30,
+        borderRadius: 20,
+        width: "85%",
+        maxWidth: 380,
+        alignItems: "center",
+        transform: [{ scale: resultScale }],
+        opacity: resultOpacity,
+      }}
+    >
+      <Ionicons
+        name={resultType === "success" ? "checkmark-circle" : "close-circle"}
+        size={70}
+        color={resultType === "success" ? "#2e7d32" : "#c62828"}
+        style={{ marginBottom: 15 }}
+      />
+
+      <Text
+        style={{
+          fontSize: 20,
+          fontWeight: "700",
+          marginBottom: 10,
+          color: resultType === "success" ? "#2e7d32" : "#c62828",
+        }}
+      >
+        {resultType === "success" ? "Verified" : "Verification Failed"}
+      </Text>
+
+      <Text
+        style={{
+          textAlign: "center",
+          marginBottom: 20,
+          fontSize: 14,
+          color: "#444",
+        }}
+      >
+        {resultMessage}
+      </Text>
+      <Pressable
+        onPress={() => {
+          setResultVisible(false);
+
+          if (resultType === "success") {
+            setModalVisible(true);
+          }
+        }}
+        style={{
+          backgroundColor:
+            resultType === "success" ? "#2e7d32" : "#c62828",
+          paddingVertical: 10,
+          paddingHorizontal: 25,
+          borderRadius: 12,
+          marginTop: 10,
+        }}
+      >
+        <Text style={{ color: "#fff", fontWeight: "600" }}>
+          OK
+        </Text>
+      </Pressable>
+
+    </Animated.View>
+  </View>
+)}
 </Animated.View>
   );
 }
