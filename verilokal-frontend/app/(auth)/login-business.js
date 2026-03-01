@@ -119,7 +119,7 @@ export default function BusinessLogin() {
           contentContainerStyle={{
             justifyContent: "center",
             alignItems: "center",
-            paddingVertical: isMobile ? 40 : 0,
+            paddingVertical: isMobile ? 30 : 0,
             minHeight: "100%",
           }}
           keyboardShouldPersistTaps="handled"
@@ -136,8 +136,9 @@ export default function BusinessLogin() {
               shadowRadius: 10,
               shadowOffset: { width: 0, height: 5 },
               elevation: 6,
-              width: "100%",
-              maxWidth: 800,
+              width: isMobile ? "90%" : "100%",
+              maxWidth: isMobile ? 450 : 800,
+              alignSelf: "center",
             }}
           >
             {/* LEFT IMAGE */}
@@ -146,14 +147,14 @@ export default function BusinessLogin() {
                 flex: 1,
                 alignItems: "center",
                 justifyContent: "center",
-                padding: 20,
+                padding: 15,
               }}
             >
               <View
                 style={{
                   borderRadius: 20,
                   width: "100%",
-                  minHeight: isMobile ? 280 : "100%",
+                  minHeight: isMobile ? 200 : "100%",
                   justifyContent: "center",
                   alignItems: "center",
                   shadowColor: "#000",
@@ -165,9 +166,9 @@ export default function BusinessLogin() {
                 <Image
                   source={require("../../assets/images/login.png")}
                   style={{
-                    width: isMobile ? 460 : 360,
-                    height: isMobile ? 290 : 380,
-                    borderRadius: 20,
+                    width: isMobile ? "100%" : 360,
+                    height: isMobile ? 220 : 380,
+                    borderRadius: 15,
                   }}
                   resizeMode="wrap"
                 />
@@ -175,14 +176,15 @@ export default function BusinessLogin() {
             </View>
 
             {/* RIGHT FORM */}
-            <View style={{ flex: 1, padding: 20, justifyContent: "center" }}>
+            <View style={{ flex: 1, padding: 15, justifyContent: "center" }}>
               <Text
                 style={{
                   fontSize: 24,
                   fontFamily: "Montserrat-Regular",
                   fontWeight: 'bold',
                   color: "#000",
-                  marginBottom: 20,
+                  marginTop: isMobile ? -10 : 0,
+                  marginBottom: isMobile ? 15 : 20,
                 }}
               >
                 Business Login
