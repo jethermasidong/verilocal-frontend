@@ -437,7 +437,7 @@ export default function RegisterBusiness() {
                 </View>
               </View>
             <View style={[styles.col, isMobile && { minWidth: "100%"}]}>
-              <Text style={[styles.label,isMobile && { marginTop: -10}]}>Email*</Text>
+              <Text style={[styles.label]}>Email*</Text>
               <TextInput
                 style={[styles.input, errors.email && styles.inputError]}
                 value={email}
@@ -470,7 +470,7 @@ export default function RegisterBusiness() {
             </View>
 
             <View style={[styles.col, isMobile && { minWidth: "100%"}]}>
-              <Text style={[styles.label,isMobile && { marginTop: -22}]}>Social Media Account*</Text>
+              <Text style={[styles.label]}>Social Media Account*</Text>
               <TextInput
                 style={[styles.input, errors.social_link && styles.inputError]}
                 value={social_link}
@@ -639,7 +639,7 @@ export default function RegisterBusiness() {
 const styles = StyleSheet.create({
   card: {
     width: "92%",
-    maxWidth: 1300,
+    maxWidth: 1400,
     minHeight: 400,
     backgroundColor: "#fff",
     borderRadius: 20,
@@ -693,7 +693,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontWeight: "600",
-    marginTop: 0,
+    marginTop: 5,
     marginBottom: 4,
     fontFamily: "Montserrat-Regular",
     fontSize: 12
@@ -728,7 +728,7 @@ const styles = StyleSheet.create({
   error: {
     color: "red",
     fontSize: 12,
-    marginBottom: 12,
+    marginBottom: 5,
   },
   upload: {
     borderWidth: 1,
@@ -741,7 +741,7 @@ const styles = StyleSheet.create({
   },
   submitBtn: {
     backgroundColor: "#5177b0",
-    padding: 16,
+    padding: 12,
     borderRadius: 14,
     marginTop: 25,
     alignItems: "center",

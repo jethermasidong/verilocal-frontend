@@ -67,13 +67,13 @@ export default function ProductScanner() {
         setIsLoading(true);
 
         try {
-          const decodedText = await html5QrCode.scanFile(file, true);
+          const decodedText = await html5QrCode.scanFile(file, false);
           handleDecodedQR(decodedText);
         } catch (err) {
           setError("Invalid QR image or unreadable.");
           setIsLoading(false);
         }
-      };
+      };  
       input.click();
     } catch (err) {
       setError("Failed to upload image");
@@ -179,8 +179,6 @@ export default function ProductScanner() {
                 setBusinessName("Unknown Business");
               }
             }
-
-            // Open product modal AFTER short delay
             setTimeout(() => {
               setModalVisible(true);
             }, 1200);
