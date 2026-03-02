@@ -197,7 +197,7 @@ export default function OtpScreen() {
             color: "#555",
           }}
         >
-          Please enter the OTP (One-Time Password) sent to your registered email address ({email}) to complete your verifcation.
+          Please enter the OTP (One-Time Password) sent to your registered email address ({email}) to complete your verification.
         </Text>
 
         {/* Hidden Input */}
@@ -291,20 +291,20 @@ export default function OtpScreen() {
           disabled={otp.length !== OTP_LENGTH}
           style={{
             backgroundColor:
-              otp.length === OTP_LENGTH ? "#5177b0" : "#aaa",
+              otp.length === OTP_LENGTH ? "#5177b0" : "#5177b0",
             padding: 15,
             borderRadius: 10,
             marginBottom: 10,
           }}
         >
-          <Text style={{ color: "#fff", textAlign: "center" }}>
+          <Text style={{ color: "#ffffff", textAlign: "center", fontFamily: "Montserrat-Regular" }}>
             Verify OTP
           </Text>
         </Pressable>
 
         {/* Resend */}
         <Pressable onPress={resendOtp} disabled={isResendLoadingOtp}
-        style={{marginTop: 5, alignItems: "center",}}>
+        style={{marginTop: 2, alignItems: "center", backgroundColor: "#aaa", padding: 15, borderRadius: 10}}>
           {isResendLoadingOtp ? (
             <ActivityIndicator size="small" color="#5177b0" />
 
@@ -312,8 +312,9 @@ export default function OtpScreen() {
             <Text
               style={{
                 textAlign: "center",
-                color: "#5177b0",
+                color: "#000000",
                 fontWeight: "600",
+                fontFamily: "Montserrat-Regular",
               }}
             >
               Resend OTP
@@ -323,7 +324,7 @@ export default function OtpScreen() {
         <Text
           style={{
             fontSize: 12,
-            marginVertical: 30,
+            marginVertical: 25,
             fontFamily: "Montserrat-Regular",
             color: "#555",
           }}
