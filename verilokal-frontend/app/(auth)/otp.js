@@ -24,6 +24,7 @@ export default function OtpScreen() {
   const inputRef = useRef(null);
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isResendLoadingOtp, setIsResendLoadingOtp] = useState(false);
 
  
   const blinkAnim = useRef(new Animated.Value(1)).current;
@@ -123,15 +124,20 @@ export default function OtpScreen() {
 
   const resendOtp = async () => {
     try {
+      setIsResendLoadingOtp(true);
+      setIsOtpError(false);
+      setErrorMessage("");
       await axios.post("https://verilocalph.onrender.com/api/resend-otp", { email });
-      Alert.alert("OTP resent");
+      Alert.alert("OTP resent successfully!");
     } catch (error) {
       console.error(error.response?.data || error.message);
 
       setIsOtpError(true);
       setErrorMessage(
-        error.response?.data?.message || "Invalid or expired OTP"
+        error.response?.data?.message || "Failed to resend OTP"
       );
+    } finally {
+      setIsResendLoadingOtp(false);
     }
   };
 
@@ -297,10 +303,22 @@ export default function OtpScreen() {
         </Pressable>
 
         {/* Resend */}
-        <Pressable onPress={resendOtp}>
-          <Text style={{ textAlign: "center", color: "blue" }}>
-            Resend OTP
-          </Text>
+        <Pressable onPress={resendOtp} disabled={isResendLoadingOtp}
+        style={{marginTop: 5, alignItems: "center",}}>
+          {isResendLoadingOtp ? (
+            <ActivityIndicator size="small" color="#5177b0" />
+
+          ) : (
+            <Text
+              style={{
+                textAlign: "center",
+                color: "#5177b0",
+                fontWeight: "600",
+              }}
+            >
+              Resend OTP
+            </Text>
+          )}
         </Pressable>
         <Text
           style={{
