@@ -1639,7 +1639,6 @@ export default function BusinessDashboard() {
               <Picker.Item label="Select Type" value="" />
               <Picker.Item label="Woodcrafts" value="woodcraft" />
               <Picker.Item label="Weaving and Textiles" value="textile" />
-              <Picker.Item label="Pottery" value="pottery" />
             </Picker>
             <Text style={{fontWeight: "600", marginTop: 6, marginBottom: 1, fontSize: 13, fontFamily: 'Montserrat-Regular',}}>Materials*</Text>
             </View>
@@ -1677,20 +1676,6 @@ export default function BusinessDashboard() {
                 </Picker>
                 </View>
             )} 
-            {editForm.type === "pottery" && (
-              <View style={{marginBottom: 7 }}>
-                <Picker 
-                selectedValue={editForm.materials}
-                onValueChange={(v) => handleInputChange("materials", v)}
-                style={{ borderWidth: 1, borderColor: "#ccc", padding: 8, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 13 }}
-                >
-                  <Picker.Item label="Select Material" value="" />
-                  <Picker.Item label="Red Clay (Lutang Pula)" value="Stoneware Clay" />
-                  <Picker.Item label="White Clay (Kaolin" value="White Clay (Kaolin)" />
-                  <Picker.Item label="Stoneware Clay" value="Stoneware Clay" />
-                </Picker>
-                </View>
-            )}    
 
             <View style={{marginBottom: 7 }}>
               <Text style={{fontWeight: "600", marginTop: 0, marginBottom: 4, fontSize: 13, fontFamily: 'Montserrat-Regular',}}>Origin*</Text>
