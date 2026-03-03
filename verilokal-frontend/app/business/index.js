@@ -1148,7 +1148,7 @@ export default function BusinessDashboard() {
                 >
                   <Text style={{ fontSize: 24, fontFamily: "Montserrat-Bold", marginBottom: 6, }}>
                     {selectedProduct.name}
-                    <View style={{ flexDirection: "row", gap: 3, position: "absolute", right: 0, top: 0, }}>
+                    <View style={{ flexDirection: isMobile ? "column" : "row", gap: 3, position: "absolute", right: 0, top: 0, }}>
                       <View style={{position: "auto", }}>
                         {/* EDIT PRODUCT BUTTON */}
                         <Pressable
@@ -1528,7 +1528,7 @@ export default function BusinessDashboard() {
                       {selectedProduct?.qr_code && (
                         <Image
                           source={{ uri: selectedProduct.qr_code }}
-                          style={{ width: 220, height: 220, borderRadius: 8 }}
+                          style={{ width: 200, height: 200, borderRadius: 8 }}
                           resizeMode="contain"
                         />
                       )}
