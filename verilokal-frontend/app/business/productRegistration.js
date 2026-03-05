@@ -21,7 +21,6 @@ import {
   TextInput,
   View,
 } from "react-native";
-import BackButton from "../../components/BackButton";
 
 
 //REGISTER PRODUCT 
@@ -436,7 +435,6 @@ export default function RegisterProduct() {
                       <Picker.Item label="Select Type" value="" />
                       <Picker.Item label="Woodcrafts" value="woodcraft" />
                       <Picker.Item label="Weaving and Textiles" value="textile" />
-                      <Picker.Item label="Pottery" value="pottery" />
                     </Picker>
                     {errors.type && <Text style={styles.errorText}>{errors.type}</Text>}
                   </View>
@@ -477,24 +475,7 @@ export default function RegisterProduct() {
                       </Picker>
                       {errors.materials && <Text style={styles.errorText}>{errors.materials}</Text>}
                     </View>
-                  )}
-
-                  {form.type === "pottery" && (
-                    <View style={styles.inputContainer}>
-                      <Picker
-                        selectedValue={form.materials}
-                        onValueChange={(v) => handleInputChange("materials", v)}
-                        style={styles.picker}
-                      >
-                        <Picker.Item label="Select Material" value="" />
-                        <Picker.Item label="Red Clay (Lutang Pula)" value="Stoneware Clay" />
-                        <Picker.Item label="White Clay (Kaolin" value="White Clay (Kaolin)" />
-                        <Picker.Item label="Stoneware Clay" value="Stoneware Clay" />
-                      </Picker>
-                      {errors.materials && <Text style={styles.errorText}>{errors.materials}</Text>}
-                    </View>
-                  )}
-              
+                  )}      
 
                   <Text style={styles.label}>Origin*</Text>
                   <InputField style={{ marginBottom: 10 }} label="Origin" value={form.origin} onChange={(v) => handleInputChange("origin", v)} error={errors.origin} />
@@ -700,7 +681,6 @@ export default function RegisterProduct() {
                         <Picker.Item label="Select Type" value="" />
                         <Picker.Item label="Woodcrafts" value="woodcraft" />
                         <Picker.Item label="Weaving and Textiles" value="textile" />
-                        <Picker.Item label="Pottery" value="pottery" />
                       </Picker>
                       {errors.type && <Text style={styles.errorText}>{errors.type}</Text>}
                     </View>
@@ -738,22 +718,6 @@ export default function RegisterProduct() {
                           <Picker.Item label="Cotton" value="Cotton" />
                           <Picker.Item label="Silk" value="Silk" />
                           <Picker.Item label="Maguay" value="Maguay" />
-                        </Picker>
-                        {errors.materials && <Text style={styles.errorText}>{errors.materials}</Text>}
-                      </View>
-                    )}
-
-                    {form.type === "pottery" && (
-                      <View style={styles.inputContainer}>
-                        <Picker
-                          selectedValue={form.materials}
-                          onValueChange={(v) => handleInputChange("materials", v)}
-                          style={styles.picker}
-                        >
-                          <Picker.Item label="Select Material" value="" />
-                          <Picker.Item label="Red Clay (Lutang Pula)" value="Stoneware Clay" />
-                          <Picker.Item label="White Clay (Kaolin" value="White Clay (Kaolin)" />
-                          <Picker.Item label="Stoneware Clay" value="Stoneware Clay" />
                         </Picker>
                         {errors.materials && <Text style={styles.errorText}>{errors.materials}</Text>}
                       </View>

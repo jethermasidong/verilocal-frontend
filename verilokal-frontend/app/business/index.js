@@ -7,6 +7,7 @@ import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Animated,
   Dimensions,
   Easing,
@@ -98,6 +99,9 @@ export default function BusinessDashboard() {
   const filterRef = useRef(null);
   const [showFilter, setShowFilter] = useState(false);
   const [filterPos, setFilterPos] = useState({ x: 0, y: 0, width: 0 });
+
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [dateType, setDateType] = useState(null);
 
   const onHoverIn = () => {
     Animated.spring(hoverAnimReport, {
@@ -861,7 +865,6 @@ export default function BusinessDashboard() {
             marginBottom: 15,
           }}
         >
-        {/* New Code */}
         <View 
           style={{
             flexDirection: "row",
