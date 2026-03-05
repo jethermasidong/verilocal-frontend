@@ -3,6 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Animated,
   Dimensions,
   Image,
@@ -23,7 +24,7 @@ export default function BusinessProfile() {
     setActivePanel(prev => prev === panel ? null : panel);
   };
 
-  const [business, setBusiness] = useState("");
+  const [business, setBusiness] = useState({});
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
@@ -40,10 +41,42 @@ export default function BusinessProfile() {
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
   const [hoverClose, setHoverClose] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const openPreview = (image) => {
     setPreviewImage(image);
     setPreviewVisible(true);
+  };
+
+  const handleChange = (field, value) => {
+    setBusiness((prev) => ({...prev, [field]: value}));
+  };
+
+  const handleSave = async () => {
+    try {
+        setIsLoading(true);
+        const token = await AsyncStorage.getItem("token");
+        await axios.put(
+            `https://verilocalph.onrender.com/api/business/${business.id}`,
+            {
+                name: business.name,
+                address: business.address,
+                registered_business_name: business.registered_business_name,
+                description: business.description,
+                contact_no: business.contact_no,
+                social_link: business.social_link,
+                logo: business.logo,
+            },
+            {headers: {Authorization: `Bearer ${token}`}}
+        );
+        console.log("Business updated successfully!");
+        setIsEditing(false);
+
+    } catch (err) {
+        console.error("Failed to update business", err);
+    } finally {
+        setIsLoading(false);
+    }
   };
 
   const scrollCarousel = (type, direction, length) => {
@@ -145,7 +178,7 @@ export default function BusinessProfile() {
         {/* Header */}
         <View style={styles.header}>
           <Image
-            source={business.logo}
+            source={ business.logo ? { uri: business.logo} : require("../../assets/images/placeholder.png")}
             style={styles.avatar}
           />
 
@@ -156,7 +189,10 @@ export default function BusinessProfile() {
 
           <Pressable
             style={[styles.editButton, isEditing && styles.saveButton]}
-            onPress={() => setIsEditing(!isEditing)}
+            onPress={() => {
+                if (isEditing) handleSave();
+                else setIsEditing(true);
+            }}
           >
             <Ionicons
               name={isEditing ? "checkmark" : "pencil"}
@@ -177,16 +213,19 @@ export default function BusinessProfile() {
               icon="location-outline"
               value={business.address}
               editable={isEditing}
+              onChangeText={(text) => handleChange("address", text)}
             />
             <DetailItem
               icon="call-outline"
               value={business.contact_no}
               editable={isEditing}
+              onChangeText={(text) => handleChange("contact_no", text)}
             />
             <DetailItem
               icon="mail-outline"
               value={business.email}
               editable={isEditing}
+              onChangeText={(text) => handleChange("email", text)}
             />
           </View>
 
@@ -226,7 +265,7 @@ export default function BusinessProfile() {
                       >
                         <Pressable onPress={() => openPreview(business.permit)}>
                           <Image
-                            source={business.permit}
+                            source={{ uri: business.permit}}
                             style={styles.dropdownImage}
                           />
 
@@ -279,22 +318,7 @@ export default function BusinessProfile() {
                       <Text>No certificates</Text>
                     )}
                   </ScrollView>
-                  {/* Left Arrow */}
-                  <Pressable
-                    style={styles.arrowLeft}
-                    onPress={() => scrollCarousel("permits", "left", 1)}
-                  >
-                    <Ionicons name="chevron-back" size={24} color="#fff" />
-                  </Pressable>
-
-                  {/* Right Arrow */}
-                  <Pressable
-                    style={styles.arrowRight}
-                    onPress={() => scrollCarousel("permits", "right", 1)}
-                  >
-                    <Ionicons name="chevron-forward" size={24} color="#fff" />
-                  </Pressable>
-
+                 
                   {certificatesArray.length > 1 && (
                     <>
                       <Pressable
@@ -372,17 +396,28 @@ export default function BusinessProfile() {
           </View>
         </View>
       )}
+      {isLoading && (
+        <View style={styles.loadingOverlay}>
+            <View style={styles.loadingBox}>
+                <ActivityIndicator size="large" color="#5177b0" />
+                <Text style={{ marginTop: 10 }}>Submitting Business...</Text>
+            </View>
+        </View>
+    )}
     </ScrollView>
   );
 }
 
 
-function DetailItem({ icon, value, editable }) {
+
+
+function DetailItem({ icon, value, editable, onChangeText}) {
   return (
     <View style={styles.detailRow}>
       <Ionicons name={icon} size={22} />
       <TextInput
         defaultValue={value}
+        onChangeText={onChangeText}
         editable={editable}
         style={[styles.input, editable && styles.inputEditable]}
       />
@@ -657,4 +692,20 @@ const styles = StyleSheet.create({
     overflow: "hidden", 
   },
 
+  loadingOverlay: { 
+    position: "absolute", 
+    top: 0, 
+    left: 0, 
+    right: 0, 
+    bottom: 0, 
+    backgroundColor: "rgba(0,0,0,0.4)", 
+    justifyContent: "center", 
+    alignItems: "center", 
+    zIndex: 9999 },
+
+  loadingBox: { 
+    backgroundColor: "#fff", 
+    padding: 20, 
+    borderRadius: 12, 
+    alignItems: "center" },
 });

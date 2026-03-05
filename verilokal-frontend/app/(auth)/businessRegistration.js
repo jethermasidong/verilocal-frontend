@@ -35,11 +35,15 @@ export default function RegisterBusiness() {
   const [password, setPassword] = useState("");
   const [contact_no, setContactNo] = useState("");
   const [social_link, setSocialLink] = useState("");
+
   const [errors, setErrors] = useState({});
+
   const [isMobile, setIsMobile] = useState(false);
+
   const [consent, setConsent] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [showConsentModal, setShowConsentModal] = useState(false);
+
+  const [isLoading, setIsLoading] = useState(false);
   const [submitting, setIsSubmitting] = useState(false);
   
   const loadGooglePlaces = () =>
