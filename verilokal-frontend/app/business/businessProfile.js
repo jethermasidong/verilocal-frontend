@@ -64,6 +64,7 @@ export default function BusinessProfile() {
                 registered_business_name: business.registered_business_name,
                 description: business.description,
                 contact_no: business.contact_no,
+                contact_no1: business.contact_no1,
                 social_link: business.social_link,
                 logo: business.logo,
             },
@@ -219,7 +220,18 @@ export default function BusinessProfile() {
               icon="call-outline"
               value={business.contact_no}
               editable={isEditing}
+              maxLength={11}
+              keyboardType="numeric"
               onChangeText={(text) => handleChange("contact_no", text)}
+            />
+            <DetailItem
+              icon="call-outline"
+              value={business.contact_no1 || ""}
+              placeholder="Second phone number"
+              keyboardType="numeric"
+              maxLength={11}
+              editable={isEditing}
+              onChangeText={(text) => handleChange("contact_no1", text)}
             />
             <DetailItem
               icon="mail-outline"
@@ -411,14 +423,18 @@ export default function BusinessProfile() {
 
 
 
-function DetailItem({ icon, value, editable, onChangeText}) {
+function DetailItem({ icon, value, placeholder, editable, onChangeText, keyboardType, maxLength}) {
   return (
     <View style={styles.detailRow}>
       <Ionicons name={icon} size={22} />
       <TextInput
-        defaultValue={value}
-        onChangeText={onChangeText}
+        value={value || ""}
+        placeholder={placeholder}
         editable={editable}
+        maxLength={maxLength}
+        onChangeText={(t) =>
+          onChangeText(keyboardType === "numeric" ? t.replace(/[^0-9]/g, "") : t)
+        }
         style={[styles.input, editable && styles.inputEditable]}
       />
     </View>
