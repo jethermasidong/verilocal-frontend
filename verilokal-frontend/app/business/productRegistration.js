@@ -375,7 +375,7 @@ export default function RegisterProduct() {
   }, [form.productionStartDate, form.productionEndDate]);
 
   const STANDARD_INPUT_HEIGHT = 44;
-
+  
   return (
     <Animated.View style = 
       {{ 
@@ -383,318 +383,618 @@ export default function RegisterProduct() {
         flex: 1,
         transform: [{ translateY: slideAnim }],
       }}>
-    <View 
-      style={{ flex: 1, backgroundColor: "#f6f7fb", paddingHorizontal: 16, paddingTop: 12, justifyContent: 'center',
-      alignItems: 'center'}}
-      contentContainerStyle={{ alignItems: "center", paddingVertical: 20 }}
-    >
-    <BackButton />
-      <View style={[styles.card, isMobile && {flexDirection: "column"}]}>
-      {/* LEFT BANNER IMAGE */}
-        <View style={[styles.leftPanel, isMobile && { width: "100%", height: 200 }]}>
-          <Image source={require("../../assets/business1.png")} 
-          style={styles.bannerImage} 
-          resizeMode="cover" 
-          />
-        </View>
-      {/* RIGHT PANEL */}
-        <View style={[styles.rightPanel, isMobile && { width: "100%" }]}>
-          <Text style={styles.formTitle}>Product Registration</Text>
-          <Text style={styles.subtitle}>Welcome! Register your product</Text>
-          <View style={[styles.row, isMobile && { flexDirection: "column" }]}>
-            <View style={[styles.col, isMobile && { minWidth: "100%"}]}>
-              {statusMessage !== "" && <Text style={styles.statusMessage}>{statusMessage}</Text>}
-              <Text style={styles.label}>Name of the Product*</Text>
-              <InputField label="Product Name" value={form.name} onChange={(v) => handleInputChange("name", v)} error={errors.name} />
-              
-              <Text style={styles.label}>Type of Product*</Text>
-              <View style={styles.inputContainer}>
-                <Picker
-                  selectedValue={form.type}
-                  onValueChange={(v) => {
-                    handleInputChange("type", v);
-                    handleInputChange("materials", "");
-                  }}
-                  style={styles.picker}
-                >
-                  <Picker.Item label="Select Type" value="" />
-                  <Picker.Item label="Woodcrafts" value="woodcraft" />
-                  <Picker.Item label="Weaving and Textiles" value="textile" />
-                </Picker>
-                {errors.type && <Text style={styles.errorText}>{errors.type}</Text>}
-              </View>
-
-              {form.type === "woodcraft" && (
-                <View style={styles.inputContainer}>
-                  <Picker
-                    selectedValue={form.materials}
-                    onValueChange={(v) => handleInputChange("materials", v)}
-                    style={styles.picker}
-                  >
-                    <Picker.Item label="Select Material" value="" />
-                    <Picker.Item label="Kamagong" value="Kamagong" />
-                    <Picker.Item label="Acacia" value="Acacia" />
-                    <Picker.Item label="Narra" value="Narra" />
-                    <Picker.Item label="Molave" value="Molave" />
-                    <Picker.Item label="Mahogany" value="Mahogany" />
-                    <Picker.Item label="Batikuling" value="Batikuling" />
-                    <Picker.Item label="Gmelina" value="Gmelina" />
-                  </Picker>
-                  {errors.materials && <Text style={styles.errorText}>{errors.materials}</Text>}
-                </View>
-              )}
-
-              {form.type === "textile" && (
-                <View style={styles.inputContainer}>
-                  <Picker
-                    selectedValue={form.materials}
-                    onValueChange={(v) => handleInputChange("materials", v)}
-                    style={styles.picker}
-                  >
-                    <Picker.Item label="Select Material" value="" />
-                    <Picker.Item label="Abaca" value="Abaca" />
-                    <Picker.Item label="Piña" value="Piña" />
-                    <Picker.Item label="Cotton" value="Cotton" />
-                    <Picker.Item label="Silk" value="Silk" />
-                    <Picker.Item label="Maguay" value="Maguay" />
-                  </Picker>
-                  {errors.materials && <Text style={styles.errorText}>{errors.materials}</Text>}
-                </View>
-              )}
-
-              <Text style={styles.label}>Origin*</Text>
-              <InputField label="Origin" value={form.origin} onChange={(v) => handleInputChange("origin", v)} error={errors.origin} />
-            </View>
-
-            <View style={[styles.col, isMobile && { minWidth: "100%"}]}>
-              <Text style={styles.label}>Production Date* (Start to End)</Text>
-                {Platform.OS === "web" ? (
-                  <>
-                  <input
-                    type="date"
-                    value={form.productionStartDate}
-                    onChange={(e) =>
-                    setForm({...form, productionStartDate: e.target.value})
-                    }
-                    style={styles.webDateInput}
-                  />
-                   <input
-                    type="date"
-                    min={form.productionStartDate}
-                    value={form.productionEndDate}
-                    onChange={(e) => {
-                      const selectedEnd = e.target.value;
-                      if (form.productionStartDate && selectedEnd < form.productionStartDate) {
-                        Alert.alert("Error", "End date cannot be before start date");
-                        return;
-                      }
-                      setForm({...form, productionEndDate: selectedEnd });
-                    }}
-                    style={styles.webDateInput}
-                  />
-                </>
-                ) : (
-                  <>
-                  <Pressable
-                    style={styles.dateWrapper}
-                    onPress={() => {
-                      setDateType("start");
-                      setShowDatePicker(true);
-                    }}
-                  >
-                    <Text>
-                      {form.productionStartDate
-                        ? formatDate(form.productionStartDate)
-                        : "Select Start Date"}
-                    </Text>
-                  </Pressable>
-
-                  <Pressable
-                    style={styles.dateWrapper}
-                    onPress={() => {
-                      setDateType("end");
-                      setShowDatePicker(true);
-                    }}
-                  >
-                    <Text>
-                      {form.productionEndDate
-                        ? formatDate(form.productionEndDate)
-                        : "Select End Date"}
-                    </Text>
-                  </Pressable>
-                </>
-                )}
-
-                {errors.productionDate && (
-                  <Text style={styles.errorText}>{errors.productionDate}</Text>
-                )}
-
-              <Text style={styles.label}>Description*</Text>
-              <InputField style= {styles.textArea} label="Description" value={form.description} onChange={(v) => handleInputChange("description", v)} multiline error={errors.description} />
-            </View>
-          </View>
-          <Text style={styles.label}>Image of the Product* (Upload image of your product)</Text>
-          <Pressable style={styles.imagePicker} onPress={() => pickImage("productImage")}>
-            {form.productImage ? <Image source={{ uri: form.productImage.uri }} style={styles.imagePreview} /> : <Text style={styles.imageText}>Select Product Image</Text>}
-          </Pressable>
-          
-          <Text style={styles.label}>
-              Images of the Process* (Process on how your product is made.)
-            </Text>
-
-            <Pressable style={styles.imagePicker} onPress={pickProcessImages}>
-              <Text style={styles.imageText}>Upload process photos (e.g., raw materials, artisan at work, finished product) </Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                {form.processImages.map((img, index) => (
-                  <View key={index} style={{ marginRight: 10 }}>
-                    
-                    <Image
-                      source={{ uri: img.uri }}
-                      style={{
-                        width: 120,
-                        height: 120,
-                        borderRadius: 10,
-                      }}
-                    />
-                    <Pressable
-                      onPress={() => {
-                        const updatedImages = form.processImages.filter(
-                          (_, i) => i !== index
-                        );
-                        setForm({
-                          ...form,
-                          processImages: updatedImages,
-                        });
-                      }}
-                      style={{
-                        position: "absolute",
-                        top: -6,
-                        right: -6,
-                        backgroundColor: "#ff4444",
-                        width: 24,
-                        height: 24,
-                        borderRadius: 12,
-                        justifyContent: "center",
-                        alignItems: "center",
-                        elevation: 3,
-                      }}
-                    >
-                      <Text style={{ color: "white", fontWeight: "bold" }}>×</Text>
-                    </Pressable>
-                    
-                  </View>
-                ))}
-              </ScrollView>
-            </Pressable>
-
-
-            {errors.processImages && (
-              <Text style={styles.errorText}>{errors.processImages}</Text>
-            )}
-          <Pressable style={styles.submitButton} onPress={handleSubmit} disabled={isSubmitting}>
-            <Text style={styles.submitText}>Submit</Text>
-          </Pressable>
-
-          {showDatePicker && (
-            <DateTimePicker
-              value={
-                dateType === "start"
-                ? form.productionStartDate
-                  ? new Date(form.productionStartDate)
-                    : new Date()
-                  : form.productionEndDate
-                  ? new Date(form.productionEndDate)
-                    : new Date()
-              }
-              mode="date"
-              minimumDate={dateType === "end" && form.productionStartDate ? new Date(form.productionStartDate) : undefined}
-              maximumDate={new Date()}
-              onChange={onDateChange}
-            />
-          )}
-        </View>
-      </View>
-      {isLoading && (
-        <View
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0,0,0,0.4)",
+      {/* MOBILE VIEW */}
+      {isMobile ? (
+        <ScrollView
+          contentContainerStyle={{
+            flexGrow: 1,
             justifyContent: "center",
             alignItems: "center",
-            zIndex: 9999,
+            paddingVertical: 30,
+            backgroundColor: "#f6f7fb",
           }}
+          showsVerticalScrollIndicator={false}
         >
           <View
+            style={[
+              styles.card,
+              { flexDirection: "column" },
+            ]}
+          >
+          {/* LEFT BANNER IMAGE */}
+            <View
+              style={[
+                styles.leftPanel,
+                !isMobile && { width: "35%", height: "100%" },
+              ]}
+            >
+              <Image source={require("../../assets/business1.png")} 
+              style={styles.bannerImage} 
+              resizeMode="cover" 
+              />
+            </View>
+          {/* RIGHT PANEL */}
+            <View style={[styles.rightPanel, isMobile && { width: "100%" }]}>
+              <Text style={styles.formTitle}>Product Registration</Text>
+              <Text style={styles.subtitle}>Welcome! Register your product</Text>
+              <View style={[styles.row, isMobile && { flexDirection: "column" }]}>
+                <View style={[styles.col, isMobile && { minWidth: "100%"}]}>
+                  {statusMessage !== "" && <Text style={styles.statusMessage}>{statusMessage}</Text>}
+                  <Text style={styles.label}>Name of the Product*</Text>
+                  <InputField label="Product Name" value={form.name} onChange={(v) => handleInputChange("name", v)} error={errors.name} />
+                  
+                  <Text style={styles.label}>Type of Product*</Text>
+                  <View style={styles.inputContainer}>
+                    <Picker
+                      selectedValue={form.type}
+                      onValueChange={(v) => {
+                        handleInputChange("type", v);
+                        handleInputChange("materials", "");
+                      }}
+                      style={styles.picker}
+                    >
+                      <Picker.Item label="Select Type" value="" />
+                      <Picker.Item label="Woodcrafts" value="woodcraft" />
+                      <Picker.Item label="Weaving and Textiles" value="textile" />
+                      <Picker.Item label="Pottery" value="pottery" />
+                    </Picker>
+                    {errors.type && <Text style={styles.errorText}>{errors.type}</Text>}
+                  </View>
+
+                  {form.type === "woodcraft" && (
+                    <View style={styles.inputContainer}>
+                      <Picker
+                        selectedValue={form.materials}
+                        onValueChange={(v) => handleInputChange("materials", v)}
+                        style={styles.picker}
+                      >
+                        <Picker.Item label="Select Material" value="" />
+                        <Picker.Item label="Kamagong" value="Kamagong" />
+                        <Picker.Item label="Acacia" value="Acacia" />
+                        <Picker.Item label="Narra" value="Narra" />
+                        <Picker.Item label="Molave" value="Molave" />
+                        <Picker.Item label="Mahogany" value="Mahogany" />
+                        <Picker.Item label="Batikuling" value="Batikuling" />
+                        <Picker.Item label="Gmelina" value="Gmelina" />
+                      </Picker>
+                      {errors.materials && <Text style={styles.errorText}>{errors.materials}</Text>}
+                    </View>
+                  )}
+
+                  {form.type === "textile" && (
+                    <View style={styles.inputContainer}>
+                      <Picker
+                        selectedValue={form.materials}
+                        onValueChange={(v) => handleInputChange("materials", v)}
+                        style={styles.picker}
+                      >
+                        <Picker.Item label="Select Material" value="" />
+                        <Picker.Item label="Abaca" value="Abaca" />
+                        <Picker.Item label="Piña" value="Piña" />
+                        <Picker.Item label="Cotton" value="Cotton" />
+                        <Picker.Item label="Silk" value="Silk" />
+                        <Picker.Item label="Maguay" value="Maguay" />
+                      </Picker>
+                      {errors.materials && <Text style={styles.errorText}>{errors.materials}</Text>}
+                    </View>
+                  )}
+
+                  {form.type === "pottery" && (
+                    <View style={styles.inputContainer}>
+                      <Picker
+                        selectedValue={form.materials}
+                        onValueChange={(v) => handleInputChange("materials", v)}
+                        style={styles.picker}
+                      >
+                        <Picker.Item label="Select Material" value="" />
+                        <Picker.Item label="Red Clay (Lutang Pula)" value="Stoneware Clay" />
+                        <Picker.Item label="White Clay (Kaolin" value="White Clay (Kaolin)" />
+                        <Picker.Item label="Stoneware Clay" value="Stoneware Clay" />
+                      </Picker>
+                      {errors.materials && <Text style={styles.errorText}>{errors.materials}</Text>}
+                    </View>
+                  )}
+              
+
+                  <Text style={styles.label}>Origin*</Text>
+                  <InputField style={{ marginBottom: 10 }} label="Origin" value={form.origin} onChange={(v) => handleInputChange("origin", v)} error={errors.origin} />
+                </View>
+
+                <View style={[styles.col, isMobile && { minWidth: "100%"}]}>
+                  <Text style={[styles.label, {marginTop: -20}]}>Production Date* (Start to End)</Text>
+                    {Platform.OS === "web" ? (
+                      <>
+                      <input
+                        type="date"
+                        value={form.productionStartDate}
+                        onChange={(e) =>
+                        setForm({...form, productionStartDate: e.target.value})
+                        }
+                        style={styles.webDateInput}
+                      />
+                      <input
+                        type="date"
+                        min={form.productionStartDate}
+                        value={form.productionEndDate}
+                        onChange={(e) => {
+                          const selectedEnd = e.target.value;
+                          if (form.productionStartDate && selectedEnd < form.productionStartDate) {
+                            Alert.alert("Error", "End date cannot be before start date");
+                            return;
+                          }
+                          setForm({...form, productionEndDate: selectedEnd });
+                        }}
+                        style={styles.webDateInput}
+                      />
+                    </>
+                    ) : (
+                      <>
+                      <Pressable
+                        style={styles.dateWrapper}
+                        onPress={() => {
+                          setDateType("start");
+                          setShowDatePicker(true);
+                        }}
+                      >
+                        <Text>
+                          {form.productionStartDate
+                            ? formatDate(form.productionStartDate)
+                            : "Select Start Date"}
+                        </Text>
+                      </Pressable>
+
+                      <Pressable
+                        style={styles.dateWrapper}
+                        onPress={() => {
+                          setDateType("end");
+                          setShowDatePicker(true);
+                        }}
+                      >
+                        <Text>
+                          {form.productionEndDate
+                            ? formatDate(form.productionEndDate)
+                            : "Select End Date"}
+                        </Text>
+                      </Pressable>
+                    </>
+                    )}
+
+                    {errors.productionDate && (
+                      <Text style={styles.errorText}>{errors.productionDate}</Text>
+                    )}
+
+                  <Text style={styles.label}>Description*</Text>
+                  <InputField style= {styles.textArea} label="Description" value={form.description} onChange={(v) => handleInputChange("description", v)} multiline error={errors.description} />
+                </View>
+              </View>
+              <Text style={styles.label}>Image of the Product* (Upload image of your product)</Text>
+              <Pressable style={styles.imagePicker} onPress={() => pickImage("productImage")}>
+                {form.productImage ? <Image source={{ uri: form.productImage.uri }} style={styles.imagePreview} /> : <Text style={styles.imageText}>Select Product Image</Text>}
+              </Pressable>
+              
+              <Text style={styles.label}>
+                  Images of the Process* (Process on how your product is made.)
+                </Text>
+
+                <Pressable style={styles.imagePicker} onPress={pickProcessImages}>
+                  <Text style={styles.imageText}>Upload process photos (e.g., raw materials, artisan at work, finished product) </Text>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    {form.processImages.map((img, index) => (
+                      <View key={index} style={{ marginRight: 10 }}>
+                        
+                        <Image
+                          source={{ uri: img.uri }}
+                          style={{
+                            width: 120,
+                            height: 120,
+                            borderRadius: 10,
+                          }}
+                        />
+                        <Pressable
+                          onPress={() => {
+                            const updatedImages = form.processImages.filter(
+                              (_, i) => i !== index
+                            );
+                            setForm({
+                              ...form,
+                              processImages: updatedImages,
+                            });
+                          }}
+                          style={{
+                            position: "absolute",
+                            top: -6,
+                            right: -6,
+                            backgroundColor: "#ff4444",
+                            width: 24,
+                            height: 24,
+                            borderRadius: 12,
+                            justifyContent: "center",
+                            alignItems: "center",
+                            elevation: 3,
+                          }}
+                        >
+                          <Text style={{ color: "white", fontWeight: "bold" }}>×</Text>
+                        </Pressable>
+                        
+                      </View>
+                    ))}
+                  </ScrollView>
+                </Pressable>
+
+
+                {errors.processImages && (
+                  <Text style={styles.errorText}>{errors.processImages}</Text>
+                )}
+              <Pressable style={styles.submitButton} onPress={handleSubmit} disabled={isSubmitting}>
+                <Text style={styles.submitText}>Submit</Text>
+              </Pressable>
+
+              {showDatePicker && (
+                <DateTimePicker
+                  value={
+                    dateType === "start"
+                    ? form.productionStartDate
+                      ? new Date(form.productionStartDate)
+                        : new Date()
+                      : form.productionEndDate
+                      ? new Date(form.productionEndDate)
+                        : new Date()
+                  }
+                  mode="date"
+                  minimumDate={dateType === "end" && form.productionStartDate ? new Date(form.productionStartDate) : undefined}
+                  maximumDate={new Date()}
+                  onChange={onDateChange}
+                />
+              )}
+            </View>
+          </View>
+        </ScrollView>
+        ) : (
+          <View
             style={{
-              backgroundColor: "#fff",
-              padding: 20,
-              borderRadius: 12,
+              flex: 1,
+              justifyContent: "center",
               alignItems: "center",
+              paddingVertical: 30,
+              backgroundColor: "#f6f7fb",
             }}
           >
-            <ActivityIndicator size="large" color="#5177b0" />
-            <Text style={{ marginTop: 10 }}>Registering Product...</Text>
-          </View>
+            <View
+              style={[
+                styles.card,
+                { flexDirection: "row" },
+              ]}
+            >
+            {/* DESKTOP VIEW */}
+              <View
+                style={[
+                  styles.leftPanel,
+                  !isMobile && { width: "35%", height: "100%" },
+                ]}
+              >
+                <Image source={require("../../assets/business1.png")} 
+                style={styles.bannerImage} 
+                resizeMode="cover" 
+                />
+              </View>
+            {/* RIGHT PANEL */}
+              <View style={[styles.rightPanel, isMobile && { width: "100%" }]}>
+                <Text style={styles.formTitle}>Product Registration</Text>
+                <Text style={styles.subtitle}>Welcome! Register your product</Text>
+                <View style={[styles.row, isMobile && { flexDirection: "column" }]}>
+                  <View style={[styles.col, isMobile && { minWidth: "100%"}]}>
+                    {statusMessage !== "" && <Text style={styles.statusMessage}>{statusMessage}</Text>}
+                    <Text style={styles.label}>Name of the Product*</Text>
+                    <InputField label="Product Name" value={form.name} onChange={(v) => handleInputChange("name", v)} error={errors.name} />
+                    
+                    <Text style={styles.label}>Type of Product*</Text>
+                    <View style={styles.inputContainer}>
+                      <Picker
+                        selectedValue={form.type}
+                        onValueChange={(v) => {
+                          handleInputChange("type", v);
+                          handleInputChange("materials", "");
+                        }}
+                        style={styles.picker}
+                      >
+                        <Picker.Item label="Select Type" value="" />
+                        <Picker.Item label="Woodcrafts" value="woodcraft" />
+                        <Picker.Item label="Weaving and Textiles" value="textile" />
+                        <Picker.Item label="Pottery" value="pottery" />
+                      </Picker>
+                      {errors.type && <Text style={styles.errorText}>{errors.type}</Text>}
+                    </View>
+
+                    {form.type === "woodcraft" && (
+                      <View style={styles.inputContainer}>
+                        <Picker
+                          selectedValue={form.materials}
+                          onValueChange={(v) => handleInputChange("materials", v)}
+                          style={styles.picker}
+                        >
+                          <Picker.Item label="Select Material" value="" />
+                          <Picker.Item label="Kamagong" value="Kamagong" />
+                          <Picker.Item label="Acacia" value="Acacia" />
+                          <Picker.Item label="Narra" value="Narra" />
+                          <Picker.Item label="Molave" value="Molave" />
+                          <Picker.Item label="Mahogany" value="Mahogany" />
+                          <Picker.Item label="Batikuling" value="Batikuling" />
+                          <Picker.Item label="Gmelina" value="Gmelina" />
+                        </Picker>
+                        {errors.materials && <Text style={styles.errorText}>{errors.materials}</Text>}
+                      </View>
+                    )}
+
+                    {form.type === "textile" && (
+                      <View style={styles.inputContainer}>
+                        <Picker
+                          selectedValue={form.materials}
+                          onValueChange={(v) => handleInputChange("materials", v)}
+                          style={styles.picker}
+                        >
+                          <Picker.Item label="Select Material" value="" />
+                          <Picker.Item label="Abaca" value="Abaca" />
+                          <Picker.Item label="Piña" value="Piña" />
+                          <Picker.Item label="Cotton" value="Cotton" />
+                          <Picker.Item label="Silk" value="Silk" />
+                          <Picker.Item label="Maguay" value="Maguay" />
+                        </Picker>
+                        {errors.materials && <Text style={styles.errorText}>{errors.materials}</Text>}
+                      </View>
+                    )}
+
+                    {form.type === "pottery" && (
+                      <View style={styles.inputContainer}>
+                        <Picker
+                          selectedValue={form.materials}
+                          onValueChange={(v) => handleInputChange("materials", v)}
+                          style={styles.picker}
+                        >
+                          <Picker.Item label="Select Material" value="" />
+                          <Picker.Item label="Red Clay (Lutang Pula)" value="Stoneware Clay" />
+                          <Picker.Item label="White Clay (Kaolin" value="White Clay (Kaolin)" />
+                          <Picker.Item label="Stoneware Clay" value="Stoneware Clay" />
+                        </Picker>
+                        {errors.materials && <Text style={styles.errorText}>{errors.materials}</Text>}
+                      </View>
+                    )}
+                
+
+                    <Text style={styles.label}>Origin*</Text>
+                    <InputField label="Origin" value={form.origin} onChange={(v) => handleInputChange("origin", v)} error={errors.origin} />
+                  </View>
+
+                  <View style={[styles.col, isMobile && { minWidth: "100%"}]}>
+                    <Text style={styles.label}>Production Date* (Start to End)</Text>
+                      {Platform.OS === "web" ? (
+                        <>
+                        <input
+                          type="date"
+                          value={form.productionStartDate}
+                          onChange={(e) =>
+                          setForm({...form, productionStartDate: e.target.value})
+                          }
+                          style={styles.webDateInput}
+                        />
+                        <input
+                          type="date"
+                          min={form.productionStartDate}
+                          value={form.productionEndDate}
+                          onChange={(e) => {
+                            const selectedEnd = e.target.value;
+                            if (form.productionStartDate && selectedEnd < form.productionStartDate) {
+                              Alert.alert("Error", "End date cannot be before start date");
+                              return;
+                            }
+                            setForm({...form, productionEndDate: selectedEnd });
+                          }}
+                          style={styles.webDateInput}
+                        />
+                      </>
+                      ) : (
+                        <>
+                        <Pressable
+                          style={styles.dateWrapper}
+                          onPress={() => {
+                            setDateType("start");
+                            setShowDatePicker(true);
+                          }}
+                        >
+                          <Text>
+                            {form.productionStartDate
+                              ? formatDate(form.productionStartDate)
+                              : "Select Start Date"}
+                          </Text>
+                        </Pressable>
+
+                        <Pressable
+                          style={styles.dateWrapper}
+                          onPress={() => {
+                            setDateType("end");
+                            setShowDatePicker(true);
+                          }}
+                        >
+                          <Text>
+                            {form.productionEndDate
+                              ? formatDate(form.productionEndDate)
+                              : "Select End Date"}
+                          </Text>
+                        </Pressable>
+                      </>
+                      )}
+
+                      {errors.productionDate && (
+                        <Text style={styles.errorText}>{errors.productionDate}</Text>
+                      )}
+
+                    <Text style={styles.label}>Description*</Text>
+                    <InputField style= {styles.textArea} label="Description" value={form.description} onChange={(v) => handleInputChange("description", v)} multiline error={errors.description} />
+                  </View>
+                </View>
+                <Text style={styles.label}>Image of the Product* (Upload image of your product)</Text>
+                <Pressable style={styles.imagePicker} onPress={() => pickImage("productImage")}>
+                  {form.productImage ? <Image source={{ uri: form.productImage.uri }} style={styles.imagePreview} /> : <Text style={styles.imageText}>Select Product Image</Text>}
+                </Pressable>
+                
+                <Text style={styles.label}>
+                    Images of the Process* (Process on how your product is made.)
+                  </Text>
+
+                  <Pressable style={styles.imagePicker} onPress={pickProcessImages}>
+                    <Text style={styles.imageText}>Upload process photos (e.g., raw materials, artisan at work, finished product) </Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                      {form.processImages.map((img, index) => (
+                        <View key={index} style={{ marginRight: 10 }}>
+                          
+                          <Image
+                            source={{ uri: img.uri }}
+                            style={{
+                              width: 120,
+                              height: 120,
+                              borderRadius: 10,
+                            }}
+                          />
+                          <Pressable
+                            onPress={() => {
+                              const updatedImages = form.processImages.filter(
+                                (_, i) => i !== index
+                              );
+                              setForm({
+                                ...form,
+                                processImages: updatedImages,
+                              });
+                            }}
+                            style={{
+                              position: "absolute",
+                              top: -6,
+                              right: -6,
+                              backgroundColor: "#ff4444",
+                              width: 24,
+                              height: 24,
+                              borderRadius: 12,
+                              justifyContent: "center",
+                              alignItems: "center",
+                              elevation: 3,
+                            }}
+                          >
+                            <Text style={{ color: "white", fontWeight: "bold" }}>×</Text>
+                          </Pressable>
+                          
+                        </View>
+                      ))}
+                    </ScrollView>
+                  </Pressable>
+
+
+                  {errors.processImages && (
+                    <Text style={styles.errorText}>{errors.processImages}</Text>
+                  )}
+                <Pressable style={styles.submitButton} onPress={handleSubmit} disabled={isSubmitting}>
+                  <Text style={styles.submitText}>Submit</Text>
+                </Pressable>
+
+                {showDatePicker && (
+                  <DateTimePicker
+                    value={
+                      dateType === "start"
+                      ? form.productionStartDate
+                        ? new Date(form.productionStartDate)
+                          : new Date()
+                        : form.productionEndDate
+                        ? new Date(form.productionEndDate)
+                          : new Date()
+                    }
+                    mode="date"
+                    minimumDate={dateType === "end" && form.productionStartDate ? new Date(form.productionStartDate) : undefined}
+                    maximumDate={new Date()}
+                    onChange={onDateChange}
+                  />
+                )}
+              </View>
+          {isLoading && (
+            <View
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: "rgba(0,0,0,0.4)",
+                justifyContent: "center",
+                alignItems: "center",
+                zIndex: 9999,
+              }}
+            >
+              <View
+                style={{
+                  backgroundColor: "#fff",
+                  padding: 20,
+                  borderRadius: 12,
+                  alignItems: "center",
+                }}
+              >
+                <ActivityIndicator size="large" color="#5177b0" />
+                <Text style={{ marginTop: 10 }}>Registering Product...</Text>
+              </View>
+            </View>
+          )}
+
+        {resultVisible && (
+        <View style={styles.resultOverlay}>
+          <Animated.View 
+            style={[
+              styles.resultContainer,
+              {
+                opacity: opacityAnim,
+                transform: [
+                  { scale: resultType === "success" ? scaleAnim : 1 },
+                  { translateX: resultType === "error" ? shakeAnim : 0 },
+                ],
+              },
+            ]}
+          >
+            <Ionicons
+              name={resultType === "success" ? "checkmark-circle" : "close-circle"}
+              size={70}
+              color={resultType === "success" ? "#4caf50" : "#d32f2f"}
+              style={styles.resultIcon}
+            />
+
+            <Text
+              style={[
+                styles.resultTitle,
+                { color: resultType === "success" ? "#2e7d32" : "#c62828" }
+              ]}
+            >
+              {resultType === "success" ? "Success" : "Submission Failed"}
+            </Text>
+
+            <Text style={styles.resultMessage}>
+              {resultMessage}
+            </Text>
+
+            <Pressable
+              onPress={() => setResultVisible(false)}
+              style={[
+                styles.resultButton,
+                {
+                  backgroundColor:
+                    resultType === "success" ? "#4caf50" : "#d32f2f",
+                },
+              ]}
+            >
+              <Text style={{ color: "#fff", fontWeight: "600" }}>
+                OK
+              </Text>
+            </Pressable>
+
+          </Animated.View>
         </View>
       )}
-    </View>
-    {resultVisible && (
-    <View style={styles.resultOverlay}>
-      <Animated.View 
-        style={[
-          styles.resultContainer,
-          {
-            opacity: opacityAnim,
-            transform: [
-              { scale: resultType === "success" ? scaleAnim : 1 },
-              { translateX: resultType === "error" ? shakeAnim : 0 },
-            ],
-          },
-        ]}
-      >
-        <Ionicons
-          name={resultType === "success" ? "checkmark-circle" : "close-circle"}
-          size={70}
-          color={resultType === "success" ? "#4caf50" : "#d32f2f"}
-          style={styles.resultIcon}
-        />
-
-        <Text
-          style={[
-            styles.resultTitle,
-            { color: resultType === "success" ? "#2e7d32" : "#c62828" }
-          ]}
-        >
-          {resultType === "success" ? "Success" : "Submission Failed"}
-        </Text>
-
-        <Text style={styles.resultMessage}>
-          {resultMessage}
-        </Text>
-
-        <Pressable
-          onPress={() => setResultVisible(false)}
-          style={[
-            styles.resultButton,
-            {
-              backgroundColor:
-                resultType === "success" ? "#4caf50" : "#d32f2f",
-            },
-          ]}
-        >
-          <Text style={{ color: "#fff", fontWeight: "600" }}>
-            OK
-          </Text>
-        </Pressable>
-
-      </Animated.View>
-    </View>
-  )}
-  </Animated.View>
+            </View>
+          </View>
+      )}
+    </Animated.View>
   );
 }
 
@@ -719,13 +1019,11 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   card: {
-    width: "75%",
-    minHeight: "100%",
-    maxWidth: 1850,
+    width: "95%",
+    maxWidth: 1200,
     backgroundColor: "#fff",
     borderRadius: 20,
     overflow: "hidden",
-    flexDirection: "row",
     elevation: 6,
   },
   rightPanel: {
@@ -750,7 +1048,6 @@ const styles = StyleSheet.create({
   col: {
     flex: 1,
     minWidth: 280,
-
     width: "100%",
   },
   label: {
@@ -761,11 +1058,8 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat-Regular'
   },
   leftPanel: {
-    width: "30%",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 0,
-    height: "100%",
+    width: "100%",
+    height: 220,
   },
 
   statusMessage: { fontSize: 12, color: "#67AA61", marginBottom: 10 },
@@ -816,6 +1110,7 @@ const styles = StyleSheet.create({
     padding: 10,
     height: 96,
     textAlignVertical: "top",
+    marginBottom: 30,
   },
   imagePicker: { borderWidth: 1, borderColor: "#ccc", padding: 20, borderRadius: 10, alignItems: "center", backgroundColor: "#fafafa", height: 140, justifyContent: "center", marginBottom: 15, width: "100%" },
   imagePreview: { width: "100%", height: "100%", borderRadius: 8, objectFit: "cover", },

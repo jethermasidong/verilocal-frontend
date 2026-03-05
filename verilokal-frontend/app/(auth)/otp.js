@@ -3,6 +3,7 @@ import axios from "axios";
 import { useFonts } from "expo-font";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
+import { useWindowDimensions } from "react-native";
 import {
   ActivityIndicator,
   Alert,
@@ -11,12 +12,16 @@ import {
   Text,
   TextInput,
   View,
+  ScrollView,
 } from "react-native";
 import BackButton from "../../components/BackButton";
 
 const OTP_LENGTH = 6;
 
 export default function OtpScreen() {
+  const { width } = useWindowDimensions();
+  const isMobile = width < 768;
+
   const router = useRouter();
   const { email } = useLocalSearchParams();
 
@@ -97,8 +102,8 @@ export default function OtpScreen() {
       await AsyncStorage.setItem("business_id", business.id.toString());
       await AsyncStorage.setItem("name", business.name);
 
-      
-      const ADMIN_EMAIL = 'verilocalphi@gmail.com'
+      const ADMIN_EMAIL = "verilocalphi@gmail.com";
+
       if (email.toLowerCase() === ADMIN_EMAIL) {
         await AsyncStorage.setItem("isAdmin", "true");
         Alert.alert("Admin Login Success!");
@@ -109,16 +114,16 @@ export default function OtpScreen() {
         router.replace("/business");
       }
     } catch (error) {
-        console.log("OTP ERROR:", error.response?.data || error.message);
+      console.log("OTP ERROR:", error.response?.data || error.message);
 
-        setIsOtpError(true);
-        setErrorMessage(
-          error.response?.data?.message || "Invalid or expired OTP"
-        );
+      setIsOtpError(true);
+      setErrorMessage(
+        error.response?.data?.message || "Invalid or expired OTP"
+      );
 
-        triggerShake();
+      triggerShake();
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -141,7 +146,6 @@ export default function OtpScreen() {
     }
   };
 
-
   const [errorMessage, setErrorMessage] = useState("");
   const [isOtpError, setIsOtpError] = useState(false);
 
@@ -153,137 +157,144 @@ export default function OtpScreen() {
   });
 
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        padding: 20,
-      }}
-    >
-    <BackButton />
       <View
         style={{
-          padding: 30,
-          backgroundColor: "#ffffff",
-          borderRadius: 20,
-          shadowColor: "#000",
-          shadowOpacity: 0.2,
-          shadowRadius: 30,
-          shadowOffset: { width: 0, height: 7 },
-          elevation: 6,
-          width: "100%",
-          height: "100%",
-          maxWidth: 400,
-          maxHeight: 450,
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          padding: 20,
         }}
       >
-        <Text
+        <BackButton />
+
+        <View
           style={{
-            fontSize: 40,
-            fontWeight: "700",
-            fontFamily: "Montserrat-Regular",
-            marginBottom: 5,
+            padding: 30,
+            backgroundColor: "#ffffff",
+            borderRadius: 20,
+            shadowColor: "#000",
+            shadowOpacity: 0.2,
+            shadowRadius: 30,
+            shadowOffset: { width: 0, height: 7 },
+            elevation: 6,
+            width: "100%",
+            maxWidth: 400,
           }}
         >
-          OTP Verification
-        </Text>
-
-        <Text
-          style={{
-            fontSize: 15,
-            marginBottom: 40,
-            fontFamily: "Montserrat-Regular",
-            color: "#555",
-          }}
-        >
-          Please enter the OTP (One-Time Password) sent to your registered email address ({email}) to complete your verification.
-        </Text>
-
-        {/* Hidden Input */}
-        <TextInput
-          ref={inputRef}
-          value={otp}
-          onChangeText={(text) => {
-            if (/^\d*$/.test(text) && text.length <= OTP_LENGTH) {
-              setOtp(text);
-              if (isOtpError) {
-                setIsOtpError(false);
-                setErrorMessage("");
-              }
-            }
-          }}
-          keyboardType="number-pad"
-          maxLength={OTP_LENGTH}
-          autoFocus
-          style={{ position: "absolute", opacity: 0 }}
-        />
-
-        {/* OTP Boxes with Cursor Indicator */}
-        <Animated.View style={{ marginBottom: 10, position: "relative", transform: [{ translateX: shakeAnim }], }}>
-          <Pressable
-            onPress={() => inputRef.current.focus()}
+          <Text
             style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
+              fontSize: 40,
+              fontWeight: "700",
+              fontFamily: "Montserrat-Regular",
+              marginBottom: 5,
             }}
           >
-            {Array.from({ length: OTP_LENGTH }).map((_, index) => {
-              const isActive = index === otp.length && otp.length < OTP_LENGTH;
-              const isFilled = Boolean(otp[index]);
+            OTP Verification
+          </Text>
 
-              return (
-                <View
-                  key={index}
-                  style={{
-                    width: 52,
-                    height: 60,
-                    borderWidth: 1.5,
-                    borderRadius: 10,
-                    borderColor: isOtpError
-                      ? "#ff3b30"
-                      : isActive
-                      ? "#5177b0"
-                      : isFilled
-                      ? "#5177b0"
-                      : "#ccc",
-                    overflow: "hidden",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  {isActive ? (
-                    <Animated.View
-                      style={{
-                        width: 2,
-                        height: 24,
-                        backgroundColor: "#5177b0",
-                        opacity: blinkAnim,
-                      }}
-                    />
-                  ) : (
-                    <Text style={{ fontSize: 22, fontWeight: "600" }}>
-                      {otp[index] || ""}
-                    </Text>
-                  )}
-                </View>
-              );
-            })}
-          </Pressable>
+          <Text
+            style={{
+              fontSize: 15,
+              marginBottom: 40,
+              fontFamily: "Montserrat-Regular",
+              color: "#555",
+            }}
+          >
+            Please enter the OTP (One-Time Password) sent to your registered
+            email address ({email}) to complete your verifcation.
+          </Text>
 
-            {isOtpError && (
-            <Text
+          {/* Hidden Input */}
+          <TextInput
+            ref={inputRef}
+            value={otp}
+            onChangeText={(text) => {
+              if (/^\d*$/.test(text) && text.length <= OTP_LENGTH) {
+                setOtp(text);
+                if (isOtpError) {
+                  setIsOtpError(false);
+                  setErrorMessage("");
+                }
+              }
+            }}
+            keyboardType="number-pad"
+            maxLength={OTP_LENGTH}
+            autoFocus
+            style={{ position: "absolute", opacity: 0 }}
+          />
+
+          {/* OTP Boxes with Cursor Indicator */}
+          <Animated.View
+            style={{
+              marginBottom: 10,
+              position: "relative",
+              transform: [{ translateX: shakeAnim }],
+            }}
+          >
+            <Pressable
+              onPress={() => inputRef.current.focus()}
               style={{
-                color: "#ff3b30",
-                marginVertical: 6,
-                textAlign: "center",
-                fontSize: 12,
+                flexDirection: "row",
+                justifyContent: "space-between",
               }}
             >
-              {errorMessage}
-            </Text>
-          )}
-        </Animated.View>
+              {Array.from({ length: OTP_LENGTH }).map((_, index) => {
+                const isActive =
+                  index === otp.length && otp.length < OTP_LENGTH;
+                const isFilled = Boolean(otp[index]);
+
+                return (
+                  <View
+                    key={index}
+                    style={{
+                      width: isMobile ? 50 : 52,
+                      height: 60,
+                      borderWidth: 1.5,
+                      borderRadius: 10,
+                      borderColor: isOtpError
+                        ? "#ff3b30"
+                        : isActive
+                        ? "#5177b0"
+                        : isFilled
+                        ? "#5177b0"
+                        : "#ccc",
+                      overflow: "hidden",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    {isActive ? (
+                      <Animated.View
+                        style={{
+                          width: 2,
+                          height: 24,
+                          backgroundColor: "#5177b0",
+                          opacity: blinkAnim,
+                        }}
+                      />
+                    ) : (
+                      <Text style={{ fontSize: 22, fontWeight: "600" }}>
+                        {otp[index] || ""}
+                      </Text>
+                    )}
+                  </View>
+                );
+              })}
+            </Pressable>
+
+            {isOtpError && (
+              <Text
+                style={{
+                  color: "#ff3b30",
+                  marginVertical: 6,
+                  textAlign: "center",
+                  fontSize: 12,
+                }}
+              >
+                {errorMessage}
+              </Text>
+            )}
+          </Animated.View>
 
         {/* Verify Button */}
         <Pressable

@@ -50,10 +50,28 @@ export default function Contact() {
 
   return (
     <View style={[styles.section, { minHeight: height }]}>
-      {/* Background Layers */}
-      <View style={styles.gradientBackground} />
-      <View style={styles.circleTop} />
-      <View style={styles.circleBottom} />
+      {/* Background */}
+      <View style={styles.backgroundBase} />
+
+      <View
+        style={[
+          styles.circleTop,
+          {
+            width: isMobile ? 300 : 500,
+            height: isMobile ? 300 : 500,
+          },
+        ]}
+      />
+
+      <View
+        style={[
+          styles.circleBottom,
+          {
+            width: isMobile ? 250 : 400,
+            height: isMobile ? 250 : 400,
+          },
+        ]}
+      />
 
       <Animated.View
         style={[
@@ -61,45 +79,113 @@ export default function Contact() {
           {
             flexDirection: isMobile ? "column" : "row",
             opacity: fadeAnim,
+            alignItems: isMobile ? "center" : "flex-start",
           },
         ]}
       >
         {/* LEFT SIDE */}
-        <View style={styles.leftContent}>
-          <Text style={styles.headingLight}>Let’s</Text>
+        <View
+          style={[
+            styles.leftContent,
+            { alignItems: isMobile ? "center" : "flex-start" },
+          ]}
+        >
+          <Text
+            style={[
+              styles.headingLight,
+              {
+                fontSize: isMobile ? 32 : 44,
+                textAlign: isMobile ? "center" : "left",
+              },
+            ]}
+          >
+            Let’s
+          </Text>
 
           <View>
-            <Text style={styles.headingBold}>CONNECT</Text>
+            <Text
+              style={[
+                styles.headingBold,
+                {
+                  fontSize: isMobile ? 46 : 72,
+                  letterSpacing: isMobile ? 2 : 5,
+                  textAlign: isMobile ? "center" : "left",
+                },
+              ]}
+            >
+              CONNECT
+            </Text>
+
             <Animated.View
-              style={[styles.underline, { width: underlineWidth }]}
+              style={[
+                styles.underline,
+                {
+                  width: underlineWidth,
+                  alignSelf: isMobile ? "center" : "flex-start",
+                },
+              ]}
             />
           </View>
 
-          <Text style={styles.subText}>
+          <Text
+            style={[
+              styles.subText,
+              { textAlign: isMobile ? "center" : "left" },
+            ]}
+          >
             Have questions about verification, partnerships,
             or protecting your craftsmanship?
           </Text>
 
-          <Text style={styles.subTextAccent}>
+          <Text
+            style={[
+              styles.subTextAccent,
+              { textAlign: isMobile ? "center" : "left" },
+            ]}
+          >
             Honoring the craft. Protecting the creator.
           </Text>
 
           <View style={{ marginTop: 30 }}>
-            <View style={styles.infoRow}>
+            <View
+              style={[
+                styles.infoRow,
+                { justifyContent: isMobile ? "center" : "flex-start" },
+              ]}
+            >
               <Ionicons name="mail-outline" size={22} color="#4A70A9" />
-              <Text style={styles.infoText}>verilocalphi@gmail.com</Text>
+              <Text style={styles.infoText}>
+                verilocalphi@gmail.com
+              </Text>
             </View>
 
-            <View style={styles.infoRow}>
+            <View
+              style={[
+                styles.infoRow,
+                { justifyContent: isMobile ? "center" : "flex-start" },
+              ]}
+            >
               <Ionicons name="call-outline" size={22} color="#4A70A9" />
-              <Text style={styles.infoText}>+63 956 095 5026</Text>
+              <Text style={styles.infoText}>
+                +63 956 095 5026
+              </Text>
             </View>
           </View>
         </View>
 
         {/* RIGHT SIDE FORM */}
-        <View style={[styles.contactCard, { marginTop: isMobile ? 40 : 0 }]}>
-          <Text style={styles.cardTitle}>Send Us a Message</Text>
+        <View
+          style={[
+            styles.contactCard,
+            {
+              padding: isMobile ? 25 : 40,
+              marginTop: isMobile ? 40 : 0,
+            },
+          ]}
+        >
+          <Text style={styles.cardTitle}>
+            Send Us a Message
+          </Text>
 
           <TextInput
             placeholder="Your Name"
@@ -117,11 +203,16 @@ export default function Contact() {
             placeholder="Your Message"
             placeholderTextColor="#777"
             multiline
-            style={[styles.input, { height: 120, textAlignVertical: "top" }]}
+            style={[
+              styles.input,
+              { height: 120, textAlignVertical: "top" },
+            ]}
           />
 
           <Pressable style={styles.button}>
-            <Text style={styles.buttonText}>Send Message</Text>
+            <Text style={styles.buttonText}>
+              Send Message
+            </Text>
           </Pressable>
         </View>
       </Animated.View>
@@ -133,12 +224,12 @@ const styles = StyleSheet.create({
   section: {
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 40,
+    paddingHorizontal: 20,
     overflow: "hidden",
     backgroundColor: "#eef3fb",
   },
 
-  gradientBackground: {
+  backgroundBase: {
     position: "absolute",
     width: "100%",
     height: "100%",
@@ -147,48 +238,40 @@ const styles = StyleSheet.create({
 
   circleTop: {
     position: "absolute",
-    width: 500,
-    height: 500,
     backgroundColor: "#4A70A9",
     opacity: 0.08,
-    borderRadius: 250,
-    top: -150,
-    left: -100,
+    borderRadius: 500,
+    top: -100,
+    left: -80,
   },
 
   circleBottom: {
     position: "absolute",
-    width: 400,
-    height: 400,
     backgroundColor: "#4A70A9",
     opacity: 0.06,
-    borderRadius: 200,
-    bottom: -120,
-    right: -80,
+    borderRadius: 500,
+    bottom: -80,
+    right: -60,
   },
 
   container: {
     width: "100%",
     maxWidth: 1200,
-    gap: 80,
+    gap: 60,
   },
 
   leftContent: {
     flex: 1,
-    alignItems: "flex-start",
   },
 
   headingLight: {
-    fontSize: 44,
     fontFamily: "Montserrat-Regular",
     color: "#222",
   },
 
   headingBold: {
-    fontSize: 72, // more dramatic
-    fontFamily: "Montserrat-Black", // stronger weight
+    fontFamily: "Montserrat-Black",
     color: "#4A70A9",
-    letterSpacing: 5, // premium spacing
   },
 
   underline: {
@@ -199,20 +282,20 @@ const styles = StyleSheet.create({
   },
 
   subText: {
-    fontSize: 18,
-    lineHeight: 28,
+    fontSize: 16,
+    lineHeight: 26,
     fontFamily: "Garet-Book",
     color: "#444",
-    marginTop: 25,
+    marginTop: 20,
     maxWidth: 500,
   },
 
   subTextAccent: {
-    fontSize: 18,
-    lineHeight: 28,
+    fontSize: 16,
+    lineHeight: 26,
     fontFamily: "Garet-Book",
     color: "#4A70A9",
-    marginTop: 12,
+    marginTop: 10,
     fontWeight: "600",
   },
 
@@ -232,7 +315,6 @@ const styles = StyleSheet.create({
   contactCard: {
     flex: 1,
     backgroundColor: "#ffffff",
-    padding: 40,
     borderRadius: 24,
     shadowColor: "#000",
     shadowOpacity: 0.08,
@@ -263,7 +345,7 @@ const styles = StyleSheet.create({
 
   button: {
     backgroundColor: "#4A70A9",
-    paddingVertical: 16,
+    paddingVertical: 18,
     borderRadius: 14,
     alignItems: "center",
     marginTop: 10,

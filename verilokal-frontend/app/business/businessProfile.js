@@ -2,10 +2,10 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
+import { useWindowDimensions } from "react-native";
 import {
   ActivityIndicator,
   Animated,
-  Dimensions,
   Image,
   Pressable,
   ScrollView,
@@ -15,9 +15,10 @@ import {
   View,
 } from "react-native";
 
-const { width } = Dimensions.get("window");
-
 export default function BusinessProfile() {
+  const { width } = useWindowDimensions();
+  const isMobile = width < 768;
+
   const [isEditing, setIsEditing] = useState(false);
   const [activePanel, setActivePanel] = useState(null);
   const togglePanel = (panel) => {
@@ -177,19 +178,42 @@ export default function BusinessProfile() {
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.card}>
         {/* Header */}
-        <View style={styles.header}>
+        <View
+          style={[
+            styles.header,
+            isMobile && {
+              flexDirection: "column",
+              alignItems: "center",
+              padding: 24,
+            },
+          ]}
+        >
           <Image
             source={ business.logo ? { uri: business.logo} : require("../../assets/images/placeholder.png")}
-            style={styles.avatar}
+            style={[styles.avatar, 
+              isMobile && {
+                width: 140,
+                height: 140,
+              }, 
+            ]}
           />
 
-          <View style={styles.headerText}>
+          <View
+            style={[
+              styles.headerText,
+              isMobile && {
+                marginLeft: 0,
+                marginTop: 12,
+                alignItems: "center",
+              },
+            ]}
+          >
             <Text style={styles.name}>{business.registered_business_name}</Text>
             <Text style={styles.location}>{business.address}</Text>
           </View>
 
           <Pressable
-            style={[styles.editButton, isEditing && styles.saveButton]}
+            style={[styles.editButton, isEditing && styles.saveButton, isMobile && { marginTop: 16 },]}
             onPress={() => {
                 if (isEditing) handleSave();
                 else setIsEditing(true);
@@ -207,7 +231,15 @@ export default function BusinessProfile() {
         </View>
 
         {/* Body */}
-        <View style={styles.details}>
+        <View
+          style={[
+            styles.details,
+            isMobile && {
+              flexDirection: "column",
+              padding: 20,
+            },
+          ]}
+        >
           {/* Left */}
           <View style={styles.left}>
             <DetailItem
@@ -241,11 +273,19 @@ export default function BusinessProfile() {
             />
           </View>
 
-          <View style={styles.divider} />
+          {!isMobile && <View style={styles.divider} />}
 
           {/* Right */}
-          <View style={styles.right}>
-            <View style={styles.iconRow}>
+          <View
+            style={[
+              styles.right,
+              isMobile && {
+                width: "100%",
+                marginTop: 130,
+              },
+            ]}
+          >
+            <View style={[styles.iconRow, isMobile && { marginTop: -50 }]}>
               <IconButton
                 icon="images-outline"
                 label="Certificates"
@@ -261,98 +301,71 @@ export default function BusinessProfile() {
             </View>
 
             {activePanel === "permits" && (
-              <Animated.View style={[styles.dropdown, dropdownStyle]}>
-                <View style={{ position: "relative" }}>
-                  <ScrollView
-                    horizontal
-                    pagingEnabled
-                    ref={permitScrollRef}
-                    showsHorizontalScrollIndicator={false}
-                  >
-                    {business.permit && (
-                      <View
-                        style={styles.imageWrapper}
-                        onMouseEnter={() => setHoveredIndex("permit")}
-                        onMouseLeave={() => setHoveredIndex(null)}
-                      >
-                        <Pressable onPress={() => openPreview(business.permit)}>
-                          <Image
-                            source={{ uri: business.permit}}
-                            style={styles.dropdownImage}
-                          />
-
-                          {hoveredIndex === "permit" && (
-                            <View style={styles.overlay}>
-                              <Ionicons name="eye-outline" size={30} color="#fff" />
-                            </View>
-                          )}
-                        </Pressable>
-                      </View>
-                    )}
-                  </ScrollView>
-
-                  
-                </View>
+              <Animated.View
+                style={[
+                  styles.dropdown,
+                  dropdownStyle,
+                  isMobile && {
+                    position: "relative",
+                  },
+                ]}
+              >
+                <ScrollView
+                  horizontal
+                  pagingEnabled
+                  ref={permitScrollRef}
+                  showsHorizontalScrollIndicator={false}
+                >
+                  {business.permit && (
+                    <View style={styles.imageWrapper}>
+                      <Pressable onPress={() => openPreview(business.permit)}>
+                        <Image
+                          source={business.permit}
+                          style={[
+                            styles.dropdownImage,
+                            isMobile && { width: width - 40, height: 220 },
+                          ]}
+                        />
+                      </Pressable>
+                    </View>
+                  )}
+                </ScrollView>
               </Animated.View>
             )}
-            {activePanel === "certificates" &&(
-              <Animated.View style={[styles.dropdown, dropdownStyle]}>
-                <View style={{ position: "relative" }}>
-                  <ScrollView
-                    horizontal
-                    pagingEnabled
-                    ref={certScrollRef}
-                    showsHorizontalScrollIndicator={false}
-                  >
-                    {certificatesArray.length > 0 ? (
-                      certificatesArray.map((cert, index) => (
-                        <View
-                          key={index}
-                          style={styles.imageWrapper}
-                          onMouseEnter={() => setHoveredIndex(index)}
-                          onMouseLeave={() => setHoveredIndex(null)}
-                        >
-                          <Pressable onPress={() => openPreview(cert)}>
-                            <Image
-                              source={{ uri: cert }}
-                              style={styles.dropdownImage}
-                            />
-
-                            {hoveredIndex === index && (
-                              <View style={styles.overlay}>
-                                <Ionicons name="eye-outline" size={30} color="#fff" />
-                              </View>
-                            )}
-                          </Pressable>
-                        </View>
-                      ))
-                    ) : (
-                      <Text>No certificates</Text>
-                    )}
-                  </ScrollView>
-                 
-                  {certificatesArray.length > 1 && (
-                    <>
-                      <Pressable
-                        style={styles.arrowLeft}
-                        onPress={() =>
-                          scrollCarousel("certificates", "left", certificatesArray.length)
-                        }
-                      >
-                        <Ionicons name="chevron-back" size={24} color="#fff" />
-                      </Pressable>
-
-                      <Pressable
-                        style={styles.arrowRight}
-                        onPress={() =>
-                          scrollCarousel("certificates", "right", certificatesArray.length)
-                        }
-                      >
-                        <Ionicons name="chevron-forward" size={24} color="#fff" />
-                      </Pressable>
-                    </>
+            {activePanel === "certificates" && (
+              <Animated.View
+                style={[
+                  styles.dropdown,
+                  dropdownStyle,
+                  isMobile && {
+                    position: "relative",
+                  },
+                ]}
+              >
+                <ScrollView
+                  horizontal
+                  pagingEnabled
+                  ref={certScrollRef}
+                  showsHorizontalScrollIndicator={false}
+                >
+                  {certificatesArray.length > 0 ? (
+                    certificatesArray.map((cert, index) => (
+                      <View key={index} style={styles.imageWrapper}>
+                        <Pressable onPress={() => openPreview(cert)}>
+                          <Image
+                            source={{ uri: cert }}
+                            style={[
+                              styles.dropdownImage,
+                              isMobile && { width: width - 40, height: 220 },
+                            ]}
+                          />
+                        </Pressable>
+                      </View>
+                    ))
+                  ) : (
+                    <Text>No certificates</Text>
                   )}
-                </View>
+                </ScrollView>
               </Animated.View>
             )}
           </View>
@@ -380,7 +393,10 @@ export default function BusinessProfile() {
                   ? { uri: previewImage }
                   : previewImage
               }
-              style={styles.modalImage}
+              style={[
+                styles.modalImage,
+                isMobile && { height: 220 }
+              ]}
               resizeMode="contain"
             />
 
@@ -468,6 +484,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: "#ddd",
+    flex: 1,
+    flexDirection: "column",
     width: "100%",
     height: "100%",
   },
@@ -574,7 +592,7 @@ const styles = StyleSheet.create({
 
   previewImage: {
     width: "100%",
-    height: width > 700 ? 280 : 220,
+    height: 280,
     borderRadius: 16,
     backgroundColor: "#e5e7eb",
   },
