@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
@@ -194,6 +195,16 @@ export default function BusinessLogin() {
               <Text style={{ fontSize: 13, marginBottom: 5, fontFamily: 'Montserrat-Regular' }}>
                 Email*
               </Text>
+              <View style={{
+                justifyContent: 'center'
+              }}>
+
+                <Ionicons 
+                  name="mail-outline" 
+                  size={20} 
+                  color="#888" 
+                  style={{ marginRight: 10, position: 'absolute', left: 15, zIndex: 1, top: 11, }} 
+                />
               <TextInput
                 placeholder="Enter your email"
                 value={email}
@@ -208,11 +219,13 @@ export default function BusinessLogin() {
                   borderColor: errors.email ? "#ff4d4d" : "#000",
                   borderRadius: 10,
                   backgroundColor: "#fff",
-                  paddingHorizontal: 15,
+                  paddingLeft: 45,
+                  paddingRight: 15,
                   height: 44,
                   marginBottom: 5,
                 }}
               />
+              </View>
               {errors.email && (
                 <Text style={{ color: "#ff4d4d", fontSize: 10, fontFamily: 'Montserrat-Regular', alignSelf: 'flex-end'}}>
                   {errors.email}
@@ -223,6 +236,17 @@ export default function BusinessLogin() {
               <Text style={{ fontSize: 13, marginBottom: 5, fontFamily: 'Montserrat-Regular' }}>
                 Password*
               </Text>
+              <View style={{
+                justifyContent: 'center'
+              }}>
+
+              <Ionicons 
+                  name="lock-closed-outline" 
+                  size={20} 
+                  color="#888" 
+                  style={{ marginRight: 10, position: 'absolute', left: 15, zIndex: 1, top: 11, }} 
+                />
+
               <TextInput
                 placeholder="Enter your password"
                 secureTextEntry
@@ -238,11 +262,13 @@ export default function BusinessLogin() {
                   fontSize: 13,
                   fontFamily: 'Montserrat-Regular',
                   backgroundColor: "#fff",
-                  paddingHorizontal: 15,
+                  paddingLeft: 45,
+                  paddingRight: 15,
                   height: 44,
                   marginBottom: 5,
                 }}
               />
+              </View>
               {errors.password && (
                 <Text style={{ color: "#ff4d4d", fontSize: 10, fontFamily: 'Montserrat-Regular', alignSelf: 'flex-end' }}>
                   {errors.password}
