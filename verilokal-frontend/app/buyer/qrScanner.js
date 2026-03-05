@@ -36,7 +36,13 @@ export default function ProductScanner() {
   const processImages = Array.isArray(productDetails?.process_images)
     ? productDetails.process_images
     : typeof productDetails?.process_images === "string"
-    ? JSON.parse(productDetails.process_images)
+    ? (() => {
+      try {
+        return JSON.parse(productDetails.process_images);
+      } catch {
+        return [];
+      }
+    }) ()
     : [];
 
   //MOBILE DIMENSION
@@ -54,6 +60,7 @@ export default function ProductScanner() {
 
 
   const uploadQrImage = async () => {
+    await stopScanner();
     try{
       const {Html5Qrcode} = await import("html5-qrcode");
       const html5QrCode = new Html5Qrcode("qr-reader");
@@ -61,7 +68,7 @@ export default function ProductScanner() {
       input.type = "file";
       input.accept = "image/*";
       input.onchange = async (e) => {
-        const file = e.target.files[0];
+        const file = e.target.files?.[0];
         if (!file) return;
 
         setIsLoading(true);
@@ -70,6 +77,7 @@ export default function ProductScanner() {
           const decodedText = await html5QrCode.scanFile(file, false);
           handleDecodedQR(decodedText);
         } catch (err) {
+          console.error(err);
           setError("Invalid QR image or unreadable.");
           setIsLoading(false);
         }
@@ -120,7 +128,7 @@ export default function ProductScanner() {
       try {
         setQrData(decodedText);
         setIsScanning(false);
-        setIsLoading
+        setIsLoading(true);
 
         const [product_id_str, blockchain_hash] = decodedText.split("|");
         const product_id = Number(product_id_str);
@@ -132,7 +140,7 @@ export default function ProductScanner() {
 
         try {
           res = await axios.post(
-            "https://verilocal.onrender.com/api/products/verify",
+            "https://verilocalph.onrender.com/api/products/verify",
             { product_id, blockchain_hash }
           );
 
@@ -161,7 +169,7 @@ export default function ProductScanner() {
           );
 
           const allRes = await axios.get(
-            "https://verilocal.onrender.com/api/products"
+            "https://verilocalph.onrender.com/api/products"
           );
 
           const matched = allRes.data.find((p) => p.id === product_id);
@@ -172,7 +180,7 @@ export default function ProductScanner() {
             if (matched.business_id) {
               try {
                 const businessRes = await axios.get(
-                  `https://verilocal.onrender.com/api/business/${matched.business_id}`
+                  `https://verilocalph.onrender.com/api/business/${matched.business_id}`
                 );
                 setBusinessName(businessRes.data.registered_business_name);
               } catch {
