@@ -280,6 +280,8 @@ export default function RegisterProduct() {
         type: "",
         materials: "",
         origin: "",
+        productionStartDate: "",
+        productionEndDate: "",
         productionDate: "",
         description: "",
         productImage: null,

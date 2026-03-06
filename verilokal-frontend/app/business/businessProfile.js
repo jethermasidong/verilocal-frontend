@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
-import { useWindowDimensions } from "react-native";
 import {
   ActivityIndicator,
   Animated,
@@ -11,8 +10,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
-  View,
+  TextInput, useWindowDimensions, View
 } from "react-native";
 
 export default function BusinessProfile() {
@@ -184,7 +182,7 @@ export default function BusinessProfile() {
             isMobile && {
               flexDirection: "column",
               alignItems: "center",
-              padding: 24,
+              padding: 18,
             },
           ]}
         >
@@ -192,8 +190,8 @@ export default function BusinessProfile() {
             source={ business.logo ? { uri: business.logo} : require("../../assets/images/placeholder.png")}
             style={[styles.avatar, 
               isMobile && {
-                width: 140,
-                height: 140,
+                width: 80,
+                height: 80,
               }, 
             ]}
           />
@@ -208,12 +206,12 @@ export default function BusinessProfile() {
               },
             ]}
           >
-            <Text style={styles.name}>{business.registered_business_name}</Text>
-            <Text style={styles.location}>{business.address}</Text>
+            <Text style={[styles.name, isMobile && {fontSize: 20}]}>{business.registered_business_name}</Text>
+            <Text style={[styles.location, isMobile && {fontSize: 14}]}>{business.address}</Text>
           </View>
 
           <Pressable
-            style={[styles.editButton, isEditing && styles.saveButton, isMobile && { marginTop: 16 },]}
+            style={[styles.editButton, isEditing && styles.saveButton, isMobile && { marginTop: 16, paddingVertical: 8, paddingHorizontal: 12 },]}
             onPress={() => {
                 if (isEditing) handleSave();
                 else setIsEditing(true);
@@ -221,10 +219,10 @@ export default function BusinessProfile() {
           >
             <Ionicons
               name={isEditing ? "checkmark" : "pencil"}
-              size={18}
+              size={isMobile ? 14 : 18}
               color="#fff"
             />
-            <Text style={styles.editText}>
+            <Text style={[styles.editText, isMobile && { fontSize: 12, verticalAlign: "center" }]}>
               {isEditing ? "Save" : "Edit Profile"}
             </Text>
           </Pressable>

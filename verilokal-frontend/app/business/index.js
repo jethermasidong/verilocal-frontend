@@ -63,8 +63,8 @@ export default function BusinessDashboard() {
   const [showProfileBtn, setShowProfileBtn] = useState(true);
 
   //Types and Materials
-  const [selectedTypes, setSelectedTypes] = useState("");
-  const [selectedMaterials, setSelectedMaterials] = useState("");
+  const [selectedTypes, setSelectedTypes] = useState([]);
+  const [selectedMaterials, setSelectedMaterials] = useState([]);
 
   //Delete Confirmation
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -1123,24 +1123,44 @@ export default function BusinessDashboard() {
               <>
                 {selectedProduct?.product_image && (
                   <View
-                  style={{
-                    width: "100%",
-                    aspectRatio: 1.6,
-                    height: isMobile ? 200 : 250,
-                    borderRadius: 16,
-                    overflow: "hidden",
-                    backgroundColor: "#f2f2f2",
-                    marginBottom: 15,
-                  }}
-                  >
-                  <Image
-                    source={{ uri: selectedProduct.product_image }}
                     style={{
                       width: "100%",
-                      height: "100%",
-                      resizeMode: "cover",
+                      height: isMobile ? 200 : 250,
+                      borderRadius: 16,
+                      overflow: "hidden",
+                      backgroundColor: "#f2f2f2",
+                      marginBottom: 15,
                     }}
-                  />
+                  >
+                    <Image
+                      source={{ uri: selectedProduct.product_image }}
+                      style={{ width: "100%", height: "100%", resizeMode: "cover" }}
+                    />
+
+                    <View
+                      style={{
+                        position: "absolute",
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        paddingHorizontal: 14,
+                        paddingVertical: 10,
+                        backgroundColor: "rgba(0,0,0,0.45)",
+                        borderBottomLeftRadius: 16,
+                        borderBottomRightRadius: 16,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color: "#fff",
+                          fontSize: 20,
+                          fontFamily: "Montserrat-Bold",
+                        }}
+                        numberOfLines={1}
+                      >
+                        {selectedProduct.name}
+                      </Text>
+                    </View>
                   </View>
                 )}
 
@@ -1149,9 +1169,9 @@ export default function BusinessDashboard() {
                   contentContainerStyle={{ paddingBottom: 20 }}
                   showsVerticalScrollIndicator={false}
                 >
-                  <Text style={{ fontSize: 24, fontFamily: "Montserrat-Bold", marginBottom: 6, }}>
-                    {selectedProduct.name}
-                    <View style={{ flexDirection: isMobile ? "column" : "row", gap: 3, position: "absolute", right: 0, top: 0, }}>
+
+
+                  <View style={{ flexDirection: "row", gap: 3, position: "absolute", left: 0, top: 0 }}>
                       <View style={{position: "auto", }}>
                         {/* EDIT PRODUCT BUTTON */}
                         <Pressable
@@ -1197,7 +1217,6 @@ export default function BusinessDashboard() {
                         </Pressable>
                       </View>
                     </View>
-                  </Text>
 
                   {/* Delete Modal */}
                   <Modal transparent visible={showDeleteModal} animationType="fade">
@@ -1270,7 +1289,7 @@ export default function BusinessDashboard() {
                   </Modal>
 
 
-                  <View style={{ marginBottom: 12 }}>
+                  <View style={{ marginBottom: 12, marginTop: 50, backgroundColor: "#f4f4f4", padding: 13, borderRadius: 12, borderWidth: 1, borderColor: "#d9d9d9",}}>
                     <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 14 }}>
                       <Text style={{ fontWeight: "600" }}>Type:</Text> {selectedProduct.type}
                     </Text>
@@ -1713,7 +1732,7 @@ export default function BusinessDashboard() {
                         return;
                       }
                       setEditForm({...editForm, productionEndDate: selectedEnd });
-                    }}s
+                    }}
                     style={{borderWidth: 1, borderColor: "#ccc", padding: 8, borderRadius: 8, backgroundColor: "#fafafa", width: "95%",fontFamily: "Montserrat-Regular", fontSize: 13}}
                   />
                 </>
