@@ -1093,7 +1093,7 @@ export default function BusinessDashboard() {
               padding: 15,
               borderRadius: 16,
               width: "90%",
-              maxWidth: 450,
+              maxWidth: 400,
               elevation: 5,
               maxHeight: "85%",
             }}
@@ -1124,7 +1124,7 @@ export default function BusinessDashboard() {
                 {selectedProduct?.product_image && (
                   <View
                     style={{
-                      width: "100%",
+                      width: isMobile ? 300 : 370,
                       height: isMobile ? 200 : 250,
                       borderRadius: 16,
                       overflow: "hidden",
@@ -1132,9 +1132,14 @@ export default function BusinessDashboard() {
                       marginBottom: 15,
                     }}
                   >
+                    <Image 
+                      source={{ uri: selectedProduct.product_image }}
+                      blurRadius={25}
+                      style={{ position: "absolute", width: "100%", height: "100%", resizeMode: "cover", transform: [{ scale: 1.2 }], }}
+                    />
                     <Image
                       source={{ uri: selectedProduct.product_image }}
-                      style={{ width: "100%", height: "100%", resizeMode: "cover" }}
+                      style={{ width: "100%", height: "100%", resizeMode: "contain" }}
                     />
 
                     <View
@@ -1444,20 +1449,25 @@ export default function BusinessDashboard() {
                             <View
                               key={index}
                               style={{
-                                width: isMobile ? 270 : 350,
-                                height: isMobile ? 270 : 350,
+                                width: isMobile ? 300 : 350,
+                                height: isMobile ? 300 : 350,
                                 marginRight: 10,
                                 borderRadius: 16,
                                 overflow: "hidden",
                                 backgroundColor: "#f2f2f2",
                               }}
                             >
+                              <Image 
+                                source={{ uri: img }}
+                                blurRadius={25}
+                                style={{ position: "absolute", width: "100%", height: "100%", resizeMode: "cover", transform: [{ scale: 1.2 }], }}
+                              />  
                               <Image
                                 source={{ uri: img }}
                                 style={{
                                   width: "100%",
                                   height: "100%",
-                                  resizeMode: "cover",
+                                  resizeMode: "contain",
                                 }}
                               />
                             </View>
