@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import { useFonts } from "expo-font";
+import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Animated, Dimensions, Image, Modal, Pressable, ScrollView, Text, View } from "react-native";
 export default function ProductScanner() {
@@ -13,6 +14,8 @@ export default function ProductScanner() {
   const [error, setError] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [registered_business_name, setBusinessName] = useState("");
+  const [businessLogo, setBusinessLogo] = useState("");
+  
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -183,6 +186,7 @@ export default function ProductScanner() {
                   `https://verilocalph.onrender.com/api/business/${matched.business_id}`
                 );
                 setBusinessName(businessRes.data.registered_business_name);
+                setBusinessLogo(businessRes.data.logo);
               } catch {
                 setBusinessName("Unknown Business");
               }
@@ -575,7 +579,6 @@ export default function ProductScanner() {
                   {productDetails.name}
                 </Text>
               </View>
-            {/* END NEW CODE */}
 
             {/* SCROLL FUNCTION */}
             <ScrollView
@@ -588,9 +591,25 @@ export default function ProductScanner() {
               <View style={{ height: 1, backgroundColor: "#e0e0e0", marginVertical: 5, }} />
 
               {/* REGISTERED ARTISAN NAME*/}
+              <View style={{flexDirection: "row", gap: 8, alignItems: "center", marginBottom: 10}}>
+              {businessLogo && (
+              <Pressable onPress={() => router.push("/buyer/publicProfile")}>
+              <Image
+                source={ businessLogo ? { uri: businessLogo } : require("../../assets/images/placeholder.png")}
+                style={{
+                  borderRadius: 25,
+                  borderWidth: 2,
+                  width: 40,
+                  height: 40,
+                  borderColor: "#000000",
+                }}
+                resizeMode="cover"
+              />
+              </Pressable>
+              )}
               <Text
                 style={{
-                  fontSize: 16,
+                  fontSize: 14,
                   fontFamily: "Montserrat-Regular",
                   marginBottom: 2,
                   color: "#555",
@@ -598,22 +617,10 @@ export default function ProductScanner() {
                   fontWeight: "700",
                 }}
               >
-                Registered Artisan:
+              {registered_business_name ? `${registered_business_name}` : "Unknown"}
               </Text>
-              <Text
-                style={{
-                  fontSize: 18,
-                  fontFamily: "Montserrat-Regular",
-                  marginBottom: 10,
-                  color: "#000000",
-                  textAlign: "left",
-                  fontWeight: "700",
-                }}
-              >
-                {registered_business_name ? `${registered_business_name}` : ""}
-              </Text>
-              
-              { /* */}
+              </View>
+
               <View style={{ gap: 6, backgroundColor: "#f4f4f4", padding: 13, borderRadius: 12, borderWidth: 1, borderColor: "#d9d9d9"}}>
                 <Text style={{ fontSize: 14, fontFamily: "Montserrat-Regular", color: "#444" }}>
                   <Text style={{ fontWeight: "700" }}>Type: </Text>{productDetails.type}
