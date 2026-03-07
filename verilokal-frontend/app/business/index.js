@@ -25,8 +25,6 @@ import {
 } from "react-native";
 import bgImage from "../../assets/bg1.jpg";
 
-const windowWidth = Dimensions.get("window").width;
-const isMobile = windowWidth < 768;
 
 export default function BusinessDashboard() {
 
@@ -103,6 +101,7 @@ export default function BusinessDashboard() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [dateType, setDateType] = useState(null);
 
+
   const onHoverIn = () => {
     Animated.spring(hoverAnimReport, {
       toValue: 1,
@@ -128,6 +127,16 @@ export default function BusinessDashboard() {
       useNativeDriver: true,
     }).start();
   };
+
+
+  const [windowWidth, setWindowWidth] = useState(Dimensions.get("window").width);
+  useEffect(() => {
+    const subscription = Dimensions.addEventListener("change", ({ window }) => {
+      setWindowWidth(window.width);
+    }); 
+    return () => subscription?.remove();
+  }, []);
+  const isMobile = windowWidth < 768;
 
 
   //FILTER AND CATEGORIZATION:
@@ -171,7 +180,8 @@ export default function BusinessDashboard() {
 
     if(dateType === "start") {
       if (editForm.productionEndDate && selectedDate > new Date(editForm.productionEndDate)) {
-        handleInputChange
+        Alert.alert("Invalid Date", "Start date cannot be later than the end date.");
+        return;
       }
       handleInputChange("productionStartDate", selectedDate);
     } else if (dateType === "end") {
@@ -739,8 +749,10 @@ export default function BusinessDashboard() {
   const scrollRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const isProgrammaticScroll = useRef(false);
-
-  const ITEM_WIDTH = 350 + 10; 
+  
+  const CARD_WIDTH = isMobile ? 300 : 350;
+  const CARD_MARGIN = 10;
+  const ITEM_WIDTH = CARD_WIDTH + CARD_MARGIN; 
 
   {/* Register Button Hover Animations */}
   const [hoverRegister, setHoverRegister] = useState(false);
@@ -871,7 +883,7 @@ export default function BusinessDashboard() {
             alignItems: isMobile ? "flex-start" :"center",
             gap: 10,
             width: isMobile ? "100%" : "70%",
-            position: isMobile ? "flex-start" : "relative",
+            position: "relative",
           }}>
           <TextInput
             placeholder="Search products..."
@@ -1124,8 +1136,8 @@ export default function BusinessDashboard() {
                 {selectedProduct?.product_image && (
                   <View
                     style={{
-                      width: isMobile ? 300 : 370,
-                      height: isMobile ? 200 : 250,
+                      width: "100%",
+                      height: 220,
                       borderRadius: 16,
                       overflow: "hidden",
                       backgroundColor: "#f2f2f2",
@@ -1429,8 +1441,11 @@ export default function BusinessDashboard() {
                           horizontal
                           showsHorizontalScrollIndicator={false}
                           snapToInterval={ITEM_WIDTH}
+                          pagingEnabled={false}
+                          snapToAlignment="start"
+                          disableIntervalMomentum={true}
                           decelerationRate="fast"
-                          contentContainerStyle={{ paddingRight: 10 }}
+                          contentContainerStyle={{ paddingRight: CARD_MARGIN }}
                           onScroll={(e) => {
                             if (isProgrammaticScroll.current) return;
 
@@ -1449,9 +1464,9 @@ export default function BusinessDashboard() {
                             <View
                               key={index}
                               style={{
-                                width: isMobile ? 300 : 350,
-                                height: isMobile ? 300 : 350,
-                                marginRight: 10,
+                                width: CARD_WIDTH,
+                                height: isMobile ? 310 : 300,
+                                marginRight: CARD_MARGIN,
                                 borderRadius: 16,
                                 overflow: "hidden",
                                 backgroundColor: "#f2f2f2",
@@ -1513,7 +1528,7 @@ export default function BusinessDashboard() {
                   >
                     <View 
                       style={{
-                        flexDirection: isMobile ? "column" : "row", gap: 3, position: "absolute", right: 5, top: 5,
+                        gap: 3, position: "absolute", right: 5, top: 5,
                       }}
                     >
                       <Pressable
@@ -1641,11 +1656,14 @@ export default function BusinessDashboard() {
               borderRadius: 16,
               width: "90%",
               maxWidth: 420,
+              maxHeight: "90%",
             }}
           >
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 20 }} keyboardShouldPersistTaps="handled">
             <Text style={{ fontSize: 18, fontWeight: "700", marginBottom: 12, fontFamily: 'Montserrat-Bold' }}>
               Edit Product
             </Text>
+            </ScrollView>
 
             <View style={{marginBottom: 7 }}>
               <Text style={{fontWeight: "600", marginTop: 0, marginBottom: 4, fontSize: 13, fontFamily: 'Montserrat-Regular',}}>Product Name*</Text>
