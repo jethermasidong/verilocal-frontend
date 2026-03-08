@@ -125,7 +125,7 @@ export default function BusinessLogin() {
           keyboardShouldPersistTaps="handled"
           scrollEnabled={isMobile}
         >
-        <BackButton />
+        <BackButton fallback="/" forceFallback />
           <View
             style={{
               flexDirection: isMobile ? "column" : "row",

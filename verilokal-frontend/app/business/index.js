@@ -736,7 +736,8 @@ export default function BusinessDashboard() {
   const [activeIndex, setActiveIndex] = useState(0);
   const isProgrammaticScroll = useRef(false);
 
-  const ITEM_WIDTH = 350 + 10; 
+  const IMAGE_SIZE = isMobile ? 270 : 350;
+  const ITEM_WIDTH = IMAGE_SIZE + 10; 
 
   {/* Register Button Hover Animations */}
   const [hoverRegister, setHoverRegister] = useState(false);
@@ -1402,8 +1403,11 @@ export default function BusinessDashboard() {
                           horizontal
                           showsHorizontalScrollIndicator={false}
                           snapToInterval={ITEM_WIDTH}
+                          snapToAlignment="center"
                           decelerationRate="fast"
-                          contentContainerStyle={{ paddingRight: 10 }}
+                          contentContainerStyle={{
+                            paddingHorizontal: (ITEM_WIDTH / 2) - (IMAGE_SIZE / 2),
+                          }}
                           onScroll={(e) => {
                             if (isProgrammaticScroll.current) return;
 
@@ -1422,9 +1426,9 @@ export default function BusinessDashboard() {
                             <View
                               key={index}
                               style={{
-                                width: isMobile ? 270 : 350,
-                                height: isMobile ? 270 : 350,
-                                marginRight: 10,
+                                width: IMAGE_SIZE,
+                                height: IMAGE_SIZE,
+                                marginHorizontal: 5,
                                 borderRadius: 16,
                                 overflow: "hidden",
                                 backgroundColor: "#f2f2f2",

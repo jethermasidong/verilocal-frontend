@@ -3,6 +3,7 @@ import axios from "axios";
 import { useFonts } from "expo-font";
 import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Animated, Dimensions, Image, Modal, Pressable, ScrollView, Text, View } from "react-native";
+import BackButton from "../../components/BackButton";
 export default function ProductScanner() {
   const [isScanning, setIsScanning] = useState(false);
   const [qrData, setQrData] = useState(null);
@@ -23,14 +24,6 @@ export default function ProductScanner() {
 
   const resultScale = useRef(new Animated.Value(0.8)).current;
   const resultOpacity = useRef(new Animated.Value(0)).current;
-
-  //CAROUSEL
-  const ITEM_WIDTH = 350;
-  const scrollRef = useRef(null);
-  const isProgrammaticScroll = useRef(false);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const leftScale = useRef(new Animated.Value(1)).current;
-  const rightScale = useRef(new Animated.Value(1)).current;
 
   //PROCESS IMAGES
   const processImages = Array.isArray(productDetails?.process_images)
@@ -53,6 +46,16 @@ export default function ProductScanner() {
     Dimensions.addEventListener("change", handleResize);
     return () => Dimensions.removeEventListener("change", handleResize);
   }, []);
+
+  //CAROUSEL
+  const IMAGE_SIZE = isMobile ? 270 : 340;
+  const ITEM_WIDTH = IMAGE_SIZE + 10;
+  const scrollRef = useRef(null);
+  const isProgrammaticScroll = useRef(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const leftScale = useRef(new Animated.Value(1)).current;
+  const rightScale = useRef(new Animated.Value(1)).current;
+
 
   //HOVER CLOSE BUTTON
   const [hoverClose, setHoverClose] = useState(false);
@@ -326,6 +329,7 @@ export default function ProductScanner() {
         paddingHorizontal: 40,
       }}
     >
+    <BackButton fallback="/" forceFallback />
 
       {/* HEADER */}
       <Text
@@ -505,7 +509,7 @@ export default function ProductScanner() {
            
       
 
-    {/* MODAL */}
+    {/* PRODUCT MODAL */}
       <Modal visible={modalVisible} animationType="fade" transparent>
     <View
       style={{
@@ -575,7 +579,6 @@ export default function ProductScanner() {
                   {productDetails.name}
                 </Text>
               </View>
-            {/* END NEW CODE */}
 
             {/* SCROLL FUNCTION */}
             <ScrollView
@@ -749,8 +752,11 @@ export default function ProductScanner() {
                       horizontal
                       showsHorizontalScrollIndicator={false}
                       snapToInterval={ITEM_WIDTH}
+                      snapToAlignment="center"
                       decelerationRate="fast"
-                      contentContainerStyle={{ paddingRight: 10 }}
+                      contentContainerStyle={{
+                        paddingHorizontal: 0,
+                      }}
                       onScroll={(e) => {
                         if (isProgrammaticScroll.current) return;
 
@@ -762,16 +768,14 @@ export default function ProductScanner() {
                         );
                       }}
                       scrollEventThrottle={16}
-
-
                     >
                       {processImages.map((img, index) => (
                         <View
                           key={index}
                           style={{
-                            width: isMobile ? 270: 350,
-                            height: isMobile ? 270: 350,
-                            marginRight: 10,
+                            width: IMAGE_SIZE,
+                            height: IMAGE_SIZE,
+                            marginHorizontal: 5,
                             borderRadius: 16,
                             overflow: "hidden",
                             backgroundColor: "#f2f2f2",

@@ -383,7 +383,7 @@ export default function RegisterBusiness() {
       style={{ flex: 1, backgroundColor: "#f6f7fb" }}
       contentContainerStyle={{ alignItems: "center", paddingVertical: 20 }}
     >
-    <BackButton />
+    <BackButton fallback="/login-business" forceFallback />
       <View style={[styles.card, isMobile && { flexDirection: "column" }]}>
         {/* LEFT IMAGE */}
         <View style={[styles.leftPanel, isMobile && { width: "100%", height: 200, }]}>

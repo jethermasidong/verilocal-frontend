@@ -165,7 +165,7 @@ export default function OtpScreen() {
           padding: 20,
         }}
       >
-        <BackButton />
+        <BackButton fallback="/login-business" forceFallback />
 
         <View
           style={{

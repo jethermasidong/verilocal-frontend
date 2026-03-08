@@ -4,10 +4,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useFonts } from "expo-font";
 
-export default function BackButton({ color = "#111", size = 20 }) {
+export default function BackButton({
+  color = "#111",
+  size = 20,
+  fallback = "/",
+  forceFallback = false,
+}) {
   const router = useRouter();
   const { width } = useWindowDimensions();
-
   const isMobile = width < 768;
 
   const [hoverBack, setHoverBack] = useState(false);
@@ -16,16 +20,28 @@ export default function BackButton({ color = "#111", size = 20 }) {
     "Montserrat-Regular": require("../assets/fonts/Montserrat/static/Montserrat-Regular.ttf"),
   });
 
-  // Hide button on mobile
-  if (isMobile) {
-    return null;
-  }
+  if (!fontsLoaded) return null;
+
+  if (isMobile) return null;
+
+  const handleBack = () => {
+    if (forceFallback) {
+      router.replace(fallback);
+      return;
+    }
+
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace(fallback);
+    }
+  };
 
   return (
     <Pressable
       onHoverIn={() => setHoverBack(true)}
       onHoverOut={() => setHoverBack(false)}
-      onPress={() => router.back()}
+      onPress={handleBack}
       style={{
         backgroundColor: hoverBack ? "#bbb" : "transparent",
         borderColor: "#000",
@@ -48,7 +64,6 @@ export default function BackButton({ color = "#111", size = 20 }) {
           marginHorizontal: 2,
           fontSize: size * 0.8,
           fontFamily: "Montserrat-Regular",
-          alignContent: "center",
         }}
       >
         Back

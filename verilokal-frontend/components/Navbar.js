@@ -40,7 +40,7 @@ export default function Navbar({ links, showProfile, onProfilePress }) {
     <>
       <View style={styles.navbar}>
         {/* LOGO */}
-        <TouchableOpacity onPress={() => router.push("/")}>
+        <TouchableOpacity>
           <Image
             source={require("../assets/images/verilokal_text.png")}
             style={styles.logo}

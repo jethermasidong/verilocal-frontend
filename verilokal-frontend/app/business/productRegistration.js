@@ -659,6 +659,7 @@ export default function RegisterProduct() {
               backgroundColor: "#f6f7fb",
             }}
           >
+          <BackButton fallback="/business/" forceFallback />
             <View
               style={[
                 styles.card,
