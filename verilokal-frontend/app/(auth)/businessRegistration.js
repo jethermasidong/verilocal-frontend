@@ -166,7 +166,11 @@ export default function RegisterBusiness() {
       }
     }
     if (!address) e.address = "Address is required";
-    if (!contact_no) e.contact_no = "Contact number is required";
+    if (!contact_no) { 
+      e.contact_no = "Contact number is required";
+    } else if (!/^09\d{9}$/.test(contact_no)) {
+      e.contact_no = "Enter a valid 11-digit Philippine mobile number starting with 09";
+    }
     if (!description) e.description = "Description is required";
     if (!permit) e.permit = "Permit is required";
     if (!certificates || certificates.length === 0) e.certificates = "Certificate is required";
