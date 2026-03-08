@@ -10,32 +10,63 @@ import {
 } from "react-native";
 import Logo from "../assets/images/verilokal_text.png";
 
+const INDIGO = "#4338ca";
+const INDIGO_SOFT = "#6366f1";
+const SLATE_DARK = "#0a0f1e";
+const SLATE_MID = "#1e293b";
+const SLATE_TEXT = "#64748b";
+const SLATE_LIGHT = "#f1f5f9";
+const WHITE = "#ffffff";
+const BORDER = "#e2e8f0";
+
 export default function AboutMe() {
   const { width, height } = useWindowDimensions();
   const isMobile = width < 900;
   const isWeb = Platform.OS === "web";
 
-  // Section animation
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(30)).current;
+  const slideAnim = useRef(new Animated.Value(40)).current;
+  const lineScaleAnim = useRef(new Animated.Value(0)).current;
 
-  // Cards animation
   const cardAnims = [
     useRef(new Animated.Value(0)).current,
     useRef(new Animated.Value(0)).current,
     useRef(new Animated.Value(0)).current,
   ];
 
+  const pillarAnims = [
+    useRef(new Animated.Value(0)).current,
+    useRef(new Animated.Value(0)).current,
+    useRef(new Animated.Value(0)).current,
+  ];
+
   useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, { toValue: 1, duration: 700, useNativeDriver: true }),
-      Animated.timing(slideAnim, { toValue: 0, duration: 700, useNativeDriver: true }),
+    Animated.sequence([
+      Animated.delay(100),
+      Animated.parallel([
+        Animated.timing(fadeAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
+        Animated.timing(slideAnim, { toValue: 0, duration: 800, useNativeDriver: true }),
+      ]),
     ]).start();
 
+    Animated.timing(lineScaleAnim, {
+      toValue: 1,
+      duration: 900,
+      delay: 400,
+      useNativeDriver: true,
+    }).start();
+
     Animated.stagger(
-      150,
+      120,
       cardAnims.map((anim) =>
-        Animated.timing(anim, { toValue: 1, duration: 600, useNativeDriver: true })
+        Animated.timing(anim, { toValue: 1, duration: 700, delay: 300, useNativeDriver: true })
+      )
+    ).start();
+
+    Animated.stagger(
+      100,
+      pillarAnims.map((anim) =>
+        Animated.timing(anim, { toValue: 1, duration: 500, delay: 600, useNativeDriver: true })
       )
     ).start();
   }, []);
@@ -45,21 +76,32 @@ export default function AboutMe() {
       title: "Mission",
       text: "Empowering Filipino artisans through secure blockchain authentication and digital verification.",
       icon: "shield-checkmark-outline",
+      accent: "#6366f1",
     },
     {
       title: "Vision",
       text: "Building a globally trusted ecosystem for authentic Filipino-made products.",
       icon: "globe-outline",
+      accent: "#0ea5e9",
     },
     {
-      title: "Core Values",
+      title: "Values",
       text: "Integrity, transparency, innovation, and pride in local craftsmanship.",
       icon: "ribbon-outline",
+      accent: "#10b981",
     },
+  ];
+
+  const pillars = [
+    { icon: "lock-closed-outline", label: "Secure Authentication" },
+    { icon: "sync-outline", label: "Supply Chain Transparency" },
+    { icon: "shield-outline", label: "Consumer Trust Protection" },
   ];
 
   return (
     <View style={[styles.section, { minHeight: height }]}>
+      <View style={styles.bgAccent} pointerEvents="none" />
+
       <Animated.View
         style={[
           styles.container,
@@ -70,32 +112,41 @@ export default function AboutMe() {
           },
         ]}
       >
-        {/* LEFT SIDE */}
         <View
           style={[
             styles.left,
-            { marginRight: isMobile ? 0 : 80, marginBottom: isMobile ? 40 : 0 },
+            { marginRight: isMobile ? 0 : 90, marginBottom: isMobile ? 56 : 0 },
           ]}
         >
-          <Text style={styles.label}>ABOUT US</Text>
+          <View style={styles.labelRow}>
+            <Animated.View
+              style={[
+                styles.labelLine,
+                { transform: [{ scaleX: lineScaleAnim }] },
+              ]}
+            />
+            <Text style={styles.label}>ABOUT US</Text>
+          </View>
 
           <Animated.Image
             source={Logo}
             resizeMode="contain"
             style={[
               styles.logo,
-              { width: isMobile ? 220 : 300, alignSelf: isMobile ? "center" : "flex-start" },
+              { width: isMobile ? 200 : 260, alignSelf: isMobile ? "center" : "flex-start" },
             ]}
           />
 
           <Text style={[styles.heading, isMobile && { textAlign: "center" }]}>
-            Preserving authenticity through technology.
+            Preserving authenticity{"\n"}through technology.
           </Text>
+
+          <View style={styles.divider} />
 
           <Text style={[styles.paragraph, isMobile && { textAlign: "center" }]}>
             VeriLokal bridges traditional Filipino craftsmanship with modern
-            blockchain infrastructure. Our platform safeguards product
-            authenticity while enabling transparency across the supply chain.
+            blockchain infrastructure — safeguarding product authenticity and
+            enabling full supply chain transparency.
           </Text>
 
           <Text style={[styles.paragraph, isMobile && { textAlign: "center" }]}>
@@ -104,30 +155,37 @@ export default function AboutMe() {
             global marketplace.
           </Text>
 
-          {/* Key Pillars */}
           <View style={[styles.pillarsContainer, isMobile && { alignItems: "center" }]}>
-            <View style={styles.pillarItem}>
-              <Ionicons name="lock-closed-outline" size={18} color="#4f46e5" />
-              <Text style={styles.pillarText}>Secure Authentication</Text>
-            </View>
-
-            <View style={styles.pillarItem}>
-              <Ionicons name="sync-outline" size={18} color="#4f46e5" />
-              <Text style={styles.pillarText}>Supply Chain Transparency</Text>
-            </View>
-
-            <View style={styles.pillarItem}>
-              <Ionicons name="shield-outline" size={18} color="#4f46e5" />
-              <Text style={styles.pillarText}>Consumer Trust Protection</Text>
-            </View>
+            {pillars.map((p, i) => (
+              <Animated.View
+                key={i}
+                style={[
+                  styles.pillarItem,
+                  {
+                    opacity: pillarAnims[i],
+                    transform: [
+                      {
+                        translateX: pillarAnims[i].interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [-16, 0],
+                        }),
+                      },
+                    ],
+                  },
+                ]}
+              >
+                <View style={styles.pillarDot} />
+                <Ionicons name={p.icon} size={15} color={INDIGO_SOFT} style={{ marginRight: 8 }} />
+                <Text style={styles.pillarText}>{p.label}</Text>
+              </Animated.View>
+            ))}
           </View>
         </View>
 
-        {/* RIGHT SIDE */}
         <View style={[styles.right, !isMobile && styles.grid]}>
           {cards.map((card, index) => {
             const anim = cardAnims[index];
-            const hoverAnim = useRef(new Animated.Value(1)).current;
+            const hoverAnim = useRef(new Animated.Value(0)).current;
 
             return (
               <Animated.View
@@ -139,43 +197,51 @@ export default function AboutMe() {
                     opacity: anim,
                     transform: [
                       {
-                        translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [25, 0] }),
+                        translateY: anim.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [32, 0],
+                        }),
                       },
-                      { scale: hoverAnim },
                     ],
-                    shadowOpacity: hoverAnim.interpolate
-                      ? hoverAnim.interpolate({ inputRange: [1, 1.03], outputRange: [0.04, 0.12] })
-                      : 0.04,
-                    elevation: hoverAnim.interpolate
-                      ? hoverAnim.interpolate({ inputRange: [1, 1.03], outputRange: [3, 8] })
-                      : 3,
                   },
+                  index === 2 && !isMobile && styles.cardFull,
                 ]}
                 {...(isWeb
                   ? {
                       onMouseEnter: () =>
                         Animated.spring(hoverAnim, {
-                          toValue: 1.03,
-                          friction: 5,
+                          toValue: 1,
+                          friction: 6,
+                          tension: 100,
                           useNativeDriver: true,
                         }).start(),
                       onMouseLeave: () =>
                         Animated.spring(hoverAnim, {
-                          toValue: 1,
-                          friction: 5,
+                          toValue: 0,
+                          friction: 6,
+                          tension: 100,
                           useNativeDriver: true,
                         }).start(),
                     }
                   : {})}
               >
-                <Ionicons
-                  name={card.icon}
-                  size={22}
-                  color="#4f46e5"
-                  style={{ marginBottom: 14 }}
+                <Animated.View
+                  style={[
+                    styles.cardHighlight,
+                    { backgroundColor: card.accent },
+                    {
+                      opacity: hoverAnim.interpolate
+                        ? hoverAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 0.07] })
+                        : 0,
+                    },
+                  ]}
                 />
+                <View style={[styles.cardIconWrap, { backgroundColor: card.accent + "12" }]}>
+                  <Ionicons name={card.icon} size={18} color={card.accent} />
+                </View>
                 <Text style={styles.cardTitle}>{card.title}</Text>
                 <Text style={styles.cardText}>{card.text}</Text>
+                <View style={[styles.cardAccentBar, { backgroundColor: card.accent }]} />
               </Animated.View>
             );
           })}
@@ -189,9 +255,21 @@ const styles = StyleSheet.create({
   section: {
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 24,
-    paddingVertical: 60,
+    paddingHorizontal: 28,
+    paddingVertical: 80,
     backgroundColor: "#f8fafc",
+    overflow: "hidden",
+  },
+
+  bgAccent: {
+    position: "absolute",
+    top: -120,
+    right: -180,
+    width: 520,
+    height: 520,
+    borderRadius: 260,
+    backgroundColor: "#6366f1",
+    opacity: 0.04,
   },
 
   container: {
@@ -202,7 +280,7 @@ const styles = StyleSheet.create({
 
   left: {
     flex: 1,
-    maxWidth: 600,
+    maxWidth: 560,
   },
 
   right: {
@@ -215,77 +293,144 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
 
+  labelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+    gap: 10,
+  },
+
+  labelLine: {
+    width: 28,
+    height: 1.5,
+    backgroundColor: INDIGO_SOFT,
+    transformOrigin: "left",
+  },
+
   label: {
-    fontSize: 12,
-    letterSpacing: 2,
+    fontSize: 11,
+    letterSpacing: 3,
     textTransform: "uppercase",
-    color: "#6366f1",
-    marginBottom: 16,
+    color: INDIGO_SOFT,
     fontFamily: "Montserrat-Bold",
   },
 
   logo: {
-    height: 90,
-    marginBottom: 20,
+    height: 80,
+    marginBottom: 24,
   },
 
   heading: {
-    fontSize: 26,
+    fontSize: 30,
     fontFamily: "Montserrat-Bold",
-    color: "#0f172a",
-    marginBottom: 18,
+    color: SLATE_DARK,
+    lineHeight: 42,
+    marginBottom: 20,
+    letterSpacing: -0.5,
+  },
+
+  divider: {
+    width: 40,
+    height: 2,
+    backgroundColor: INDIGO,
+    marginBottom: 20,
+    borderRadius: 2,
   },
 
   paragraph: {
-    fontSize: 16,
-    lineHeight: 26,
+    fontSize: 15.5,
+    lineHeight: 27,
     fontFamily: "Garet-Book",
-    color: "#475569",
-    marginBottom: 16,
+    color: SLATE_TEXT,
+    marginBottom: 14,
   },
 
   pillarsContainer: {
-    marginTop: 24,
-    gap: 12,
+    marginTop: 28,
+    gap: 14,
   },
 
   pillarItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 0,
+  },
+
+  pillarDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: INDIGO_SOFT,
+    marginRight: 10,
   },
 
   pillarText: {
-    fontSize: 14,
-    color: "#475569",
+    fontSize: 13.5,
+    color: SLATE_MID,
     fontFamily: "Garet-Book",
+    letterSpacing: 0.2,
   },
 
   card: {
-    backgroundColor: "#ffffff",
-    padding: 26,
-    borderRadius: 14,
-    marginBottom: 24,
+    backgroundColor: WHITE,
+    padding: 28,
+    borderRadius: 16,
+    marginBottom: 20,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
-    shadowColor: "#000",
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 3,
+    borderColor: BORDER,
+    shadowColor: "#0a0f1e",
+    shadowOpacity: 0.06,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 4,
+    overflow: "hidden",
+    position: "relative",
+  },
+
+  cardFull: {
+    width: "100%",
+  },
+
+  cardHighlight: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+
+  cardIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
   },
 
   cardTitle: {
-    fontSize: 17,
+    fontSize: 16,
     fontFamily: "Montserrat-Bold",
     marginBottom: 10,
-    color: "#0f172a",
+    color: SLATE_DARK,
+    letterSpacing: -0.2,
   },
 
   cardText: {
-    fontSize: 15,
+    fontSize: 14,
     fontFamily: "Garet-Book",
-    color: "#475569",
-    lineHeight: 24,
+    color: SLATE_TEXT,
+    lineHeight: 23,
+  },
+
+  cardAccentBar: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: 3,
+    height: "100%",
+    borderTopLeftRadius: 16,
+    borderBottomLeftRadius: 16,
+    opacity: 0.7,
   },
 });

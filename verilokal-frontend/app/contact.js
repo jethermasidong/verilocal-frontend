@@ -1,22 +1,44 @@
+import { Ionicons } from "@expo/vector-icons";
+import { useFonts } from "expo-font";
+import { useEffect, useRef } from "react";
 import {
+  Animated,
+  Pressable,
   StyleSheet,
   Text,
-  useWindowDimensions,
-  View,
   TextInput,
-  Pressable,
-  Animated,
+  useWindowDimensions,
+  View
 } from "react-native";
-import { useFonts } from "expo-font";
-import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useRef } from "react";
+
+const BLUE = "#3b6fd4";
+const BLUE_DARK = "#2c55a8";
+const BLUE_TINT = "#eef3fb";
+const SLATE = "#1a2340";
+const TEXT_MID = "#475569";
+const TEXT_LIGHT = "#94a3b8";
+const WHITE = "#ffffff";
+const INPUT_BG = "#f4f7fc";
+const BORDER = "#dde5f4";
 
 export default function Contact() {
   const { height, width } = useWindowDimensions();
+  const isMobile = width < 900;
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(36)).current;
   const lineAnim = useRef(new Animated.Value(0)).current;
 
-  const isMobile = width < 900;
+  const fieldAnims = [
+    useRef(new Animated.Value(0)).current,
+    useRef(new Animated.Value(0)).current,
+    useRef(new Animated.Value(0)).current,
+  ];
+
+  const infoAnims = [
+    useRef(new Animated.Value(0)).current,
+    useRef(new Animated.Value(0)).current,
+  ];
 
   const [fontsLoaded] = useFonts({
     "Garet-Book": require("../assets/fonts/garet/Garet-Book.ttf"),
@@ -27,51 +49,56 @@ export default function Contact() {
   });
 
   useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 800,
-      useNativeDriver: true,
-    }).start();
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 1, duration: 700, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 700, useNativeDriver: true }),
+    ]).start();
 
     Animated.timing(lineAnim, {
       toValue: 1,
-      duration: 900,
-      delay: 300,
+      duration: 800,
+      delay: 350,
       useNativeDriver: false,
     }).start();
+
+    Animated.stagger(
+      90,
+      infoAnims.map((a) =>
+        Animated.timing(a, { toValue: 1, duration: 500, delay: 500, useNativeDriver: true })
+      )
+    ).start();
+
+    Animated.stagger(
+      100,
+      fieldAnims.map((a) =>
+        Animated.timing(a, { toValue: 1, duration: 550, delay: 400, useNativeDriver: true })
+      )
+    ).start();
   }, []);
 
   const underlineWidth = lineAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, 140],
+    outputRange: [0, isMobile ? 110 : 150],
   });
 
   if (!fontsLoaded) return null;
 
+  const contactInfo = [
+    { icon: "mail-outline", value: "verilocalphi@gmail.com" },
+    { icon: "call-outline", value: "+63 956 095 5026" },
+  ];
+
+  const fields = [
+    { placeholder: "Your Name", multiline: false },
+    { placeholder: "Your Email", multiline: false },
+    { placeholder: "Your Message", multiline: true },
+  ];
+
   return (
     <View style={[styles.section, { minHeight: height }]}>
-      {/* Background */}
-      <View style={styles.backgroundBase} />
-
-      <View
-        style={[
-          styles.circleTop,
-          {
-            width: isMobile ? 300 : 500,
-            height: isMobile ? 300 : 500,
-          },
-        ]}
-      />
-
-      <View
-        style={[
-          styles.circleBottom,
-          {
-            width: isMobile ? 250 : 400,
-            height: isMobile ? 250 : 400,
-          },
-        ]}
-      />
+      <View style={styles.blobTopRight} pointerEvents="none" />
+      <View style={styles.blobBottomLeft} pointerEvents="none" />
+      <View style={styles.gridLines} pointerEvents="none" />
 
       <Animated.View
         style={[
@@ -79,43 +106,50 @@ export default function Contact() {
           {
             flexDirection: isMobile ? "column" : "row",
             opacity: fadeAnim,
-            alignItems: isMobile ? "center" : "flex-start",
+            transform: [{ translateY: slideAnim }],
+            alignItems: isMobile ? "stretch" : "flex-start",
           },
         ]}
       >
-        {/* LEFT SIDE */}
         <View
           style={[
             styles.leftContent,
-            { alignItems: isMobile ? "center" : "flex-start" },
+            {
+              alignItems: isMobile ? "center" : "flex-start",
+              marginBottom: isMobile ? 40 : 0,
+              marginRight: isMobile ? 0 : 80,
+            },
           ]}
         >
+          <View style={styles.labelRow}>
+            <View style={styles.labelDash} />
+            <Text style={styles.labelTag}>CONTACT US</Text>
+          </View>
+
           <Text
             style={[
               styles.headingLight,
               {
-                fontSize: isMobile ? 32 : 44,
+                fontSize: isMobile ? 28 : 40,
                 textAlign: isMobile ? "center" : "left",
               },
             ]}
           >
-            Let’s
+            Let's
           </Text>
 
-          <View>
+          <View style={{ alignSelf: isMobile ? "center" : "flex-start" }}>
             <Text
               style={[
                 styles.headingBold,
                 {
-                  fontSize: isMobile ? 46 : 72,
-                  letterSpacing: isMobile ? 2 : 5,
+                  fontSize: isMobile ? 48 : 68,
                   textAlign: isMobile ? "center" : "left",
                 },
               ]}
             >
               CONNECT
             </Text>
-
             <Animated.View
               style={[
                 styles.underline,
@@ -127,92 +161,105 @@ export default function Contact() {
             />
           </View>
 
+          <View style={styles.divider} />
+
           <Text
             style={[
               styles.subText,
               { textAlign: isMobile ? "center" : "left" },
             ]}
           >
-            Have questions about verification, partnerships,
-            or protecting your craftsmanship?
+            Have questions about verification, partnerships, or protecting your
+            craftsmanship? We're here.
           </Text>
 
           <Text
             style={[
-              styles.subTextAccent,
+              styles.tagline,
               { textAlign: isMobile ? "center" : "left" },
             ]}
           >
             Honoring the craft. Protecting the creator.
           </Text>
 
-          <View style={{ marginTop: 30 }}>
-            <View
-              style={[
-                styles.infoRow,
-                { justifyContent: isMobile ? "center" : "flex-start" },
-              ]}
-            >
-              <Ionicons name="mail-outline" size={22} color="#4A70A9" />
-              <Text style={styles.infoText}>
-                verilocalphi@gmail.com
-              </Text>
-            </View>
-
-            <View
-              style={[
-                styles.infoRow,
-                { justifyContent: isMobile ? "center" : "flex-start" },
-              ]}
-            >
-              <Ionicons name="call-outline" size={22} color="#4A70A9" />
-              <Text style={styles.infoText}>
-                +63 956 095 5026
-              </Text>
-            </View>
+          <View style={[styles.infoList, isMobile && { alignItems: "center" }]}>
+            {contactInfo.map((item, i) => (
+              <Animated.View
+                key={i}
+                style={[
+                  styles.infoRow,
+                  {
+                    justifyContent: isMobile ? "center" : "flex-start",
+                    opacity: infoAnims[i],
+                    transform: [
+                      {
+                        translateX: infoAnims[i].interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [-14, 0],
+                        }),
+                      },
+                    ],
+                  },
+                ]}
+              >
+                <View style={styles.infoIconWrap}>
+                  <Ionicons name={item.icon} size={16} color={BLUE} />
+                </View>
+                <Text style={styles.infoText}>{item.value}</Text>
+              </Animated.View>
+            ))}
           </View>
         </View>
 
-        {/* RIGHT SIDE FORM */}
         <View
           style={[
             styles.contactCard,
             {
-              padding: isMobile ? 25 : 40,
-              marginTop: isMobile ? 40 : 0,
+              padding: isMobile ? 24 : 40,
+              marginHorizontal: isMobile ? 0 : 0,
             },
           ]}
         >
-          <Text style={styles.cardTitle}>
-            Send Us a Message
-          </Text>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>Send Us a Message</Text>
+            <Text style={styles.cardSubtitle}>We typically reply within 24 hours.</Text>
+          </View>
 
-          <TextInput
-            placeholder="Your Name"
-            placeholderTextColor="#777"
-            style={styles.input}
-          />
+          {fields.map((field, i) => (
+            <Animated.View
+              key={i}
+              style={{
+                opacity: fieldAnims[i],
+                transform: [
+                  {
+                    translateY: fieldAnims[i].interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [16, 0],
+                    }),
+                  },
+                ],
+              }}
+            >
+              <TextInput
+                placeholder={field.placeholder}
+                placeholderTextColor={TEXT_LIGHT}
+                multiline={field.multiline}
+                style={[
+                  styles.input,
+                  field.multiline && { height: 110, textAlignVertical: "top", paddingTop: 14 },
+                ]}
+              />
+            </Animated.View>
+          ))}
 
-          <TextInput
-            placeholder="Your Email"
-            placeholderTextColor="#777"
-            style={styles.input}
-          />
-
-          <TextInput
-            placeholder="Your Message"
-            placeholderTextColor="#777"
-            multiline
-            style={[
-              styles.input,
-              { height: 120, textAlignVertical: "top" },
+          <Pressable
+            style={({ pressed }) => [
+              styles.button,
+              pressed && { opacity: 0.88, transform: [{ scale: 0.985 }] },
             ]}
-          />
-
-          <Pressable style={styles.button}>
-            <Text style={styles.buttonText}>
-              Send Message
-            </Text>
+          >
+            <Text style={styles.buttonText}>Send Message</Text>
+            <Ionicons name="arrow-forward-outline" size={17} color={WHITE} style={{ marginLeft: 8 }} />
           </Pressable>
         </View>
       </Animated.View>
@@ -224,136 +271,215 @@ const styles = StyleSheet.create({
   section: {
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
+    paddingVertical: 80,
+    backgroundColor: BLUE_TINT,
     overflow: "hidden",
-    backgroundColor: "#eef3fb",
   },
 
-  backgroundBase: {
+  blobTopRight: {
     position: "absolute",
-    width: "100%",
-    height: "100%",
-    backgroundColor: "#eef3fb",
+    width: 460,
+    height: 460,
+    borderRadius: 230,
+    backgroundColor: BLUE,
+    opacity: 0.06,
+    top: -140,
+    right: -120,
   },
 
-  circleTop: {
+  blobBottomLeft: {
     position: "absolute",
-    backgroundColor: "#4A70A9",
-    opacity: 0.08,
-    borderRadius: 500,
-    top: -100,
+    width: 340,
+    height: 340,
+    borderRadius: 170,
+    backgroundColor: BLUE,
+    opacity: 0.05,
+    bottom: -100,
     left: -80,
   },
 
-  circleBottom: {
+  gridLines: {
     position: "absolute",
-    backgroundColor: "#4A70A9",
-    opacity: 0.06,
-    borderRadius: 500,
-    bottom: -80,
-    right: -60,
+    width: "100%",
+    height: "100%",
+    opacity: 0.025,
+    backgroundColor: "transparent",
   },
 
   container: {
     width: "100%",
     maxWidth: 1200,
-    gap: 60,
   },
 
   leftContent: {
     flex: 1,
   },
 
+  labelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+    gap: 8,
+  },
+
+  labelDash: {
+    width: 24,
+    height: 1.5,
+    backgroundColor: BLUE,
+    borderRadius: 2,
+  },
+
+  labelTag: {
+    fontSize: 11,
+    letterSpacing: 3,
+    textTransform: "uppercase",
+    color: BLUE,
+    fontFamily: "Montserrat-Bold",
+  },
+
   headingLight: {
     fontFamily: "Montserrat-Regular",
-    color: "#222",
+    color: SLATE,
+    lineHeight: 48,
   },
 
   headingBold: {
     fontFamily: "Montserrat-Black",
-    color: "#4A70A9",
+    color: BLUE,
+    lineHeight: 80,
+    letterSpacing: 3,
   },
 
   underline: {
-    height: 6,
-    backgroundColor: "#4A70A9",
-    marginTop: 8,
-    borderRadius: 6,
+    height: 4,
+    backgroundColor: BLUE,
+    marginTop: 4,
+    borderRadius: 4,
+    opacity: 0.6,
+  },
+
+  divider: {
+    width: 36,
+    height: 2,
+    backgroundColor: BLUE,
+    borderRadius: 2,
+    marginTop: 20,
+    marginBottom: 18,
+    opacity: 0.4,
   },
 
   subText: {
-    fontSize: 16,
-    lineHeight: 26,
+    fontSize: 15.5,
+    lineHeight: 27,
     fontFamily: "Garet-Book",
-    color: "#444",
-    marginTop: 20,
-    maxWidth: 500,
+    color: TEXT_MID,
+    maxWidth: 420,
   },
 
-  subTextAccent: {
-    fontSize: 16,
-    lineHeight: 26,
+  tagline: {
+    fontSize: 14,
     fontFamily: "Garet-Book",
-    color: "#4A70A9",
-    marginTop: 10,
+    color: BLUE,
+    marginTop: 12,
     fontWeight: "600",
+    letterSpacing: 0.3,
+    opacity: 0.85,
+  },
+
+  infoList: {
+    marginTop: 32,
+    gap: 14,
   },
 
   infoRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
+    gap: 12,
+  },
+
+  infoIconWrap: {
+    width: 34,
+    height: 34,
+    borderRadius: 9,
+    backgroundColor: "#dce8f8",
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   infoText: {
-    marginLeft: 10,
-    fontSize: 16,
+    fontSize: 14.5,
     fontFamily: "Garet-Book",
-    color: "#333",
+    color: SLATE,
+    letterSpacing: 0.1,
   },
 
   contactCard: {
     flex: 1,
-    backgroundColor: "#ffffff",
-    borderRadius: 24,
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 25,
-    shadowOffset: { width: 0, height: 15 },
+    backgroundColor: WHITE,
+    borderRadius: 22,
+    shadowColor: "#1a2340",
+    shadowOpacity: 0.09,
+    shadowRadius: 30,
+    shadowOffset: { width: 0, height: 12 },
     elevation: 10,
     maxWidth: 500,
     width: "100%",
+    alignSelf: "center",
+    borderWidth: 1,
+    borderColor: BORDER,
+  },
+
+  cardHeader: {
+    marginBottom: 28,
   },
 
   cardTitle: {
-    fontSize: 24,
+    fontSize: 22,
     fontFamily: "Montserrat-Bold",
-    color: "#4A70A9",
-    marginBottom: 20,
-    textAlign: "center",
+    color: SLATE,
+    marginBottom: 6,
+  },
+
+  cardSubtitle: {
+    fontSize: 13,
+    fontFamily: "Garet-Book",
+    color: TEXT_LIGHT,
+    letterSpacing: 0.2,
   },
 
   input: {
-    height: 55,
-    borderRadius: 12,
-    backgroundColor: "#f5f7fb",
+    height: 52,
+    borderRadius: 11,
+    backgroundColor: INPUT_BG,
     paddingHorizontal: 16,
-    marginBottom: 18,
-    fontSize: 16,
+    marginBottom: 14,
+    fontSize: 15,
     fontFamily: "Garet-Book",
+    color: SLATE,
+    borderWidth: 1,
+    borderColor: BORDER,
   },
 
   button: {
-    backgroundColor: "#4A70A9",
-    paddingVertical: 18,
-    borderRadius: 14,
+    backgroundColor: BLUE,
+    paddingVertical: 16,
+    borderRadius: 12,
     alignItems: "center",
-    marginTop: 10,
+    justifyContent: "center",
+    flexDirection: "row",
+    marginTop: 6,
+    shadowColor: BLUE,
+    shadowOpacity: 0.3,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 6,
   },
 
   buttonText: {
-    color: "#fff",
-    fontSize: 16,
+    color: WHITE,
+    fontSize: 15,
     fontFamily: "Montserrat-Bold",
+    letterSpacing: 0.4,
   },
 });
