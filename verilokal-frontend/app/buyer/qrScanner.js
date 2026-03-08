@@ -593,7 +593,7 @@ export default function ProductScanner() {
               {/* REGISTERED ARTISAN NAME*/}
               <View style={{flexDirection: "row", gap: 8, alignItems: "center", marginBottom: 10}}>
               {businessLogo && (
-              <Pressable onPress={() => router.push("/buyer/publicProfile")}>
+              <Pressable onPress={() => router.push(`/buyer/publicProfile?business_id=${productDetails.business_id}`)}>
               <Image
                 source={ businessLogo ? { uri: businessLogo } : require("../../assets/images/placeholder.png")}
                 style={{
