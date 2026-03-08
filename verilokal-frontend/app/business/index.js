@@ -7,6 +7,7 @@ import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Animated,
   Dimensions,
   Easing,
@@ -24,8 +25,6 @@ import {
 } from "react-native";
 import bgImage from "../../assets/bg1.jpg";
 
-const windowWidth = Dimensions.get("window").width;
-const isMobile = windowWidth < 768;
 
 export default function BusinessDashboard() {
 
@@ -62,8 +61,8 @@ export default function BusinessDashboard() {
   const [showProfileBtn, setShowProfileBtn] = useState(true);
 
   //Types and Materials
-  const [selectedTypes, setSelectedTypes] = useState("");
-  const [selectedMaterials, setSelectedMaterials] = useState("");
+  const [selectedTypes, setSelectedTypes] = useState([]);
+  const [selectedMaterials, setSelectedMaterials] = useState([]);
 
   //Delete Confirmation
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -99,6 +98,10 @@ export default function BusinessDashboard() {
   const [showFilter, setShowFilter] = useState(false);
   const [filterPos, setFilterPos] = useState({ x: 0, y: 0, width: 0 });
 
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [dateType, setDateType] = useState(null);
+
+
   const onHoverIn = () => {
     Animated.spring(hoverAnimReport, {
       toValue: 1,
@@ -124,6 +127,16 @@ export default function BusinessDashboard() {
       useNativeDriver: true,
     }).start();
   };
+
+
+  const [windowWidth, setWindowWidth] = useState(Dimensions.get("window").width);
+  useEffect(() => {
+    const subscription = Dimensions.addEventListener("change", ({ window }) => {
+      setWindowWidth(window.width);
+    }); 
+    return () => subscription?.remove();
+  }, []);
+  const isMobile = windowWidth < 768;
 
 
   //FILTER AND CATEGORIZATION:
@@ -167,7 +180,8 @@ export default function BusinessDashboard() {
 
     if(dateType === "start") {
       if (editForm.productionEndDate && selectedDate > new Date(editForm.productionEndDate)) {
-        handleInputChange
+        Alert.alert("Invalid Date", "Start date cannot be later than the end date.");
+        return;
       }
       handleInputChange("productionStartDate", selectedDate);
     } else if (dateType === "end") {
@@ -735,9 +749,10 @@ export default function BusinessDashboard() {
   const scrollRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const isProgrammaticScroll = useRef(false);
-
-  const IMAGE_SIZE = isMobile ? 270 : 350;
-  const ITEM_WIDTH = IMAGE_SIZE + 10; 
+  
+  const CARD_WIDTH = isMobile ? 300 : 350;
+  const CARD_MARGIN = 10;
+  const ITEM_WIDTH = CARD_WIDTH + CARD_MARGIN; 
 
   {/* Register Button Hover Animations */}
   const [hoverRegister, setHoverRegister] = useState(false);
@@ -862,14 +877,13 @@ export default function BusinessDashboard() {
             marginBottom: 15,
           }}
         >
-        {/* New Code */}
         <View 
           style={{
             flexDirection: "row",
             alignItems: isMobile ? "flex-start" :"center",
             gap: 10,
             width: isMobile ? "100%" : "70%",
-            position: isMobile ? "flex-start" : "relative",
+            position: "relative",
           }}>
           <TextInput
             placeholder="Search products..."
@@ -1091,7 +1105,7 @@ export default function BusinessDashboard() {
               padding: 15,
               borderRadius: 16,
               width: "90%",
-              maxWidth: 450,
+              maxWidth: 400,
               elevation: 5,
               maxHeight: "85%",
             }}
@@ -1121,24 +1135,49 @@ export default function BusinessDashboard() {
               <>
                 {selectedProduct?.product_image && (
                   <View
-                  style={{
-                    width: "100%",
-                    aspectRatio: 1.6,
-                    height: isMobile ? 200 : 250,
-                    borderRadius: 16,
-                    overflow: "hidden",
-                    backgroundColor: "#f2f2f2",
-                    marginBottom: 15,
-                  }}
-                  >
-                  <Image
-                    source={{ uri: selectedProduct.product_image }}
                     style={{
                       width: "100%",
-                      height: "100%",
-                      resizeMode: "cover",
+                      height: 220,
+                      borderRadius: 16,
+                      overflow: "hidden",
+                      backgroundColor: "#f2f2f2",
+                      marginBottom: 15,
                     }}
-                  />
+                  >
+                    <Image 
+                      source={{ uri: selectedProduct.product_image }}
+                      blurRadius={25}
+                      style={{ position: "absolute", width: "100%", height: "100%", resizeMode: "cover", transform: [{ scale: 1.2 }], }}
+                    />
+                    <Image
+                      source={{ uri: selectedProduct.product_image }}
+                      style={{ width: "100%", height: "100%", resizeMode: "contain" }}
+                    />
+
+                    <View
+                      style={{
+                        position: "absolute",
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        paddingHorizontal: 14,
+                        paddingVertical: 10,
+                        backgroundColor: "rgba(0,0,0,0.45)",
+                        borderBottomLeftRadius: 16,
+                        borderBottomRightRadius: 16,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color: "#fff",
+                          fontSize: 20,
+                          fontFamily: "Montserrat-Bold",
+                        }}
+                        numberOfLines={1}
+                      >
+                        {selectedProduct.name}
+                      </Text>
+                    </View>
                   </View>
                 )}
 
@@ -1147,9 +1186,9 @@ export default function BusinessDashboard() {
                   contentContainerStyle={{ paddingBottom: 20 }}
                   showsVerticalScrollIndicator={false}
                 >
-                  <Text style={{ fontSize: 24, fontFamily: "Montserrat-Bold", marginBottom: 6, }}>
-                    {selectedProduct.name}
-                    <View style={{ flexDirection: isMobile ? "column" : "row", gap: 3, position: "absolute", right: 0, top: 0, }}>
+
+
+                  <View style={{ flexDirection: "row", gap: 3, position: "absolute", left: 0, top: 0 }}>
                       <View style={{position: "auto", }}>
                         {/* EDIT PRODUCT BUTTON */}
                         <Pressable
@@ -1195,7 +1234,6 @@ export default function BusinessDashboard() {
                         </Pressable>
                       </View>
                     </View>
-                  </Text>
 
                   {/* Delete Modal */}
                   <Modal transparent visible={showDeleteModal} animationType="fade">
@@ -1268,7 +1306,7 @@ export default function BusinessDashboard() {
                   </Modal>
 
 
-                  <View style={{ marginBottom: 12 }}>
+                  <View style={{ marginBottom: 12, marginTop: 50, backgroundColor: "#f4f4f4", padding: 13, borderRadius: 12, borderWidth: 1, borderColor: "#d9d9d9",}}>
                     <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 14 }}>
                       <Text style={{ fontWeight: "600" }}>Type:</Text> {selectedProduct.type}
                     </Text>
@@ -1403,11 +1441,11 @@ export default function BusinessDashboard() {
                           horizontal
                           showsHorizontalScrollIndicator={false}
                           snapToInterval={ITEM_WIDTH}
-                          snapToAlignment="center"
+                          pagingEnabled={false}
+                          snapToAlignment="start"
+                          disableIntervalMomentum={true}
                           decelerationRate="fast"
-                          contentContainerStyle={{
-                            paddingHorizontal: (ITEM_WIDTH / 2) - (IMAGE_SIZE / 2),
-                          }}
+                          contentContainerStyle={{ paddingRight: CARD_MARGIN }}
                           onScroll={(e) => {
                             if (isProgrammaticScroll.current) return;
 
@@ -1426,20 +1464,25 @@ export default function BusinessDashboard() {
                             <View
                               key={index}
                               style={{
-                                width: IMAGE_SIZE,
-                                height: IMAGE_SIZE,
-                                marginHorizontal: 5,
+                                width: CARD_WIDTH,
+                                height: isMobile ? 310 : 300,
+                                marginRight: CARD_MARGIN,
                                 borderRadius: 16,
                                 overflow: "hidden",
                                 backgroundColor: "#f2f2f2",
                               }}
                             >
+                              <Image 
+                                source={{ uri: img }}
+                                blurRadius={25}
+                                style={{ position: "absolute", width: "100%", height: "100%", resizeMode: "cover", transform: [{ scale: 1.2 }], }}
+                              />  
                               <Image
                                 source={{ uri: img }}
                                 style={{
                                   width: "100%",
                                   height: "100%",
-                                  resizeMode: "cover",
+                                  resizeMode: "contain",
                                 }}
                               />
                             </View>
@@ -1485,7 +1528,7 @@ export default function BusinessDashboard() {
                   >
                     <View 
                       style={{
-                        flexDirection: isMobile ? "column" : "row", gap: 3, position: "absolute", right: 5, top: 5,
+                        gap: 3, position: "absolute", right: 5, top: 5,
                       }}
                     >
                       <Pressable
@@ -1613,11 +1656,14 @@ export default function BusinessDashboard() {
               borderRadius: 16,
               width: "90%",
               maxWidth: 420,
+              maxHeight: "90%",
             }}
           >
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 20 }} keyboardShouldPersistTaps="handled">
             <Text style={{ fontSize: 18, fontWeight: "700", marginBottom: 12, fontFamily: 'Montserrat-Bold' }}>
               Edit Product
             </Text>
+            </ScrollView>
 
             <View style={{marginBottom: 7 }}>
               <Text style={{fontWeight: "600", marginTop: 0, marginBottom: 4, fontSize: 13, fontFamily: 'Montserrat-Regular',}}>Product Name*</Text>
@@ -1714,7 +1760,7 @@ export default function BusinessDashboard() {
                         return;
                       }
                       setEditForm({...editForm, productionEndDate: selectedEnd });
-                    }}s
+                    }}
                     style={{borderWidth: 1, borderColor: "#ccc", padding: 8, borderRadius: 8, backgroundColor: "#fafafa", width: "95%",fontFamily: "Montserrat-Regular", fontSize: 13}}
                   />
                 </>
