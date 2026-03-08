@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import { useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
@@ -16,6 +16,8 @@ import {
 export default function PublicProfile() {
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
+
+  const {business_id}= useLocalSearchParams();
 
   const [activePanel, setActivePanel] = useState(null);
   const togglePanel = (panel) => {
@@ -74,22 +76,20 @@ export default function PublicProfile() {
   useEffect(() => {
         const fetchBusinessProfile = async () => {
           try {
-            const token = await AsyncStorage.getItem("token");
-  
+            setIsLoading(true);
+            
             const res = await axios.get(
-              "https://verilocalph.onrender.com/api/business/profile",
-              {
-                headers: { Authorization: `Bearer ${token}` },
-              }
+                `https://verilocalph.onrender.com/api/business/public/${business_id}`,
             );
-  
             setBusiness(res.data);
           } catch (err) {
             console.error("Failed to load business profile:", err);
+          } finally {
+            setIsLoading(false);
           }
         };
-        fetchBusinessProfile();
-      }, []);
+        if (business_id) fetchBusinessProfile();
+      }, [business_id]);
 
   let certificatesArray = [];
   try {
@@ -238,7 +238,7 @@ export default function PublicProfile() {
                     <View style={styles.imageWrapper}>
                       <Pressable onPress={() => openPreview(business.permit)}>
                         <Image
-                          source={business.permit}
+                          source={{uri: business.permit}}
                           style={[
                             styles.dropdownImage,
                             isMobile && { width: width - 40, height: 220 },
@@ -333,7 +333,7 @@ export default function PublicProfile() {
         <View style={styles.loadingOverlay}>
             <View style={styles.loadingBox}>
                 <ActivityIndicator size="large" color="#5177b0" />
-                <Text style={{ marginTop: 10 }}>Submitting Business...</Text>
+                <Text style={{ marginTop: 10 }}>Loading Business Profile.....</Text>
             </View>
         </View>
     )}
