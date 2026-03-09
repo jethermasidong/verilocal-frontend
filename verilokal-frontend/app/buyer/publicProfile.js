@@ -174,10 +174,6 @@ export default function PublicProfile() {
           {/* Left */}
           <View style={styles.left}>
             <DetailItem
-              icon="location-outline"
-              value={business.address}
-            />
-            <DetailItem
               icon="call-outline"
               value={business.contact_no}
             />

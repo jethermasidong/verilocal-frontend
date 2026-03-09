@@ -1659,7 +1659,7 @@ export default function BusinessDashboard() {
               maxHeight: "90%",
             }}
           >
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ alignItems: "center", paddingVertical: 5, paddingHorizontal: 5, borderColor: "#486d8f", borderWidth: 1, borderRadius: 10, borderStyle: "dotted" }} keyboardShouldPersistTaps="handled">
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ alignItems: "center", paddingVertical: 3, paddingHorizontal: 5, borderColor: "#486d8f", borderWidth: 1, borderRadius: 10, borderStyle: "dotted" }} keyboardShouldPersistTaps="handled">
             <Text style={{ fontSize: 18, fontWeight: "700", marginBottom: 0, marginTop: 0, fontFamily: 'Montserrat-Bold', includeFontPadding: false, }}>
               Edit Product
             </Text>

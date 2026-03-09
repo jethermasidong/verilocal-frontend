@@ -260,6 +260,21 @@ export default function BusinessProfile() {
               editable={isEditing}
               onChangeText={(text) => handleChange("email", text)}
             />
+            <DetailItem
+              icon="link-outline"
+              value={business.social_link}
+              editable={isEditing}
+              placeholder="(Facebook, Instagram, Official Business Website)"
+              onChangeText={(text) => handleChange("social_link", text)}
+            />
+            <DetailItem
+              icon="information-outline"
+              value={business.description}
+              editable={isEditing}
+              multiline={true}
+              placeholder="Describe what your business do."
+              onChangeText={(text) => handleChange("description", text)}
+            />
           </View>
 
           {!isMobile && <View style={styles.divider} />}
@@ -464,7 +479,7 @@ export default function BusinessProfile() {
 
 
 
-function DetailItem({ icon, value, placeholder, editable, onChangeText, keyboardType, maxLength}) {
+function DetailItem({ icon, value, placeholder, editable, onChangeText, keyboardType, maxLength, multiline}) {
   return (
     <View style={styles.detailRow}>
       <Ionicons name={icon} size={22} />
@@ -472,11 +487,12 @@ function DetailItem({ icon, value, placeholder, editable, onChangeText, keyboard
         value={value || ""}
         placeholder={placeholder}
         editable={editable}
+        multiline={multiline}
         maxLength={maxLength}
         onChangeText={(t) =>
           onChangeText(keyboardType === "numeric" ? t.replace(/[^0-9]/g, "") : t)
         }
-        style={[styles.input, editable && styles.inputEditable]}
+        style={[styles.input, editable && styles.inputEditable, multiline && styles.textArea]}
       />
     </View>
   );
@@ -530,6 +546,11 @@ const styles = StyleSheet.create({
     borderWidth: 4,
     borderColor: "#fff",
     backgroundColor: "#eee",
+  },
+
+  textArea: {
+    minHeight: 120,
+    textAlignVertical: "top",
   },
 
   previewText: {  
@@ -625,7 +646,7 @@ const styles = StyleSheet.create({
 
   detailRow: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     gap: 14,
   },
 
@@ -639,6 +660,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat-Regular',
     borderWidth: 1,
     borderColor: "#d1d5db",
+    textAlignVertical: "top",
   },
 
   inputEditable: {
