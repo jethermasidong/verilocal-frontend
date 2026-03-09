@@ -59,6 +59,9 @@ export default function RegisterProduct() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // PRODUCT REGISTRATION INSTRUCTIONS MODAL
+  const [showRegistrationInstruction, setShowRegistrationInstruction] = useState(false);
+
   // RESULT MODAL STATE
   const [resultVisible, setResultVisible] = useState(false);
   const [resultType, setResultType] = useState(null);
@@ -103,6 +106,31 @@ export default function RegisterProduct() {
     }
   };
 
+  //PRODUCT REGISTRATION INSTRUCTIONS MODAL
+  const handleConfirmConsent = async () => {
+    try {
+      await AsyncStorage.setItem("product_consent_given", "true");
+      setShowRegistrationInstruction(false);
+    } catch (error) {
+      console.log("Error saving consent:", error);
+    }
+  };
+
+  useEffect(() => {
+    checkConsent();
+  }, []);
+
+  const checkConsent = async () => {
+    try {
+      const consent = await AsyncStorage.getItem("product_consent_given");
+
+      if (!consent) {
+        setShowRegistrationInstruction(true);
+      }
+    } catch (error) {
+      console.log("Error checking consent:", error);
+    }
+  };
 
   //IMAGE SIZE LIMIT
   const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -962,6 +990,146 @@ export default function RegisterProduct() {
             </View>
           </View>
       )}
+      {/* Product Registration Instructions Modal */}
+        {showRegistrationInstruction && (
+          <View style={{
+            position: "absolute",
+            top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            justifyContent: isMobile ? "flex-end" : "center",
+            alignItems: "center",
+            padding: 20,
+            position: "absolute",
+          }}>
+            <View style={{
+              backgroundColor: "#fff",
+              padding: 30,
+              borderRadius: 16,
+              width: "100%",
+              maxWidth: 650,
+              minHeight: 250,
+              justifyContent: "space-between",
+            }}>
+              <Text style={{ fontFamily: "Montserrat-Bold", fontSize: 14, marginBottom: 5, fontWeight: "500" }}>
+                Product Registration Guide
+              </Text>
+
+              <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 12, marginBottom: 20, fontWeight: "300" }}>
+                Follow these steps to register your product:
+              </Text>
+
+              {/* 1 */}
+              <Text style={{ fontFamily: "Montserrat-Bold", fontSize: 12, marginBottom: 5, fontWeight: "500" }}>
+                1. Enter Product Details
+              </Text>
+
+              <View style={{ flexDirection: "row", marginBottom: 4 }}>
+                <Text style={{ marginRight: 6 }}>•</Text>
+                <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 12 }}>
+                  <Text style={{ fontFamily: "Montserrat-Bold" }}>Product Name</Text> – Name of your product
+                </Text>
+              </View>
+
+              <View style={{ flexDirection: "row", marginBottom: 4 }}>
+                <Text style={{ marginRight: 6 }}>•</Text>
+                <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 12 }}>
+                  <Text style={{ fontFamily: "Montserrat-Bold" }}>Type of Product</Text> – Select the product category
+                </Text>
+              </View>
+
+              <View style={{ flexDirection: "row", marginBottom: 16 }}>
+                <Text style={{ marginRight: 6 }}>•</Text>
+                <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 12 }}>
+                  <Text style={{ fontFamily: "Montserrat-Bold" }}>Origin</Text> – Place where the product was made
+                </Text>
+              </View>
+
+              {/* 2 */}
+              <Text style={{ fontFamily: "Montserrat-Bold", fontSize: 12, marginBottom: 5, fontWeight: "500" }}>
+                2. Set Production Dates
+              </Text>
+
+              <View style={{ flexDirection: "row", marginBottom: 16 }}>
+                <Text style={{ marginRight: 6 }}>•</Text>
+                <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 12 }}>
+                  Select the <Text style={{ fontFamily: "Montserrat-Bold" }}>start date</Text> and{" "}
+                  <Text style={{ fontFamily: "Montserrat-Bold" }}>end date</Text> of the product’s creation.
+                </Text>
+              </View>
+
+              {/* 3 */}
+              <Text style={{ fontFamily: "Montserrat-Bold", fontSize: 12, marginBottom: 5, fontWeight: "500" }}>
+                3. Add a Description
+              </Text>
+
+              <View style={{ flexDirection: "row", marginBottom: 16 }}>
+                <Text style={{ marginRight: 6 }}>•</Text>
+                <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 12 }}>
+                  Write a short explanation about the product, including materials or crafting process.
+                </Text>
+              </View>
+
+              {/* 4 */}
+              <Text style={{ fontFamily: "Montserrat-Bold", fontSize: 12, marginBottom: 5, fontWeight: "500" }}>
+                4. Upload Images
+              </Text>
+
+              <View style={{ flexDirection: "row", marginBottom: 4 }}>
+                <Text style={{ marginRight: 6 }}>•</Text>
+                <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 12 }}>
+                  <Text style={{ fontFamily: "Montserrat-Bold" }}>Product Image</Text> – Upload{" "}
+                  <Text style={{ fontFamily: "Montserrat-Bold" }}>1 photo</Text> of the finished product.
+                </Text>
+              </View>
+
+              <View style={{ flexDirection: "row", marginBottom: 16 }}>
+                <Text style={{ marginRight: 6 }}>•</Text>
+                <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 12 }}>
+                  <Text style={{ fontFamily: "Montserrat-Bold" }}>Process Images</Text> – Upload{" "}
+                  <Text style={{ fontFamily: "Montserrat-Bold" }}>up to 5 photos</Text> showing how the product is made.
+                </Text>
+              </View>
+
+              {/* 5 */}
+              <Text style={{ fontFamily: "Montserrat-Bold", fontSize: 12, marginBottom: 5, fontWeight: "500" }}>
+                5. Submit
+              </Text>
+
+              <View style={{ flexDirection: "row", marginBottom: 16 }}>
+                <Text style={{ marginRight: 6 }}>•</Text>
+                <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 12 }}>
+                  Review your information and click <Text style={{ fontFamily: "Montserrat-Bold" }}>Submit</Text> to register your product.
+                </Text>
+              </View>
+
+              <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 12, fontStyle: "italic", marginBottom: 10 }}>
+                Tip: Use clear descriptions and photos to better showcase your product.
+              </Text>
+              <View style={{ marginTop: "auto", paddingTop: 20}}>
+                <Pressable
+                  onPress={handleConfirmConsent}
+                  style={{
+                    backgroundColor: "#4A70A9",
+                    paddingVertical: 10,
+                    borderRadius: 10,
+                    alignItems: "center",
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 13,
+                      fontFamily: "Montserrat-Regular",
+                      fontWeight: "700",
+                      color: "#fff",
+                    }}
+                  >
+                    OK
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        )}
     </Animated.View>
   );
 }
