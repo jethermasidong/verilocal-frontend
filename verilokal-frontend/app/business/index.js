@@ -1659,14 +1659,14 @@ export default function BusinessDashboard() {
               maxHeight: "90%",
             }}
           >
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 20 }} keyboardShouldPersistTaps="handled">
-            <Text style={{ fontSize: 18, fontWeight: "700", marginBottom: 12, fontFamily: 'Montserrat-Bold' }}>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ alignItems: "center", paddingVertical: 5, paddingHorizontal: 5, borderColor: "#486d8f", borderWidth: 1, borderRadius: 10, borderStyle: "dotted" }} keyboardShouldPersistTaps="handled">
+            <Text style={{ fontSize: 18, fontWeight: "700", marginBottom: 0, marginTop: 0, fontFamily: 'Montserrat-Bold', includeFontPadding: false, }}>
               Edit Product
             </Text>
             </ScrollView>
 
             <View style={{marginBottom: 7 }}>
-              <Text style={{fontWeight: "600", marginTop: 0, marginBottom: 4, fontSize: 13, fontFamily: 'Montserrat-Regular',}}>Product Name*</Text>
+              <Text style={{fontWeight: "600", marginTop: -10, marginBottom: 4, fontSize: 13, fontFamily: 'Montserrat-Regular',}}>Product Name*</Text>
               <TextInput
                 placeholder="Product Name"
                 value={editForm.name}
@@ -1825,7 +1825,7 @@ export default function BusinessDashboard() {
               </View>
             )}                    
             
-            <View style={{marginBottom: 7 }}>
+            <View style={{marginBottom: 5 }}>
               <Text style={{fontWeight: "600", marginTop: 0, marginBottom: 4, fontSize: 13, fontFamily: 'Montserrat-Regular',}}>Description*</Text>
               <TextInput
                 placeholder="Description"
@@ -1834,11 +1834,11 @@ export default function BusinessDashboard() {
                 onChangeText={(t) =>
                   setEditForm({ ...editForm, description: t })
                 }
-                style={{ borderWidth: 1, borderColor: "#ccc", padding: 8, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 14, height: 220,}}
+                style={{ borderWidth: 1, borderColor: "#ccc", padding: 8, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 14, height: 180,}}
               />
             </View>
 
-            <View style={{ flex: 1 , flexDirection: "row", alignSelf: "flex-end", gap: 8, }}>
+            <View style={{ flex: 1 , flexDirection: "row", alignSelf: "flex-end", gap: 8, padding: 5 }}>
               <Pressable
                 onPress={() => {
                   if (selectedProduct?.id) {
@@ -1849,10 +1849,12 @@ export default function BusinessDashboard() {
                 }}
                 style={{
                   backgroundColor: "#4A70A9",
-                  paddingVertical: 10,
-                  borderRadius: 8,
+                  paddingVertical: 20,
+                  borderRadius: 10,
                   padding: 10,
-                  minWidth: 70,
+                  minWidth: 90,
+                  justifyContent: 'center',
+                  alignItems: 'center',
                 }}
               >
                 <Text style={{ color: "#fff", textAlign: "center", fontWeight: "600", fontFamily: 'Montserrat-Regular'}}>
@@ -1863,10 +1865,12 @@ export default function BusinessDashboard() {
               <Pressable
                 style={{
                   backgroundColor: "#000",
-                  paddingVertical: 10,
-                  borderRadius: 8,
+                  paddingVertical: 20,
+                  borderRadius: 10,
                   padding: 10,
-                  minWidth: 70,
+                  minWidth: 90,
+                  justifyContent: 'center',
+                  alignItems: 'center',
                 }}
                 onPress={() => setEditModalVisible(false)}
               >
