@@ -198,25 +198,51 @@ export default function BusinessProfile() {
             ]}
           >
             <Text style={[styles.name, isMobile && {fontSize: 20}]}>{business.registered_business_name}</Text>
-            <Text style={[styles.location, isMobile && {fontSize: 14}]}>{business.address}</Text>
+            <Text style={[styles.location, isMobile && {fontSize: 14, textAlign: isMobile ?"center" : "left"}]}>{business.address}</Text>
           </View>
 
-          <Pressable
-            style={[styles.editButton, isEditing && styles.saveButton, isMobile && { marginTop: 16, paddingVertical: 8, paddingHorizontal: 12 },]}
-            onPress={() => {
-                if (isEditing) handleSave();
-                else setIsEditing(true);
-            }}
-          >
-            <Ionicons
-              name={isEditing ? "checkmark" : "pencil"}
-              size={isMobile ? 14 : 18}
-              color="#fff"
-            />
-            <Text style={[styles.editText, isMobile && { fontSize: 12, verticalAlign: "center" }]}>
-              {isEditing ? "Save" : "Edit Profile"}
-            </Text>
-          </Pressable>
+          <View style={{ flexDirection: "row", gap: 10 }}>
+
+            {isEditing ? (
+              <>
+                <Pressable
+                  style={[
+                    styles.editButton,
+                    styles.saveButton,
+                    isMobile && { marginTop: 16, paddingVertical: 8, paddingHorizontal: 12 },
+                  ]}
+                  onPress={handleSave}
+                >
+                  <Ionicons name="checkmark" size={isMobile ? 14 : 18} color="#fff" />  
+                  <Text style={styles.editText}>Save</Text>
+                </Pressable>
+
+                <Pressable
+                  style={[
+                    styles.editButton,
+                    styles.cancelButton,
+                    isMobile && { marginTop: 16, paddingVertical: 8, paddingHorizontal: 12 },
+                  ]}
+                  onPress={() => setIsEditing(false)}
+                >
+                  <Ionicons name="close" size={isMobile ? 14 : 18} color="#fff" />
+                  <Text style={styles.editText}>Cancel</Text>
+                </Pressable>
+              </>
+            ) : (
+              <Pressable
+                style={[
+                  styles.editButton,
+                  isMobile && { marginTop: 16, paddingVertical: 8, paddingHorizontal: 12 },
+                ]}
+                onPress={() => setIsEditing(true)}
+              >
+                <Ionicons name="pencil" size={isMobile ? 14 : 18} color="#fff" />
+                <Text style={styles.editText}>Edit Profile</Text>
+              </Pressable>
+            )}
+
+          </View>
         </View>
 
         {/* Body */}
@@ -226,11 +252,12 @@ export default function BusinessProfile() {
             isMobile && {
               flexDirection: "column",
               padding: 20,
+              marginBottom: 60,
             },
           ]}
         >
           {/* Left */}
-          <View style={styles.left}>
+          <View style={[styles.left, isMobile && { marginBottom: 10, gap : 16 }]}>
             <DetailItem
               icon="location-outline"
               value={business.address}
@@ -289,7 +316,7 @@ export default function BusinessProfile() {
               },
             ]}
           >
-            <View style={[styles.iconRow, isMobile && { marginTop: -50 }]}>
+            <View style={[styles.iconRow, isMobile && { marginTop: 15 }]}>
               <IconButton
                 icon="images-outline"
                 label="Certificates"
@@ -315,7 +342,8 @@ export default function BusinessProfile() {
                   styles.dropdown,
                   dropdownStyle,
                   isMobile && {
-                    position: "relative",
+                    position: "absolute",
+                    marginTop: 110,
                   },
                 ]}
               >
@@ -347,11 +375,12 @@ export default function BusinessProfile() {
                   styles.dropdown,
                   dropdownStyle,
                   isMobile && {
-                    position: "relative",
+                    position: "absolute",
+                    marginTop: 110,
                   },
                 ]}
               >
-              <View style={{position: "relative"}}>
+              <View style={{position: "relative",}}>
                 <ScrollView
                   horizontal
                   pagingEnabled
@@ -363,13 +392,13 @@ export default function BusinessProfile() {
                   }}
                 >
                     {certificatesArray.map((cert, index) => (
-                      <View key={index} style={styles.imageWrapper}>
+                      <View key={index} style={[styles.imageWrapper, isMobile && {height: 190}]}>
                         <Pressable onPress={() => openPreview(cert)}>
                           <Image
                             source={{ uri: cert }}
                             style={[
                               styles.dropdownImage,
-                              isMobile && { width: width - 40, height: 220 },
+                              isMobile && { width: width - 50, height: 220 },
                             ]}
                           />
                         </Pressable>
@@ -387,23 +416,27 @@ export default function BusinessProfile() {
                       />  
                     ))}
                   </View>
-                   <Pressable
-                      style={styles.arrowLeft}
-                      onPress={() =>
-                        scrollCarousel("certificates", "left", certificatesArray.length)
-                      }
-                    >
-                      <Ionicons name="chevron-back" size={24} color="#fff" />
-                    </Pressable>
+                    {!isMobile && (
+                      <>
+                        <Pressable
+                          style={styles.arrowLeft}
+                          onPress={() =>
+                            scrollCarousel("certificates", "left", certificatesArray.length)
+                          }
+                        >
+                          <Ionicons name="chevron-back" size={24} color="#fff" />
+                        </Pressable>
 
-                    <Pressable
-                      style={styles.arrowRight}
-                      onPress={() =>
-                        scrollCarousel("certificates", "right", certificatesArray.length)
-                      }
-                    >
-                      <Ionicons name="chevron-forward" size={24} color="#fff" />
-                    </Pressable>
+                        <Pressable
+                          style={styles.arrowRight}
+                          onPress={() =>
+                            scrollCarousel("certificates", "right", certificatesArray.length)
+                          }
+                        >
+                          <Ionicons name="chevron-forward" size={24} color="#fff" />
+                        </Pressable>
+                      </>
+                    )}
                   </View>
               </Animated.View>
             )}
@@ -441,7 +474,7 @@ export default function BusinessProfile() {
             />
 
             {/* CLOSE BUTTON */}
-            <View style={{position: "absolute", top: 0, right: 200, zIndex: 10,}}>
+            <View style={{position: "absolute", top: isMobile ? 330 : 0, right: isMobile ? 0 : 100, zIndex: 10,}}>
               <Pressable
                 onHoverIn={() => setHoverClose(true)}
                 onHoverOut={() => setHoverClose(false)}
@@ -468,7 +501,7 @@ export default function BusinessProfile() {
         <View style={styles.loadingOverlay}>
             <View style={styles.loadingBox}>
                 <ActivityIndicator size="large" color="#5177b0" />
-                <Text style={{ marginTop: 10 }}>Submitting Business...</Text>
+                <Text style={{ marginTop: 10 }}>Saving Profile...</Text>
             </View>
         </View>
     )}
@@ -616,6 +649,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#16a34a",
   },
 
+  cancelButton: {
+    backgroundColor: "#ef4444",
+  },
+
   editText: {
     color: "#fff",
     fontSize: 14,
@@ -627,6 +664,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     padding: 32,
     gap: 24,
+    marginBottom: 40,
   },
 
   left: {
