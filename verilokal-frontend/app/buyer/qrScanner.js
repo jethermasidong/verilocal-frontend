@@ -314,6 +314,8 @@ export default function ProductScanner() {
           setResultVisible(false);
           if (onSuccessDone) onSuccessDone();
         }, 3000);
+      } else {
+          showResult("error", res.data.message || "Product QR not Verified!");
       }
     };
 
@@ -510,6 +512,13 @@ export default function ProductScanner() {
         </Text>
       </Pressable> 
       </View>
+
+      {/* Add this above the Button View */}
+      {error && (
+        <Text style={{ color: "red", marginBottom: 10, textAlign: "center", fontFamily: "Montserrat-Regular" }}>
+          {error}
+        </Text>
+      )}
            
       
 
