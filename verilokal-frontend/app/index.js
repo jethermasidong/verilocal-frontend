@@ -115,8 +115,8 @@ export default function Home() {
                   alignItems: isMobile ? "center" : "flex-start",
                   maxWidth: isMobile ? "100%" : 540,
                   flex: isMobile ? undefined : 1,
-                  marginLeft: isMobile ? 20 : 0,
-
+                  marginLeft: isMobile ? 20 : 100,
+                  marginBottom: isMobile ? 0 : 100,
                 },
               ]}
             >
@@ -254,17 +254,17 @@ export default function Home() {
                   <Image source={craftGif} style={styles.gif} resizeMode="contain" />
                 </View>
 
-                <View style={[styles.pill, { top: 24, right: -18 }]}>
+                <View style={[styles.pill, { top: 84, right: 56 }]}>
                   <View style={styles.greenDot} />
                   <Text style={styles.pillText}>Verified</Text>
                 </View>
 
-                <View style={[styles.pill, { bottom: 28, left: -18 }]}>
+                <View style={[styles.pill, { bottom: 60, left: 60 }]}>
                   <Text style={{ fontSize: 13 }}>🇵🇭</Text>
                   <Text style={styles.pillText}>Filipino Made</Text>
                 </View>
 
-                <View style={[styles.pill, styles.pillSmall, { top: 72, left: -14 }]}>
+                <View style={[styles.pill, styles.pillSmall, { top: 72, left: 60 }]}>
                   <View style={styles.blueDot} />
                   <Text style={styles.pillTextSmall}>Blockchain</Text>
                 </View>
@@ -394,8 +394,8 @@ const styles = StyleSheet.create({
 
 
   showcase: {
-    width: 460,
-    height: 460,
+    width: 760,
+    height: 760,
     alignItems: "center",
     justifyContent: "center",
     marginLeft: 36,
@@ -407,9 +407,9 @@ const styles = StyleSheet.create({
 
   glowBlob: {
     position: "absolute",
-    width: 420,
-    height: 420,
-    borderRadius: 210,
+    width: 670,
+    height: 670,
+    borderRadius: 250,
     backgroundColor: "#3b5bdb",
     opacity: 0.07,
     shadowColor: "#3b5bdb",
@@ -420,8 +420,8 @@ const styles = StyleSheet.create({
 
   orbitDash: {
     position: "absolute",
-    width: 390,
-    height: 390,
+    width: 590,
+    height: 590,
     borderRadius: 195,
     borderWidth: 1,
     borderStyle: "dashed",
@@ -431,8 +431,8 @@ const styles = StyleSheet.create({
 
   ringCrisp: {
     position: "absolute",
-    width: 350,
-    height: 350,
+    width: 550,
+    height: 550,
     borderRadius: 175,
     borderWidth: 1,
     borderColor: "rgba(59,91,219,0.09)",
@@ -441,8 +441,8 @@ const styles = StyleSheet.create({
 
   tiltCard: {
     position: "absolute",
-    width: 320,
-    height: 320,
+    width: 450,
+    height: 450,
     borderRadius: 30,
     backgroundColor: "#eef2ff",
     transform: [{ rotate: "-8deg" }],
@@ -451,8 +451,8 @@ const styles = StyleSheet.create({
 
   tiltCard2: {
     position: "absolute",
-    width: 320,
-    height: 320,
+    width: 450,
+    height: 450,
     borderRadius: 28,
     backgroundColor: "#f5f7ff",
     transform: [{ rotate: "4deg" }],
@@ -462,8 +462,8 @@ const styles = StyleSheet.create({
   },
 
   mainCard: {
-    width: 320,
-    height: 320,
+    width: 450,
+    height: 450,
     borderRadius: 26,
     backgroundColor: "#ffffff",
     borderWidth: 1,
@@ -488,8 +488,8 @@ const styles = StyleSheet.create({
   },
 
   gif: {
-    width: 280,
-    height: 280,
+    width: 400,
+    height: 400,
     zIndex: 2,
   },
 
