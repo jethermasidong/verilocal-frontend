@@ -20,12 +20,55 @@ export default function PublicProfile() {
   const {business_id}= useLocalSearchParams();
 
   const [activePanel, setActivePanel] = useState(null);
+  const [renderedPanel, setRenderedPanel] = useState(null);
+  const [isAnimating, setIsAnimating] = useState(false);
   const togglePanel = (panel) => {
-    setActivePanel(prev => prev === panel ? null : panel);
+    if (isAnimating) return;
+
+    setIsAnimating(true);
+
+    if (activePanel === panel) {
+      // 🔻 closing same panel
+      Animated.timing(dropdownAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start(() => {
+        setActivePanel(null);
+        setIsAnimating(false);
+      });
+
+    } else if (activePanel) {
+      // 🔁 switching panels (THIS IS YOUR BUG CASE)
+      Animated.timing(dropdownAnim, {
+        toValue: 0,
+        duration: 180,
+        useNativeDriver: true,
+      }).start(() => {
+        setActivePanel(panel); 
+
+        Animated.timing(dropdownAnim, {
+          toValue: 1,
+          duration: 220,
+          useNativeDriver: true,
+        }).start(() => setIsAnimating(false));
+      });
+
+    } else {
+      setActivePanel(panel);
+
+      Animated.timing(dropdownAnim, {
+        toValue: 1,
+        duration: 220,
+        useNativeDriver: true,
+      }).start(() => setIsAnimating(false));
+    }
   };
 
   const [business, setBusiness] = useState({});
   const dropdownAnim = useRef(new Animated.Value(0)).current;
+
+  const [activeCertIndex, setActiveCertIndex] = useState(0);
 
   const certIndex = useRef(0);
   const permitIndex = useRef(0);
@@ -46,50 +89,39 @@ export default function PublicProfile() {
 
 
   const scrollCarousel = (type, direction, length) => {
-    const imageWidth = 292;
+    let newIndex = activeCertIndex;
 
-    if (type === "certificates") {
-      certIndex.current =
-        direction === "right"
-          ? Math.min(certIndex.current + 1, length - 1)
-          : Math.max(certIndex.current - 1, 0);
-
-      certScrollRef.current?.scrollTo({
-        x: certIndex.current * imageWidth,
-        animated: true,
-      });
+    if (direction === "left") {
+      newIndex = Math.max(0, activeCertIndex - 1);
+    } else {
+      newIndex = Math.min(length - 1, activeCertIndex + 1);
     }
 
-    if (type === "permits") {
-      permitIndex.current =
-        direction === "right"
-          ? Math.min(permitIndex.current + 1, length - 1)
-          : Math.max(permitIndex.current - 1, 0);
+    setActiveCertIndex(newIndex);
 
-      permitScrollRef.current?.scrollTo({
-        x: permitIndex.current * imageWidth,
-        animated: true,
-      });
-    }
+    certScrollRef.current?.scrollTo({
+      x: newIndex * 292,
+      animated: true,
+    });
   };
 
   useEffect(() => {
-        const fetchBusinessProfile = async () => {
-          try {
-            setIsLoading(true);
-            
-            const res = await axios.get(
-                `https://verilocalph.onrender.com/api/business/public/${business_id}`,
-            );
-            setBusiness(res.data);
-          } catch (err) {
-            console.error("Failed to load business profile:", err);
-          } finally {
-            setIsLoading(false);
-          }
-        };
-        if (business_id) fetchBusinessProfile();
-      }, [business_id]);
+    const fetchBusinessProfile = async () => {
+      try {
+        setIsLoading(true);
+        
+        const res = await axios.get(
+            `https://verilocalph.onrender.com/api/business/public/${business_id}`,
+        );
+        setBusiness(res.data);
+      } catch (err) {
+        console.error("Failed to load business profile:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    if (business_id) fetchBusinessProfile();
+  }, [business_id]);
 
   let certificatesArray = [];
   try {
@@ -100,15 +132,6 @@ export default function PublicProfile() {
   } catch {
     certificatesArray = [];
   }
-
-
-  useEffect(() => {
-    Animated.timing(dropdownAnim, {
-      toValue: activePanel ? 1 : 0,
-      duration: 250,
-      useNativeDriver: true,
-    }).start();
-  }, [activePanel]);
 
   const dropdownStyle = {
     opacity: dropdownAnim,
@@ -150,14 +173,13 @@ export default function PublicProfile() {
             style={[
               styles.headerText,
               isMobile && {
-                marginLeft: 0,
                 marginTop: 12,
                 alignItems: "center",
               },
             ]}
           >
             <Text style={[styles.name, isMobile && {fontSize: 20}]}>{business.registered_business_name}</Text>
-            <Text style={[styles.location, isMobile && {fontSize: 14}]}>{business.address}</Text>
+            <Text style={[styles.location, isMobile && {fontSize: 14, textAlign: isMobile ? "center" : "left"}]}>{business.address}</Text>
           </View>
         </View>
 
@@ -172,7 +194,11 @@ export default function PublicProfile() {
           ]}
         >
           {/* Left */}
-          <View style={styles.left}>
+          <View style={[styles.left, isMobile && { gap : 16 }]}>
+            <DetailItem 
+              icon="location-outline"
+              value={business.address}
+            />
             <DetailItem
               icon="call-outline"
               value={business.contact_no}
@@ -185,89 +211,142 @@ export default function PublicProfile() {
               icon="mail-outline"
               value={business.email}
             />
+            <DetailItem
+              icon="link-outline"
+              value={business.social_link}
+            />
+            <DetailItem
+              icon="information-outline"
+              value={business.description}
+              multiline={true}
+            />
+
+            {isMobile && (
+              <>
+                <View style={styles.iconRow}>
+                  <IconButton
+                    icon="images-outline"
+                    label="Certificates"
+                    active={activePanel === "certificates"}
+                    onPress={() => togglePanel("certificates")}
+                  />
+                  <IconButton
+                    icon="cube-outline"
+                    label="Permits"
+                    active={activePanel === "permits"}
+                    onPress={() => togglePanel("permits")}
+                  />
+                </View>
+
+                <View style={styles.previewNote}>
+                  <Ionicons name="eye-outline" size={22} color={"#466be5"} />
+                  <Text style={styles.previewText}>
+                    Click on the image to Preview
+                  </Text>
+                </View>
+
+                {activePanel === "permits" && (
+                  <Animated.View style={[styles.dropdown, dropdownStyle]}>
+                    <ScrollView horizontal pagingEnabled ref={permitScrollRef}>
+                      {business.permit && (
+                        <Pressable onPress={() => openPreview(business.permit)}>
+                          <Image
+                            source={{ uri: business.permit }}
+                            style={{ width: width - 40, height: 220 }}
+                          />
+                        </Pressable>
+                      )}
+                    </ScrollView>
+                  </Animated.View>
+                )}
+
+                {activePanel === "certificates" && (
+                  <Animated.View style={[styles.dropdown, dropdownStyle]}>
+                    <ScrollView
+                      horizontal
+                      pagingEnabled
+                      ref={certScrollRef}
+                      onMomentumScrollEnd={(event) => {
+                        const slide = Math.round(
+                          event.nativeEvent.contentOffset.x / 292
+                        );
+                        setActiveCertIndex(slide);
+                      }}
+                    >
+                      {certificatesArray.map((cert, index) => (
+                        <Pressable key={index} onPress={() => openPreview(cert)}>
+                          <Image
+                            source={{ uri: cert }}
+                            style={{ width: width - 50, height: 220 }}
+                          />
+                        </Pressable>
+                      ))}
+                    </ScrollView>
+
+                    <View style={styles.pagination}>
+                      {certificatesArray.map((_, index) => (
+                        <View
+                          key={index}
+                          style={[
+                            styles.dot,
+                            activeCertIndex === index && styles.activeDot,
+                          ]}
+                        />
+                      ))}
+                    </View>
+                  </Animated.View>
+                )}
+              </>
+            )}
           </View>
 
           {!isMobile && <View style={styles.divider} />}
 
           {/* Right */}
-          <View
-            style={[
-              styles.right,
-              isMobile && {
-                width: "100%",
-                marginTop: 130,
-              },
-            ]}
-          >
-            <View style={[styles.iconRow, isMobile && { marginTop: -50 }]}>
-              <IconButton
-                icon="images-outline"
-                label="Certificates"
-                active={activePanel === "certificates"}
-                onPress={() => togglePanel("certificates")}
-              />
-              <IconButton
-                icon="cube-outline"
-                label="Permits"
-                active={activePanel === "permits"}
-                onPress={() => togglePanel("permits")}
-              />
-            </View>
+          {!isMobile && (
+            <View style={styles.right}>
+              <View style={[styles.iconRow, isMobile && { marginTop: 15 }]}>
+                <IconButton
+                  icon="images-outline"
+                  label="Certificates"
+                  active={activePanel === "certificates"}
+                  onPress={() => togglePanel("certificates")}
+                />
+                <IconButton
+                  icon="cube-outline"
+                  label="Permits"
+                  active={activePanel === "permits"}
+                  onPress={() => togglePanel("permits")}
+                />
+              </View>
+              <View style={styles.previewNote}>
+                <Ionicons name="eye-outline" size={22} color={"#466be5"} />
+                <Text style={styles.previewText}>
+                Click on the image to Preview
+                </Text>
+              </View>
 
-            {activePanel === "permits" && (
-              <Animated.View
-                style={[
-                  styles.dropdown,
-                  dropdownStyle,
-                  isMobile && {
-                    position: "relative",
-                  },
-                ]}
-              >
-                <ScrollView
-                  horizontal
-                  pagingEnabled
-                  ref={permitScrollRef}
-                  showsHorizontalScrollIndicator={false}
+              {activePanel === "permits" && (
+                <Animated.View
+                  style={[
+                    styles.dropdown,
+                    dropdownStyle,
+                    isMobile && {
+                      marginTop: 15,
+                    },
+                  ]}
                 >
-                  {business.permit && (
-                    <View style={styles.imageWrapper}>
-                      <Pressable onPress={() => openPreview(business.permit)}>
-                        <Image
-                          source={{uri: business.permit}}
-                          style={[
-                            styles.dropdownImage,
-                            isMobile && { width: width - 40, height: 220 },
-                          ]}
-                        />
-                      </Pressable>
-                    </View>
-                  )}
-                </ScrollView>
-              </Animated.View>
-            )}
-            {activePanel === "certificates" && (
-              <Animated.View
-                style={[
-                  styles.dropdown,
-                  dropdownStyle,
-                  isMobile && {
-                    position: "relative",
-                  },
-                ]}
-              >
-                <ScrollView
-                  horizontal
-                  pagingEnabled
-                  ref={certScrollRef}
-                  showsHorizontalScrollIndicator={false}
-                >
-                  {certificatesArray.length > 0 ? (
-                    certificatesArray.map((cert, index) => (
-                      <View key={index} style={styles.imageWrapper}>
-                        <Pressable onPress={() => openPreview(cert)}>
+                  <ScrollView
+                    horizontal
+                    pagingEnabled
+                    ref={permitScrollRef}
+                    showsHorizontalScrollIndicator={false}
+                  >
+                    {business.permit && (
+                      <View style={styles.imageWrapper}>
+                        <Pressable onPress={() => openPreview(business.permit)}>
                           <Image
-                            source={{ uri: cert }}
+                            source={{uri: business.permit}}
                             style={[
                               styles.dropdownImage,
                               isMobile && { width: width - 40, height: 220 },
@@ -275,14 +354,97 @@ export default function PublicProfile() {
                           />
                         </Pressable>
                       </View>
-                    ))
-                  ) : (
-                    <Text>No certificates</Text>
-                  )}
-                </ScrollView>
-              </Animated.View>
-            )}
-          </View>
+                    )}
+                  </ScrollView>
+                </Animated.View>
+              )}
+              {activePanel === "certificates" && (
+                <Animated.View
+                  style={[
+                    styles.dropdown,
+                    dropdownStyle,
+                    isMobile && {
+                      marginTop: 15,
+                    },
+                  ]}
+                >
+                  <View style={{ position: "relative" }}>
+                    <ScrollView
+                      horizontal
+                      pagingEnabled
+                      ref={certScrollRef}
+                      showsHorizontalScrollIndicator={false}
+                      onMomentumScrollEnd={(event) => {
+                        const slide = Math.round(
+                          event.nativeEvent.contentOffset.x / 292
+                        );
+                        setActiveCertIndex(slide);
+                      }}
+                    >
+                      {certificatesArray.map((cert, index) => (
+                        <View
+                          key={index}
+                          style={[styles.imageWrapper, isMobile && { height: 190 }]}
+                        >
+                          <Pressable onPress={() => openPreview(cert)}>
+                            <Image
+                              source={{ uri: cert }}
+                              style={[
+                                styles.dropdownImage,
+                                isMobile && { width: width - 50, height: 220 },
+                              ]}
+                            />
+                          </Pressable>
+                        </View>
+                      ))}
+                    </ScrollView>
+
+                    <View style={styles.pagination}>
+                      {certificatesArray.map((_, index) => (
+                        <View
+                          key={index}
+                          style={[
+                            styles.dot,
+                            activeCertIndex === index && styles.activeDot,
+                          ]}
+                        />
+                      ))}
+                    </View>
+
+                    {!isMobile && (
+                      <>
+                        <Pressable
+                          style={styles.arrowLeft}
+                          onPress={() =>
+                            scrollCarousel(
+                              "certificates",
+                              "left",
+                              certificatesArray.length
+                            )
+                          }
+                        >
+                          <Ionicons name="chevron-back" size={24} color="#fff" />
+                        </Pressable>
+
+                        <Pressable
+                          style={styles.arrowRight}
+                          onPress={() =>
+                            scrollCarousel(
+                              "certificates",
+                              "right",
+                              certificatesArray.length
+                            )
+                          }
+                        >
+                          <Ionicons name="chevron-forward" size={24} color="#fff" />
+                        </Pressable>
+                      </>
+                    )}
+                  </View>
+                </Animated.View>
+              )}
+            </View>
+          )}
         </View> 
       </View>
       {previewVisible && (
@@ -302,22 +464,12 @@ export default function PublicProfile() {
             />
 
             {/* CLOSE BUTTON */}
-            <View style={{position: "absolute", top: 0, right: 200, zIndex: 10,}}>
+            <View style={{position: "absolute", top: isMobile ? 300 : 0, right: isMobile ? 0 : 100, zIndex: 10,}}>
               <Pressable
                 onHoverIn={() => setHoverClose(true)}
                 onHoverOut={() => setHoverClose(false)}
                 onPress={() => setPreviewVisible(false)}
-                style={{
-                borderWidth: 1,
-                borderColor: "#000",
-                backgroundColor: hoverClose
-                  ? "#C0392B"
-                  : "#fff",
-                borderRadius: 100,
-                paddingVertical: 8,
-                paddingHorizontal: 12,
-                
-              }}
+                style={[styles.closeBtn,{backgroundColor: hoverClose ? "#C0392B" : "#fff",}]}
               >
               <Ionicons name="close" size={18} color="#000" />
               </Pressable>
@@ -340,12 +492,11 @@ export default function PublicProfile() {
 
 
 
-function DetailItem({ icon, value}) {
+function DetailItem({ icon, value, multiline}) {
   return (
     <View style={styles.detailRow}>
       <Ionicons name={icon} size={22} />
-      <Text
-        style={styles.input}>
+      <Text style={[styles.input, multiline && styles.textArea]}>
         {value || ""}
         </Text>
     </View>
@@ -420,25 +571,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat-Regular'
   },
 
-  editButton: {
-    flexDirection: "row",
-    backgroundColor: "#466be5",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 24,
-    alignItems: "center",
-    gap: 8,
+  textArea: {
+    minHeight: 120,
+    textAlignVertical: "top",
   },
 
   saveButton: {
     backgroundColor: "#16a34a",
-  },
-
-  editText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "700",
-    fontFamily: 'Montserrat-Regular'
   },
 
   details: {
@@ -480,11 +619,6 @@ const styles = StyleSheet.create({
     borderColor: "#d1d5db",
   },
 
-  inputEditable: {
-    backgroundColor: "#fff",
-    borderColor: "#466be5",
-  },
-
   previewImage: {
     width: "100%",
     height: 280,
@@ -492,25 +626,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#e5e7eb",
   },
 
-  editHint: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    padding: 20,
-    borderTopWidth: 1,
-    borderColor: "#eee",
-  },
-
-  hintText: {
-    fontSize: 14,
-    color: "#555",
-    fontFamily: 'Montserrat-Regular'
-  },
   iconRow: {
     flexDirection: "row",
     justifyContent: "flex-start",
     gap: 12,
-    marginBottom: 16,
   },
 
   iconButton: {
@@ -549,22 +668,40 @@ const styles = StyleSheet.create({
     marginRight: 12,
     backgroundColor: "#e5e7eb",
   },
+  pagination: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 8,
+  },
+
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "#ccc",
+    marginHorizontal: 3,
+  },
+
+  activeDot: {
+    backgroundColor: "#333",
+  },
+
   arrowLeft: {
     position: "absolute",
-    top: "40%",
     left: 5,
+    top: "45%",
     backgroundColor: "rgba(0,0,0,0.5)",
-    padding: 8,
     borderRadius: 20,
+    padding: 5,
   },
 
   arrowRight: {
     position: "absolute",
-    top: "40%",
     right: 5,
+    top: "45%",
     backgroundColor: "rgba(0,0,0,0.5)",
-    padding: 8,
     borderRadius: 20,
+    padding: 5,
   },
 
   overlay: {
@@ -603,13 +740,12 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
 
-  closeButton: {
-    position: "absolute",
-    top: 0,
-    right: 200,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    padding: 10,
-    borderRadius: 20,
+  closeBtn : {
+    borderWidth: 1,
+    borderColor: "#000",
+    borderRadius: 100,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
   },
 
   imageWrapper: {
@@ -636,5 +772,19 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff", 
     padding: 20, 
     borderRadius: 12, 
-    alignItems: "center" },
+    alignItems: "center" 
+  },
+  previewText: {  
+    fontFamily: "Montserrat-Regular",
+    fontSize: 12,
+    color: "#466be5",
+  },
+  previewNote: {
+    flexDirection: "row", 
+    gap: 6, 
+    alignItems: "center", 
+    marginLeft: 10,
+    marginVertical: 10,
+  },
+  
 });

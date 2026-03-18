@@ -124,6 +124,16 @@ export default function ProductScanner() {
         }
       );
 
+      setTimeout(() => {
+        const video = document.querySelector("#qr-reader video");
+        if (video) {
+          video.style.width = "100%";
+          video.style.height = "100%";
+          video.style.objectFit = "cover"; 
+          video.style.borderRadius = "16px";
+        }
+      }, 300);
+
     } catch (err) {
       setError("Failed to access camera");
       setIsScanning(false);
@@ -375,6 +385,8 @@ export default function ProductScanner() {
             shadowOpacity: 0.1,
             shadowRadius: 4,
             elevation: 3,
+            overflow: "hidden",
+            padding: 5,
           }}
         >
           <Text style={{ textAlign: "center", color: "#888" }}>

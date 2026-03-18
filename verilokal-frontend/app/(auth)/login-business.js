@@ -12,6 +12,7 @@ import {
   ImageBackground,
   Pressable,
   ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   View
@@ -102,20 +103,21 @@ export default function BusinessLogin() {
     }, []);
     
   return (
-      <Animated.View
-        style={{
-          flex: 1,
-          backgroundColor: "rgba(255,255,255,0.85)", 
+    <Animated.View
+      style={[
+        styles.desktop_animatedContainer,
+        {
           opacity: fadeAnim,
           transform: [{ translateY: slideAnim }],
-        }}
-      >
+        }
+      ]}
+    >
       <ImageBackground
-          source={bgImage} 
-          style={{flex: 1, width: '100%', height: '100%',}}
-          imageStyle={{ opacity: 0.3}}
-          resizeMode="cover"
-        >
+        source={bgImage} 
+        style={styles.desktop_imageBackground}
+        imageStyle={{ opacity: 0.3}}
+        resizeMode="cover"
+      >
         <ScrollView
           contentContainerStyle={{
             justifyContent: "center",
@@ -128,42 +130,18 @@ export default function BusinessLogin() {
         >
         <BackButton fallback="/" forceFallback />
           <View
-            style={{
-              flexDirection: isMobile ? "column" : "row",
-              backgroundColor: "#E3E3E3",
-              borderRadius: 20,
-              shadowColor: "#000",
-              shadowOpacity: 0.1,
-              shadowRadius: 10,
-              shadowOffset: { width: 0, height: 5 },
-              elevation: 6,
-              width: isMobile ? "90%" : "100%",
-              maxWidth: isMobile ? 450 : 800,
-              alignSelf: "center",
-            }}
+            style={[
+              styles.desktop_loginCard,
+              {
+                flexDirection: isMobile ? "column" : "row",
+                width: isMobile ? "90%" : "100%",
+                maxWidth: isMobile ? 450 : 800,
+              }
+            ]}
           >
             {/* LEFT IMAGE */}
-            <View
-              style={{
-                flex: 1,
-                alignItems: "center",
-                justifyContent: "center",
-                padding: 15,
-              }}
-            >
-              <View
-                style={{
-                  borderRadius: 20,
-                  width: "100%",
-                  minHeight: isMobile ? 200 : "100%",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  shadowColor: "#000",
-                  shadowOpacity: 0.05,
-                  shadowRadius: 5,
-                  elevation: 3,
-                }}
-              >
+            <View style={styles.desktop_leftImageContainer}>
+              <View style={styles.desktop_imageWrapper}>
                 <Image
                   source={require("../../assets/images/login.png")}
                   style={{
@@ -177,7 +155,7 @@ export default function BusinessLogin() {
             </View>
 
             {/* RIGHT FORM */}
-            <View style={{ flex: 1, padding: 15, justifyContent: "center" }}>
+            <View style={styles.desktop_formContainer}>
               <Text
                 style={{
                   fontSize: 24,
@@ -281,21 +259,10 @@ export default function BusinessLogin() {
                 onHoverOut={() => setHoveredScan(false)}
                 onPress={handleBusinessLogin}
                 disabled={isLoading}
-                style={{
-                  backgroundColor: hoveredScan ? "#000000" : "#5177b0",
-                  height: 40,
-                  borderRadius: 25,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginVertical: 15,
-                  width: "40%",
-                  alignSelf: "center",
-                  shadowColor: "#000000",
-                  shadowOpacity: 0.5,
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowRadius: 3,
-                  cursor: "pointer",
-                }}
+                style={[
+                  styles.desktop_loginButton,
+                  { backgroundColor: hoveredScan ? "#000000" : "#5177b0" }
+                ]}
               >
                 <Text style={{ color: "#fff", fontSize: 14, fontFamily: 'Montserrat-Regular' }}>
                   Login
@@ -303,7 +270,7 @@ export default function BusinessLogin() {
               </Pressable>
 
               {/* SIGN UP */}
-              <Text style={{ textAlign: "center", fontSize: 13, fontFamily: 'Montserrat-Regular' }}>
+              <Text style={{ textAlign: "center", fontSize: 13, fontFamily: 'Montserrat-Regular', marginBottom: 20 }}>
                 Don’t have an account?{" "}
                 <Text
                   style={{ color: "#4A70A9", fontWeight: "bold" }}
@@ -317,29 +284,10 @@ export default function BusinessLogin() {
             </View>
           </View>
           {isLoading && (
-            <View
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: "rgba(0,0,0,0.4)",
-                justifyContent: "center",
-                alignItems: "center",
-                zIndex: 9999,
-              }}
-            >
-              <View
-                style={{
-                  backgroundColor: "#fff",
-                  padding: 20,
-                  borderRadius: 12,
-                  alignItems: "center",
-                }}
-              >
+            <View style={styles.loadingContainer}>
+              <View style={styles.loadingCard}>
                 <ActivityIndicator size="large" color="#5177b0" />
-                <Text style={{ marginTop: 10 }}>Logging in...</Text>
+                <Text style={{ marginTop: 10 }}>Logging In.....</Text>
               </View>
             </View>
           )}
@@ -348,3 +296,85 @@ export default function BusinessLogin() {
       </Animated.View>
   );
 }
+
+const styles = StyleSheet.create({
+
+  desktop_animatedContainer: {
+    flex: 1,
+    backgroundColor: "rgba(255,255,255,0.85)",
+  },
+
+  desktop_imageBackground: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
+
+  desktop_loginCard: {
+    backgroundColor: "#E3E3E3",
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 5 },
+    elevation: 6,
+    alignSelf: "center",
+  },
+
+  desktop_leftImageContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 15,
+  },
+
+  desktop_imageWrapper: {
+    borderRadius: 20,
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+
+  desktop_formContainer: {
+    flex: 1,
+    padding: 15,
+    justifyContent: "center",
+  },
+
+  desktop_loginButton: {
+    height: 40,
+    borderRadius: 25,
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: 15,
+    width: "40%",
+    alignSelf: "center",
+    shadowColor: "#000000",
+    shadowOpacity: 0.5,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 3,
+    cursor: "pointer",
+  },
+  loadingContainer : {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 9999,
+  },
+  loadingCard: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+
+});

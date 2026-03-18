@@ -13,6 +13,7 @@ import {
   TextInput,
   View,
   ScrollView,
+  StyleSheet
 } from "react-native";
 import BackButton from "../../components/BackButton";
 
@@ -157,49 +158,15 @@ export default function OtpScreen() {
   });
 
   return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          padding: 20,
-        }}
-      >
+      <View style={styles.desktop_mainContainer}>
         <BackButton fallback="/login-business" forceFallback />
 
-        <View
-          style={{
-            padding: 30,
-            backgroundColor: "#ffffff",
-            borderRadius: 20,
-            shadowColor: "#000",
-            shadowOpacity: 0.2,
-            shadowRadius: 30,
-            shadowOffset: { width: 0, height: 7 },
-            elevation: 6,
-            width: "100%",
-            maxWidth: 400,
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 40,
-              fontWeight: "700",
-              fontFamily: "Montserrat-Regular",
-              marginBottom: 5,
-            }}
-          >
+        <View style={styles.desktop_otpCard}>
+          <Text style={styles.desktop_otpTitle}>
             OTP Verification
           </Text>
 
-          <Text
-            style={{
-              fontSize: 15,
-              marginBottom: 40,
-              fontFamily: "Montserrat-Regular",
-              color: "#555",
-            }}
-          >
+          <Text style={styles.desktop_otpDescription}>
             Please enter the OTP (One-Time Password) sent to your registered
             email address ({email}) to complete your verifcation.
           </Text>
@@ -220,23 +187,19 @@ export default function OtpScreen() {
             keyboardType="number-pad"
             maxLength={OTP_LENGTH}
             autoFocus
-            style={{ position: "absolute", opacity: 0 }}
+            style={styles.desktop_hiddenInput}
           />
 
           {/* OTP Boxes with Cursor Indicator */}
           <Animated.View
-            style={{
-              marginBottom: 10,
-              position: "relative",
-              transform: [{ translateX: shakeAnim }],
-            }}
+            style={[
+              styles.desktop_otpBoxesContainer,
+              { transform: [{ translateX: shakeAnim }] }
+            ]}
           >
             <Pressable
               onPress={() => inputRef.current.focus()}
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-              }}
+              style={styles.desktop_otpRow}
             >
               {Array.from({ length: OTP_LENGTH }).map((_, index) => {
                 const isActive =
@@ -300,71 +263,32 @@ export default function OtpScreen() {
         <Pressable
           onPress={verifyOtp}
           disabled={otp.length !== OTP_LENGTH}
-          style={{
-            backgroundColor:
-              otp.length === OTP_LENGTH ? "#5177b0" : "#5177b0",
-            padding: 15,
-            borderRadius: 10,
-            marginBottom: 10,
-          }}
+          style={styles.desktop_verifyButton}
         >
-          <Text style={{ color: "#ffffff", textAlign: "center", fontFamily: "Montserrat-Regular" }}>
+          <Text style={styles.desktop_verifyButtonText}>
             Verify OTP
           </Text>
         </Pressable>
 
         {/* Resend */}
         <Pressable onPress={resendOtp} disabled={isResendLoadingOtp}
-        style={{marginTop: 2, alignItems: "center", backgroundColor: "#aaa", padding: 15, borderRadius: 10}}>
+        style={styles.desktop_resendButton}>
           {isResendLoadingOtp ? (
             <ActivityIndicator size="small" color="#5177b0" />
 
           ) : (
-            <Text
-              style={{
-                textAlign: "center",
-                color: "#000000",
-                fontWeight: "600",
-                fontFamily: "Montserrat-Regular",
-              }}
-            >
+            <Text style={styles.desktop_resendText}>
               Resend OTP
             </Text>
           )}
         </Pressable>
-        <Text
-          style={{
-            fontSize: 12,
-            marginVertical: 25,
-            fontFamily: "Montserrat-Regular",
-            color: "#555",
-          }}
-        >
+        <Text style={styles.desktop_expirationText}>
           The OTP (One-Time Password) will expire in 5 minutes of activation.
         </Text>
       </View>
       {isLoading && (
-        <View
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0,0,0,0.4)",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 9999,
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: "#fff",
-              padding: 20,
-              borderRadius: 12,
-              alignItems: "center",
-            }}
-          >
+        <View style={styles.desktop_loadingOverlay}>
+          <View style={styles.desktop_loadingBox}>
             <ActivityIndicator size="large" color="#5177b0" />
             <Text style={{ marginTop: 10 }}>Logging in...</Text>
           </View>
@@ -373,3 +297,110 @@ export default function OtpScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+
+  desktop_mainContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+
+  desktop_otpCard: {
+    padding: 30,
+    backgroundColor: "#ffffff",
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 30,
+    shadowOffset: { width: 0, height: 7 },
+    elevation: 6,
+    width: "100%",
+    maxWidth: 400,
+  },
+
+  desktop_otpTitle: {
+    fontSize: 40,
+    fontWeight: "700",
+    fontFamily: "Montserrat-Regular",
+    marginBottom: 5,
+  },
+
+  desktop_otpDescription: {
+    fontSize: 15,
+    marginBottom: 40,
+    fontFamily: "Montserrat-Regular",
+    color: "#555",
+  },
+
+  desktop_hiddenInput: {
+    position: "absolute",
+    opacity: 0,
+  },
+
+  desktop_otpBoxesContainer: {
+    marginBottom: 10,
+    position: "relative",
+  },
+
+  desktop_otpRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+
+  desktop_verifyButton: {
+    backgroundColor: "#5177b0",
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+
+  desktop_verifyButtonText: {
+    color: "#ffffff",
+    textAlign: "center",
+    fontFamily: "Montserrat-Regular",
+  },
+
+  desktop_resendButton: {
+    marginTop: 2,
+    alignItems: "center",
+    backgroundColor: "#aaa",
+    padding: 15,
+    borderRadius: 10,
+  },
+
+  desktop_resendText: {
+    textAlign: "center",
+    color: "#000000",
+    fontWeight: "600",
+    fontFamily: "Montserrat-Regular",
+  },
+
+  desktop_expirationText: {
+    fontSize: 12,
+    marginVertical: 25,
+    fontFamily: "Montserrat-Regular",
+    color: "#555",
+  },
+
+  desktop_loadingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 9999,
+  },
+
+  desktop_loadingBox: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+
+});

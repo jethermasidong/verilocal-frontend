@@ -252,12 +252,11 @@ export default function BusinessProfile() {
             isMobile && {
               flexDirection: "column",
               padding: 20,
-              marginBottom: 60,
             },
           ]}
         >
           {/* Left */}
-          <View style={[styles.left, isMobile && { marginBottom: 10, gap : 16 }]}>
+          <View style={[styles.left, isMobile && { gap : 16 }]}>
             <DetailItem
               icon="location-outline"
               value={business.address}
@@ -302,145 +301,215 @@ export default function BusinessProfile() {
               placeholder="Describe what your business do."
               onChangeText={(text) => handleChange("description", text)}
             />
+
+            {isMobile && (
+              <>
+                <View style={[styles.iconRow]}>
+                  <IconButton
+                    icon="images-outline"
+                    label="Certificates"
+                    active={activePanel === "certificates"}
+                    onPress={() => togglePanel("certificates")}
+                  />
+                  <IconButton
+                    icon="cube-outline"
+                    label="Permits"
+                    active={activePanel === "permits"}
+                    onPress={() => togglePanel("permits")}
+                  />
+                </View>
+                <View style={styles.previewNote}>
+                  <Ionicons name="eye-outline" size={22} color={"#466be5"} />
+                  <Text style={styles.previewText}>
+                    Click on the image to Preview
+                  </Text>
+                </View>
+
+                {activePanel === "permits" && (
+                  <Animated.View style={[styles.dropdown, dropdownStyle]}>
+                    <ScrollView horizontal pagingEnabled ref={permitScrollRef}>
+                      {business.permit && (
+                        <Pressable onPress={() => openPreview(business.permit)}>
+                          <Image
+                            source={{ uri: business.permit }}
+                            style={{ width: width - 40, height: 220 }}
+                          />
+                        </Pressable>
+                      )}
+                    </ScrollView>
+                  </Animated.View>
+                )}
+
+                {activePanel === "certificates" && (
+                  <Animated.View style={[styles.dropdown, dropdownStyle]}>
+                    <ScrollView
+                      horizontal
+                      pagingEnabled
+                      ref={certScrollRef}
+                      onMomentumScrollEnd={(event) => {
+                        const slide = Math.round(
+                          event.nativeEvent.contentOffset.x / 292
+                        );
+                        setActiveCertIndex(slide);
+                      }}
+                    >
+                      {certificatesArray.map((cert, index) => (
+                        <Pressable key={index} onPress={() => openPreview(cert)}>
+                          <Image
+                            source={{ uri: cert }}
+                            style={{ width: width - 50, height: 220 }}
+                          />
+                        </Pressable>
+                      ))}
+                    </ScrollView>
+
+                    <View style={styles.pagination}>
+                      {certificatesArray.map((_, index) => (
+                        <View
+                          key={index}
+                          style={[
+                            styles.dot,
+                            activeCertIndex === index && styles.activeDot,
+                          ]}
+                        />
+                      ))}
+                    </View>
+                  </Animated.View>
+                )}
+              </>
+            )}
           </View>
 
           {!isMobile && <View style={styles.divider} />}
 
           {/* Right */}
-          <View
-            style={[
-              styles.right,
-              isMobile && {
-                width: "100%",
-                marginTop: 130,
-              },
-            ]}
-          >
-            <View style={[styles.iconRow, isMobile && { marginTop: 15 }]}>
-              <IconButton
-                icon="images-outline"
-                label="Certificates"
-                active={activePanel === "certificates"}
-                onPress={() => togglePanel("certificates")}
-              />
-              <IconButton
-                icon="cube-outline"
-                label="Permits"
-                active={activePanel === "permits"}
-                onPress={() => togglePanel("permits")}
-              />
-            </View>
-            <View style={styles.previewNote}>
-              <Ionicons name="eye-outline" size={22} color={"#466be5"} />
-              <Text style={styles.previewText}>
-              Click on the image to Preview
-              </Text>
-            </View>
-            {activePanel === "permits" && (
-              <Animated.View
-                style={[
-                  styles.dropdown,
-                  dropdownStyle,
-                  isMobile && {
-                    position: "absolute",
-                    marginTop: 110,
-                  },
-                ]}
-              >
-                <ScrollView
-                  horizontal
-                  pagingEnabled
-                  ref={permitScrollRef}
-                  showsHorizontalScrollIndicator={false}
+          {!isMobile && (
+            <View style={styles.right}>
+              <View style={[styles.iconRow, isMobile && { marginTop: 15 }]}>
+                <IconButton
+                  icon="images-outline"
+                  label="Certificates"
+                  active={activePanel === "certificates"}
+                  onPress={() => togglePanel("certificates")}
+                />
+                <IconButton
+                  icon="cube-outline"
+                  label="Permits"
+                  active={activePanel === "permits"}
+                  onPress={() => togglePanel("permits")}
+                />
+              </View>
+              <View style={styles.previewNote}>
+                <Ionicons name="eye-outline" size={22} color={"#466be5"} />
+                <Text style={styles.previewText}>
+                Click on the image to Preview
+                </Text>
+              </View>
+              
+              {activePanel === "permits" && (
+                <Animated.View
+                  style={[
+                    styles.dropdown,
+                    dropdownStyle,
+                    isMobile && {
+                      marginTop: 15,
+                    },
+                  ]}
                 >
-                  {business.permit && (
-                    <View style={styles.imageWrapper}>
-                      <Pressable onPress={() => openPreview(business.permit)}>
-                        <Image
-                          source={{ uri: business.permit }}
-                          style={[
-                            styles.dropdownImage,
-                            isMobile && { width: width - 40, height: 220 },
-                          ]}
-                        />
-                      </Pressable>
-                    </View>
-                  )}
-                </ScrollView>
-              </Animated.View>
-            )}
-            {activePanel === "certificates" && (
-              <Animated.View
-                style={[
-                  styles.dropdown,
-                  dropdownStyle,
-                  isMobile && {
-                    position: "absolute",
-                    marginTop: 110,
-                  },
-                ]}
-              >
-              <View style={{position: "relative",}}>
-                <ScrollView
-                  horizontal
-                  pagingEnabled
-                  ref={certScrollRef}
-                  showsHorizontalScrollIndicator={false}
-                  onMomentumScrollEnd={(event) => {
-                    const slide = Math.round(event.nativeEvent.contentOffset.x / 292);
-                    setActiveCertIndex(slide);
-                  }}
-                >
-                    {certificatesArray.map((cert, index) => (
-                      <View key={index} style={[styles.imageWrapper, isMobile && {height: 190}]}>
-                        <Pressable onPress={() => openPreview(cert)}>
+                  <ScrollView
+                    horizontal
+                    pagingEnabled
+                    ref={permitScrollRef}
+                    showsHorizontalScrollIndicator={false}
+                  >
+                    {business.permit && (
+                      <View style={styles.imageWrapper}>
+                        <Pressable onPress={() => openPreview(business.permit)}>
                           <Image
-                            source={{ uri: cert }}
+                            source={{ uri: business.permit }}
                             style={[
                               styles.dropdownImage,
-                              isMobile && { width: width - 50, height: 220 },
+                              isMobile && { width: width - 40, height: 220 },
                             ]}
                           />
                         </Pressable>
                       </View>
-                    ))}
-                  </ScrollView>
-                  <View style={styles.pagination}>
-                    {certificatesArray.map((_, index) => (
-                      <View
-                        key={index}
-                        style={[    
-                          styles.dot, 
-                          activeCertIndex === index && styles.activeDot,
-                        ]}
-                      />  
-                    ))}
-                  </View>
-                    {!isMobile && (
-                      <>
-                        <Pressable
-                          style={styles.arrowLeft}
-                          onPress={() =>
-                            scrollCarousel("certificates", "left", certificatesArray.length)
-                          }
-                        >
-                          <Ionicons name="chevron-back" size={24} color="#fff" />
-                        </Pressable>
-
-                        <Pressable
-                          style={styles.arrowRight}
-                          onPress={() =>
-                            scrollCarousel("certificates", "right", certificatesArray.length)
-                          }
-                        >
-                          <Ionicons name="chevron-forward" size={24} color="#fff" />
-                        </Pressable>
-                      </>
                     )}
-                  </View>
-              </Animated.View>
-            )}
-          </View>
+                  </ScrollView>
+                </Animated.View>
+              )}
+              {activePanel === "certificates" && (
+                <Animated.View
+                  style={[
+                    styles.dropdown,
+                    dropdownStyle,
+                    isMobile && {
+                      marginTop: 15,
+                    },
+                  ]}
+                >
+                <View style={{position: "relative",}}>
+                  <ScrollView
+                    horizontal
+                    pagingEnabled
+                    ref={certScrollRef}
+                    showsHorizontalScrollIndicator={false}
+                    onMomentumScrollEnd={(event) => {
+                      const slide = Math.round(event.nativeEvent.contentOffset.x / 292);
+                      setActiveCertIndex(slide);
+                    }}
+                  >
+                      {certificatesArray.map((cert, index) => (
+                        <View key={index} style={[styles.imageWrapper, isMobile && {height: 190}]}>
+                          <Pressable onPress={() => openPreview(cert)}>
+                            <Image
+                              source={{ uri: cert }}
+                              style={[
+                                styles.dropdownImage,
+                                isMobile && { width: width - 50, height: 220 },
+                              ]}
+                            />
+                          </Pressable>
+                        </View>
+                      ))}
+                    </ScrollView>
+                    <View style={styles.pagination}>
+                      {certificatesArray.map((_, index) => (
+                        <View
+                          key={index}
+                          style={[    
+                            styles.dot, 
+                            activeCertIndex === index && styles.activeDot,
+                          ]}
+                        />  
+                      ))}
+                    </View>
+                      {!isMobile && (
+                        <>
+                          <Pressable
+                            style={styles.arrowLeft}
+                            onPress={() =>
+                              scrollCarousel("certificates", "left", certificatesArray.length)
+                            }
+                          >
+                            <Ionicons name="chevron-back" size={24} color="#fff" />
+                          </Pressable>
+
+                          <Pressable
+                            style={styles.arrowRight}
+                            onPress={() =>
+                              scrollCarousel("certificates", "right", certificatesArray.length)
+                            }
+                          >
+                            <Ionicons name="chevron-forward" size={24} color="#fff" />
+                          </Pressable>
+                        </>
+                      )}
+                    </View>
+                </Animated.View>
+              )}
+            </View>
+          )}
         </View>
         
 
@@ -479,17 +548,7 @@ export default function BusinessProfile() {
                 onHoverIn={() => setHoverClose(true)}
                 onHoverOut={() => setHoverClose(false)}
                 onPress={() => setPreviewVisible(false)}
-                style={{
-                borderWidth: 1,
-                borderColor: "#000",
-                backgroundColor: hoverClose
-                  ? "#C0392B"
-                  : "#fff",
-                borderRadius: 100,
-                paddingVertical: 8,
-                paddingHorizontal: 12,
-                
-              }}
+                style={[styles.closeBtn,{backgroundColor: hoverClose ? "#C0392B" : "#fff",}]}
               >
               <Ionicons name="close" size={18} color="#000" />
               </Pressable>
@@ -596,7 +655,6 @@ const styles = StyleSheet.create({
     flexDirection: "row", 
     gap: 6, 
     alignItems: "center", 
-    marginBottom: 12,
     marginLeft: 10,
   },
 
@@ -664,7 +722,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     padding: 32,
     gap: 24,
-    marginBottom: 40,
   },
 
   left: {
@@ -731,7 +788,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-start",
     gap: 12,
-    marginBottom: 16,
   },
 
   iconButton: {
@@ -857,5 +913,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff", 
     padding: 20, 
     borderRadius: 12, 
-    alignItems: "center" },
+    alignItems: "center" 
+  },
+  closeBtn : {
+    borderWidth: 1,
+    borderColor: "#000",
+    borderRadius: 100,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
 });

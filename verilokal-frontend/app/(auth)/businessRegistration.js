@@ -522,7 +522,7 @@ export default function RegisterBusiness() {
             <Text>{logo ? logo.name : <FontAwesomeIcon icon={faFileUpload} size="2x" />}</Text>
           </Pressable>
 
-          <Pressable style={[styles.submitBtn, isMobile && { minWidth: "100%"}]} onPress={handleRegisterClick}>
+          <Pressable style={[styles.submitBtn, isMobile && { minWidth : "100%"}]} onPress={handleRegisterClick}>
             <Text style={styles.submitText}>Submit</Text>
           </Pressable>
 
@@ -532,52 +532,36 @@ export default function RegisterBusiness() {
 
       {/* Consent Modal */}
       {showConsentModal && (
-        <View style={{
-          position: "absolute",
-          top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: "rgba(0,0,0,0.5)",
-          justifyContent: isMobile ? "flex-end" : "center",
-          alignItems: "center",
-          padding: 20,
-          position: "absolute",
-        }}>
-          <View style={{
-            backgroundColor: "#fff",
-            padding: 30,
-            borderRadius: 16,
-            width: "100%",
-            maxWidth: 650,
-            minHeight: 250,
-            flexDirection: "space-between",
-          }}>
-            <Text style={{ fontFamily: "Montserrat-Bold", fontSize: 14, marginBottom: 5, fontWeight: "500" }}>
+        <View style={[styles.consentContainer, isMobile && { justifyContent : "flex-end" }]}>
+          <View style={styles.consentCard}>
+            <Text style={styles.consentTitle}>
               VeriLocal Terms and Conditions
             </Text>
-            <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 12, marginBottom: 20, fontWeight: "300" }}>
+            <Text style={styles.consentText}>
               Welcome to VeriLocal. By registering for an artisan account, you agree to the following terms regarding the use of our platform to verify and record local woodcrafts.
             </Text>
-            <Text style={{ fontFamily: "Montserrat-Bold", fontSize: 12, marginBottom: 5, fontWeight: "500" }}>
+            <Text style={styles.consentHeading}>
               1. Accuracy of Business Information
             </Text>
-            <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 12, marginBottom: 20, fontWeight: "300" }}>
+            <Text style={styles.consentText}>
               To maintain the integrity of the platform, you agree to provide accurate, current, and complete business credentials during registration. This includes submitting valid business permits, accurate contact details, and true shop locations. VeriLocal reserves the right to suspend accounts found to be using falsified documents.
             </Text>
-            <Text style={{ fontFamily: "Montserrat-Bold", fontSize: 12, marginBottom: 5, fontWeight: "500" }}>
+            <Text style={styles.consentHeading}>
               2. Blockchain and Data Permanence
             </Text>
-            <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 12, marginBottom: 20, fontWeight: "300" }}>
+            <Text style={styles.consentText}>
               VeriLocal utilizes blockchain technology to create secure digital records for your woodcrafts. You acknowledge that once a product is "minted" to the blockchain, the record becomes permanent and immutable (unchangeable). You are solely responsible for ensuring that all product details, materials, and process images are accurate before finalizing a registration.
             </Text>
-            <Text style={{ fontFamily: "Montserrat-Bold", fontSize: 12, marginBottom: 5, fontWeight: "500" }}>
+            <Text style={styles.consentHeading}>
               3. Data Storage and Privacy
             </Text>
-            <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 12, marginBottom: 20, fontWeight: "300" }}>
+            <Text style={styles.consentText}>
               By uploading files to the platform, you consent to the storage of your media (such as business permits and process images) on secure off-chain cloud servers. Your business profile information and product provenance data will be made publicly accessible via QR code scans to facilitate tourist verification.
             </Text>
-            <Text style={{ fontFamily: "Montserrat-Bold", fontSize: 12, marginBottom: 5, fontWeight: "500" }}>
+            <Text style={styles.consentHeading}>
               4. Acceptable Use
             </Text>
-            <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 12, marginBottom: 20, fontWeight: "300" }}>
+            <Text style={styles.consentText}>
               You agree to use the platform exclusively for registering genuine, locally crafted goods. You may not upload prohibited items, plagiarized designs, or inappropriate media.
             </Text>
             <View style={{ marginTop: "auto", paddingTop: 20}}>
@@ -591,33 +575,16 @@ export default function RegisterBusiness() {
           </View>
         </View>
       )}
+
+      {/* Loading */}
       {isLoading && (
-        <View
-          style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: "rgba(0,0,0,0.4)",
-          justifyContent: "center",
-          alignItems: "center",
-          zIndex: 9999,
-        }}
-      >
-        <View
-          style={{
-          backgroundColor: "#fff",
-          padding: 20,
-          borderRadius: 12,
-          alignItems: "center",
-        }}
-      >
-        <ActivityIndicator size="large" color="#5177b0" />
-        <Text style={{ marginTop: 10 }}>Submitting Business.....</Text>
-      </View>
-    </View>
-  )}
+        <View style={styles.loadingContainer}>
+          <View style={styles.loadingCard}>
+            <ActivityIndicator size="large" color="#5177b0" />
+            <Text style={{ marginTop: 10 }}>Submitting Business.....</Text>
+          </View>
+        </View>
+      )}
     </ScrollView>
     {resultVisible && (
       <View style={styles.resultOverlay}>
@@ -672,7 +639,6 @@ export default function RegisterBusiness() {
       </View>
     )}
   </Animated.View>
-  
   );
 }
 
@@ -845,4 +811,57 @@ const styles = StyleSheet.create({
   resultIcon: {
     marginBottom: 15,
   },
+  consentContainer: {
+    position: "absolute",
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  consentCard : {
+    backgroundColor: "#fff",
+    padding: 30,
+    borderRadius: 16,
+    width: "100%",
+    maxWidth: 650,
+    minHeight: 250,
+    flexDirection: "space-between",
+  },
+  consentTitle : {
+    fontFamily: "Montserrat-Bold", 
+    fontSize: 14, 
+    marginBottom: 5, 
+    fontWeight: "500",
+  },
+  consentText : {
+    fontFamily: "Montserrat-Regular", 
+    fontSize: 12, 
+    marginBottom: 20, 
+    fontWeight: "300",
+  },
+  consentHeading : { 
+    fontFamily: "Montserrat-Bold", 
+    fontSize: 12, 
+    marginBottom: 5, 
+    fontWeight: "500",
+  },
+  loadingContainer : {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 9999,
+  },
+  loadingCard: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 12,
+    alignItems: "center",
+  },
 });
+

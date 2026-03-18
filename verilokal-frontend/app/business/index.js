@@ -19,6 +19,7 @@ import {
   Platform,
   Pressable,
   ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   View,
@@ -780,129 +781,77 @@ export default function BusinessDashboard() {
   return (
 
     <ImageBackground
-      source={bgImage} 
-      style={{flex: 1, width: '100%', height: '100%',}}
-      imageStyle={{ opacity: 0.3}}
+      source={bgImage}
+      style={styles.dashboard_bg}
+      imageStyle={styles.dashboard_bgImage}
       resizeMode="cover"
     >
 
-    <Animated.View style = 
-      {{ 
-        opacity: fadeAnim,
-        flex: 1,
-        transform: [{ translateY: slideAnim }],
-      }}>
+    <Animated.View
+      style={[
+        styles.dashboard_animatedContainer,
+        {
+          opacity: fadeAnim,
+          transform: [{ translateY: slideAnim }],
+        },
+      ]}
+    >
     <ScrollView
-      style={{ flex: 1, }}
-      contentContainerStyle={{ alignItems: "center", paddingVertical: 40, paddingHorizontal: 20 }}
+      style={styles.dashboard_scroll}
+      contentContainerStyle={styles.dashboard_scrollContent}
     >
     
       {/* Welcome Section */}
-      <View style={{ 
-        width: "100%", 
-        maxWidth: 900, 
-        marginBottom: 10,
-        borderWidth: 2, 
-        borderColor: "#000",
-        borderRadius: 20,
-        paddingVertical: 20, 
-        paddingHorizontal: 25,
-        shadowColor: "#000",
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
-        elevation: 4,}}>
-        
+      <View style={styles.dashboard_welcomeCard}>
         <Text
-          style={{
-            fontSize: isMobile ? 22 : 32,
-            fontFamily: "Garet-Heavy",
-            color: "#000",
-            textAlign: isMobile ? "center" : "left",
-          }}
+          style={[ styles.dashboard_welcomeText, 
+          isMobile && { fontSize: 22, textAlign: "center", }
+          ]}
         >
           Welcome,
         </Text>
         <Text
-          style={{
-            fontSize: isMobile ? 20 : 28,
-            fontFamily: "Montserrat-Black",
-            color: "#4A70A9",
-            textAlign: isMobile ? "center" : "left",
-            marginTop: 5,
-          }}
+          style={[ styles.dashboard_welcomeBusinessText, 
+          isMobile && { fontSize: 20, textAlign: "center", }
+          ]}
         >
           {business?.registered_business_name || "Loading..."}
         </Text>
       </View>
 
       {/* Header Controls */}
-      <View
-        style={{
-          width: "100%",
-          maxWidth: 900,
-          borderWidth: 2,
-          borderColor: "#000",
-          borderRadius: 20,
-          paddingVertical: 15,
-          paddingHorizontal: 20,
-          shadowColor: "#000",
-          shadowOpacity: 0.1,
-          shadowRadius: 5,
-          elevation: 4,
-          marginBottom: 20,
-          gap: 10,
-        }}
-      >
+      <View style={styles.dashboard_headerContainer}>
         <Text
-          style={{
-            fontSize: isMobile ? 18 : 28,
-            fontFamily: "Garet-Heavy",
-            color: "#000",
-            letterSpacing: 1,
-            textAlign: isMobile ? "center" : "left",
-          }}
+          style={[ styles.dashboard_headerText,
+           isMobile && {
+            fontSize: 18,
+            textAlign: "center",
+          }]}
         >
           Business Dashboard
         </Text>
       </View>
-        <View
-          style={{
-            width: "100%",
-            flexDirection: isMobile ? "column" : "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 10,
-            maxWidth: 900,
-            alignSelf: "center",
-            marginBottom: 15,
-          }}
-        >
+      {/* Search Products */}
+      <View
+        style={[ styles.searchProducts_container, 
+        isMobile && { flexDirection: "column", }
+        ]}
+      >
         <View 
-          style={{
-            flexDirection: "row",
-            alignItems: isMobile ? "flex-start" :"center",
-            gap: 10,
-            width: isMobile ? "100%" : "70%",
-            position: "relative",
-          }}>
+          style={[ styles.searchProducts_wrapper,
+            isMobile && { alignItems: "flex-start", width: "100%", }
+          ]}>
           <TextInput
             placeholder="Search products..."
             placeholderTextColor="#000000"
-            style={{
-              flex: 1,
-              paddingVertical: 12,
-              paddingHorizontal: 18,
-              borderWidth: 2,
-              borderColor: "#000",
-              borderRadius: 32,
-              fontFamily: "Montserrat-Regular",
-            }}
+            style={styles.dashboard_searchInput}
             value={searchQuery}
             onChangeText={(text) => {
               setSearchQuery(text);
               setVisibleCount(9999);
             }}
           />
+          {/* Filter Products Button */}
           <Animated.View 
             style={{
               transform: [
@@ -915,31 +864,24 @@ export default function BusinessDashboard() {
               ],
             }}
           >
-          <Pressable
-            onHoverIn={onHoverIn1}
-            onHoverOut={onHoverOut1}
-            style={{
-              paddingVertical: 14,
-              paddingHorizontal: 10,
-              borderRadius: 20,
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer", 
-            }}
-            ref={filterRef}
-            onPress={() => {
-              filterRef.current?.measureInWindow((x, y, width, height) => {
-                setFilterPos({
-                  x,
-                  y: y + height, 
-                  width,
+            <Pressable
+              onHoverIn={onHoverIn1}
+              onHoverOut={onHoverOut1}
+              style={styles.filterProducts_btn}
+              ref={filterRef}
+              onPress={() => {
+                filterRef.current?.measureInWindow((x, y, width, height) => {
+                  setFilterPos({
+                    x,
+                    y: y + height, 
+                    width,
+                  });
+                  setShowFilter(true);
                 });
-                setShowFilter(true);
-              });
-            }}
-          >
-            <Ionicons name="funnel-outline" size={30} />
-          </Pressable>
+              }}
+            >
+              <Ionicons name="funnel-outline" size={30} />
+            </Pressable>
           </Animated.View>
 
           {/* Report Generation Button */}
@@ -955,51 +897,26 @@ export default function BusinessDashboard() {
               ],
             }}
           >
-          <Pressable
-          onHoverIn={onHoverIn}
-          onHoverOut={onHoverOut}
-          style={{
-            paddingVertical: 14,
-            paddingHorizontal: 10,
-            borderRadius: 20,
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer", 
-          }}
-            ref={filterRef}
-            onPress={reportGenerator}
-          >
-            <Ionicons name="archive-outline" size={30} />
-          </Pressable>
+            <Pressable
+            onHoverIn={onHoverIn}
+            onHoverOut={onHoverOut}
+            style={styles.reportGeneration_btn}
+              ref={filterRef}
+              onPress={reportGenerator}
+            >
+              <Ionicons name="archive-outline" size={30} />
+            </Pressable>
           </Animated.View>
         </View>
+         {/* Product Registration Button */}
         <Pressable
           onHoverIn={() => setHoverRegister(true)}
           onHoverOut={() => setHoverRegister(false)}
-          style={{
-            width: isMobile ? "100%" : "29%",
-            backgroundColor: "#4A70A9",
-            paddingVertical: 14,
-            borderRadius: 999,
-            alignItems: "center",
-            justifyContent: "center",
-            shadowColor: "#000",
-            shadowOpacity: 0.1,
-            shadowRadius: 3,
-            borderColor: "#000",
-            borderWidth: 2,
-            elevation: 3,
-          }}
+          style={[styles.productRegistration_btn, 
+          isMobile && { width: "100%" }]}
           onPress={() => router.push("/business/productRegistration")}
         >
-          <Text
-            style={{
-              color: "#fff",
-              fontFamily: "Montserrat-Bold",
-              fontSize: 14,
-              letterSpacing: 0.5
-            }}
-          >
+          <Text style={styles.productRegistration_btnText}>
             + Register
           </Text>
         </Pressable>
@@ -1008,32 +925,19 @@ export default function BusinessDashboard() {
       {/* Product List */}
       <View style={{ width: "100%", maxWidth: 900 }}>
         <Text
-          style={{
-            fontSize: 14,
-            fontFamily: "Montserrat-Regular",
-            marginBottom: 10,
-            textAlign: isMobile ? "center" : "left",
-          }}
+          style={[styles.productListText,
+           isMobile && { textAlign: "center", }
+          ]}
         >
           Total Products: {filteredProducts.length}
         </Text>
-
         <FlatList
           data={filteredProducts.slice(0, visibleCount)}
           keyExtractor={(item) => item.id.toString()}
           scrollEnabled={false}
           contentContainerStyle={{ paddingBottom: 20 }}
           renderItem={({ item }) => (
-            <View
-              style={{
-                borderWidth: 2,
-                borderColor: "#000",
-                borderRadius: 14,
-                padding: 16,
-                marginBottom: 16,
-                width: "100%",
-              }}
-            >
+            <View style={styles.dashboard_productCard}>
               <View
                 style={{
                   flexDirection: "row",
@@ -1042,15 +946,9 @@ export default function BusinessDashboard() {
                 }}
               >
                 {item.product_image && (
-                  <Image
+                  <Image 
                     source={{ uri: item.product_image }}
-                    style={{
-                      width: 70,
-                      height: 70,
-                      borderRadius: 10,
-                      resizeMode: "cover",
-                    }}
-                  />
+                    style={styles.dashboard_productImage} />
                 )}
 
                 <View style={{ flex: 1 }}>
@@ -1061,15 +959,7 @@ export default function BusinessDashboard() {
 
                 <Pressable
                   onPress={() => openModal(item)}
-                  style={{
-                    borderWidth: 2,
-                    borderColor: "#000",
-                    borderRadius: 20,
-                    paddingVertical: 8,
-                    paddingHorizontal: 12,
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
+                  style={styles.dashboard_viewButton}
                 >
                   <Ionicons name="eye-outline" size={18} color="#000" />
                 </Pressable>
@@ -1082,101 +972,57 @@ export default function BusinessDashboard() {
       {/* Show More */}
       {products.length > visibleCount && (
         <Pressable onPress={() => setVisibleCount(products.length)} style={{ marginTop: 5, marginBottom: 20 }}>
-          <Text style={{ fontSize: 14, color: "#444", fontWeight: "500", textDecorationLine: "underline" }}>
+          <Text style={styles.showMore_text}>
             Show More
           </Text>
         </Pressable>
       )}
 
-
       {/* PRODUCT MODAL */}
       <Modal visible={modalVisible} animationType="fade" transparent={true}>
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: "#fff",
-              padding: 15,
-              borderRadius: 16,
-              width: "90%",
-              maxWidth: 400,
-              elevation: 5,
-              maxHeight: "85%",
-            }}
-          >
+        <View style={styles.dashboard_modalOverlay}>
+          <View style={styles.dashboard_modalCard}>
             {/* CLOSE BUTTON */}
             <View style={{position: "absolute", top: 15, right: 15, zIndex: 10,}}>
               <Pressable
                 onHoverIn={() => setHoverClose(true)}
                 onHoverOut={() => setHoverClose(false)}
                 onPress={() => setModalVisible(false)}
-                style={{
-                borderWidth: 1,
-                borderColor: "#000",
-                backgroundColor: hoverClose
-                  ? "#C0392B"
-                  : "#fff",
-                borderRadius: 100,
-                paddingVertical: 8,
-                paddingHorizontal: 12,
-                
-              }}
+                style={[ styles.closeBtn, { backgroundColor: hoverClose ? "#C0392B" : "#fff", }]}
               >
               <Ionicons name="close" size={18} color="#000" />
               </Pressable>
             </View>
+
+            {/* Product Image */}
             {selectedProduct && (
               <>
                 {selectedProduct?.product_image && (
-                  <View
-                    style={{
-                      width: "100%",
-                      height: 220,
-                      borderRadius: 16,
-                      overflow: "hidden",
-                      backgroundColor: "#f2f2f2",
-                      marginBottom: 15,
-                    }}
-                  >
+                  <View style={styles.productImage_container}>
                     <Image 
                       source={{ uri: selectedProduct.product_image }}
                       blurRadius={25}
-                      style={{ position: "absolute", width: "100%", height: "100%", resizeMode: "cover", transform: [{ scale: 1.2 }], }}
+                      style={styles.blurredBackground}
                     />
                     <Image
                       source={{ uri: selectedProduct.product_image }}
-                      style={{ width: "100%", height: "100%", resizeMode: "contain" }}
+                      style={styles.productImage}
                     />
 
+                  {/* Product Name */}
                     <View
-                      style={{
-                        position: "absolute",
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        paddingHorizontal: 14,
-                        paddingVertical: 10,
-                        backgroundColor: "rgba(0,0,0,0.45)",
-                        borderBottomLeftRadius: 16,
-                        borderBottomRightRadius: 16,
-                      }}
+                      style={styles.productName_background}
                     >
                       <Text
-                        style={{
-                          color: "#fff",
-                          fontSize: 20,
-                          fontFamily: "Montserrat-Bold",
-                        }}
+                        style={styles.productName_text}
                         numberOfLines={1}
                       >
                         {selectedProduct.name}
                       </Text>
+                      {/*
+                    :{
+                      
+                    */}
                     </View>
                   </View>
                 )}
@@ -1187,25 +1033,18 @@ export default function BusinessDashboard() {
                   showsVerticalScrollIndicator={false}
                 >
 
-
-                  <View style={{ flexDirection: "row", gap: 3, position: "absolute", left: 0, top: 0 }}>
+                  <View style={styles.buttonContainer}>
                       <View style={{position: "auto", }}>
                         {/* EDIT PRODUCT BUTTON */}
                         <Pressable
                         onPress={() => openEditModal(selectedProduct)}
                         onHoverIn={() => setHoverEdit(true)}
                         onHoverOut={() => setHoverEdit(false)}
-                        style={{
-                          borderWidth: 1,
-                          borderColor: "rgb(139, 132, 132)",
-                          borderRadius: 50,
+                        style={[styles.edit_delete_btn,{
                           backgroundColor: hoverEdit
                             ? "#a7a5a5"
                             : "#fff",
-                          paddingVertical: 8,
-                          paddingHorizontal: 12,
-                          
-                        }}
+                        }]}
                         >
                         <Ionicons name="create-outline" size={18} color="#000" />
                         </Pressable>
@@ -1219,16 +1058,11 @@ export default function BusinessDashboard() {
                           }}
                           onHoverIn={() => setHoverDelete(true)}
                           onHoverOut={() => setHoverDelete(false)}
-                          style={{
-                            borderWidth: 1,
-                            borderColor: "rgb(139, 132, 132)",
+                          style={[styles.edit_delete_btn, {
                             backgroundColor: hoverDelete
                               ? "#a7a5a5"
                               : "#fff",
-                            borderRadius: 50,
-                            paddingVertical: 8,
-                            paddingHorizontal: 12,
-                          }} 
+                          }]} 
                         >
                         <Ionicons name="trash-outline" size={18} color="#000" />
                         </Pressable>
@@ -1237,31 +1071,9 @@ export default function BusinessDashboard() {
 
                   {/* Delete Modal */}
                   <Modal transparent visible={showDeleteModal} animationType="fade">
-                    <View
-                      style={{
-                        flex: 1,
-                        backgroundColor: "rgba(0,0,0,0.5)",
-                        justifyContent: "center",
-                        alignItems: "center",
-                      }}
-                    >
-                      <View
-                        style={{
-                          width: 300,
-                          backgroundColor: "#fff",
-                          padding: 20,
-                          borderRadius: 12,
-                          elevation: 5,
-                        }}
-                      >
-                        <Text
-                          style={{
-                            fontSize: 18,
-                            fontFamily: "Montserrat-Regular",
-                            fontWeight: "bold",
-                            marginBottom: 10,
-                          }}
-                        >
+                    <View style={styles.modalOverlay}>
+                      <View style={styles.modalBox}>
+                        <Text style={styles.modalTitle}>
                           Delete Product
                         </Text>
 
@@ -1277,28 +1089,20 @@ export default function BusinessDashboard() {
                           }}
                         >
                           <Pressable
-                            style={{
-                              padding: 10,
-                              backgroundColor: "#eee",
-                              borderRadius: 8,
-                            }}
+                            style={styles.confirm_cancelButton}
                             onPress={() => setShowDeleteModal(false)}
                           >
-                            <Text style={{fontFamily: "Montserrat-Regular"}}>Cancel</Text>
+                            <Text style={styles.confirm_cancelText}>Cancel</Text>
                           </Pressable>
 
                           <Pressable
-                            style={{
-                              padding: 10,
-                              backgroundColor: "#be4848",
-                              borderRadius: 8,
-                            }}
+                            style={styles.confirm_deleteButton}
                             onPress={() => {
                               deleteProduct(selectedProduct.id);
                               setShowDeleteModal(false);
                             }}
                           >
-                            <Text style={{ color: "#fff", fontFamily: "Montserrat-Regular" }}>Delete</Text>
+                            <Text style={styles.confirm_deleteText}>Delete</Text>
                           </Pressable>
                         </View>
                       </View>
@@ -1306,36 +1110,34 @@ export default function BusinessDashboard() {
                   </Modal>
 
 
-                  <View style={{ marginBottom: 12, marginTop: 50, backgroundColor: "#f4f4f4", padding: 13, borderRadius: 12, borderWidth: 1, borderColor: "#d9d9d9",}}>
-                    <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 14 }}>
+                  <View style={styles.productInfoBox}>
+                    <Text style={styles.infoText}>
                       <Text style={{ fontWeight: "600" }}>Type:</Text> {selectedProduct.type}
                     </Text>
-                    <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 14 }}>
+                    <Text style={styles.infoText}>
                       <Text style={{ fontWeight: "600" }}>Materials:</Text> {selectedProduct.materials}
                     </Text>
-                    <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 14 }}>
+                    <Text style={styles.infoText}>
                       <Text style={{ fontWeight: "600" }}>Origin:</Text> {selectedProduct.origin}
                     </Text>
-                    <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 14 }}>
+                    <Text style={styles.infoText}>
                       <Text style={{ fontWeight: "600" }}>Production Date:</Text> {selectedProduct.productionDate}
                     </Text>
                   </View>
-                  <Text style={{ marginTop: 8, fontWeight: "600", fontSize: 14, fontFamily: "Montserrat-Regular" }}>
-                    Description:
+                  <Text style={[styles.infoText, {marginTop: 8}]}>
+                    <Text style={{ fontWeight : "600",}}>
+                      Description:
+                    </Text>
                   </Text>
-                  <View style={{ backgroundColor: "#f4f4f4", padding: 13, borderRadius: 12, borderWidth: 1, borderColor: "#d9d9d9", marginBottom: 15, marginTop: 5,}}>
-                  <Text style={{ fontFamily: "Montserrat-Regular", marginBottom: 20 }}>
-                    {selectedProduct.description}
-                  </Text>
+                  <View style={styles.descriptionBox}>
+                    <Text style={styles.descriptionText}>
+                      {selectedProduct.description}
+                    </Text>
                   </View>
                   {Array.isArray(processImages) && processImages.length > 0 && (
-                    <View style={{ marginBottom: 20 }}>
+                    <View style={styles.processContainer}>
                       <Text
-                        style={{
-                          fontFamily: "Montserrat-Regular",
-                          fontWeight: "600",
-                          marginBottom: 8,
-                        }}
+                        style={[styles.infoText, {fontWeight:"600", marginBottom: 10,}]}
                       >
                         Images of the Process:
                       </Text>
@@ -1463,50 +1265,35 @@ export default function BusinessDashboard() {
                           {processImages.map((img, index) => (
                             <View
                               key={index}
-                              style={{
+                              style={[styles.processCard,{
                                 width: CARD_WIDTH,
                                 height: isMobile ? 310 : 300,
                                 marginRight: CARD_MARGIN,
-                                borderRadius: 16,
-                                overflow: "hidden",
-                                backgroundColor: "#f2f2f2",
-                              }}
+                              }]}
                             >
                               <Image 
                                 source={{ uri: img }}
                                 blurRadius={25}
-                                style={{ position: "absolute", width: "100%", height: "100%", resizeMode: "cover", transform: [{ scale: 1.2 }], }}
+                                style={styles.blurredBackground}
                               />  
                               <Image
                                 source={{ uri: img }}
-                                style={{
-                                  width: "100%",
-                                  height: "100%",
-                                  resizeMode: "contain",
-                                }}
+                                style={styles.processImage}
                               />
                             </View>
                           ))}
                        
                         </ScrollView>
                         <View
-                          style={{
-                            flexDirection: "row",
-                            justifyContent: "center",
-                            marginTop: 10,
-                          }}
+                          style={styles.dotsContainer}
                         >
                           {processImages.map((_, index) => (
                             <View
                               key={index}
-                              style={{
-                                width: 8,
-                                height: 8,
-                                borderRadius: 4,
-                                marginHorizontal: 4,
+                              style={[styles.dot,{
                                 backgroundColor:
-                                  activeIndex === index ? "#000" : "#cfcfcf",
-                              }}
+                                activeIndex === index ? "#000" : "#cfcfcf",
+                              }]}
                             />
                           ))}
                         </View>
@@ -1516,37 +1303,20 @@ export default function BusinessDashboard() {
 
                   {/* QR + PRINT + DOWNLOAD */}
                   <View
-                    style={{
-                      alignItems: "center",
-                      backgroundColor: "#f9f9f9",
-                      padding: 14,
-                      borderRadius: 12,
-                      borderWidth: 1,
-                      borderColor: "#ccc",
-                      marginBottom: 20,
-                    }}
+                    style={styles.qrContainer}
                   >
                     <View 
-                      style={{
-                        gap: 3, position: "absolute", right: 5, top: 5,
-                      }}
+                      style={styles.qrButtons}
                     >
                       <Pressable
                         onHoverIn={() => setHoverPrint(true)}
                         onHoverOut={() => setHoverPrint(false)}
                         onPress={() => printQRCode(selectedProduct.qr_code)}
-                        style={{
-                          borderWidth: 1,
-                          borderColor: "rgb(139, 132, 132)",
-                          borderRadius: 50,
+                        style={[styles.qrIconButton, {
                           backgroundColor: hoverPrint
                             ? "#a7a5a5"
                             : "#fff",
-                          paddingVertical: 8,
-                          paddingHorizontal: 12,
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
+                        }]}
                       >
                         <Ionicons name="print-outline" size={16} color="#000" />
                       </Pressable>
@@ -1555,18 +1325,11 @@ export default function BusinessDashboard() {
                         onHoverIn={() => setHoverDownload(true)}
                         onHoverOut={() => setHoverDownload(false)}
                         onPress={() => downloadQRCode(selectedProduct.qr_code)}
-                        style={{
-                          borderWidth: 1,
-                          borderColor: "rgb(139, 132, 132)",
-                          borderRadius: 20,
+                        style={[styles.qrIconButton, {
                           backgroundColor: hoverDownload
                             ? "#a7a5a5"
                             : "#fff",
-                          paddingVertical: 8,
-                          paddingHorizontal: 12,
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
+                        }]}
                       >
                         <Ionicons name="download-outline" size={16} color="#000" />
                       </Pressable>
@@ -1575,34 +1338,18 @@ export default function BusinessDashboard() {
                       {selectedProduct?.qr_code && (
                         <Image
                           source={{ uri: selectedProduct.qr_code }}
-                          style={{ width: 200, height: 200, borderRadius: 8 }}
+                          style={styles.qrImage}
                           resizeMode="contain"
                         />
                       )}
                     </View>
 
                     {/* BLOCKCHAIN INFO */}
-                    <View
-                      style={{
-                        backgroundColor: "#f4f4f4",
-                        padding: 14,
-                        borderRadius: 12,
-                        borderWidth: 1,
-                        borderColor: "#d9d9d9",
-                        marginBottom: 20,
-                      }}
-                    >
-                      <Text
-                        style={{
-                          fontSize: 16,
-                          fontWeight: "700",
-                          marginBottom: 8,
-                          fontFamily: "Montserrat-Regular",
-                        }}
-                      >
+                    <View style={styles.blockchainBox}>
+                      <Text style={styles.blockchainTitle}>
                         Blockchain Information
                       </Text>
-                      <Text style={{ fontFamily: "Montserrat-Regular", marginBottom: 10 }}>
+                      <Text style={styles.blockchainText}>
                         <Text style={{ fontWeight: "600" }}>Transaction Hash:</Text>{" "}
                         {selectedProduct.tx_hash}
                       </Text>
@@ -1612,20 +1359,10 @@ export default function BusinessDashboard() {
                           onPress={() =>
                             Linking.openURL(`https://eth-sepolia.blockscout.com/tx/${selectedProduct.tx_hash}`)
                           }
-                          style={{
-                            backgroundColor: "#4A70A9",
-                            paddingVertical: 10,
-                            borderRadius: 6,
-                            marginTop: 5,
-                          }}
+                          style={styles.viewBlockchainButton}
                         >
                           <Text
-                            style={{
-                              fontWeight: "700",
-                              fontFamily: "Montserrat-Regular",
-                              textAlign: "center",
-                              color: "#ffffffff",
-                            }}
+                            style={styles.viewBlockchainText}
                           >
                             VIEW BLOCKCHAIN
                           </Text>
@@ -1640,38 +1377,25 @@ export default function BusinessDashboard() {
       </Modal>
       {/* EDIT PRODUCT MODAL */}
       <Modal visible={editModalVisible} animationType="fade" transparent>
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            justifyContent: "center",
-            alignItems: "center",
-            padding: 20,
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: "#fff",
-              padding: 20,
-              borderRadius: 16,
-              width: "90%",
-              maxWidth: 420,
-              maxHeight: "90%",
-            }}
-          >
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ alignItems: "center", paddingVertical: 3, paddingHorizontal: 5, borderColor: "#486d8f", borderWidth: 1, borderRadius: 10, borderStyle: "dotted" }} keyboardShouldPersistTaps="handled">
-            <Text style={{ fontSize: 18, fontWeight: "700", marginBottom: 0, marginTop: 0, fontFamily: 'Montserrat-Bold', includeFontPadding: false, }}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.editModalCard}>
+            <ScrollView 
+              showsVerticalScrollIndicator={false} 
+              contentContainerStyle={styles.editHeader} 
+              keyboardShouldPersistTaps="handled"
+            >
+            <Text style={styles.editTitle}>
               Edit Product
             </Text>
             </ScrollView>
 
-            <View style={{marginBottom: 7 }}>
-              <Text style={{fontWeight: "600", marginTop: -10, marginBottom: 4, fontSize: 13, fontFamily: 'Montserrat-Regular',}}>Product Name*</Text>
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Product Name*</Text>
               <TextInput
                 placeholder="Product Name"
                 value={editForm.name}
                 onChangeText={(t) => setEditForm({ ...editForm, name: t })}
-                style={{ borderWidth: 1, borderColor: "#ccc", padding: 8, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 13}}
+                style={styles.input}
               />
             </View>
 
@@ -1798,27 +1522,8 @@ export default function BusinessDashboard() {
             </View>    
             
             {isLoading && (
-              <View
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  backgroundColor: "rgba(0,0,0,0.4)",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  zIndex: 9999,
-                }}
-              >
-                <View
-                  style={{
-                    backgroundColor: "#fff",
-                    padding: 20,
-                    borderRadius: 12,
-                    alignItems: "center",
-                  }}
-                >
+              <View style={styles.loadingContainer}>
+                <View style={styles.loadingCard}>
                   <ActivityIndicator size="large" color="#5177b0" />
                   <Text style={{ marginTop: 10 }}>Updating Product Information...</Text>
                 </View>
@@ -1838,7 +1543,7 @@ export default function BusinessDashboard() {
               />
             </View>
 
-            <View style={{ flex: 1 , flexDirection: "row", alignSelf: "flex-end", gap: 8, padding: 5 }}>
+            <View style={styles.buttonRow}>
               <Pressable
                 onPress={() => {
                   if (selectedProduct?.id) {
@@ -1847,15 +1552,7 @@ export default function BusinessDashboard() {
                     alert("No product selected!");
                   }
                 }}
-                style={{
-                  backgroundColor: "#4A70A9",
-                  paddingVertical: 20,
-                  borderRadius: 10,
-                  padding: 10,
-                  minWidth: 90,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
+                style={styles.saveButton}
               >
                 <Text style={{ color: "#fff", textAlign: "center", fontWeight: "600", fontFamily: 'Montserrat-Regular'}}>
                   SAVE
@@ -1863,15 +1560,7 @@ export default function BusinessDashboard() {
               </Pressable>
 
               <Pressable
-                style={{
-                  backgroundColor: "#000",
-                  paddingVertical: 20,
-                  borderRadius: 10,
-                  padding: 10,
-                  minWidth: 90,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
+                style={styles.cancelButton}
                 onPress={() => setEditModalVisible(false)}
               >
                 <Text style={{ color: "#fff", textAlign: "center", fontWeight: "600", fontFamily: 'Montserrat-Regular' }}>
@@ -2031,3 +1720,576 @@ export default function BusinessDashboard() {
 </ImageBackground>
   );
 }
+
+const styles = StyleSheet.create({
+
+  dashboard_bg: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
+
+  dashboard_bgImage: {
+    opacity: 0.3,
+  },
+
+  dashboard_animatedContainer: {
+    flex: 1,
+  },
+
+  dashboard_scroll: {
+    flex: 1,
+  },
+
+  dashboard_scrollContent: {
+    alignItems: "center",
+    paddingVertical: 40,
+    paddingHorizontal: 20,
+  },
+
+  dashboard_welcomeCard: {
+    width: "100%",
+    maxWidth: 900,
+    marginBottom: 10,
+    borderWidth: 2,
+    borderColor: "#000",
+    borderRadius: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 25,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 4,
+  },
+
+  dashboard_searchInput: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+    borderWidth: 2,
+    borderColor: "#000",
+    borderRadius: 32,
+    fontFamily: "Montserrat-Regular",
+  },
+
+  dashboard_productCard: {
+    borderWidth: 2,
+    borderColor: "#000",
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 16,
+    width: "100%",
+  },
+
+  dashboard_productImage: {
+    width: 70,
+    height: 70,
+    borderRadius: 10,
+    resizeMode: "cover",
+  },
+
+  dashboard_viewButton: {
+    borderWidth: 2,
+    borderColor: "#000",
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  dashboard_modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  dashboard_modalCard: {
+    backgroundColor: "#fff",
+    padding: 15,
+    borderRadius: 16,
+    width: "90%",
+    maxWidth: 400,
+    elevation: 5,
+    maxHeight: "85%",
+  },
+  dashboard_welcomeText: {        
+    fontFamily: "Garet-Heavy",
+    color: "#000",
+    fontSize: 32,
+    textAlign: "left", 
+    },
+  dashboard_welcomeBusinessText:{
+    fontSize: 28,
+    fontFamily: "Montserrat-Black", 
+    color: "#4A70A9",
+    textAlign: "left",
+    marginTop: 5,
+  },
+  dashboard_headerContainer : {
+    width: "100%",
+    maxWidth: 900,
+    borderWidth: 2,
+    borderColor: "#000",
+    borderRadius: 20,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 4,
+    marginBottom: 20,
+    gap: 10,
+  },
+  dashboard_headerText: {
+    fontSize: 28,
+    fontFamily: "Garet-Heavy",
+    color: "#000",
+    letterSpacing: 1,
+    textAlign: "left",
+  },
+  searchProducts_container:{
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 10,
+    maxWidth: 900,
+    alignSelf: "center",
+    marginBottom: 15,
+  },
+  searchProducts_wrapper : {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    width: "70%",
+    position: "relative",
+  },
+  filterProducts_btn : {
+    paddingVertical: 14,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer", 
+  },
+  reportGeneration_btn : {
+    paddingVertical: 14,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+  }, 
+  productRegistration_btn :{
+    width: "29%",
+    backgroundColor: "#4A70A9",
+    paddingVertical: 14,
+    borderRadius: 999,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    borderColor: "#000",
+    borderWidth: 2,
+    elevation: 3,
+  },
+  productRegistration_btnText:{
+    color: "#fff",
+    fontFamily: "Montserrat-Bold",
+    fontSize: 14,
+    letterSpacing: 0.5
+  },
+  productListText:{
+    fontSize: 14,
+    fontFamily: "Montserrat-Regular",
+    marginBottom: 10,
+    textAlign: "left",
+  },
+  closeBtn : {
+    borderWidth: 1,
+    borderColor: "#000",
+    borderRadius: 100,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  showMore_text:{
+    fontSize: 14, 
+    color: "#444", 
+    fontWeight: "500", 
+    textDecorationLine: "underline",
+  },
+  productImage_container:{
+    width: "100%",
+    height: 220,
+    borderRadius: 16,
+    overflow: "hidden",
+    backgroundColor: "#f2f2f2",
+    marginBottom: 15,
+  },
+  productImage:{
+    width: "100%", 
+    height: "100%", 
+    resizeMode: "contain"
+  },
+  productName_background:{
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    backgroundColor: "rgba(0,0,0,0.45)",
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+  },
+  productName_text:{
+    color: "#fff",
+    fontSize: 20,
+    fontFamily: "Montserrat-Bold",
+  },
+  buttonContainer:{
+    flexDirection: "row", 
+    gap: 3, 
+    position: "absolute", 
+    left: 0, 
+    top: 0
+  },
+  edit_delete_btn:{
+    borderWidth: 1,
+    borderColor: "rgb(139, 132, 132)",
+    borderRadius: 50,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  blurredBackground: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+    transform: [{ scale: 1.2 }],
+  },
+  modalBox: {
+    width: 300,
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 12,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontFamily: "Montserrat-Regular",
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  modalText: {
+    marginBottom: 20,
+    fontFamily: "Montserrat-Regular",
+  },
+  rowButtons: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 10,
+  },
+  confirm_deleteButton: {
+    padding: 10,
+    backgroundColor: "#be4848",
+    borderRadius: 8,
+    justifyContent: "center",
+  },
+  confirm_deleteText: {
+    color: "#fff",
+    fontFamily: "Montserrat-Regular",
+  },
+  confirm_cancelButton: {
+    padding: 10,
+    backgroundColor: "#eee",
+    borderRadius: 8,
+  },
+  confirm_cancelText : {
+    fontFamily: "Montserrat-Regular",
+  },
+  productInfoBox: {
+    marginBottom: 12,
+    marginTop: 50,
+    backgroundColor: "#f4f4f4",
+    padding: 13,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#d9d9d9",
+  },
+  infoText: {
+    fontFamily: "Montserrat-Regular",
+    fontSize: 14,
+  },
+  descriptionBox: {
+    backgroundColor: "#f4f4f4",
+    padding: 13,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#d9d9d9",
+    marginBottom: 15,
+    marginTop: 5,
+  },
+  descriptionText : {
+    fontFamily: "Montserrat-Regular",
+    marginBottom: 20,
+  },
+  qrContainer: {
+    alignItems: "center",
+    backgroundColor: "#f9f9f9",
+    padding: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    marginBottom: 20,
+  },
+  qrImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 8,
+  },
+  blockchainBox: {
+    backgroundColor: "#f4f4f4",
+    padding: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#d9d9d9",
+    marginBottom: 20,
+  },
+  blockchainTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    marginBottom: 8,
+    fontFamily: "Montserrat-Regular",
+  },
+  viewBlockchainButton: {
+    backgroundColor: "#4A70A9",
+    paddingVertical: 10,
+    borderRadius: 6,
+    marginTop: 5,
+  },
+  viewBlockchainText: {
+    fontWeight: "700",
+    fontFamily: "Montserrat-Regular",
+    textAlign: "center",
+    color: "#fff",
+  },
+  dotsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginVertical: 10,
+  },
+
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginHorizontal: 4,
+  },
+
+  qrContainer: {
+    alignItems: "center",
+    backgroundColor: "#f9f9f9",
+    padding: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    marginBottom: 20,
+  },
+
+  qrImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 8,
+  },
+
+  qrButtons: {
+    gap: 3,
+    position: "absolute",
+    right: 5,
+    top: 5,
+  },
+
+  qrIconButton: {
+    borderWidth: 1,
+    borderColor: "rgb(139, 132, 132)",
+    borderRadius: 50,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  blockchainBox: {
+    backgroundColor: "#f4f4f4",
+    padding: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#d9d9d9",
+    marginBottom: 20,
+  },
+
+  blockchainTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    marginBottom: 8,
+    fontFamily: "Montserrat-Regular",
+  },
+
+  blockchainText: {
+    fontFamily: "Montserrat-Regular",
+    marginBottom: 10,
+  },
+
+  viewBlockchainButton: {
+    backgroundColor: "#4A70A9",
+    paddingVertical: 10,
+    borderRadius: 6,
+    marginTop: 5,
+  },
+
+  viewBlockchainText: {
+    fontWeight: "700",
+    fontFamily: "Montserrat-Regular",
+    textAlign: "center",
+    color: "#fff",
+  },
+  loadingContainer : {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 9999,
+  },
+  loadingCard: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+
+  editModalCard: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 16,
+    width: "90%",
+    maxWidth: 420,
+    maxHeight: "90%",
+  },
+
+  editHeader: {
+    alignItems: "center",
+    paddingVertical: 3,
+    paddingHorizontal: 5,
+    borderColor: "#486d8f",
+    borderWidth: 1,
+    borderRadius: 10,
+    borderStyle: "dotted",
+  },
+
+  editTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    fontFamily: "Montserrat-Bold",
+    includeFontPadding: false,
+  },
+
+  formGroup: {
+    marginBottom: 7,
+  },
+
+  label: {
+    fontWeight: "600",
+    marginBottom: 4,
+    fontSize: 13,
+    fontFamily: "Montserrat-Regular",
+  },
+
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: "#fafafa",
+    width: "100%",
+    fontFamily: "Montserrat-Regular",
+    fontSize: 13,
+  },
+
+  multilineInput: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: "#fafafa",
+    width: "100%",
+    fontFamily: "Montserrat-Regular",
+    fontSize: 14,
+    height: 180,
+  },
+
+  buttonRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignSelf: "flex-end",
+    gap: 8,
+    padding: 5,
+  },
+
+  saveButton: {
+    backgroundColor: "#4A70A9",
+    paddingVertical: 20,
+    borderRadius: 10,
+    padding: 10,
+    minWidth: 90,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  cancelButton: {
+    backgroundColor: "#000",
+    paddingVertical: 20,
+    borderRadius: 10,
+    padding: 10,
+    minWidth: 90,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  buttonText: {
+    color: "#fff",
+    textAlign: "center",
+    fontWeight: "600",
+    fontFamily: "Montserrat-Regular",
+  },
+  processImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "contain",
+  },
+  processCard: {
+    borderRadius: 16,
+    overflow: "hidden",
+    backgroundColor: "#f2f2f2",
+  },
+});

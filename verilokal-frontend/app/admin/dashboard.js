@@ -12,6 +12,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  StyleSheet,
 } from "react-native";
 
 
@@ -106,55 +107,21 @@ export default function AdminDashboard() {
   const [hoverClose, setHoverClose] = useState(false);
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#E9EDF5", padding: 30, paddingHorizontal: 220, }}>
-      <View style={{ 
-        width: "100%",  
-        marginBottom: 10,
-        borderWidth: 2, 
-        borderColor: "#000",
-        borderRadius: 20,
-        paddingVertical: 20, 
-        paddingHorizontal: 25,
-        shadowColor: "#000",
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
-        elevation: 4,}}>
-        <Text
-          style={{
-            fontSize: 32,
-            fontFamily: "Garet-Heavy",
-            color: "#000",
-            marginBottom: 5,
-          }}
-        >
+    <View style={styles.admin_mainContainer}>
+      <View style={styles.admin_headerCard}>
+        <Text style={styles.admin_headerTitle}>
           Admin Dashboard
         </Text>
       </View>
 
-    <Text
-      style={{
-        fontSize: 18,
-        fontWeight: "600",
-        color: "#6B7280",
-        marginBottom: 20,
-      }}
-    >
+    <Text style={styles.admin_pendingTitle}>
       Pending Business Accounts
     </Text>
     {/* ===== SUMMARY CARDS ===== */}
-    <View style={{ flexDirection: "row", gap: 20, marginBottom: 25 }}>
+    <View style={styles.admin_summaryContainer}>
 
       {/* Total Pending */}
-      <View style={{
-        flex: 1,
-        backgroundColor: "#FFFFFF",
-        borderRadius: 18,
-        padding: 20,
-        shadowColor: "#000",
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        elevation: 4,
-      }}>
+      <View style={styles.admin_summaryCard}>
         <Text style={{
           fontFamily: "Montserrat-Bold",
           fontSize: 14,
@@ -172,41 +139,22 @@ export default function AdminDashboard() {
         </Text>
       </View>
     </View>
-      <View
-  style={{
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    padding: 25,
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 4,
-  }}
->
+      <View style={styles.admin_tableContainer}>
 
   <ScrollView horizontal showsHorizontalScrollIndicator={false}>
     <View>
 
       {/* HEADER */}
-      <View
-        style={{
-          flexDirection: "row",
-          paddingVertical: 18,
-          paddingHorizontal: 15,
-          minWidth: 1400,
-          borderBottomWidth: 1,
-          borderBottomColor: "#E5E7EB",
-        }}
-      >
-        <Text style={{ flex: 1.2, fontFamily: "Montserrat-Bold", fontSize: 13, color: "#6B7280" }}>NAME</Text>
-        <Text style={{ flex: 1.2, fontFamily: "Montserrat-Bold", fontSize: 13, color: "#6B7280" }}>ADDRESS</Text>
-        <Text style={{ flex: 1.2, fontFamily: "Montserrat-Bold", fontSize: 13, color: "#6B7280" }}>REGISTERED NAME</Text>
-        <Text style={{ flex: 2, fontFamily: "Montserrat-Bold", fontSize: 13, color: "#6B7280" }}>DESCRIPTION</Text>
-        <Text style={{ flex: 1, textAlign: "center", fontFamily: "Montserrat-Bold", fontSize: 13, color: "#6B7280" }}>PERMIT</Text>
-        <Text style={{ flex: 1, textAlign: "center", fontFamily: "Montserrat-Bold", fontSize: 13, color: "#6B7280" }}>CERTIFICATES</Text>
-        <Text style={{ flex: 1, textAlign: "center", fontFamily: "Montserrat-Bold", fontSize: 13, color: "#6B7280" }}>LOGO</Text>
-        <Text style={{ flex: 1.1, fontFamily: "Montserrat-Bold", fontSize: 13, color: "#6B7280" }}>CONTACT</Text>
-        <Text style={{ flex: 1, textAlign: "center", fontFamily: "Montserrat-Bold", fontSize: 13, color: "#6B7280" }}>ACTION</Text>
+      <View style={styles.admin_tableHeaderRow}>
+        <Text style={styles.admin_heading_1}>NAME</Text>
+        <Text style={styles.admin_heading_1}>ADDRESS</Text>
+        <Text style={styles.admin_heading_1}>REGISTERED NAME</Text>
+        <Text style={styles.admin_heading_2}>DESCRIPTION</Text>
+        <Text style={styles.admin_heading_3}>PERMIT</Text>
+        <Text style={styles.admin_heading_3}>CERTIFICATES</Text>
+        <Text style={styles.admin_heading_3}>LOGO</Text>
+        <Text style={styles.admin_heading_4}>CONTACT</Text>
+        <Text style={styles.admin_heading_3}>ACTION</Text>
       </View>
 
       {/* ROWS */}
@@ -218,34 +166,19 @@ export default function AdminDashboard() {
         pendingBusinesses.map((b) => (
           <View
             key={b.id}
-            style={{
-              flexDirection: "row",
-              paddingVertical: 20,
-              paddingHorizontal: 15,
-              minWidth: 1400,
-              borderBottomWidth: 1,
-              borderBottomColor: "#F3F4F6",
-              alignItems: "center",
-            }}
-          >
-            <Text style={{ flex: 1.2, fontFamily: "Montserrat-Regular", color: "#111827" }}>{b.name}</Text>
-            <Text style={{ flex: 1.2, fontFamily: "Montserrat-Regular", color: "#111827" }}>{b.address}</Text>
-            <Text style={{ flex: 1.2, fontFamily: "Montserrat-Regular", color: "#111827" }}>{b.registered_business_name}</Text>
-            <Text style={{ flex: 2, fontFamily: "Montserrat-Regular", color: "#111827" }}>{b.description}</Text>
+            style={styles.admin_tableRow}>
+            <Text style={styles.admin_pendingHeading_1}>{b.name}</Text>
+            <Text style={styles.admin_pendingHeading_1}>{b.address}</Text>
+            <Text style={styles.admin_pendingHeading_1}>{b.registered_business_name}</Text>
+            <Text style={styles.admin_pendingHeading_2}>{b.description}</Text>
 
             {/* Permit */}
             <View style={{ flex: 1, alignItems: "center" }}>
               {b.permit ? (
                 <TouchableOpacity
                   onPress={() => showImage(b.permit)}
-                  style={{
-                    backgroundColor: "#E0E7FF",
-                    paddingVertical: 6,
-                    paddingHorizontal: 16,
-                    borderRadius: 10,
-                  }}
-                >
-                  <Text style={{ color: "#4338CA", fontFamily: "Montserrat-Bold", fontSize: 12 }}>View</Text>
+                  style={styles.showImageButton}>
+                  <Text style={[styles.buttonText,{ color: "#4338CA"}]}>View</Text>
                 </TouchableOpacity>
               ) : <Text>-</Text>}
             </View>
@@ -255,14 +188,8 @@ export default function AdminDashboard() {
               {b.certificates ? (
                 <TouchableOpacity
                   onPress={() => showImage(b.certificates)}
-                  style={{
-                    backgroundColor: "#EDE9FE",
-                    paddingVertical: 6,
-                    paddingHorizontal: 16,
-                    borderRadius: 10,
-                  }}
-                >
-                  <Text style={{ color: "#6D28D9", fontFamily: "Montserrat-Bold", fontSize: 12 }}>View</Text>
+                  style={styles.showImageButton}>
+                  <Text style={[styles.buttonText,{ color: "#6D28D9"}]}>View</Text>
                 </TouchableOpacity>
               ) : <Text>-</Text>}
             </View>
@@ -279,7 +206,7 @@ export default function AdminDashboard() {
                     borderRadius: 10,
                   }}
                 >
-                  <Text style={{ color: "#1D4ED8", fontFamily: "Montserrat-Bold", fontSize: 12 }}>View</Text>
+                  <Text style={[styles.buttonText, { color: "#1D4ED8"}]}>View</Text>
                 </TouchableOpacity>
               ) : <Text>-</Text>}
             </View>
@@ -302,7 +229,7 @@ export default function AdminDashboard() {
                   borderRadius: 10,
                 }}
               >
-                <Text style={{ color: "#15803D", fontFamily: "Montserrat-Bold", fontSize: 12 }}>
+                <Text style={[styles.buttonText, { color: "#15803D" }]}>
                   Verify
                 </Text>
               </TouchableOpacity>
@@ -319,7 +246,7 @@ export default function AdminDashboard() {
                   borderRadius: 10,
                 }}
               >
-                <Text style={{ color: "#B91C1C", fontFamily: "Montserrat-Bold", fontSize: 12 }}>
+                <Text style={[styles.buttonText, { color: "#B91C1C" }]}>
                   Delete
                 </Text>
               </TouchableOpacity>
@@ -333,30 +260,9 @@ export default function AdminDashboard() {
 
       {/* Delete Business Modal */}
       <Modal transparent visible={showDeleteModal} animationType="fade">
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <View
-            style={{
-              width: 300,
-              backgroundColor: "#fff",
-              padding: 20,
-              borderRadius: 12,
-              elevation: 5,
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 18,
-                fontFamily: "Montserrat-Bold",
-                marginBottom: 10,
-              }}
-            >
+        <View style={styles.modalMainContainer}>
+          <View style={styles.modalContentContainer}>
+            <Text style={styles.modalHeading}>
               Delete Business
             </Text>
 
@@ -365,18 +271,10 @@ export default function AdminDashboard() {
             </Text>
 
             <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "flex-end",
-                gap: 10,
-              }}
+              style={styles.modalButtonContainer}
             >
               <Pressable
-                style={{
-                  padding: 10,
-                  backgroundColor: "#eee",
-                  borderRadius: 8,
-                }}
+                style={styles.modalButton}
                 onPress={() => setShowDeleteModal(false)}
               >
                 <Text style={{ fontFamily: "Montserrat-Regular" }}>Cancel</Text>
@@ -405,30 +303,9 @@ export default function AdminDashboard() {
       </Modal>
       {/* Verify Business Modal */}
       <Modal transparent visible={showVerifyModal} animationType="fade">
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <View
-            style={{
-              width: 300,
-              backgroundColor: "#fff",
-              padding: 20,
-              borderRadius: 12,
-              elevation: 5,
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 18,
-                fontFamily: "Montserrat-Bold",
-                marginBottom: 10,
-              }}
-            >
+        <View style={styles.modalMainContainer}>
+          <View style={styles.modalContentContainer}>
+            <Text style={styles.modalHeading}>
               Verify Business
             </Text>
 
@@ -436,19 +313,9 @@ export default function AdminDashboard() {
               Are you sure you want to verify this business?
             </Text>
 
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "flex-end",
-                gap: 10,
-              }}
-            >
+            <View style={styles.modalButtonContainer}>
               <Pressable
-                style={{
-                  padding: 10,
-                  backgroundColor: "#eee",
-                  borderRadius: 8,
-                }}
+                style={styles.modalButton}
                 onPress={() => setShowVerifyModal(false)}
               >
                 <Text style={{ fontFamily: "Montserrat-Regular" }}>Cancel</Text>
@@ -477,17 +344,7 @@ export default function AdminDashboard() {
       </Modal>
       {/* Image Modal */}
       <Modal visible={showModal} transparent>
-        <View
-          style={{
-            flex: 1,
-            flexDirection: "row",
-            backgroundColor: "rgba(0,0,0,0.8)",
-            justifyContent: "center",
-            alignItems: "center",
-            padding: 20,
-            width: "75%%",
-          }}
-        >
+        <View style={styles.admin_imageModalContainer}>
           {currentImages.length > 0 && (
             <>
               {/* Left Arrow */}
@@ -512,15 +369,7 @@ export default function AdminDashboard() {
               </View>
 
               {/* Image */}
-              <Image
-                source={{ uri: currentImages[currentIndex] }}
-                style={{
-                  width: Dimensions.get("window").width * 0.85,
-                  height: Dimensions.get("window").height * 0.75,
-                  resizeMode: "contain",
-                  borderRadius: 16,
-                }}
-              />
+              <Image style={styles.admin_modalImage}/>
 
               {/* Right Arrow */}
               <View style={{ width: 0, alignItems: "center" }}>
@@ -546,23 +395,15 @@ export default function AdminDashboard() {
           )}
 
           {/* CLOSE BUTTON */}
-            <View style={{position: "absolute", top: 125, right: 120, zIndex: 10,}}>
+            <View style={styles.admin_closeButtonWrapper}>
               <Pressable
                 onHoverIn={() => setHoverClose(true)}
                 onHoverOut={() => setHoverClose(false)}
                 onPress={() => setShowModal(false)}
-                style={{
-                borderWidth: 1,
-                borderColor: "#000",
-                backgroundColor: hoverClose
-                  ? "#C0392B"
-                  : "#fff",
-                borderRadius: 100,
-                paddingVertical: 8,
-                paddingHorizontal: 12,
-                
-              }}
-              >
+                style={[
+                  styles.admin_closeButton,
+                  { backgroundColor: hoverClose ? "#C0392B" : "#fff" }
+                ]}>
               <Ionicons name="close" size={18} color="#000" />
               </Pressable>
             </View>
@@ -571,3 +412,194 @@ export default function AdminDashboard() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+
+  admin_mainContainer: {
+    flex: 1,
+    backgroundColor: "#E9EDF5",
+    padding: 30,
+    paddingHorizontal: 220,
+  },
+
+  admin_headerCard: {
+    width: "100%",
+    marginBottom: 10,
+    borderWidth: 2,
+    borderColor: "#000",
+    borderRadius: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 25,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 4,
+  },
+
+  admin_headerTitle: {
+    fontSize: 32,
+    fontFamily: "Garet-Heavy",
+    color: "#000",
+    marginBottom: 5,
+  },
+
+  admin_pendingTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#6B7280",
+    marginBottom: 20,
+  },
+
+  admin_summaryContainer: {
+    flexDirection: "row",
+    gap: 20,
+    marginBottom: 25,
+  },
+
+  admin_summaryCard: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+
+  admin_tableContainer: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
+    padding: 25,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+
+  admin_tableHeaderRow: {
+    flexDirection: "row",
+    paddingVertical: 18,
+    paddingHorizontal: 15,
+    minWidth: 1400,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E7EB",
+  },
+
+  admin_tableRow: {
+    flexDirection: "row",
+    paddingVertical: 20,
+    paddingHorizontal: 15,
+    minWidth: 1400,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F3F4F6",
+    alignItems: "center",
+  },
+
+  admin_imageModalContainer: {
+    flex: 1,
+    flexDirection: "row",
+    backgroundColor: "rgba(0,0,0,0.8)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+    width: "75%%",
+  },
+
+  admin_modalImage: {
+    width: Dimensions.get("window").width * 0.85,
+    height: Dimensions.get("window").height * 0.75,
+    resizeMode: "contain",
+    borderRadius: 16,
+  },
+
+  admin_closeButtonWrapper: {
+    position: "absolute",
+    top: 125,
+    right: 120,
+    zIndex: 10,
+  },
+
+  admin_closeButton: {
+    borderWidth: 1,
+    borderColor: "#000",
+    borderRadius: 100,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  admin_heading_1 : {
+    flex: 1.2, 
+    fontFamily: "Montserrat-Bold", 
+    fontSize: 13, 
+    color: "#6B7280"
+  },
+  admin_heading_2: { 
+    flex: 2, 
+    fontFamily: "Montserrat-Bold", 
+    fontSize: 13, 
+    color: "#6B7280" 
+  },
+
+  admin_heading_3: { 
+    flex: 1, 
+    textAlign: "center", 
+    fontFamily: "Montserrat-Bold", 
+    fontSize: 13, 
+    color: "#6B7280" 
+  },
+  admin_heading_4: { 
+    flex: 1.1, 
+    fontFamily: "Montserrat-Bold", 
+    fontSize: 13, 
+    color: "#6B7280" 
+  },
+  admin_pendingHeading_1: { 
+    flex: 1.2, 
+    fontFamily: "Montserrat-Regular", 
+    color: "#111827" 
+  },
+  admin_pendingHeading_2: { 
+    flex: 2, 
+    fontFamily: "Montserrat-Regular", 
+    color: "#111827" 
+  },
+  showImageButton: {
+    backgroundColor: "#E0E7FF",
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+  },
+  buttonText: {
+    fontFamily: "Montserrat-Bold", 
+    fontSize: 12 
+  },
+  modalMainContainer: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContentContainer: {
+    width: 300,
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 12,
+    elevation: 5,
+  },
+  modalHeading: {
+    fontSize: 18,
+    fontFamily: "Montserrat-Bold",
+    marginBottom: 10,
+  },
+  modalButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 10,
+  },
+  modalButton: {
+    padding: 10,
+    backgroundColor: "#eee",
+    borderRadius: 8,
+  },
+
+});
