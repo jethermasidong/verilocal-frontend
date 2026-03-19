@@ -1411,12 +1411,12 @@ export default function BusinessDashboard() {
               style={{ borderWidth: 1, borderColor: "#ccc", padding: 8, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 13}}
             >
               <Picker.Item label="Select Type" value="" />
-              <Picker.Item label="Woodcrafts" value="woodcraft" />
-              <Picker.Item label="Weaving and Textiles" value="textile" />
+              <Picker.Item label="Woodcrafts" value="Woodcraft" />
+              <Picker.Item label="Weaving and Textiles" value="Textile" />
             </Picker>
             <Text style={{fontWeight: "600", marginTop: 6, marginBottom: 1, fontSize: 13, fontFamily: 'Montserrat-Regular',}}>Materials*</Text>
             </View>
-            {editForm.type === "woodcraft" && (
+            {editForm.type === "Woodcraft" && (
               <View style={{marginBottom: 7 }}>
                 <Picker 
                 selectedValue={editForm.materials}
@@ -1434,7 +1434,7 @@ export default function BusinessDashboard() {
                 </Picker>
                 </View>
             )}  
-            {editForm.type === "textile" && (
+            {editForm.type === "Textile" && (
               <View style={{marginBottom: 7 }}>
                 <Picker 
                 selectedValue={editForm.materials}
