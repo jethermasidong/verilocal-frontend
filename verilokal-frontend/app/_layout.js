@@ -2,10 +2,15 @@ import { Slot } from "expo-router";
 import { View } from "react-native";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
-
+import Head from 'expo-router/head';
 export default function HomeLayout() {
   return (
     <>
+      <Head>
+        <title>VeriLocal</title>
+        <link rel="icon" href='/favicon.ico?v=1' />
+      </Head>
+
       <Navbar 
         links={[
           { name: "HOME", route: "/" },
@@ -14,10 +19,9 @@ export default function HomeLayout() {
           { name: "JOIN US", route: "/login-business" },
         ]}
       />
-      {/* Spacer to prevent content overlap */}
+
       <View style={{ height: 70, }} />
       
-
       <Slot />
 
       <Footer />
