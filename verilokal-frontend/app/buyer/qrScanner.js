@@ -324,9 +324,7 @@ export default function ProductScanner() {
           setResultVisible(false);
           if (onSuccessDone) onSuccessDone();
         }, 3000);
-      } else {
-          showResult("error", res.data.message || "Product QR not Verified!");
-      }
+      } 
     };
 
   return (
