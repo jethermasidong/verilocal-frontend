@@ -94,7 +94,7 @@ export default function AboutMe() {
 
   const pillars = [
     { icon: "lock-closed-outline", label: "Secure Authentication" },
-    { icon: "sync-outline", label: "Supply Chain Transparency" },
+    { icon: "sync-outline", label: "Secure Brand Identity and Integrity" },
     { icon: "shield-outline", label: "Consumer Trust Protection" },
   ];
 
@@ -145,8 +145,8 @@ export default function AboutMe() {
 
           <Text style={[styles.paragraph, isMobile && { textAlign: "center" }]}>
             VeriLokal bridges traditional Filipino craftsmanship with modern
-            blockchain infrastructure — safeguarding product authenticity and
-            enabling full supply chain transparency.
+            blockchain infrastructure, safeguarding product authenticity,
+            brand identity, and integrity.
           </Text>
 
           <Text style={[styles.paragraph, isMobile && { textAlign: "center" }]}>

@@ -711,13 +711,13 @@ export default function RegisterProduct() {
                         style={styles.picker}
                       >
                         <Picker.Item label="Select Type" value="" />
-                        <Picker.Item label="Woodcrafts" value="woodcraft" />
-                        <Picker.Item label="Weaving and Textiles" value="textile" />
+                        <Picker.Item label="Woodcrafts" value="Woodcraft" />
+                        <Picker.Item label="Weaving and Textiles" value="Textile" />
                       </Picker>
                       {errors.type && <Text style={styles.errorText}>{errors.type}</Text>}
                     </View>
 
-                    {form.type === "woodcraft" && (
+                    {form.type === "Woodcraft" && (
                       <View style={styles.inputContainer}>
                         <Picker
                           selectedValue={form.materials}
@@ -737,7 +737,7 @@ export default function RegisterProduct() {
                       </View>
                     )}
 
-                    {form.type === "textile" && (
+                    {form.type === "Textile" && (
                       <View style={styles.inputContainer}>
                         <Picker
                           selectedValue={form.materials}
