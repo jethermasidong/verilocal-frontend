@@ -32,6 +32,8 @@ export default function BusinessProfile() {
   const certIndex = useRef(0);
   const permitIndex = useRef(0);
 
+  const [showCertificates, setShowCertificates] = useState(true);
+
   const certScrollRef = useRef(null);
   const permitScrollRef = useRef(null);
 
@@ -67,6 +69,7 @@ export default function BusinessProfile() {
                 contact_no1: business.contact_no1,
                 social_link: business.social_link,
                 logo: business.logo,
+                show_certificates: showCertificates,
             },
             {headers: {Authorization: `Bearer ${token}`}}
         );
@@ -111,6 +114,7 @@ export default function BusinessProfile() {
             );
   
             setBusiness(res.data);
+            setShowCertificates(res.data.show_certificates);
           } catch (err) {
             console.error("Failed to load business profile:", err);
           }
@@ -374,6 +378,16 @@ export default function BusinessProfile() {
                         />
                       ))}
                     </View>
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingBottom: 10, paddingTop: 10}}>
+                      <Pressable disable={!isEditing} onPress={() => setShowCertificates(prev => !prev)}>
+                        <Ionicons
+                          name={showCertificates ? "checkbox" : "square-outline"}
+                          size={22}
+                          color={isEditing ? "#466be5" : "aaa"}
+                        />
+                      </Pressable>
+                      <Text style={{fontFamily: 'Montserrat-Regular', fontSize: 12}}>Show Certificates Publicly</Text>
+                    </View>
                   </Animated.View>
                 )}
               </>
@@ -505,6 +519,16 @@ export default function BusinessProfile() {
                           </Pressable>
                         </>
                       )}
+                    </View>
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingBottom: 10, paddingTop: 10}}>
+                      <Pressable disabled={!isEditing} onPress={() => setShowCertificates(prev => !prev)}>
+                        <Ionicons
+                          name={showCertificates ? "checkbox" : "square-outline"}
+                          size={22}
+                          color={isEditing ? "#466be5" : "aaa"}
+                        />
+                      </Pressable>
+                      <Text style={{fontFamily: 'Montserrat-Regular', fontSize: 12}}>Show Certificates Publicly</Text>
                     </View>
                 </Animated.View>
               )}
@@ -656,6 +680,8 @@ const styles = StyleSheet.create({
     gap: 6, 
     alignItems: "center", 
     marginLeft: 10,
+    paddingTop: 10,
+    paddingBottom: 10,
   },
 
   headerText: {

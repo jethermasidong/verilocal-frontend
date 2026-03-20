@@ -20,7 +20,7 @@ export default function PublicProfile() {
   const {business_id}= useLocalSearchParams();
 
   const [activePanel, setActivePanel] = useState(null);
-  const [renderedPanel, setRenderedPanel] = useState(null);
+
   const [isAnimating, setIsAnimating] = useState(false);
   const togglePanel = (panel) => {
     if (isAnimating) return;
@@ -224,12 +224,14 @@ export default function PublicProfile() {
             {isMobile && (
               <>
                 <View style={styles.iconRow}>
-                  <IconButton
-                    icon="images-outline"
-                    label="Certificates"
-                    active={activePanel === "certificates"}
-                    onPress={() => togglePanel("certificates")}
-                  />
+                  {!!business.show_certificates && (
+                    <IconButton
+                      icon="images-outline"
+                      label="Certificates"
+                      active={activePanel === "certificates"}
+                      onPress={() => togglePanel("certificates")}
+                    />
+                  )}
                   <IconButton
                     icon="cube-outline"
                     label="Permits"
@@ -260,7 +262,7 @@ export default function PublicProfile() {
                   </Animated.View>
                 )}
 
-                {activePanel === "certificates" && (
+                {!!business.show_certificates && activePanel === "certificates" && (
                   <Animated.View style={[styles.dropdown, dropdownStyle]}>
                     <ScrollView
                       horizontal
@@ -306,12 +308,14 @@ export default function PublicProfile() {
           {!isMobile && (
             <View style={styles.right}>
               <View style={[styles.iconRow, isMobile && { marginTop: 15 }]}>
-                <IconButton
-                  icon="images-outline"
-                  label="Certificates"
-                  active={activePanel === "certificates"}
-                  onPress={() => togglePanel("certificates")}
-                />
+                {business.show_certificates && (
+                  <IconButton
+                    icon="images-outline"
+                    label="Certificates"
+                    active={activePanel === "certificates"}
+                    onPress={() => togglePanel("certificates")}
+                  />
+                )}
                 <IconButton
                   icon="cube-outline"
                   label="Permits"
@@ -358,7 +362,7 @@ export default function PublicProfile() {
                   </ScrollView>
                 </Animated.View>
               )}
-              {activePanel === "certificates" && (
+              {business.show_certificates && activePanel === "certificates" && (
                 <Animated.View
                   style={[
                     styles.dropdown,
