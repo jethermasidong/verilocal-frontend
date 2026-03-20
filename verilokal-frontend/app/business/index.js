@@ -1431,6 +1431,9 @@ export default function BusinessDashboard() {
                   <Picker.Item label="Mahogany" value="Mahogany" />
                   <Picker.Item label="Batikuling" value="Batikuling" />
                   <Picker.Item label="Gmelina" value="Gmelina" />
+                  <Picker.Item label="Mangga" value="Mangga" />
+                  <Picker.Item label="Alnus" value="Alnus" /> 
+                  <Picker.Item label="Langka" value="Langka" />
                 </Picker>
                 </View>
             )}  
