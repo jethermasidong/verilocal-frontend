@@ -207,7 +207,7 @@ export default function Home() {
                 ]}
               >
                 {[
-                  { value: "100%", label: "Verified" },
+                  { value: "100%", label: "Trusted" },
                   { value: "Secure", label: "Blockchain" },
                   { value: "PH", label: "Made" },
                 ].map((s, i) => (

@@ -3,8 +3,10 @@ import axios from "axios";
 import { useFonts } from "expo-font";
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Animated, Dimensions, Image, Modal, Pressable, ScrollView, Text, View } from "react-native";
+import {ActivityIndicator, Animated, Dimensions, Image, ImageBackground, Modal, Pressable, ScrollView, Text, View } from "react-native";
 import BackButton from "../../components/BackButton";
+
+
 export default function ProductScanner() {
   const [isScanning, setIsScanning] = useState(false);
   const [qrData, setQrData] = useState(null);
@@ -46,8 +48,8 @@ export default function ProductScanner() {
   useEffect(() => {
     const handleResize = () => setIsMobile(Dimensions.get("window").width < 600);
     handleResize();
-    Dimensions.addEventListener("change", handleResize);
-    return () => Dimensions.removeEventListener("change", handleResize);
+    const subscription = Dimensions.addEventListener("change", handleResize);
+    return () => subscription?.remove();
   }, []);
 
   //CAROUSEL
@@ -169,7 +171,7 @@ export default function ProductScanner() {
             axiosErr.response?.data?.message ||
             "Verification failed. Please try again.";
 
-          setError(errorMessage);
+          setError(null);
           showResult("error", errorMessage);
           return;
         }
@@ -204,9 +206,6 @@ export default function ProductScanner() {
                 setBusinessName("Unknown Business");
               }
             }
-            setTimeout(() => {
-              setModalVisible(true);
-            }, 1200);
           }
 
         } else {
@@ -225,7 +224,7 @@ export default function ProductScanner() {
     }; 
 
   const stopScanner = async () => {
-    if (Html5QrcodeRef.current) {
+    if (Html5QrcodeRef.current?.isScanning) {
       await Html5QrcodeRef.current.stop().catch(() => {});
       setIsScanning(false);
     }
@@ -328,6 +327,12 @@ export default function ProductScanner() {
     };
 
   return (
+    <ImageBackground
+      source={require("../../assets/bg.jpg")}
+      style={{flex: 1, width: "100%"}}
+      imageStyle={{ opacity: 0.2 }}
+      resizeMode="cover"
+    >
     <Animated.View style = 
       {{ 
         opacity: fadeAnim,
@@ -336,7 +341,7 @@ export default function ProductScanner() {
         }}>
     
     <ScrollView
-      style={{ flex: 1, backgroundColor: "#FFFFFF" }}
+      style={{ flex: 1}}
       contentContainerStyle={{
         alignItems: "center",
         paddingVertical: 60,
@@ -387,7 +392,7 @@ export default function ProductScanner() {
             padding: 5,
           }}
         >
-          <Text style={{ textAlign: "center", color: "#888" }}>
+          <Text style={{ backgroundColor: "#4a79af", borderColor: "#2d4049", borderWidth: 1, paddingBottom: 4, paddingTop: 4, paddingLeft: 4, paddingRight: 4, borderRadius: 10, textAlign: "center", color: "#ffffff", fontFamily: 'Montserrat-Regular' }}>
             {isScanning ? "Scanning..." : "Scanner Inactive"}
           </Text>
         </View>
@@ -451,9 +456,10 @@ export default function ProductScanner() {
         <Pressable
           onPress={startScanner}
           style={{
-            backgroundColor: "#4A70A9",
             paddingVertical: 12,
             paddingHorizontal: 24,
+            borderColor: "#4a79af",
+            borderWidth: 1,
             borderRadius: 30,
             shadowColor: "#000",
             shadowOpacity: 0.1,
@@ -465,7 +471,7 @@ export default function ProductScanner() {
             style={{
               fontFamily: "Montserrat-Regular",
               fontWeight: "700",
-              color: "#ffffffff",
+              color: "rgb(0, 0, 0)",
               textAlign: "center",
             }}
           >
@@ -476,9 +482,10 @@ export default function ProductScanner() {
         <Pressable
           onPress={stopScanner}
           style={{
-            backgroundColor: "#444",
             paddingVertical: 12,
             paddingHorizontal: 24,
+            borderWidth: 1,
+            borderColor: "#000",
             borderRadius: 30,
             shadowColor: "#000",
             shadowOpacity: 0.1,
@@ -490,7 +497,7 @@ export default function ProductScanner() {
             style={{
               fontFamily: "Montserrat-Regular",
               fontWeight: "700",
-              color: "#fff",
+              color: "#000000",
               textAlign: "center",
             }}
           >
@@ -500,7 +507,8 @@ export default function ProductScanner() {
         <Pressable
         onPress={uploadQrImage}
         style={{
-          backgroundColor: "#656c75",
+          borderWidth: 1,
+          borderColor: "#4a79af",
           paddingVertical: 12,
           paddingHorizontal: 24,
           borderRadius: 30,
@@ -514,7 +522,7 @@ export default function ProductScanner() {
           style={{
             fontFamily: "Montserrat-Regular",
             fontWeight: "700",
-            color: "#ffffffff",
+            color: "rgb(0, 0, 0)",
             textAlign: "center",
           }}
         >
@@ -958,5 +966,6 @@ export default function ProductScanner() {
   </View>
 )}
 </Animated.View>
+</ImageBackground>
   );
 }
