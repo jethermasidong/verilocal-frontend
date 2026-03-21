@@ -158,19 +158,20 @@ export default function BusinessLogin() {
             <View style={styles.desktop_formContainer}>
               <Text
                 style={{
-                  fontSize: 24,
+                  fontSize: 20,
                   fontFamily: "Montserrat-Regular",
                   fontWeight: 'bold',
                   color: "#000",
                   marginTop: isMobile ? -10 : 0,
-                  marginBottom: isMobile ? 15 : 20,
+                  marginBottom: isMobile ? 15 : 30,
+                  textAlign: "center",
                 }}
               >
-                Business Login
+                BUSINESS LOGIN
               </Text>
 
               {/* EMAIL */}
-              <Text style={{ fontSize: 13, marginBottom: 5, fontFamily: 'Montserrat-Regular' }}>
+              <Text style={{ marginTop: 5, fontSize: 13, marginBottom: 5, fontFamily: 'Montserrat-Regular' }}>
                 Email*
               </Text>
               <View style={{
@@ -200,7 +201,7 @@ export default function BusinessLogin() {
                   paddingLeft: 45,
                   paddingRight: 15,
                   height: 44,
-                  marginBottom: 5,
+                  marginBottom: 20,
                 }}
               />
               </View>
@@ -270,7 +271,7 @@ export default function BusinessLogin() {
               </Pressable>
 
               {/* SIGN UP */}
-              <Text style={{ textAlign: "center", fontSize: 13, fontFamily: 'Montserrat-Regular', marginBottom: 20 }}>
+              <Text style={{ textAlign: "center", fontSize: 13, fontFamily: 'Montserrat-Regular', marginTop: 10 }}>
                 Don’t have an account?{" "}
                 <Text
                   style={{ color: "#4A70A9", fontWeight: "bold" }}
@@ -343,6 +344,13 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 15,
     justifyContent: "center",
+    borderWidth: 1,
+    borderRadius: 15,
+    marginTop: 15,
+    marginRight: 15,
+    marginBottom: 15,
+    borderColor: "#4c7ea7",
+    elevation: 5,
   },
 
   desktop_loginButton: {
@@ -351,13 +359,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginVertical: 15,
-    width: "40%",
+    width: "100%",
     alignSelf: "center",
     shadowColor: "#000000",
     shadowOpacity: 0.5,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 3,
+    marginTop: 20,
     cursor: "pointer",
+  
   },
   loadingContainer : {
     position: "absolute",
