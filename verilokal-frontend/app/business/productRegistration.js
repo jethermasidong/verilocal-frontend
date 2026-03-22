@@ -298,6 +298,7 @@ export default function RegisterProduct() {
       //BACKEND COMMUNICATION
       await axios.post("https://verilocalph.onrender.com/api/products", formData, {
         headers: { Authorization: `Bearer ${token}` },
+        "Content-Type": "multipart/form-data",
       });
 
       setResultType("success");
@@ -1136,6 +1137,85 @@ export default function RegisterProduct() {
             </View>
           </View>
         )}
+        {isLoading && (
+          <View
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: "rgba(0,0,0,0.4)",
+              justifyContent: "center",
+              alignItems: "center",
+              zIndex: 9999,
+            }}
+          >
+            <View
+              style={{
+                backgroundColor: "#fff",
+                padding: 20,
+                borderRadius: 12,
+                alignItems: "center",
+              }}
+            >
+              <ActivityIndicator size="large" color="#5177b0" />
+              <Text style={{ marginTop: 10 }}>Registering Product...</Text>
+            </View>
+          </View>
+        )}
+        {resultVisible && (
+          <View style={styles.resultOverlay}>
+            <Animated.View 
+              style={[
+                styles.resultContainer,
+                {
+                  opacity: opacityAnim,
+                  transform: [
+                    { scale: resultType === "success" ? scaleAnim : 1 },
+                    { translateX: resultType === "error" ? shakeAnim : 0 },
+                  ],
+                },
+              ]}
+            >
+              <Ionicons
+                name={resultType === "success" ? "checkmark-circle" : "close-circle"}
+                size={70}
+                color={resultType === "success" ? "#4caf50" : "#d32f2f"}
+                style={styles.resultIcon}
+              />
+
+              <Text
+                style={[
+                  styles.resultTitle,
+                  { color: resultType === "success" ? "#2e7d32" : "#c62828" }
+                ]}
+              >
+                {resultType === "success" ? "Success" : "Submission Failed"}
+              </Text>
+
+              <Text style={styles.resultMessage}>
+                {resultMessage}
+              </Text>
+
+              <Pressable
+                onPress={() => setResultVisible(false)}
+                style={[
+                  styles.resultButton,
+                  {
+                    backgroundColor:
+                      resultType === "success" ? "#4caf50" : "#d32f2f",
+                  },
+                ]}
+              >
+                <Text style={{ color: "#fff", fontWeight: "600" }}>
+                  OK
+                </Text>
+              </Pressable>
+
+            </Animated.View>
+          </View>
+        )}
     </Animated.View>
   );
 }
@@ -1242,7 +1322,7 @@ const styles = StyleSheet.create({
 
   dateWrapper: { flexDirection: "row", alignItems: "center", padding: 12, borderWidth: 1, borderColor: "#ccc", borderRadius: 8, backgroundColor: "#fafafa", marginBottom: 10 },
   webDateWrapper: { display: "flex", flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 10 },
-  webDateInput: { flex: 1, height: 50, padding: "0 12px", borderRadius: 8, border: "1px solid #ccc", backgroundColor: "#fafafa" },
+  
 
   textArea: {
     width: "100%",
