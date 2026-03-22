@@ -155,15 +155,23 @@ export default function BusinessLogin() {
             </View>
 
             {/* RIGHT FORM */}
-            <View style={styles.desktop_formContainer}>
+            <View style={[styles.desktop_formContainer, {
+              borderWidth: 1,
+              borderRadius: 15,
+              marginTop: isMobile ? 5 : 15,
+              marginRight: 15,
+              marginLeft: isMobile ? 15 : 0,
+              marginBottom: 15,
+              borderColor: "#4c7ea7"
+            }]}>
               <Text
                 style={{
                   fontSize: 20,
                   fontFamily: "Montserrat-Regular",
                   fontWeight: 'bold',
                   color: "#000",
-                  marginTop: isMobile ? -10 : 0,
-                  marginBottom: isMobile ? 15 : 30,
+                  marginTop: isMobile ? -25 : 0,
+                  marginBottom: isMobile ? 25 : 30,
                   textAlign: "center",
                 }}
               >
@@ -271,7 +279,7 @@ export default function BusinessLogin() {
               </Pressable>
 
               {/* SIGN UP */}
-              <Text style={{ textAlign: "center", fontSize: 13, fontFamily: 'Montserrat-Regular', marginTop: 10 }}>
+              <Text style={{ textAlign: "center", fontSize: 13, fontFamily: 'Montserrat-Regular', marginTop: 10, marginBottom: isMobile ? 10 : 0 }}>
                 Don’t have an account?{" "}
                 <Text
                   style={{ color: "#4A70A9", fontWeight: "bold" }}
@@ -344,12 +352,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 15,
     justifyContent: "center",
-    borderWidth: 1,
-    borderRadius: 15,
-    marginTop: 15,
-    marginRight: 15,
-    marginBottom: 15,
-    borderColor: "#4c7ea7",
     elevation: 5,
   },
 
