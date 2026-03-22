@@ -26,9 +26,7 @@ import {
 } from "react-native";
 import bgImage from "../../assets/bg1.jpg";
 
-
 export default function BusinessDashboard() {
-
   const [business, setBusiness] = useState(null);
   const [products, setProducts] = useState([]);
 
@@ -38,7 +36,6 @@ export default function BusinessDashboard() {
   //Loading
   const [loading, setLoading] = useState(true);
 
-
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   //Modal
@@ -47,7 +44,6 @@ export default function BusinessDashboard() {
   //Search
   const [searchQuery, setSearchQuery] = useState("");
 
-
   const [isTallImage, setIsTallImage] = useState(false);
 
   //Business Name
@@ -55,6 +51,15 @@ export default function BusinessDashboard() {
 
   //Edit Modal
   const [editModalVisible, setEditModalVisible] = useState(false);
+
+  // Product image (single)
+  const [editProductImage, setEditProductImage] = useState(null);
+
+  // Process images (multiple)
+  const [editProcessImages, setEditProcessImages] = useState([]);
+
+  // For removed process images
+  const [removedProcessImages, setRemovedProcessImages] = useState([]);
 
   //Profile Sidebar
   const [profileSidebarVisible, setProfileSidebarVisible] = useState(false);
@@ -72,7 +77,7 @@ export default function BusinessDashboard() {
   const hoverAnimReport = useRef(new Animated.Value(0)).current;
   const hoverAnimFilter = useRef(new Animated.Value(0)).current;
 
-  //Loading State 
+  //Loading State
   const [isLoading, setIsLoading] = useState(false);
 
   // Result Modal (Success / Error)
@@ -83,11 +88,11 @@ export default function BusinessDashboard() {
   const resultOpacity = useRef(new Animated.Value(0)).current;
   const resultScale = useRef(new Animated.Value(0.8)).current;
 
-  //Product Modal Left and Right Button Hover Animation 
+  //Product Modal Left and Right Button Hover Animation
   const [hoverLeft, setHoverLeft] = useState(false);
   const [hoverRight, setHoverRight] = useState(false);
 
-  //Close, Edit, Delete, Print, Download Button Product Modal Hover Animation 
+  //Close, Edit, Delete, Print, Download Button Product Modal Hover Animation
   const [hoverClose, setHoverClose] = useState(false);
   const [hoverEdit, setHoverEdit] = useState(false);
   const [hoverDelete, setHoverDelete] = useState(false);
@@ -102,7 +107,6 @@ export default function BusinessDashboard() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [dateType, setDateType] = useState(null);
 
-
   const onHoverIn = () => {
     Animated.spring(hoverAnimReport, {
       toValue: 1,
@@ -111,7 +115,7 @@ export default function BusinessDashboard() {
   };
   const onHoverOut = () => {
     Animated.spring(hoverAnimReport, {
-      toValue: 0, 
+      toValue: 0,
       useNativeDriver: true,
     }).start();
   };
@@ -124,36 +128,35 @@ export default function BusinessDashboard() {
   };
   const onHoverOut1 = () => {
     Animated.spring(hoverAnimFilter, {
-      toValue: 0, 
+      toValue: 0,
       useNativeDriver: true,
     }).start();
   };
 
-
-  const [windowWidth, setWindowWidth] = useState(Dimensions.get("window").width);
+  const [windowWidth, setWindowWidth] = useState(
+    Dimensions.get("window").width,
+  );
   useEffect(() => {
     const subscription = Dimensions.addEventListener("change", ({ window }) => {
       setWindowWidth(window.width);
-    }); 
+    });
     return () => subscription?.remove();
   }, []);
   const isMobile = windowWidth < 768;
 
-
   //FILTER AND CATEGORIZATION:
-  const typeOptions = [...new Set(products.map(p => p.type).filter(Boolean))]
-  .sort((a, b) => a.localeCompare(b));
-  const materialOptions = [...new Set(products.map(p => p.materials).filter(Boolean))]
-  .sort((a, b) => a.localeCompare(b));
+  const typeOptions = [
+    ...new Set(products.map((p) => p.type).filter(Boolean)),
+  ].sort((a, b) => a.localeCompare(b));
+  const materialOptions = [
+    ...new Set(products.map((p) => p.materials).filter(Boolean)),
+  ].sort((a, b) => a.localeCompare(b));
 
   const toggleFilter = (value, selected, setSelected) => {
-    setSelected(prev =>
-      prev.includes(value)
-        ? prev.filter(v => v !== value)
-        : [...prev, value]
+    setSelected((prev) =>
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
     );
   };
-
 
   //EDIT FORM
   const [editForm, setEditForm] = useState({
@@ -165,6 +168,8 @@ export default function BusinessDashboard() {
     productionEndDate: "",
     productionDate: "",
     description: "",
+    productImage: null,
+    processImages: [],
   });
 
   const formatDate = (date) => {
@@ -179,45 +184,57 @@ export default function BusinessDashboard() {
     setShowDatePicker(false);
     if (!selectedDate) return;
 
-    if(dateType === "start") {
-      if (editForm.productionEndDate && selectedDate > new Date(editForm.productionEndDate)) {
-        Alert.alert("Invalid Date", "Start date cannot be later than the end date.");
+    if (dateType === "start") {
+      if (
+        editForm.productionEndDate &&
+        selectedDate > new Date(editForm.productionEndDate)
+      ) {
+        Alert.alert(
+          "Invalid Date",
+          "Start date cannot be later than the end date.",
+        );
         return;
       }
       handleInputChange("productionStartDate", selectedDate);
     } else if (dateType === "end") {
-        if (editForm.productionStartDate && selectedDate < new Date(editForm.productionStartDate)) {
-          Alert.alert("Invalid Date", "End date cannot be earlier than the start date.");
-          return;
-          }
-          handleInputChange("productionEndDate", selectedDate);
-        }
-      };
+      if (
+        editForm.productionStartDate &&
+        selectedDate < new Date(editForm.productionStartDate)
+      ) {
+        Alert.alert(
+          "Invalid Date",
+          "End date cannot be earlier than the start date.",
+        );
+        return;
+      }
+      handleInputChange("productionEndDate", selectedDate);
+    }
+  };
 
-    useEffect(() => {
-        if (editForm.productionStartDate && editForm.productionEndDate) {
-          const start = formatDate(editForm.productionStartDate);
-          const end = formatDate(editForm.productionEndDate);
-          setEditForm(prev => ({
-            ...prev,
-            productionDate: `${start} - ${end}`,
-          }));
-        }
-      }, [editForm.productionStartDate, editForm.productionEndDate]);
-
+  useEffect(() => {
+    if (editForm.productionStartDate && editForm.productionEndDate) {
+      const start = formatDate(editForm.productionStartDate);
+      const end = formatDate(editForm.productionEndDate);
+      setEditForm((prev) => ({
+        ...prev,
+        productionDate: `${start} - ${end}`,
+      }));
+    }
+  }, [editForm.productionStartDate, editForm.productionEndDate]);
 
   const processImages = Array.isArray(selectedProduct?.process_images)
     ? selectedProduct.process_images
     : typeof selectedProduct?.process_images === "string"
-    ? JSON.parse(selectedProduct.process_images)
-    : [];
-
-  
+      ? JSON.parse(selectedProduct.process_images)
+      : [];
 
   useEffect(() => {
     const loadBusinessesName = async () => {
-      const registered_business_name = await AsyncStorage.getItem("registered_business_name");
-      if (registered_business_name) setRegisteredBusinessName(registered_business_name);
+      const registered_business_name = await AsyncStorage.getItem(
+        "registered_business_name",
+      );
+      if (registered_business_name)
+        setRegisteredBusinessName(registered_business_name);
     };
     loadBusinessesName();
   }, []);
@@ -228,7 +245,7 @@ export default function BusinessDashboard() {
         const token = await AsyncStorage.getItem("token");
         const res = await axios.get(
           "https://verilocalph.onrender.com/api/products/my-products",
-          { headers: { Authorization: `Bearer ${token}` } }
+          { headers: { Authorization: `Bearer ${token}` } },
         );
         setProducts(res.data);
       } catch (err) {
@@ -240,38 +257,39 @@ export default function BusinessDashboard() {
     fetchProducts();
   }, []);
 
-    const fetchProducts = async () => {
-      try {
-        const token = await AsyncStorage.getItem("token");
-        const res = await axios.get(
-          "https://verilocalph.onrender.com/api/products/my-products",
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setProducts(res.data);
-      } catch (err) {
-        console.error("Error loading products:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchProducts = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      const res = await axios.get(
+        "https://verilocalph.onrender.com/api/products/my-products",
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      setProducts(res.data);
+    } catch (err) {
+      console.error("Error loading products:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-   useEffect(() => {
+  useEffect(() => {
     fetchProducts();
   }, []);
 
   //Filter Function
   const filteredProducts = products.filter((p) => {
-    const matchesSearch =
-    p.name?.toLowerCase().includes(searchQuery.toLowerCase());
-    
+    const matchesSearch = p.name
+      ?.toLowerCase()
+      .includes(searchQuery.toLowerCase());
+
     const matchesType =
       selectedTypes.length === 0 || selectedTypes.includes(p.type);
 
     const matchesMaterials =
       selectedMaterials.length === 0 || selectedMaterials.includes(p.materials);
-    
+
     return matchesSearch && matchesType && matchesMaterials;
-});
+  });
 
   const openModal = (product) => {
     setSelectedProduct(product);
@@ -279,10 +297,10 @@ export default function BusinessDashboard() {
       Image.getSize(product.product_image, (width, height) => {
         setIsTallImage(height > width * 1.2);
       });
-    setActiveIndex(0);
-    setTimeout(() => {
-      scrollRef.current?.scrollTo({ x: 0, animated: false });
-    }, 50);
+      setActiveIndex(0);
+      setTimeout(() => {
+        scrollRef.current?.scrollTo({ x: 0, animated: false });
+      }, 50);
     }
     setModalVisible(true);
   };
@@ -299,7 +317,7 @@ export default function BusinessDashboard() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       await fetchProducts();
@@ -309,7 +327,6 @@ export default function BusinessDashboard() {
       setIsLoading(false);
 
       showResult("success", "Product updated successfully!");
-
     } catch (err) {
       console.error("Update failed:", err);
       setIsLoading(false);
@@ -317,7 +334,7 @@ export default function BusinessDashboard() {
     }
   };
 
-  const openEditModal = (product) => { 
+  const openEditModal = (product) => {
     let start = "";
     let end = "";
 
@@ -340,6 +357,109 @@ export default function BusinessDashboard() {
     setEditModalVisible(true);
   };
 
+  //IMAGE PICKER - PRODUCT IMAGE
+  const pickImage = async (key) => {
+    try {
+      if (Platform.OS === "web") {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+        input.onchange = async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          if (file.size > MAX_FILE_SIZE) {
+            Alert.alert("File too large", "Image must be 5MB or less");
+            return;
+          }
+
+          setForm((prev) => ({
+            ...prev,
+            [key]: {
+              uri: URL.createObjectURL(file),
+              name: file.name,
+              type: file.type,
+              file,
+            },
+          }));
+        };
+        input.click();
+      } else {
+        const result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          quality: 1,
+        });
+
+        if (!result.canceled) {
+          const asset = result.assets[0];
+          const response = await fetch(asset.uri);
+          const blob = await response.blob();
+
+          if (blob.size > MAX_FILE_SIZE) {
+            setUploadError("File too large. Must be 5MB or less.");
+            return;
+          } else setUploadError("");
+
+          setForm((prev) => ({
+            ...prev,
+            [key]: {
+              uri: asset.uri,
+              name: asset.fileName || "image.jpg",
+              type: asset.mimeType || "image/jpeg",
+              file: blob,
+            },
+          }));
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      Alert.alert("Error selecting image");
+    }
+  };
+
+  //PROCESS IMAGE PICKER - MULTIPLE UPLOAD
+  const pickProcessImages = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsMultipleSelection: true,
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        const selectedImages = await Promise.all(
+          result.assets.map(async (asset) => {
+            const response = await fetch(asset.uri);
+            const blob = await response.blob();
+
+            if (blob.size > MAX_FILE_SIZE) {
+              Alert.alert("File too large", "Each image must be 5MB or less");
+              return null;
+            }
+
+            return {
+              uri: asset.uri,
+              name: asset.fileName || `process_${Date.now()}.jpg`,
+              type: asset.mimeType || "image/jpeg",
+              file: blob,
+            };
+          }),
+        );
+
+        setForm((prev) => ({
+          ...prev,
+          processImages: [
+            ...prev.processImages,
+            ...selectedImages.filter(Boolean),
+          ],
+        }));
+      }
+    } catch (err) {
+      console.error(err);
+      Alert.alert("Error selecting images");
+    }
+  };
 
   const downloadQRCode = async (qrUrl) => {
     try {
@@ -357,9 +477,6 @@ export default function BusinessDashboard() {
       console.log("QR Download Error:", error);
     }
   };
-
-
-
 
   //QRCODE PRINT - using html
   const printQRCode = (qrUrl) => {
@@ -387,9 +504,6 @@ export default function BusinessDashboard() {
     printWindow.print();
     printWindow.close();
   };
-
-
-
 
   //REPORT GENERATION PRINT - using html
   const reportGenerator = () => {
@@ -525,10 +639,10 @@ export default function BusinessDashboard() {
 
         <div class="information">
             <h1>Business Information</h1>
-            <p><strong>Owner:</strong>${business.name || "-"} </p>
-            <p><strong>Email:</strong>${business.email || "-"} </p>
-            <p><strong>Address:</strong>${business.address || "-"} </p>
-            <p><strong>Contact Number:</strong>${business.contact_no || "-"} </p>
+            <p><strong>Owner: </strong>${business.name || "-"} </p>
+            <p><strong>Email: </strong>${business.email || "-"} </p>
+            <p><strong>Address: </strong>${business.address || "-"} </p>
+            <p><strong>Contact Number: </strong>${business.contact_no || "-"} </p>
         </div>
 
         <div class="section">
@@ -539,11 +653,11 @@ export default function BusinessDashboard() {
                     <p>Total Products</p>
                 </div>
                 <div class="card">
-                    <h3>${[...new Set(products.map(p => p.type))].length}</h3>
+                    <h3>${[...new Set(products.map((p) => p.type))].length}</h3>
                     <p>Product Types</p>
                 </div>
                 <div class="card">
-                    <h3>${[...new Set(products.map(p => p.materials))].length}</h3>
+                    <h3>${[...new Set(products.map((p) => p.materials))].length}</h3>
                     <p>Materials</p>
                 </div>
             </div>
@@ -551,28 +665,30 @@ export default function BusinessDashboard() {
 
         <div class="products">
             <h2>Product Catalog</h2>
-            ${products.map(p => `<div class="products">
+            ${products
+              .map(
+                (p) => `<div class="products">
                 <div class="image-box">
                 ${p.product_image ? `<img src="${p.product_image}"/>` : ""}
                 </div>
                 <h3>${p.name}</h3>
-                <table>
-                    <tr><td><strong>Type:</strong></td><td>${p.type}</td></tr>
-                    <tr><td><strong>Materials:</strong></td><td>${p.materials}</td></tr>
-                    <tr><td><strong>Origin:</strong></td><td>${p.origin}</td></tr>
-                    <tr><td><strong>Production Date:</strong></td><td>${p.productionDate}</td></tr>
-                </table>
+                <p><strong>Type: </strong>${p.type} </p>
+                <p><strong>Materials: </strong>${p.materials} </p>
+                <p><strong>Origin: </strong>${p.origin} </p>
+                <p><strong>Production Date: </strong>${p.productionDate} </p>
                 <p><strong>Description:</strong></p>
                 <p>${p.description}</p>
                 <p><strong>Transaction Hash:</strong></p>
-                <p>${p.tx_hash  || "-"}</p>
+                <p>${p.tx_hash || "-"}</p>
 
                 <div class="blockchain">
                     ${p.qr_code ? ` <img src="${p.qr_code}"/>` : ""}
                 </div>
 
             </div>
-            `).join("")}
+            `,
+              )
+              .join("")}
             </div>
 
             <div class="footer">
@@ -586,11 +702,10 @@ export default function BusinessDashboard() {
       </html>
       `;
 
-      const win = window.open("", "_blank");
-      win.document.write(html);
-      win.document.close();
+    const win = window.open("", "_blank");
+    win.document.write(html);
+    win.document.close();
   };
-
 
   const deleteProduct = async (id) => {
     setIsLoading(true);
@@ -604,7 +719,7 @@ export default function BusinessDashboard() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       await fetchProducts();
@@ -613,7 +728,6 @@ export default function BusinessDashboard() {
       setIsLoading(false);
 
       showResult("success", `${selectedProduct?.name} deleted successfully!`);
-
     } catch (err) {
       console.error("Delete failed:", err);
       setIsLoading(false);
@@ -659,75 +773,72 @@ export default function BusinessDashboard() {
     "Montserrat-Black": require("../../assets/fonts/Montserrat/static/Montserrat-Black.ttf"),
   });
 
-
-
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
   useEffect(() => {
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }, []);
+    const fetchBusinessProfile = async () => {
+      try {
+        const token = await AsyncStorage.getItem("token");
 
-    useEffect(() => {
-      const fetchBusinessProfile = async () => {
-        try {
-          const token = await AsyncStorage.getItem("token");
+        const res = await axios.get(
+          "https://verilocalph.onrender.com/api/business/profile",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
 
-          const res = await axios.get(
-            "https://verilocalph.onrender.com/api/business/profile",
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
+        setBusiness(res.data);
 
-          setBusiness(res.data);
-
-          if (res.data.registered_business_name) {
-            setRegisteredBusinessName(res.data.registered_business_name);
-          }
-        } catch (err) {
-          console.error("Failed to load business profile:", err);
+        if (res.data.registered_business_name) {
+          setRegisteredBusinessName(res.data.registered_business_name);
         }
-      };
-      fetchBusinessProfile();
-    }, []);
+      } catch (err) {
+        console.error("Failed to load business profile:", err);
+      }
+    };
+    fetchBusinessProfile();
+  }, []);
 
   const SIDEBAR_WIDTH = 280;
   const slideX = useRef(new Animated.Value(SIDEBAR_WIDTH)).current;
   const [sidebarMounted, setSidebarMounted] = useState(false);
 
-    useEffect(() => {
-      if (profileSidebarVisible) {
-        slideX.setValue(SIDEBAR_WIDTH);
+  useEffect(() => {
+    if (profileSidebarVisible) {
+      slideX.setValue(SIDEBAR_WIDTH);
 
-        Animated.timing(slideX, {
-          toValue: 0,
-          duration: 500,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
-        }).start();
-      } else {
-        Animated.timing(slideX, {
-          toValue: SIDEBAR_WIDTH,
-          duration: 500,
-          easing: Easing.in(Easing.cubic),
-          useNativeDriver: true,
-        }).start(() => {
-          setSidebarMounted(false);
-        });
-      }
-    }, [profileSidebarVisible]);
+      Animated.timing(slideX, {
+        toValue: 0,
+        duration: 500,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(slideX, {
+        toValue: SIDEBAR_WIDTH,
+        duration: 500,
+        easing: Easing.in(Easing.cubic),
+        useNativeDriver: true,
+      }).start(() => {
+        setSidebarMounted(false);
+      });
+    }
+  }, [profileSidebarVisible]);
 
-     useEffect(() => {
+  useEffect(() => {
     if (profileSidebarVisible) {
       // fade OUT
       Animated.timing(profileBtnOpacity, {
@@ -750,18 +861,20 @@ export default function BusinessDashboard() {
   const scrollRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const isProgrammaticScroll = useRef(false);
-  
+
   const CARD_WIDTH = isMobile ? 300 : 350;
   const CARD_MARGIN = 10;
-  const ITEM_WIDTH = CARD_WIDTH + CARD_MARGIN; 
+  const ITEM_WIDTH = CARD_WIDTH + CARD_MARGIN;
 
-  {/* Register Button Hover Animations */}
+  {
+    /* Register Button Hover Animations */
+  }
   const [hoverRegister, setHoverRegister] = useState(false);
 
   const leftScale = useRef(new Animated.Value(1)).current;
   const rightScale = useRef(new Animated.Value(1)).current;
 
-  //Product Modal Left and Right Button Animations 
+  //Product Modal Left and Right Button Animations
   const pressIn = (anim) => {
     Animated.spring(anim, {
       toValue: 0.92,
@@ -777,955 +890,1273 @@ export default function BusinessDashboard() {
     }).start();
   };
 
-
   return (
-
     <ImageBackground
       source={bgImage}
       style={styles.dashboard_bg}
       imageStyle={styles.dashboard_bgImage}
       resizeMode="cover"
     >
-
-    <Animated.View
-      style={[
-        styles.dashboard_animatedContainer,
-        {
-          opacity: fadeAnim,
-          transform: [{ translateY: slideAnim }],
-        },
-      ]}
-    >
-    <ScrollView
-      style={styles.dashboard_scroll}
-      contentContainerStyle={styles.dashboard_scrollContent}
-    >
-    
-      {/* Welcome Section */}
-      <View style={styles.dashboard_welcomeCard}>
-        <Text
-          style={[ styles.dashboard_welcomeText, 
-          isMobile && { fontSize: 22, textAlign: "center", }
-          ]}
-        >
-          Welcome,
-        </Text>
-        <Text
-          style={[ styles.dashboard_welcomeBusinessText, 
-          isMobile && { fontSize: 20, textAlign: "center", }
-          ]}
-        >
-          {business?.registered_business_name || "Loading..."}
-        </Text>
-      </View>
-
-      {/* Header Controls */}
-      <View style={styles.dashboard_headerContainer}>
-        <Text
-          style={[ styles.dashboard_headerText,
-           isMobile && {
-            fontSize: 18,
-            textAlign: "center",
-          }]}
-        >
-          Business Dashboard
-        </Text>
-      </View>
-      {/* Search Products */}
-      <View
-        style={[ styles.searchProducts_container, 
-        isMobile && { flexDirection: "column", }
+      <Animated.View
+        style={[
+          styles.dashboard_animatedContainer,
+          {
+            opacity: fadeAnim,
+            transform: [{ translateY: slideAnim }],
+          },
         ]}
       >
-        <View 
-          style={[ styles.searchProducts_wrapper,
-            isMobile && { alignItems: "flex-start", width: "100%", }
-          ]}>
-          <TextInput
-            placeholder="Search products..."
-            placeholderTextColor="#000000"
-            style={styles.dashboard_searchInput}
-            value={searchQuery}
-            onChangeText={(text) => {
-              setSearchQuery(text);
-              setVisibleCount(9999);
-            }}
-          />
-          {/* Filter Products Button */}
-          <Animated.View 
-            style={{
-              transform: [
-                {
-                  translateY: hoverAnimFilter.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0, -6],
-                  }),
-                },
-              ],
-            }}
-          >
-            <Pressable
-              onHoverIn={onHoverIn1}
-              onHoverOut={onHoverOut1}
-              style={styles.filterProducts_btn}
-              ref={filterRef}
-              onPress={() => {
-                filterRef.current?.measureInWindow((x, y, width, height) => {
-                  setFilterPos({
-                    x,
-                    y: y + height, 
-                    width,
-                  });
-                  setShowFilter(true);
-                });
-              }}
-            >
-              <Ionicons name="funnel-outline" size={30} />
-            </Pressable>
-          </Animated.View>
-
-          {/* Report Generation Button */}
-          <Animated.View 
-            style={{
-              transform: [
-                {
-                  translateY: hoverAnimReport.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0, -6],
-                  }),
-                },
-              ],
-            }}
-          >
-            <Pressable
-            onHoverIn={onHoverIn}
-            onHoverOut={onHoverOut}
-            style={styles.reportGeneration_btn}
-              ref={filterRef}
-              onPress={reportGenerator}
-            >
-              <Ionicons name="archive-outline" size={30} />
-            </Pressable>
-          </Animated.View>
-        </View>
-         {/* Product Registration Button */}
-        <Pressable
-          onHoverIn={() => setHoverRegister(true)}
-          onHoverOut={() => setHoverRegister(false)}
-          style={[styles.productRegistration_btn, 
-          isMobile && { width: "100%" }]}
-          onPress={() => router.push("/business/productRegistration")}
+        <ScrollView
+          style={styles.dashboard_scroll}
+          contentContainerStyle={styles.dashboard_scrollContent}
         >
-          <Text style={styles.productRegistration_btnText}>
-            + Register
-          </Text>
-        </Pressable>
-      </View>
+          {/* Welcome Section */}
+          <View style={styles.dashboard_welcomeCard}>
+            <Text
+              style={[
+                styles.dashboard_welcomeText,
+                isMobile && { fontSize: 22, textAlign: "center" },
+              ]}
+            >
+              Welcome,
+            </Text>
+            <Text
+              style={[
+                styles.dashboard_welcomeBusinessText,
+                isMobile && { fontSize: 20, textAlign: "center" },
+              ]}
+            >
+              {business?.registered_business_name || "Loading..."}
+            </Text>
+          </View>
 
-      {/* Product List */}
-      <View style={{ width: "100%", maxWidth: 900 }}>
-        <Text
-          style={[styles.productListText,
-           isMobile && { textAlign: "center", }
-          ]}
-        >
-          Total Products: {filteredProducts.length}
-        </Text>
-        <FlatList
-          data={filteredProducts.slice(0, visibleCount)}
-          keyExtractor={(item) => item.id.toString()}
-          scrollEnabled={false}
-          contentContainerStyle={{ paddingBottom: 20 }}
-          renderItem={({ item }) => (
-            <View style={styles.dashboard_productCard}>
-              <View
+          {/* Header Controls */}
+          <View style={styles.dashboard_headerContainer}>
+            <Text
+              style={[
+                styles.dashboard_headerText,
+                isMobile && {
+                  fontSize: 18,
+                  textAlign: "center",
+                },
+              ]}
+            >
+              Business Dashboard
+            </Text>
+          </View>
+          {/* Search Products */}
+          <View
+            style={[
+              styles.searchProducts_container,
+              isMobile && { flexDirection: "column" },
+            ]}
+          >
+            <View
+              style={[
+                styles.searchProducts_wrapper,
+                isMobile && { alignItems: "flex-start", width: "100%" },
+              ]}
+            >
+              <TextInput
+                placeholder="Search products..."
+                placeholderTextColor="#000000"
+                style={styles.dashboard_searchInput}
+                value={searchQuery}
+                onChangeText={(text) => {
+                  setSearchQuery(text);
+                  setVisibleCount(9999);
+                }}
+              />
+              {/* Filter Products Button */}
+              <Animated.View
                 style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: 10,
+                  transform: [
+                    {
+                      translateY: hoverAnimFilter.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, -6],
+                      }),
+                    },
+                  ],
                 }}
               >
-                {item.product_image && (
-                  <Image 
-                    source={{ uri: item.product_image }}
-                    style={styles.dashboard_productImage} />
-                )}
+                <Pressable
+                  onHoverIn={onHoverIn1}
+                  onHoverOut={onHoverOut1}
+                  style={styles.filterProducts_btn}
+                  ref={filterRef}
+                  onPress={() => {
+                    filterRef.current?.measureInWindow(
+                      (x, y, width, height) => {
+                        setFilterPos({
+                          x,
+                          y: y + height,
+                          width,
+                        });
+                        setShowFilter(true);
+                      },
+                    );
+                  }}
+                >
+                  <Ionicons name="funnel-outline" size={30} />
+                  {onHoverIn1 && (
+                    <Text style={styles.hoverText}>Filter Products</Text>
+                  )}
+                </Pressable>
+              </Animated.View>
 
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontWeight: "bold", fontSize: 14 }}>
-                    {item.name}
-                  </Text>
+              {/* Report Generation Button */}
+              <Animated.View
+                style={{
+                  transform: [
+                    {
+                      translateY: hoverAnimReport.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, -6],
+                      }),
+                    },
+                  ],
+                }}
+              >
+                <Pressable
+                  onHoverIn={onHoverIn}
+                  onHoverOut={onHoverOut}
+                  style={styles.reportGeneration_btn}
+                  ref={filterRef}
+                  onPress={reportGenerator}
+                >
+                  <Ionicons name="archive-outline" size={30} />
+                  {onHoverIn && (
+                    <Text style={styles.hoverText}>Report Generation</Text>
+                  )}
+                </Pressable>
+              </Animated.View>
+            </View>
+            {/* Product Registration Button */}
+            <Pressable
+              onHoverIn={() => setHoverRegister(true)}
+              onHoverOut={() => setHoverRegister(false)}
+              style={[
+                styles.productRegistration_btn,
+                isMobile && { width: "100%" },
+              ]}
+              onPress={() => router.push("/business/productRegistration")}
+            >
+              <Text style={styles.productRegistration_btnText}>+ Register</Text>
+            </Pressable>
+          </View>
+
+          {/* Product List */}
+          <View style={{ width: "100%", maxWidth: 900 }}>
+            <Text
+              style={[
+                styles.productListText,
+                isMobile && { textAlign: "center" },
+              ]}
+            >
+              Total Products: {filteredProducts.length}
+            </Text>
+            <FlatList
+              data={filteredProducts.slice(0, visibleCount)}
+              keyExtractor={(item) => item.id.toString()}
+              scrollEnabled={false}
+              contentContainerStyle={{ paddingBottom: 20 }}
+              renderItem={({ item }) => (
+                <View style={styles.dashboard_productCard}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 10,
+                    }}
+                  >
+                    {item.product_image && (
+                      <Image
+                        source={{ uri: item.product_image }}
+                        style={styles.dashboard_productImage}
+                      />
+                    )}
+
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontWeight: "bold", fontSize: 14 }}>
+                        {item.name}
+                      </Text>
+                    </View>
+
+                    <Pressable
+                      onPress={() => openModal(item)}
+                      style={styles.dashboard_viewButton}
+                    >
+                      <Ionicons name="eye-outline" size={18} color="#000" />
+                    </Pressable>
+                  </View>
+                </View>
+              )}
+            />
+          </View>
+
+          {/* Show More */}
+          {products.length > visibleCount && (
+            <Pressable
+              onPress={() => setVisibleCount(products.length)}
+              style={{ marginTop: 5, marginBottom: 20 }}
+            >
+              <Text style={styles.showMore_text}>Show More</Text>
+            </Pressable>
+          )}
+
+          {/* PRODUCT MODAL */}
+          <Modal visible={modalVisible} animationType="fade" transparent={true}>
+            <View style={styles.dashboard_modalOverlay}>
+              <View style={styles.dashboard_modalCard}>
+                {/* CLOSE BUTTON */}
+                <View
+                  style={{
+                    position: "absolute",
+                    top: 15,
+                    right: 15,
+                    zIndex: 10,
+                  }}
+                >
+                  <Pressable
+                    onHoverIn={() => setHoverClose(true)}
+                    onHoverOut={() => setHoverClose(false)}
+                    onPress={() => setModalVisible(false)}
+                    style={[
+                      styles.closeBtn,
+                      { backgroundColor: hoverClose ? "#C0392B" : "#fff" },
+                    ]}
+                  >
+                    <Ionicons name="close" size={18} color="#000" />
+                  </Pressable>
                 </View>
 
-                <Pressable
-                  onPress={() => openModal(item)}
-                  style={styles.dashboard_viewButton}
-                >
-                  <Ionicons name="eye-outline" size={18} color="#000" />
-                </Pressable>
-              </View>
-            </View>
-          )}
-        />
-      </View>
+                {/* Product Image */}
+                {selectedProduct && (
+                  <>
+                    {selectedProduct?.product_image && (
+                      <View style={styles.productImage_container}>
+                        <Image
+                          source={{ uri: selectedProduct.product_image }}
+                          blurRadius={25}
+                          style={styles.blurredBackground}
+                        />
+                        <Image
+                          source={{ uri: selectedProduct.product_image }}
+                          style={styles.productImage}
+                        />
 
-      {/* Show More */}
-      {products.length > visibleCount && (
-        <Pressable onPress={() => setVisibleCount(products.length)} style={{ marginTop: 5, marginBottom: 20 }}>
-          <Text style={styles.showMore_text}>
-            Show More
-          </Text>
-        </Pressable>
-      )}
-
-      {/* PRODUCT MODAL */}
-      <Modal visible={modalVisible} animationType="fade" transparent={true}>
-        <View style={styles.dashboard_modalOverlay}>
-          <View style={styles.dashboard_modalCard}>
-            {/* CLOSE BUTTON */}
-            <View style={{position: "absolute", top: 15, right: 15, zIndex: 10,}}>
-              <Pressable
-                onHoverIn={() => setHoverClose(true)}
-                onHoverOut={() => setHoverClose(false)}
-                onPress={() => setModalVisible(false)}
-                style={[ styles.closeBtn, { backgroundColor: hoverClose ? "#C0392B" : "#fff", }]}
-              >
-              <Ionicons name="close" size={18} color="#000" />
-              </Pressable>
-            </View>
-
-            {/* Product Image */}
-            {selectedProduct && (
-              <>
-                {selectedProduct?.product_image && (
-                  <View style={styles.productImage_container}>
-                    <Image 
-                      source={{ uri: selectedProduct.product_image }}
-                      blurRadius={25}
-                      style={styles.blurredBackground}
-                    />
-                    <Image
-                      source={{ uri: selectedProduct.product_image }}
-                      style={styles.productImage}
-                    />
-
-                  {/* Product Name */}
-                    <View
-                      style={styles.productName_background}
-                    >
-                      <Text
-                        style={styles.productName_text}
-                        numberOfLines={1}
-                      >
-                        {selectedProduct.name}
-                      </Text>
-                      {/*
+                        {/* Product Name */}
+                        <View style={styles.productName_background}>
+                          <Text
+                            style={styles.productName_text}
+                            numberOfLines={1}
+                          >
+                            {selectedProduct.name}
+                          </Text>
+                          {/*
                     :{
                       
                     */}
-                    </View>
-                  </View>
+                        </View>
+                      </View>
+                    )}
+
+                    <ScrollView
+                      style={{ flexGrow: 1 }}
+                      contentContainerStyle={{ paddingBottom: 20 }}
+                      showsVerticalScrollIndicator={false}
+                    >
+                      <View style={styles.buttonContainer}>
+                        <View style={{ position: "auto" }}>
+                          {/* EDIT PRODUCT BUTTON */}
+                          <Pressable
+                            onPress={() => openEditModal(selectedProduct)}
+                            onHoverIn={() => setHoverEdit(true)}
+                            onHoverOut={() => setHoverEdit(false)}
+                            style={[
+                              styles.edit_delete_btn,
+                              {
+                                backgroundColor: hoverEdit ? "#a7a5a5" : "#fff",
+                              },
+                            ]}
+                          >
+                            <Ionicons
+                              name="create-outline"
+                              size={18}
+                              color="#000"
+                            />
+                          </Pressable>
+                        </View>
+                        <View style={{ position: "auto" }}>
+                          {/* DELETE PRODUCT BUTTON */}
+                          <Pressable
+                            onPress={() => {
+                              setShowDeleteModal(true);
+                            }}
+                            onHoverIn={() => setHoverDelete(true)}
+                            onHoverOut={() => setHoverDelete(false)}
+                            style={[
+                              styles.edit_delete_btn,
+                              {
+                                backgroundColor: hoverDelete
+                                  ? "#a7a5a5"
+                                  : "#fff",
+                              },
+                            ]}
+                          >
+                            <Ionicons
+                              name="trash-outline"
+                              size={18}
+                              color="#000"
+                            />
+                          </Pressable>
+                        </View>
+                      </View>
+
+                      {/* Delete Modal */}
+                      <Modal
+                        transparent
+                        visible={showDeleteModal}
+                        animationType="fade"
+                      >
+                        <View style={styles.modalOverlay}>
+                          <View style={styles.modalBox}>
+                            <Text style={styles.modalTitle}>
+                              Delete Product
+                            </Text>
+
+                            <Text
+                              style={{
+                                marginBottom: 20,
+                                fontFamily: "Montserrat-Regular",
+                              }}
+                            >
+                              Are you sure you want to delete this product?
+                            </Text>
+
+                            <View
+                              style={{
+                                flexDirection: "row",
+                                justifyContent: "flex-end",
+                                gap: 10,
+                              }}
+                            >
+                              <Pressable
+                                style={styles.confirm_cancelButton}
+                                onPress={() => setShowDeleteModal(false)}
+                              >
+                                <Text style={styles.confirm_cancelText}>
+                                  Cancel
+                                </Text>
+                              </Pressable>
+
+                              <Pressable
+                                style={styles.confirm_deleteButton}
+                                onPress={() => {
+                                  deleteProduct(selectedProduct.id);
+                                  setShowDeleteModal(false);
+                                }}
+                              >
+                                <Text style={styles.confirm_deleteText}>
+                                  Delete
+                                </Text>
+                              </Pressable>
+                            </View>
+                          </View>
+                        </View>
+                      </Modal>
+
+                      <View style={styles.productInfoBox}>
+                        <Text style={styles.infoText}>
+                          <Text style={{ fontWeight: "600" }}>Type:</Text>{" "}
+                          {selectedProduct.type}
+                        </Text>
+                        <Text style={styles.infoText}>
+                          <Text style={{ fontWeight: "600" }}>Materials:</Text>{" "}
+                          {selectedProduct.materials}
+                        </Text>
+                        <Text style={styles.infoText}>
+                          <Text style={{ fontWeight: "600" }}>Origin:</Text>{" "}
+                          {selectedProduct.origin}
+                        </Text>
+                        <Text style={styles.infoText}>
+                          <Text style={{ fontWeight: "600" }}>
+                            Production Date:
+                          </Text>{" "}
+                          {selectedProduct.productionDate}
+                        </Text>
+                      </View>
+                      <Text style={[styles.infoText, { marginTop: 8 }]}>
+                        <Text style={{ fontWeight: "600" }}>Description:</Text>
+                      </Text>
+                      <View style={styles.descriptionBox}>
+                        <Text style={styles.descriptionText}>
+                          {selectedProduct.description}
+                        </Text>
+                      </View>
+                      {Array.isArray(processImages) &&
+                        processImages.length > 0 && (
+                          <View style={styles.processContainer}>
+                            <Text
+                              style={[
+                                styles.infoText,
+                                { fontWeight: "600", marginBottom: 10 },
+                              ]}
+                            >
+                              Images of the Process:
+                            </Text>
+
+                            <View style={{ position: "relative" }}>
+                              {/* LEFT BUTTON */}
+                              {activeIndex > 0 && (
+                                <Animated.View
+                                  style={{
+                                    transform: [{ scale: leftScale }],
+                                    position: "absolute",
+                                    left: 6,
+                                    top: "45%",
+                                    zIndex: 10,
+                                  }}
+                                >
+                                  <Pressable
+                                    onHoverIn={() => setHoverLeft(true)}
+                                    onHoverOut={() => setHoverLeft(false)}
+                                    onPressIn={() => pressIn(leftScale)}
+                                    onPressOut={() => pressOut(leftScale)}
+                                    onPress={() => {
+                                      const newIndex = activeIndex - 1;
+                                      isProgrammaticScroll.current = true;
+                                      setActiveIndex(newIndex);
+
+                                      scrollRef.current?.scrollTo({
+                                        x: newIndex * ITEM_WIDTH,
+                                        animated: true,
+                                      });
+
+                                      setTimeout(() => {
+                                        isProgrammaticScroll.current = false;
+                                      }, 300);
+                                    }}
+                                    style={{
+                                      backgroundColor: hoverLeft
+                                        ? "rgba(0,0,0,0.65)"
+                                        : "rgba(0,0,0,0.4)",
+                                      borderRadius: 20,
+                                      padding: 6,
+                                    }}
+                                  >
+                                    <Ionicons
+                                      name="chevron-back"
+                                      size={22}
+                                      color={hoverLeft ? "#fff" : "#e6e6e6"}
+                                    />
+                                  </Pressable>
+                                </Animated.View>
+                              )}
+
+                              {/* RIGHT BUTTON */}
+                              {activeIndex < processImages.length - 1 && (
+                                <Animated.View
+                                  style={{
+                                    transform: [{ scale: rightScale }],
+                                    position: "absolute",
+                                    right: 6,
+                                    top: "45%",
+                                    zIndex: 10,
+                                  }}
+                                >
+                                  <Pressable
+                                    onHoverIn={() => setHoverRight(true)}
+                                    onHoverOut={() => setHoverRight(false)}
+                                    onPressIn={() => pressIn(rightScale)}
+                                    onPressOut={() => pressOut(rightScale)}
+                                    onPress={() => {
+                                      const newIndex = activeIndex + 1;
+                                      isProgrammaticScroll.current = true;
+                                      setActiveIndex(newIndex);
+
+                                      scrollRef.current?.scrollTo({
+                                        x: newIndex * ITEM_WIDTH,
+                                        animated: true,
+                                      });
+
+                                      setTimeout(() => {
+                                        isProgrammaticScroll.current = false;
+                                      }, 300);
+                                    }}
+                                    style={{
+                                      backgroundColor: hoverRight
+                                        ? "rgba(0,0,0,0.65)"
+                                        : "rgba(0,0,0,0.4)",
+                                      borderRadius: 20,
+                                      padding: 6,
+                                    }}
+                                  >
+                                    <Ionicons
+                                      name="chevron-forward"
+                                      size={22}
+                                      color={hoverRight ? "#fff" : "#e6e6e6"}
+                                    />
+                                  </Pressable>
+                                </Animated.View>
+                              )}
+
+                              <ScrollView
+                                ref={scrollRef}
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                snapToInterval={ITEM_WIDTH}
+                                pagingEnabled={false}
+                                snapToAlignment="start"
+                                disableIntervalMomentum={true}
+                                decelerationRate="fast"
+                                contentContainerStyle={{
+                                  paddingRight: CARD_MARGIN,
+                                }}
+                                onScroll={(e) => {
+                                  if (isProgrammaticScroll.current) return;
+
+                                  const offsetX = e.nativeEvent.contentOffset.x;
+                                  const index = Math.round(
+                                    offsetX / ITEM_WIDTH,
+                                  );
+
+                                  setActiveIndex(
+                                    Math.max(
+                                      0,
+                                      Math.min(index, processImages.length - 1),
+                                    ),
+                                  );
+                                }}
+                                scrollEventThrottle={16}
+                              >
+                                {processImages.map((img, index) => (
+                                  <View
+                                    key={index}
+                                    style={[
+                                      styles.processCard,
+                                      {
+                                        width: CARD_WIDTH,
+                                        height: isMobile ? 310 : 300,
+                                        marginRight: CARD_MARGIN,
+                                      },
+                                    ]}
+                                  >
+                                    <Image
+                                      source={{ uri: img }}
+                                      blurRadius={25}
+                                      style={styles.blurredBackground}
+                                    />
+                                    <Image
+                                      source={{ uri: img }}
+                                      style={styles.processImage}
+                                    />
+                                  </View>
+                                ))}
+                              </ScrollView>
+                              <View style={styles.dotsContainer}>
+                                {processImages.map((_, index) => (
+                                  <View
+                                    key={index}
+                                    style={[
+                                      styles.dot,
+                                      {
+                                        backgroundColor:
+                                          activeIndex === index
+                                            ? "#000"
+                                            : "#cfcfcf",
+                                      },
+                                    ]}
+                                  />
+                                ))}
+                              </View>
+                            </View>
+                          </View>
+                        )}
+
+                      {/* QR + PRINT + DOWNLOAD */}
+                      <View style={styles.qrContainer}>
+                        <View style={styles.qrButtons}>
+                          <Pressable
+                            onHoverIn={() => setHoverPrint(true)}
+                            onHoverOut={() => setHoverPrint(false)}
+                            onPress={() => printQRCode(selectedProduct.qr_code)}
+                            style={[
+                              styles.qrIconButton,
+                              {
+                                backgroundColor: hoverPrint
+                                  ? "#a7a5a5"
+                                  : "#fff",
+                              },
+                            ]}
+                          >
+                            <Ionicons
+                              name="print-outline"
+                              size={16}
+                              color="#000"
+                            />
+                          </Pressable>
+
+                          <Pressable
+                            onHoverIn={() => setHoverDownload(true)}
+                            onHoverOut={() => setHoverDownload(false)}
+                            onPress={() =>
+                              downloadQRCode(selectedProduct.qr_code)
+                            }
+                            style={[
+                              styles.qrIconButton,
+                              {
+                                backgroundColor: hoverDownload
+                                  ? "#a7a5a5"
+                                  : "#fff",
+                              },
+                            ]}
+                          >
+                            <Ionicons
+                              name="download-outline"
+                              size={16}
+                              color="#000"
+                            />
+                          </Pressable>
+                        </View>
+
+                        {selectedProduct?.qr_code && (
+                          <Image
+                            source={{ uri: selectedProduct.qr_code }}
+                            style={styles.qrImage}
+                            resizeMode="contain"
+                          />
+                        )}
+                      </View>
+
+                      {/* BLOCKCHAIN INFO */}
+                      <View style={styles.blockchainBox}>
+                        <Text style={styles.blockchainTitle}>
+                          Blockchain Information
+                        </Text>
+                        <Text style={styles.blockchainText}>
+                          <Text style={{ fontWeight: "600" }}>
+                            Transaction Hash:
+                          </Text>{" "}
+                          {selectedProduct.tx_hash}
+                        </Text>
+
+                        {selectedProduct.tx_hash && (
+                          <Pressable
+                            onPress={() =>
+                              Linking.openURL(
+                                `https://eth-sepolia.blockscout.com/tx/${selectedProduct.tx_hash}`,
+                              )
+                            }
+                            style={styles.viewBlockchainButton}
+                          >
+                            <Text style={styles.viewBlockchainText}>
+                              VIEW BLOCKCHAIN
+                            </Text>
+                          </Pressable>
+                        )}
+                      </View>
+                    </ScrollView>
+                  </>
                 )}
+              </View>
+            </View>
+          </Modal>
+          {/* EDIT PRODUCT MODAL */}
+          <Modal visible={editModalVisible} animationType="fade" transparent>
+            <View style={styles.modalOverlay}>
+              <View style={styles.editModalCard}>
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={styles.editHeader}
+                  keyboardShouldPersistTaps="handled"
+                >
+                  <Text style={styles.editTitle}>Edit Product</Text>
+                </ScrollView>
 
                 <ScrollView
-                  style={{ flexGrow: 1 }}
-                  contentContainerStyle={{ paddingBottom: 20 }}
+                  style={{ width: "100%" }}
+                  contentContainerStyle={{
+                    flexGrow: 1,
+                    alignItems: "center",
+                    paddingVertical: 20,
+                  }}
                   showsVerticalScrollIndicator={false}
                 >
-
-                  <View style={styles.buttonContainer}>
-                      <View style={{position: "auto", }}>
-                        {/* EDIT PRODUCT BUTTON */}
-                        <Pressable
-                        onPress={() => openEditModal(selectedProduct)}
-                        onHoverIn={() => setHoverEdit(true)}
-                        onHoverOut={() => setHoverEdit(false)}
-                        style={[styles.edit_delete_btn,{
-                          backgroundColor: hoverEdit
-                            ? "#a7a5a5"
-                            : "#fff",
-                        }]}
-                        >
-                        <Ionicons name="create-outline" size={18} color="#000" />
-                        </Pressable>
-                      </View>
-                    <View style={{position: "auto",}}>
-
-                        {/* DELETE PRODUCT BUTTON */}
-                        <Pressable
-                          onPress={() => {
-                            setShowDeleteModal(true);
-                          }}
-                          onHoverIn={() => setHoverDelete(true)}
-                          onHoverOut={() => setHoverDelete(false)}
-                          style={[styles.edit_delete_btn, {
-                            backgroundColor: hoverDelete
-                              ? "#a7a5a5"
-                              : "#fff",
-                          }]} 
-                        >
-                        <Ionicons name="trash-outline" size={18} color="#000" />
-                        </Pressable>
-                      </View>
-                    </View>
-
-                  {/* Delete Modal */}
-                  <Modal transparent visible={showDeleteModal} animationType="fade">
-                    <View style={styles.modalOverlay}>
-                      <View style={styles.modalBox}>
-                        <Text style={styles.modalTitle}>
-                          Delete Product
-                        </Text>
-
-                        <Text style={{ marginBottom: 20, fontFamily: "Montserrat-Regular"}}>
-                          Are you sure you want to delete this product?
-                        </Text>
-
-                        <View
-                          style={{
-                            flexDirection: "row",
-                            justifyContent: "flex-end",
-                            gap: 10,
-                          }}
-                        >
-                          <Pressable
-                            style={styles.confirm_cancelButton}
-                            onPress={() => setShowDeleteModal(false)}
-                          >
-                            <Text style={styles.confirm_cancelText}>Cancel</Text>
-                          </Pressable>
-
-                          <Pressable
-                            style={styles.confirm_deleteButton}
-                            onPress={() => {
-                              deleteProduct(selectedProduct.id);
-                              setShowDeleteModal(false);
-                            }}
-                          >
-                            <Text style={styles.confirm_deleteText}>Delete</Text>
-                          </Pressable>
-                        </View>
-                      </View>
-                    </View>
-                  </Modal>
-
-
-                  <View style={styles.productInfoBox}>
-                    <Text style={styles.infoText}>
-                      <Text style={{ fontWeight: "600" }}>Type:</Text> {selectedProduct.type}
-                    </Text>
-                    <Text style={styles.infoText}>
-                      <Text style={{ fontWeight: "600" }}>Materials:</Text> {selectedProduct.materials}
-                    </Text>
-                    <Text style={styles.infoText}>
-                      <Text style={{ fontWeight: "600" }}>Origin:</Text> {selectedProduct.origin}
-                    </Text>
-                    <Text style={styles.infoText}>
-                      <Text style={{ fontWeight: "600" }}>Production Date:</Text> {selectedProduct.productionDate}
-                    </Text>
-                  </View>
-                  <Text style={[styles.infoText, {marginTop: 8}]}>
-                    <Text style={{ fontWeight : "600",}}>
-                      Description:
-                    </Text>
-                  </Text>
-                  <View style={styles.descriptionBox}>
-                    <Text style={styles.descriptionText}>
-                      {selectedProduct.description}
-                    </Text>
-                  </View>
-                  {Array.isArray(processImages) && processImages.length > 0 && (
-                    <View style={styles.processContainer}>
-                      <Text
-                        style={[styles.infoText, {fontWeight:"600", marginBottom: 10,}]}
-                      >
-                        Images of the Process:
-                      </Text>
-
-                      <View style={{ position: "relative" }}>
-                        {/* LEFT BUTTON */}
-                        {activeIndex > 0 && (
-                          <Animated.View
-                            style={{
-                              transform: [{ scale: leftScale }],
-                              position: "absolute",
-                              left: 6,
-                              top: "45%",
-                              zIndex: 10,
-                            }}
-                          >
-                            <Pressable
-                              onHoverIn={() => setHoverLeft(true)}
-                              onHoverOut={() => setHoverLeft(false)}
-                              onPressIn={() => pressIn(leftScale)}
-                              onPressOut={() => pressOut(leftScale)}
-                              onPress={() => {
-                                const newIndex = activeIndex - 1;
-                                isProgrammaticScroll.current = true;
-                                setActiveIndex(newIndex);
-
-                                scrollRef.current?.scrollTo({
-                                  x: newIndex * ITEM_WIDTH,
-                                  animated: true,
-                                });
-
-                                setTimeout(() => {
-                                  isProgrammaticScroll.current = false;
-                                }, 300);
-                              }}
-                              style={{
-                                backgroundColor: hoverLeft
-                                  ? "rgba(0,0,0,0.65)"
-                                  : "rgba(0,0,0,0.4)",
-                                borderRadius: 20,
-                                padding: 6,
-                              }}
-                            >
-                              <Ionicons
-                                name="chevron-back"
-                                size={22}
-                                color={hoverLeft ? "#fff" : "#e6e6e6"}
-                              />
-                            </Pressable>
-                          </Animated.View>
-                        )}
-
-                        {/* RIGHT BUTTON */}
-                        {activeIndex < processImages.length - 1 && (
-                          <Animated.View
-                            style={{
-                              transform: [{ scale: rightScale }],
-                              position: "absolute",
-                              right: 6,
-                              top: "45%",
-                              zIndex: 10,
-                            }}
-                          >
-                            <Pressable
-                              onHoverIn={() => setHoverRight(true)}
-                              onHoverOut={() => setHoverRight(false)}
-                              onPressIn={() => pressIn(rightScale)}
-                              onPressOut={() => pressOut(rightScale)}
-                              onPress={() => {
-                                const newIndex = activeIndex + 1;
-                                isProgrammaticScroll.current = true;
-                                setActiveIndex(newIndex);
-
-                                scrollRef.current?.scrollTo({
-                                  x: newIndex * ITEM_WIDTH,
-                                  animated: true,
-                                });
-
-                                setTimeout(() => {
-                                  isProgrammaticScroll.current = false;
-                                }, 300);
-                              }}
-                              style={{
-                                backgroundColor: hoverRight
-                                  ? "rgba(0,0,0,0.65)"
-                                  : "rgba(0,0,0,0.4)",
-                                borderRadius: 20,
-                                padding: 6,
-                              }}
-                            >
-                              <Ionicons
-                                name="chevron-forward"
-                                size={22}
-                                color={hoverRight ? "#fff" : "#e6e6e6"}
-                              />
-                            </Pressable>
-                          </Animated.View>
-                        )}
-
-                      
-                        <ScrollView
-                          ref={scrollRef}
-                          horizontal
-                          showsHorizontalScrollIndicator={false}
-                          snapToInterval={ITEM_WIDTH}
-                          pagingEnabled={false}
-                          snapToAlignment="start"
-                          disableIntervalMomentum={true}
-                          decelerationRate="fast"
-                          contentContainerStyle={{ paddingRight: CARD_MARGIN }}
-                          onScroll={(e) => {
-                            if (isProgrammaticScroll.current) return;
-
-                            const offsetX = e.nativeEvent.contentOffset.x;
-                            const index = Math.round(offsetX / ITEM_WIDTH);
-
-                            setActiveIndex(
-                              Math.max(0, Math.min(index, processImages.length - 1))
-                            );
-                          }}
-                          scrollEventThrottle={16}
-
-
-                        >
-                          {processImages.map((img, index) => (
-                            <View
-                              key={index}
-                              style={[styles.processCard,{
-                                width: CARD_WIDTH,
-                                height: isMobile ? 310 : 300,
-                                marginRight: CARD_MARGIN,
-                              }]}
-                            >
-                              <Image 
-                                source={{ uri: img }}
-                                blurRadius={25}
-                                style={styles.blurredBackground}
-                              />  
-                              <Image
-                                source={{ uri: img }}
-                                style={styles.processImage}
-                              />
-                            </View>
-                          ))}
-                       
-                        </ScrollView>
-                        <View
-                          style={styles.dotsContainer}
-                        >
-                          {processImages.map((_, index) => (
-                            <View
-                              key={index}
-                              style={[styles.dot,{
-                                backgroundColor:
-                                activeIndex === index ? "#000" : "#cfcfcf",
-                              }]}
-                            />
-                          ))}
-                        </View>
-                      </View>
-                    </View>
-                  )}
-
-                  {/* QR + PRINT + DOWNLOAD */}
-                  <View
-                    style={styles.qrContainer}
-                  >
-                    <View 
-                      style={styles.qrButtons}
-                    >
-                      <Pressable
-                        onHoverIn={() => setHoverPrint(true)}
-                        onHoverOut={() => setHoverPrint(false)}
-                        onPress={() => printQRCode(selectedProduct.qr_code)}
-                        style={[styles.qrIconButton, {
-                          backgroundColor: hoverPrint
-                            ? "#a7a5a5"
-                            : "#fff",
-                        }]}
-                      >
-                        <Ionicons name="print-outline" size={16} color="#000" />
-                      </Pressable>
-
-                      <Pressable
-                        onHoverIn={() => setHoverDownload(true)}
-                        onHoverOut={() => setHoverDownload(false)}
-                        onPress={() => downloadQRCode(selectedProduct.qr_code)}
-                        style={[styles.qrIconButton, {
-                          backgroundColor: hoverDownload
-                            ? "#a7a5a5"
-                            : "#fff",
-                        }]}
-                      >
-                        <Ionicons name="download-outline" size={16} color="#000" />
-                      </Pressable>
-                      </View>
-
-                      {selectedProduct?.qr_code && (
-                        <Image
-                          source={{ uri: selectedProduct.qr_code }}
-                          style={styles.qrImage}
-                          resizeMode="contain"
-                        />
-                      )}
-                    </View>
-
-                    {/* BLOCKCHAIN INFO */}
-                    <View style={styles.blockchainBox}>
-                      <Text style={styles.blockchainTitle}>
-                        Blockchain Information
-                      </Text>
-                      <Text style={styles.blockchainText}>
-                        <Text style={{ fontWeight: "600" }}>Transaction Hash:</Text>{" "}
-                        {selectedProduct.tx_hash}
-                      </Text>
-
-                      {selectedProduct.tx_hash && (
-                        <Pressable
-                          onPress={() =>
-                            Linking.openURL(`https://eth-sepolia.blockscout.com/tx/${selectedProduct.tx_hash}`)
-                          }
-                          style={styles.viewBlockchainButton}
-                        >
-                          <Text
-                            style={styles.viewBlockchainText}
-                          >
-                            VIEW BLOCKCHAIN
-                          </Text>
-                        </Pressable>
-                      )}
-                    </View>
-                </ScrollView>
-              </>
-            )}
-          </View>
-        </View>
-      </Modal>
-      {/* EDIT PRODUCT MODAL */}
-      <Modal visible={editModalVisible} animationType="fade" transparent>
-        <View style={styles.modalOverlay}>
-          <View style={styles.editModalCard}>
-            <ScrollView 
-              showsVerticalScrollIndicator={false} 
-              contentContainerStyle={styles.editHeader} 
-              keyboardShouldPersistTaps="handled"
-            >
-            <Text style={styles.editTitle}>
-              Edit Product
-            </Text>
-            </ScrollView>
-
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Product Name*</Text>
-              <TextInput
-                placeholder="Product Name"
-                value={editForm.name}
-                onChangeText={(t) => setEditForm({ ...editForm, name: t })}
-                style={styles.input}
-              />
-            </View>
-
-            <View
-              style={{marginBottom: 7 }}>
-              <Text style={{fontWeight: "600", marginTop: 0, marginBottom: 4, fontSize: 13, fontFamily: 'Montserrat-Regular',}}>Type*</Text>
-              <Picker
-                selectedValue={editForm.type}
-                onValueChange={(v) => {
-                handleInputChange("type", v);
-                handleInputChange("materials", "");
-              }}
-              style={{ borderWidth: 1, borderColor: "#ccc", padding: 8, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 13}}
-            >
-              <Picker.Item label="Select Type" value="" />
-              <Picker.Item label="Woodcrafts" value="Woodcraft" />
-              <Picker.Item label="Weaving and Textiles" value="Textile" />
-            </Picker>
-            <Text style={{fontWeight: "600", marginTop: 6, marginBottom: 1, fontSize: 13, fontFamily: 'Montserrat-Regular',}}>Materials*</Text>
-            </View>
-            {editForm.type === "Woodcraft" && (
-              <View style={{marginBottom: 7 }}>
-                <Picker 
-                selectedValue={editForm.materials}
-                onValueChange={(v) => handleInputChange("materials", v)}
-                style={{ borderWidth: 1, borderColor: "#ccc", padding: 8, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 13 }}
-                >
-                  <Picker.Item label="Select Material" value="" />
-                  <Picker.Item label="Kamagong" value="Kamagong" />
-                  <Picker.Item label="Acacia" value="Acacia" />
-                  <Picker.Item label="Narra" value="Narra" />
-                  <Picker.Item label="Molave" value="Molave" />
-                  <Picker.Item label="Mahogany" value="Mahogany" />
-                  <Picker.Item label="Batikuling" value="Batikuling" />
-                  <Picker.Item label="Gmelina" value="Gmelina" />
-                  <Picker.Item label="Mangga" value="Mangga" />
-                  <Picker.Item label="Alnus" value="Alnus" /> 
-                  <Picker.Item label="Langka" value="Langka" />
-                </Picker>
-                </View>
-            )}  
-            {editForm.type === "Textile" && (
-              <View style={{marginBottom: 7 }}>
-                <Picker 
-                selectedValue={editForm.materials}
-                onValueChange={(v) => handleInputChange("materials", v)}
-                style={{ borderWidth: 1, borderColor: "#ccc", padding: 8, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 13 }}
-                >
-                  <Picker.Item label="Select Material" value="" />
-                  <Picker.Item label="Abaca" value="Abaca" />
-                  <Picker.Item label="Piña" value="Piña" />
-                  <Picker.Item label="Cotton" value="Cotton" />
-                  <Picker.Item label="Silk" value="Silk" />
-                  <Picker.Item label="Maguay" value="Maguay" />
-                </Picker>
-                </View>
-            )} 
-
-            <View style={{marginBottom: 7 }}>
-              <Text style={{fontWeight: "600", marginTop: 0, marginBottom: 4, fontSize: 13, fontFamily: 'Montserrat-Regular',}}>Origin*</Text>
-              <TextInput
-                placeholder="Origin"
-                value={editForm.origin}
-                onChangeText={(t) => setEditForm({ ...editForm, origin: t })}
-                style={{ borderWidth: 1, borderColor: "#ccc", padding: 8, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 13}}
-              />
-            </View>
-
-            <View style={{marginBottom: 7 }}>
-              <Text style={{fontWeight: "600", marginTop: 0, marginBottom: 4, fontSize: 13, fontFamily: 'Montserrat-Regular',}}>Production Date* (Start to End)</Text>
-                {Platform.OS === "web" ? (
-                  <>
-                  <input
-                    type="date"
-                    value={editForm.productionStartDate}
-                    onChange={(e) =>
-                    setEditForm({...editForm, productionStartDate: e.target.value})
-                    }
-                    style={{borderWidth: 1, borderColor: "#ccc", padding: 8, borderRadius: 8, backgroundColor: "#fafafa", width: "95%",fontFamily: "Montserrat-Regular", fontSize: 13, marginBottom: 7}}
-                  />
-                   <input
-                    type="date"
-                    min={editForm.productionStartDate}
-                    value={editForm.productionEndDate}
-                    onChange={(e) => {
-                      const selectedEnd = e.target.value;
-                      if (editForm.productionStartDate && selectedEnd < editForm.productionStartDate) {
-                        Alert.alert("Error", "End date cannot be before start date");
-                        return;
+                  <View style={styles.formGroup}>
+                    <Text style={styles.label}>Product Name*</Text>
+                    <TextInput
+                      placeholder="Product Name"
+                      value={editForm.name}
+                      onChangeText={(t) =>
+                        setEditForm({ ...editForm, name: t })
                       }
-                      setEditForm({...editForm, productionEndDate: selectedEnd });
-                    }}
-                    style={{borderWidth: 1, borderColor: "#ccc", padding: 8, borderRadius: 8, backgroundColor: "#fafafa", width: "95%",fontFamily: "Montserrat-Regular", fontSize: 13}}
-                  />
-                </>
-                ) : (
-                  <>
-                  <Pressable
-                    style={{flexDirection: "row", alignItems: "center", padding: 8, borderWidth: 1, borderColor: "#ccc", borderRadius: 8, backgroundColor: "#fafafa", marginBottom: 10}}
-                    onPress={() => {
-                      setDateType("start");
-                      setShowDatePicker(true);
-                    }}
-                  >
-                    <Text>
-                      {editForm.productionStartDate
-                        ? formatDate(editForm.productionStartDate)
-                        : "Select Start Date"}
-                    </Text>
-                  </Pressable>
+                      style={styles.input}
+                    />
 
-                  <Pressable
-                    style={{flexDirection: "row", alignItems: "center", padding: 8, borderWidth: 1, borderColor: "#ccc", borderRadius: 8, backgroundColor: "#fafafa", marginBottom: 10}}
-                    onPress={() => {
-                      setDateType("end");
-                      setShowDatePicker(true);
-                    }}
-                  >
-                    <Text>
-                      {editForm.productionEndDate
-                        ? formatDate(editForm.productionEndDate)
-                        : "Select End Date"}
-                    </Text>
-                  </Pressable>
-                </>
-                )}
-            </View>    
-            
-            {isLoading && (
-              <View style={styles.loadingContainer}>
-                <View style={styles.loadingCard}>
-                  <ActivityIndicator size="large" color="#5177b0" />
-                  <Text style={{ marginTop: 10 }}>Updating Product Information...</Text>
+                    <View style={{ marginBottom: 7 }}>
+                      <Text
+                        style={{
+                          fontWeight: "600",
+                          marginTop: 0,
+                          marginBottom: 4,
+                          fontSize: 13,
+                          fontFamily: "Montserrat-Regular",
+                        }}
+                      >
+                        Type*
+                      </Text>
+                      <Picker
+                        selectedValue={editForm.type}
+                        onValueChange={(v) => {
+                          handleInputChange("type", v);
+                          handleInputChange("materials", "");
+                        }}
+                        style={{
+                          borderWidth: 1,
+                          borderColor: "#ccc",
+                          padding: 8,
+                          borderRadius: 8,
+                          backgroundColor: "#fafafa",
+                          width: "100%",
+                          fontFamily: "Montserrat-Regular",
+                          fontSize: 13,
+                        }}
+                      >
+                        <Picker.Item label="Select Type" value="" />
+                        <Picker.Item label="Woodcrafts" value="woodcraft" />
+                        <Picker.Item
+                          label="Weaving and Textiles"
+                          value="textile"
+                        />
+                      </Picker>
+                      <Text
+                        style={{
+                          fontWeight: "600",
+                          marginTop: 6,
+                          marginBottom: 1,
+                          fontSize: 13,
+                          fontFamily: "Montserrat-Regular",
+                        }}
+                      >
+                        Materials*
+                      </Text>
+                    </View>
+                    {editForm.type === "woodcraft" && (
+                      <View style={{ marginBottom: 7 }}>
+                        <Picker
+                          selectedValue={editForm.materials}
+                          onValueChange={(v) =>
+                            handleInputChange("materials", v)
+                          }
+                          style={{
+                            borderWidth: 1,
+                            borderColor: "#ccc",
+                            padding: 8,
+                            borderRadius: 8,
+                            backgroundColor: "#fafafa",
+                            width: "100%",
+                            fontFamily: "Montserrat-Regular",
+                            fontSize: 13,
+                          }}
+                        >
+                          <Picker.Item label="Select Material" value="" />
+                          <Picker.Item label="Kamagong" value="Kamagong" />
+                          <Picker.Item label="Acacia" value="Acacia" />
+                          <Picker.Item label="Narra" value="Narra" />
+                          <Picker.Item label="Molave" value="Molave" />
+                          <Picker.Item label="Mahogany" value="Mahogany" />
+                          <Picker.Item label="Batikuling" value="Batikuling" />
+                          <Picker.Item label="Gmelina" value="Gmelina" />
+                        </Picker>
+                      </View>
+                    )}
+                    {editForm.type === "textile" && (
+                      <View style={{ marginBottom: 7 }}>
+                        <Picker
+                          selectedValue={editForm.materials}
+                          onValueChange={(v) =>
+                            handleInputChange("materials", v)
+                          }
+                          style={{
+                            borderWidth: 1,
+                            borderColor: "#ccc",
+                            padding: 8,
+                            borderRadius: 8,
+                            backgroundColor: "#fafafa",
+                            width: "100%",
+                            fontFamily: "Montserrat-Regular",
+                            fontSize: 13,
+                          }}
+                        >
+                          <Picker.Item label="Select Material" value="" />
+                          <Picker.Item label="Abaca" value="Abaca" />
+                          <Picker.Item label="Piña" value="Piña" />
+                          <Picker.Item label="Cotton" value="Cotton" />
+                          <Picker.Item label="Silk" value="Silk" />
+                          <Picker.Item label="Maguay" value="Maguay" />
+                        </Picker>
+                      </View>
+                    )}
+
+                    <View style={{ marginBottom: 7 }}>
+                      <Text
+                        style={{
+                          fontWeight: "600",
+                          marginTop: 0,
+                          marginBottom: 4,
+                          fontSize: 13,
+                          fontFamily: "Montserrat-Regular",
+                        }}
+                      >
+                        Origin*
+                      </Text>
+                      <TextInput
+                        placeholder="Origin"
+                        value={editForm.origin}
+                        onChangeText={(t) =>
+                          setEditForm({ ...editForm, origin: t })
+                        }
+                        style={{
+                          borderWidth: 1,
+                          borderColor: "#ccc",
+                          padding: 8,
+                          borderRadius: 8,
+                          backgroundColor: "#fafafa",
+                          width: "100%",
+                          fontFamily: "Montserrat-Regular",
+                          fontSize: 13,
+                        }}
+                      />
+                    </View>
+
+                    <View style={{ marginBottom: 7 }}>
+                      <Text
+                        style={{
+                          fontWeight: "600",
+                          marginTop: 0,
+                          marginBottom: 4,
+                          fontSize: 13,
+                          fontFamily: "Montserrat-Regular",
+                        }}
+                      >
+                        Production Date* (Start to End)
+                      </Text>
+                      {Platform.OS === "web" ? (
+                        <>
+                          <input
+                            type="date"
+                            value={editForm.productionStartDate}
+                            onChange={(e) =>
+                              setEditForm({
+                                ...editForm,
+                                productionStartDate: e.target.value,
+                              })
+                            }
+                            style={{
+                              borderWidth: 1,
+                              borderColor: "#ccc",
+                              padding: 8,
+                              borderRadius: 8,
+                              backgroundColor: "#fafafa",
+                              width: "95%",
+                              fontFamily: "Montserrat-Regular",
+                              fontSize: 13,
+                              marginBottom: 7,
+                            }}
+                          />
+                          <input
+                            type="date"
+                            min={editForm.productionStartDate}
+                            value={editForm.productionEndDate}
+                            onChange={(e) => {
+                              const selectedEnd = e.target.value;
+                              if (
+                                editForm.productionStartDate &&
+                                selectedEnd < editForm.productionStartDate
+                              ) {
+                                Alert.alert(
+                                  "Error",
+                                  "End date cannot be before start date",
+                                );
+                                return;
+                              }
+                              setEditForm({
+                                ...editForm,
+                                productionEndDate: selectedEnd,
+                              });
+                            }}
+                            style={{
+                              borderWidth: 1,
+                              borderColor: "#ccc",
+                              padding: 8,
+                              borderRadius: 8,
+                              backgroundColor: "#fafafa",
+                              width: "95%",
+                              fontFamily: "Montserrat-Regular",
+                              fontSize: 13,
+                            }}
+                          />
+                        </>
+                      ) : (
+                        <>
+                          <Pressable
+                            style={{
+                              flexDirection: "row",
+                              alignItems: "center",
+                              padding: 8,
+                              borderWidth: 1,
+                              borderColor: "#ccc",
+                              borderRadius: 8,
+                              backgroundColor: "#fafafa",
+                              marginBottom: 10,
+                            }}
+                            onPress={() => {
+                              setDateType("start");
+                              setShowDatePicker(true);
+                            }}
+                          >
+                            <Text>
+                              {editForm.productionStartDate
+                                ? formatDate(editForm.productionStartDate)
+                                : "Select Start Date"}
+                            </Text>
+                          </Pressable>
+
+                          <Pressable
+                            style={{
+                              flexDirection: "row",
+                              alignItems: "center",
+                              padding: 8,
+                              borderWidth: 1,
+                              borderColor: "#ccc",
+                              borderRadius: 8,
+                              backgroundColor: "#fafafa",
+                              marginBottom: 10,
+                            }}
+                            onPress={() => {
+                              setDateType("end");
+                              setShowDatePicker(true);
+                            }}
+                          >
+                            <Text>
+                              {editForm.productionEndDate
+                                ? formatDate(editForm.productionEndDate)
+                                : "Select End Date"}
+                            </Text>
+                          </Pressable>
+                        </>
+                      )}
+                    </View>
+
+                    {isLoading && (
+                      <View style={styles.loadingContainer}>
+                        <View style={styles.loadingCard}>
+                          <ActivityIndicator size="large" color="#5177b0" />
+                          <Text style={{ marginTop: 10 }}>
+                            Updating Product Information...
+                          </Text>
+                        </View>
+                      </View>
+                    )}
+
+                    <View style={{ marginBottom: 5 }}>
+                      <Text
+                        style={{
+                          fontWeight: "600",
+                          marginTop: 0,
+                          marginBottom: 4,
+                          fontSize: 13,
+                          fontFamily: "Montserrat-Regular",
+                        }}
+                      >
+                        Description*
+                      </Text>
+                      <TextInput
+                        placeholder="Description"
+                        multiline
+                        value={editForm.description}
+                        onChangeText={(t) =>
+                          setEditForm({ ...editForm, description: t })
+                        }
+                        style={{
+                          borderWidth: 1,
+                          borderColor: "#ccc",
+                          padding: 8,
+                          borderRadius: 8,
+                          backgroundColor: "#fafafa",
+                          width: "100%",
+                          fontFamily: "Montserrat-Regular",
+                          fontSize: 14,
+                          height: 180,
+                        }}
+                      />
+                    </View>
+                    {/* PRODUCT IMAGE BOX */}
+                    <Text style={styles.label}>Image of the Product*</Text>
+                    <Pressable onPress={() => pickImage("productImage")}>
+                      <View style={styles.imagePicker}>
+                        {editProductImage ? (
+                          <Image
+                            source={{ uri: editProductImage }}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              resizeMode: "cover",
+                            }}
+                          />
+                        ) : (
+                          <Text style={styles.imageText}>
+                            Select Product Image
+                          </Text>
+                        )}
+                      </View>
+                    </Pressable>
+
+                    {/* PROCESS IMAGES BOX */}
+                    <Text style={styles.label}>Images of the Process*</Text>
+                    <Pressable onPress={() => pickImage("processImages")}>
+                      <View style={styles.imagePicker}>
+                        <Text style={styles.imageText}>Add Process Images</Text>
+                        <Text
+                          style={[
+                            styles.imageText,
+                            { fontSize: 10, marginTop: 3 },
+                          ]}
+                        >
+                          (Tap to select multiple)
+                        </Text>
+                      </View>
+                    </Pressable>
+                  </View>
+
+                  <View style={styles.buttonRow}>
+                    <Pressable
+                      onPress={() => {
+                        if (selectedProduct?.id) {
+                          updateProduct(selectedProduct.id);
+                        } else {
+                          alert("No product selected!");
+                        }
+                      }}
+                      style={styles.saveButton}
+                    >
+                      <Text
+                        style={{
+                          color: "#fff",
+                          textAlign: "center",
+                          fontWeight: "600",
+                          fontFamily: "Montserrat-Regular",
+                        }}
+                      >
+                        SAVE
+                      </Text>
+                    </Pressable>
+
+                    <Pressable
+                      style={styles.cancelButton}
+                      onPress={() => setEditModalVisible(false)}
+                    >
+                      <Text
+                        style={{
+                          color: "#fff",
+                          textAlign: "center",
+                          fontWeight: "600",
+                          fontFamily: "Montserrat-Regular",
+                        }}
+                      >
+                        CANCEL
+                      </Text>
+                    </Pressable>
+                  </View>
+                </ScrollView>
+              </View>
+            </View>
+          </Modal>
+        </ScrollView>
+
+        <Modal visible={showFilter} transparent animationType="fade">
+          <Pressable style={{ flex: 1 }} onPress={() => setShowFilter(false)}>
+            <View
+              style={{
+                position: "absolute",
+                top: filterPos.y + 6,
+                left: filterPos.x - 140,
+                width: 180,
+                backgroundColor: "#fff",
+                borderWidth: 2,
+                borderColor: "#000",
+                borderRadius: 12,
+                paddingVertical: 6,
+                marginTop: 5,
+                elevation: 50,
+                zIndex: 99999,
+                shadowColor: "#000",
+                shadowOpacity: 0.1,
+                shadowRadius: 6,
+              }}
+            >
+              <View style={{ marginBottom: 10, marginLeft: 10 }}>
+                {/* TYPE FILTER */}
+                <Text
+                  style={{
+                    fontWeight: "600",
+                    marginBottom: 6,
+                    fontFamily: "Montserrat-Regular",
+                  }}
+                >
+                  Type
+                </Text>
+                <View
+                  style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}
+                >
+                  {typeOptions.map((type) => (
+                    <Pressable
+                      key={type}
+                      onPress={() =>
+                        toggleFilter(type, selectedTypes, setSelectedTypes)
+                      }
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 6,
+                      }}
+                    >
+                      <Ionicons
+                        name={
+                          selectedTypes.includes(type)
+                            ? "checkbox"
+                            : "square-outline"
+                        }
+                        size={18}
+                      />
+                      <Text style={{ fontFamily: "Montserrat-Regular" }}>
+                        {type}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+
+                {/* MATERIAL FILTER */}
+                <Text
+                  style={{
+                    fontWeight: "600",
+                    marginVertical: 6,
+                    fontFamily: "Montserrat-Regular",
+                  }}
+                >
+                  Material
+                </Text>
+                <View
+                  style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}
+                >
+                  {materialOptions.map((mat) => (
+                    <Pressable
+                      key={mat}
+                      onPress={() =>
+                        toggleFilter(
+                          mat,
+                          selectedMaterials,
+                          setSelectedMaterials,
+                        )
+                      }
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 6,
+                      }}
+                    >
+                      <Ionicons
+                        name={
+                          selectedMaterials.includes(mat)
+                            ? "checkbox"
+                            : "square-outline"
+                        }
+                        size={18}
+                      />
+                      <Text style={{ fontFamily: "Montserrat-Regular" }}>
+                        {mat}
+                      </Text>
+                    </Pressable>
+                  ))}
                 </View>
               </View>
-            )}                    
-            
-            <View style={{marginBottom: 5 }}>
-              <Text style={{fontWeight: "600", marginTop: 0, marginBottom: 4, fontSize: 13, fontFamily: 'Montserrat-Regular',}}>Description*</Text>
-              <TextInput
-                placeholder="Description"
-                multiline
-                value={editForm.description}
-                onChangeText={(t) =>
-                  setEditForm({ ...editForm, description: t })
-                }
-                style={{ borderWidth: 1, borderColor: "#ccc", padding: 8, borderRadius: 8, backgroundColor: "#fafafa", width: "100%",fontFamily: "Montserrat-Regular", fontSize: 14, height: 180,}}
-              />
             </View>
-
-            <View style={styles.buttonRow}>
-              <Pressable
-                onPress={() => {
-                  if (selectedProduct?.id) {
-                    updateProduct(selectedProduct.id);
-                  } else {
-                    alert("No product selected!");
-                  }
-                }}
-                style={styles.saveButton}
-              >
-                <Text style={{ color: "#fff", textAlign: "center", fontWeight: "600", fontFamily: 'Montserrat-Regular'}}>
-                  SAVE
-                </Text>
-              </Pressable>
-
-              <Pressable
-                style={styles.cancelButton}
-                onPress={() => setEditModalVisible(false)}
-              >
-                <Text style={{ color: "#fff", textAlign: "center", fontWeight: "600", fontFamily: 'Montserrat-Regular' }}>
-                  CANCEL
-                </Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
-    </ScrollView>
-
-
-    <Modal visible={showFilter} transparent animationType="fade">
-      <Pressable
-        style={{ flex: 1 }}
-        onPress={() => setShowFilter(false)}
-      >
-        <View
-          style={{
-            position: "absolute",
-            top: filterPos.y + 6,
-            left: filterPos.x - 140,
-            width: 180,
-            backgroundColor: "#fff",
-            borderWidth: 2,
-            borderColor: "#000",
-            borderRadius: 12,
-            paddingVertical: 6,
-            marginTop: 5,
-            elevation: 50,
-            zIndex: 99999,
-            shadowColor: "#000",
-            shadowOpacity: 0.1,
-            shadowRadius: 6,
-          }}
-        >
-          <View style={{ marginBottom: 10, marginLeft: 10, }}>
-            {/* TYPE FILTER */}
-            <Text style={{ fontWeight: "600", marginBottom: 6, fontFamily: "Montserrat-Regular", }}>Type</Text>
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
-              {typeOptions.map(type => (
-                <Pressable
-                  key={type}
-                  onPress={() => toggleFilter(type, selectedTypes, setSelectedTypes)}
-                  style={{ flexDirection: "row", alignItems: "center", gap: 6 }}
-                >
-                  <Ionicons
-                    name={
-                      selectedTypes.includes(type)
-                        ? "checkbox"
-                        : "square-outline"
-                    }
-                    size={18}
-                  />
-                  <Text style={{fontFamily: "Montserrat-Regular",}}>{type}</Text>
-                </Pressable>
-              ))}
-            </View>
-
-            {/* MATERIAL FILTER */}
-            <Text style={{ fontWeight: "600", marginVertical: 6, fontFamily: "Montserrat-Regular",}}>Material</Text>
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
-              {materialOptions.map(mat => (
-                <Pressable
-                  key={mat}
-                  onPress={() =>
-                    toggleFilter(mat, selectedMaterials, setSelectedMaterials)
-                  }
-                  style={{ flexDirection: "row", alignItems: "center", gap: 6 }}
-                >
-                  <Ionicons
-                    name={
-                      selectedMaterials.includes(mat)
-                        ? "checkbox"
-                        : "square-outline"
-                    }
-                    size={18}
-                  />
-                  <Text style={{fontFamily: "Montserrat-Regular",}}>{mat}</Text>
-                </Pressable>
-              ))}
-            </View>
-          </View>
-        </View>
-      </Pressable>
-    </Modal>
-    {/* RESULT MODAL (SUCCESS / ERROR) */}
-    <Modal visible={resultVisible} transparent animationType="none">
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: "rgba(0,0,0,0.5)",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Animated.View
-          style={{
-            opacity: resultOpacity,
-            transform: [{ scale: resultScale }],
-            backgroundColor: "#fff",
-            padding: 25,
-            borderRadius: 16,
-            width: "85%",
-            maxWidth: 350,
-            alignItems: "center",
-          }}
-        >
-          <Ionicons
-            name={
-              resultType === "success"
-                ? "checkmark-circle"
-                : "close-circle"
-            }
-            size={70}
-            color={resultType === "success" ? "#2ECC71" : "#E74C3C"}
-          />
-
-          <Text
+          </Pressable>
+        </Modal>
+        {/* RESULT MODAL (SUCCESS / ERROR) */}
+        <Modal visible={resultVisible} transparent animationType="none">
+          <View
             style={{
-              marginTop: 15,
-              fontSize: 16,
-              fontWeight: "600",
-              textAlign: "center",
-              fontFamily: "Montserrat-Regular",
+              flex: 1,
+              backgroundColor: "rgba(0,0,0,0.5)",
+              justifyContent: "center",
+              alignItems: "center",
             }}
           >
-            {resultMessage}
-          </Text>
-
-          <Pressable
-            onPress={() => setResultVisible(false)}
-            style={{
-              marginTop: 20,
-              backgroundColor:
-                resultType === "success" ? "#2ECC71" : "#E74C3C",
-              paddingVertical: 10,
-              paddingHorizontal: 25,
-              borderRadius: 8,
-            }}
-          >
-            <Text
+            <Animated.View
               style={{
-                color: "#fff",
-                fontWeight: "600",
-                fontFamily: "Montserrat-Regular",
+                opacity: resultOpacity,
+                transform: [{ scale: resultScale }],
+                backgroundColor: "#fff",
+                padding: 25,
+                borderRadius: 16,
+                width: "85%",
+                maxWidth: 350,
+                alignItems: "center",
               }}
             >
-              OK
-            </Text>
-          </Pressable>
-        </Animated.View>
-      </View>
-    </Modal>
-  </Animated.View>
-</ImageBackground>
+              <Ionicons
+                name={
+                  resultType === "success" ? "checkmark-circle" : "close-circle"
+                }
+                size={70}
+                color={resultType === "success" ? "#2ECC71" : "#E74C3C"}
+              />
+
+              <Text
+                style={{
+                  marginTop: 15,
+                  fontSize: 16,
+                  fontWeight: "600",
+                  textAlign: "center",
+                  fontFamily: "Montserrat-Regular",
+                }}
+              >
+                {resultMessage}
+              </Text>
+
+              <Pressable
+                onPress={() => setResultVisible(false)}
+                style={{
+                  marginTop: 20,
+                  backgroundColor:
+                    resultType === "success" ? "#2ECC71" : "#E74C3C",
+                  paddingVertical: 10,
+                  paddingHorizontal: 25,
+                  borderRadius: 8,
+                }}
+              >
+                <Text
+                  style={{
+                    color: "#fff",
+                    fontWeight: "600",
+                    fontFamily: "Montserrat-Regular",
+                  }}
+                >
+                  OK
+                </Text>
+              </Pressable>
+            </Animated.View>
+          </View>
+        </Modal>
+      </Animated.View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-
   dashboard_bg: {
     flex: 1,
     width: "100%",
@@ -1817,20 +2248,20 @@ const styles = StyleSheet.create({
     elevation: 5,
     maxHeight: "85%",
   },
-  dashboard_welcomeText: {        
+  dashboard_welcomeText: {
     fontFamily: "Garet-Heavy",
     color: "#000",
     fontSize: 32,
-    textAlign: "left", 
-    },
-  dashboard_welcomeBusinessText:{
+    textAlign: "left",
+  },
+  dashboard_welcomeBusinessText: {
     fontSize: 28,
-    fontFamily: "Montserrat-Black", 
+    fontFamily: "Montserrat-Black",
     color: "#4A70A9",
     textAlign: "left",
     marginTop: 5,
   },
-  dashboard_headerContainer : {
+  dashboard_headerContainer: {
     width: "100%",
     maxWidth: 900,
     borderWidth: 2,
@@ -1852,7 +2283,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     textAlign: "left",
   },
-  searchProducts_container:{
+  searchProducts_container: {
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
@@ -1862,30 +2293,30 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     marginBottom: 15,
   },
-  searchProducts_wrapper : {
+  searchProducts_wrapper: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
     width: "70%",
     position: "relative",
   },
-  filterProducts_btn : {
-    paddingVertical: 14,
-    paddingHorizontal: 10,
-    borderRadius: 20,
-    alignItems: "center",
-    justifyContent: "center",
-    cursor: "pointer", 
-  },
-  reportGeneration_btn : {
+  filterProducts_btn: {
     paddingVertical: 14,
     paddingHorizontal: 10,
     borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
     cursor: "pointer",
-  }, 
-  productRegistration_btn :{
+  },
+  reportGeneration_btn: {
+    paddingVertical: 14,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+  },
+  productRegistration_btn: {
     width: "29%",
     backgroundColor: "#4A70A9",
     paddingVertical: 14,
@@ -1899,32 +2330,32 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     elevation: 3,
   },
-  productRegistration_btnText:{
+  productRegistration_btnText: {
     color: "#fff",
     fontFamily: "Montserrat-Bold",
     fontSize: 14,
-    letterSpacing: 0.5
+    letterSpacing: 0.5,
   },
-  productListText:{
+  productListText: {
     fontSize: 14,
     fontFamily: "Montserrat-Regular",
     marginBottom: 10,
     textAlign: "left",
   },
-  closeBtn : {
+  closeBtn: {
     borderWidth: 1,
     borderColor: "#000",
     borderRadius: 100,
     paddingVertical: 8,
     paddingHorizontal: 12,
   },
-  showMore_text:{
-    fontSize: 14, 
-    color: "#444", 
-    fontWeight: "500", 
+  showMore_text: {
+    fontSize: 14,
+    color: "#444",
+    fontWeight: "500",
     textDecorationLine: "underline",
   },
-  productImage_container:{
+  productImage_container: {
     width: "100%",
     height: 220,
     borderRadius: 16,
@@ -1932,12 +2363,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#f2f2f2",
     marginBottom: 15,
   },
-  productImage:{
-    width: "100%", 
-    height: "100%", 
-    resizeMode: "contain"
+  productImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "contain",
   },
-  productName_background:{
+  productName_background: {
     position: "absolute",
     bottom: 0,
     left: 0,
@@ -1948,19 +2379,19 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 16,
     borderBottomRightRadius: 16,
   },
-  productName_text:{
+  productName_text: {
     color: "#fff",
     fontSize: 20,
     fontFamily: "Montserrat-Bold",
   },
-  buttonContainer:{
-    flexDirection: "row", 
-    gap: 3, 
-    position: "absolute", 
-    left: 0, 
-    top: 0
+  buttonContainer: {
+    flexDirection: "row",
+    gap: 3,
+    position: "absolute",
+    left: 0,
+    top: 0,
   },
-  edit_delete_btn:{
+  edit_delete_btn: {
     borderWidth: 1,
     borderColor: "rgb(139, 132, 132)",
     borderRadius: 50,
@@ -2017,7 +2448,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#eee",
     borderRadius: 8,
   },
-  confirm_cancelText : {
+  confirm_cancelText: {
     fontFamily: "Montserrat-Regular",
   },
   productInfoBox: {
@@ -2042,7 +2473,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     marginTop: 5,
   },
-  descriptionText : {
+  descriptionText: {
     fontFamily: "Montserrat-Regular",
     marginBottom: 20,
   },
@@ -2166,7 +2597,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#fff",
   },
-  loadingContainer : {
+  loadingContainer: {
     position: "absolute",
     top: 0,
     left: 0,
@@ -2219,6 +2650,7 @@ const styles = StyleSheet.create({
 
   formGroup: {
     marginBottom: 7,
+    width: "100%",
   },
 
   label: {
@@ -2256,7 +2688,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignSelf: "flex-end",
     gap: 8,
-    padding: 5,
   },
 
   saveButton: {
@@ -2294,5 +2725,32 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: "hidden",
     backgroundColor: "#f2f2f2",
+  },
+  hoverText: {
+    marginTop: 5,
+    fontSize: 12,
+    fontFamily: "Montserrat-Regular",
+  },
+  imagePicker: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+    backgroundColor: "#fafafa",
+    height: 140,
+    justifyContent: "center",
+    marginBottom: 15,
+    width: "100%",
+  },
+  imagePreview: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 8,
+    objectFit: "cover",
+  },
+  imageText: {
+    color: "#666",
+    fontFamily: "Montserrat-Regular",
   },
 });
