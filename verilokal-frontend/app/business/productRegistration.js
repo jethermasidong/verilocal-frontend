@@ -74,6 +74,9 @@ export default function RegisterProduct() {
   //IMAGE UPLOAD STATUS MESSAGE
   const [uploadError, setUploadError] = useState("");
 
+
+
+
   const [dateType, setDateType] = useState(null);
 
   //DATE FORMAT
@@ -112,6 +115,9 @@ export default function RegisterProduct() {
     }
   };
 
+
+
+
   //PRODUCT REGISTRATION INSTRUCTIONS MODAL
   const handleConfirmConsent = async () => {
     try {
@@ -137,6 +143,8 @@ export default function RegisterProduct() {
       console.log("Error checking consent:", error);
     }
   };
+
+
 
   //IMAGE SIZE LIMIT
   const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -202,6 +210,9 @@ export default function RegisterProduct() {
     }
   };
 
+
+
+
   //PROCESS IMAGE PICKER - MULTIPLE UPLOAD
   const pickProcessImages = async () => {
     try {
@@ -244,7 +255,10 @@ export default function RegisterProduct() {
       Alert.alert("Error selecting images");
     }
   };
-  //END OF IMAGE PICKER
+
+
+
+
 
   const handleInputChange = (name, value) => {
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -257,6 +271,9 @@ export default function RegisterProduct() {
     Dimensions.addEventListener("change", resize);
     return () => Dimensions.removeEventListener("change", resize);
   }, []);
+
+
+
 
   //SUBMIT FOR REGISTRATION
   const handleSubmit = async () => {

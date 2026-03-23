@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
+import * as ImagePicker from 'expo-image-picker';
 import axios from "axios";
 import { useFonts } from "expo-font";
 import { router } from "expo-router";
@@ -144,6 +145,8 @@ export default function BusinessDashboard() {
   }, []);
   const isMobile = windowWidth < 768;
 
+
+
   //FILTER AND CATEGORIZATION:
   const typeOptions = [
     ...new Set(products.map((p) => p.type).filter(Boolean)),
@@ -158,6 +161,9 @@ export default function BusinessDashboard() {
     );
   };
 
+
+
+
   //EDIT FORM
   const [editForm, setEditForm] = useState({
     name: "",
@@ -171,6 +177,9 @@ export default function BusinessDashboard() {
     productImage: null,
     processImages: [],
   });
+
+
+
 
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString("en-US", {
@@ -305,14 +314,73 @@ export default function BusinessDashboard() {
     setModalVisible(true);
   };
 
+
+
+
   const updateProduct = async (id) => {
     setIsLoading(true);
     try {
       const token = await AsyncStorage.getItem("token");
+      const formData = new FormData();
+
+      formData.append("name", editForm.name);
+      formData.append("type", editForm.type);
+      formData.append("materials", editForm.materials);
+      formData.append("origin", editForm.origin);
+      formData.append("description", editForm.description);
+      formData.append("productionDate", editForm.productionDate);
+    
+      if (editProductImage && (editProductImage.startsWith('blob:') || editProductImage.startsWith('file'))) {
+        if (Platform.OS === 'web') {
+          const response = await fetch(editProductImage);
+          const blob = await response.blob();
+          formData.append("product_image", blob, `product_${id}.jpg`);
+        } else {
+          const uriParts = editProductImage.split('.');
+          const fileType = uriParts[uriParts.length - 1];
+          formData.append("product_image", {
+            uri: editProductImage,
+            name: `product_${id}.${fileType}`,
+            type: `image/${fileType}`,
+          });
+        }
+      }
+
+      const keptImages = editProcessImages.filter(
+        uri => !uri.startsWith('blob:') && !uri.startsWith('file')
+      );
+
+      const newImages = editProcessImages.filter(
+        uri => uri.startsWith('blob:') || uri.startsWith('file')
+      );
+
+      keptImages.forEach(uri => {
+        formData.append("kept_process_images", uri);
+      });
+
+    
+     for (let index = 0; index < newImages.length; index++) {
+      const uri = newImages[index];
+      if (uri.startsWith('blob:') || uri.startsWith('file')) {
+        if (Platform.OS === 'web') {
+          const response = await fetch(uri);
+          const blob = await response.blob();
+          formData.append("process_images", blob, `process_${index}.jpg`);
+        } else {
+          const uriParts = uri.split('.');
+          const fileType = uriParts[uriParts.length - 1];
+          formData.append("process_images", {
+            uri,
+            name: `process_${index}.${fileType}`,
+            type: `image/${fileType}`,
+          });
+        }
+      }
+    }
 
       const res = await axios.put(
         `https://verilocalph.onrender.com/api/products/${id}`,
-        editForm,
+        formData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -354,9 +422,27 @@ export default function BusinessDashboard() {
       productionEnd: end,
       productionDate: product.productionDate || "",
     });
+
+    setEditProductImage(product.product_image);
+
+    let existingProcess = [];
+    try {
+      if (Array.isArray(product.process_images)) {
+        existingProcess = product.process_images;
+      } else if (typeof product.process_images === "string") {
+        existingProcess = JSON.parse(product.process_images);
+      }
+    } catch (e) {
+      console.error("Failed to parse process images", e);
+      existingProcess = [];
+    }
+    
+    setEditProcessImages(existingProcess);
     setEditModalVisible(true);
   };
 
+
+  const MAX_FILE_SIZE = 5 * 1024 * 1024;
   //IMAGE PICKER - PRODUCT IMAGE
   const pickImage = async (key) => {
     try {
@@ -373,15 +459,7 @@ export default function BusinessDashboard() {
             return;
           }
 
-          setForm((prev) => ({
-            ...prev,
-            [key]: {
-              uri: URL.createObjectURL(file),
-              name: file.name,
-              type: file.type,
-              file,
-            },
-          }));
+          setEditProductImage(URL.createObjectURL(file));
         };
         input.click();
       } else {
@@ -393,23 +471,13 @@ export default function BusinessDashboard() {
 
         if (!result.canceled) {
           const asset = result.assets[0];
-          const response = await fetch(asset.uri);
-          const blob = await response.blob();
 
-          if (blob.size > MAX_FILE_SIZE) {
+          if (asset.fileSize && asset.fileSize > MAX_FILE_SIZE) {
             setUploadError("File too large. Must be 5MB or less.");
             return;
           } else setUploadError("");
 
-          setForm((prev) => ({
-            ...prev,
-            [key]: {
-              uri: asset.uri,
-              name: asset.fileName || "image.jpg",
-              type: asset.mimeType || "image/jpeg",
-              file: blob,
-            },
-          }));
+          setEditProductImage(asset.uri);
         }
       }
     } catch (err) {
@@ -420,7 +488,26 @@ export default function BusinessDashboard() {
 
   //PROCESS IMAGE PICKER - MULTIPLE UPLOAD
   const pickProcessImages = async () => {
-    try {
+  try {
+    if (Platform.OS === 'web') {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.multiple = true;
+      input.onchange = (e) => {
+        const files = Array.from(e.target.files);
+        const validFiles = files.filter(f => {
+          if (f.size > MAX_FILE_SIZE) {
+            Alert.alert("File too large", "Each image must be 5MB or less");
+            return false;
+          }
+          return true;
+        });
+        const uris = validFiles.map(f => URL.createObjectURL(f));
+        setEditProcessImages(prev => [...(Array.isArray(prev) ? prev : []), ...uris]);
+      };
+      input.click();
+    } else {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsMultipleSelection: true,
@@ -428,38 +515,27 @@ export default function BusinessDashboard() {
       });
 
       if (!result.canceled) {
-        const selectedImages = await Promise.all(
-          result.assets.map(async (asset) => {
-            const response = await fetch(asset.uri);
-            const blob = await response.blob();
-
-            if (blob.size > MAX_FILE_SIZE) {
-              Alert.alert("File too large", "Each image must be 5MB or less");
-              return null;
-            }
-
-            return {
-              uri: asset.uri,
-              name: asset.fileName || `process_${Date.now()}.jpg`,
-              type: asset.mimeType || "image/jpeg",
-              file: blob,
-            };
-          }),
-        );
-
-        setForm((prev) => ({
-          ...prev,
-          processImages: [
-            ...prev.processImages,
-            ...selectedImages.filter(Boolean),
-          ],
-        }));
+        const validAssets = result.assets.filter(asset => {
+          if (asset.fileSize && asset.fileSize > MAX_FILE_SIZE) {
+            Alert.alert("File too large", "Each image must be 5MB or less");
+            return false;
+          }
+          return true;
+        });
+        const newUris = validAssets.map(asset => asset.uri);
+        setEditProcessImages(prev => [...(Array.isArray(prev) ? prev : []), ...newUris]);
       }
-    } catch (err) {
-      console.error(err);
-      Alert.alert("Error selecting images");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    Alert.alert("Error selecting images");
+  }
+};
+
+
+
+
+
 
   const downloadQRCode = async (qrUrl) => {
     try {
@@ -1898,14 +1974,20 @@ export default function BusinessDashboard() {
                     <Pressable onPress={() => pickImage("productImage")}>
                       <View style={styles.imagePicker}>
                         {editProductImage ? (
-                          <Image
-                            source={{ uri: editProductImage }}
-                            style={{
-                              width: "100%",
-                              height: "100%",
-                              resizeMode: "cover",
-                            }}
-                          />
+                          <View style={{width: '100%', height: '100%'}}>
+                            <Image
+                              source={{ uri: editProductImage }}
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                borderRadius: 8,
+                                resizeMode: "cover",
+                              }}
+                            />
+                            <View style={{ position: 'absolute', bottom: 5, right: 5, backgroundColor: 'rgba(0,0,0,0.5)', padding: 4, borderRadius: 4 }}>
+                              <Text style={{ color: 'white', fontSize: 10 }}>Change Photo</Text>
+                            </View>
+                        </View>
                         ) : (
                           <Text style={styles.imageText}>
                             Select Product Image
@@ -1916,7 +1998,7 @@ export default function BusinessDashboard() {
 
                     {/* PROCESS IMAGES BOX */}
                     <Text style={styles.label}>Images of the Process*</Text>
-                    <Pressable onPress={() => pickImage("processImages")}>
+                    <Pressable onPress={() => pickProcessImages("processImages")}>
                       <View style={styles.imagePicker}>
                         <Text style={styles.imageText}>Add Process Images</Text>
                         <Text
@@ -1929,6 +2011,22 @@ export default function BusinessDashboard() {
                         </Text>
                       </View>
                     </Pressable>
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 10, marginBottom: 15 }}>
+                      {editProcessImages.map((uri, index) => (
+                        <View key={index} style={{ position: 'relative' }}>
+                          <Image 
+                            source={{ uri }} 
+                            style={{ width: 70, height: 70, borderRadius: 8, borderWidth: 1, borderColor: '#ccc' }} 
+                          />
+                          <Pressable 
+                            onPress={() => setEditProcessImages(prev => prev.filter((_, i) => i !== index))}
+                            style={{ position: 'absolute', top: -5, right: -5, backgroundColor: 'white', borderRadius: 12 }}
+                          >
+                            <Ionicons name="close-circle" size={22} color="#E74C3C" />
+                          </Pressable>
+                        </View>
+                      ))}
+                    </View>
                   </View>
 
                   <View style={styles.buttonRow}>
