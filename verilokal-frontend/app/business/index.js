@@ -1030,7 +1030,12 @@ export default function BusinessDashboard() {
             <View
               style={[
                 styles.searchProducts_wrapper,
-                isMobile && { alignItems: "flex-start", width: "100%" },
+                isMobile && {
+                  alignItems: "flex-start",
+                  width: "100%",
+                  justifyConten: "center",
+                  alignItems: "center",
+                },
               ]}
             >
               <TextInput
@@ -1075,7 +1080,7 @@ export default function BusinessDashboard() {
                   }}
                 >
                   <Ionicons name="funnel-outline" size={30} />
-                  {onHoverIn1 && (
+                  {!isMobile && onHoverIn1 && (
                     <Text style={styles.hoverText}>Filter Products</Text>
                   )}
                 </Pressable>
@@ -1102,7 +1107,7 @@ export default function BusinessDashboard() {
                   onPress={reportGenerator}
                 >
                   <Ionicons name="archive-outline" size={30} />
-                  {onHoverIn && (
+                  {!isMobile && onHoverIn && (
                     <Text style={styles.hoverText}>Report Generation</Text>
                   )}
                 </Pressable>
