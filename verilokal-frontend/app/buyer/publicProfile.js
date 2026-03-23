@@ -308,7 +308,7 @@ export default function PublicProfile() {
           {!isMobile && (
             <View style={styles.right}>
               <View style={[styles.iconRow, isMobile && { marginTop: 15 }]}>
-                {business.show_certificates && (
+                {!!business.show_certificates && (
                   <IconButton
                     icon="images-outline"
                     label="Certificates"
@@ -362,7 +362,7 @@ export default function PublicProfile() {
                   </ScrollView>
                 </Animated.View>
               )}
-              {business.show_certificates && activePanel === "certificates" && (
+              {!!business.show_certificates && activePanel === "certificates" && (
                 <Animated.View
                   style={[
                     styles.dropdown,
@@ -497,6 +497,8 @@ export default function PublicProfile() {
 
 
 function DetailItem({ icon, value, multiline}) {
+  if (!value || value === "") return null;
+  
   return (
     <View style={styles.detailRow}>
       <Ionicons name={icon} size={22} />
