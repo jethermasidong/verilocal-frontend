@@ -74,9 +74,6 @@ export default function RegisterProduct() {
   //IMAGE UPLOAD STATUS MESSAGE
   const [uploadError, setUploadError] = useState("");
 
-
-
-
   const [dateType, setDateType] = useState(null);
 
   //DATE FORMAT
@@ -115,9 +112,6 @@ export default function RegisterProduct() {
     }
   };
 
-
-
-
   //PRODUCT REGISTRATION INSTRUCTIONS MODAL
   const handleConfirmConsent = async () => {
     try {
@@ -143,8 +137,6 @@ export default function RegisterProduct() {
       console.log("Error checking consent:", error);
     }
   };
-
-
 
   //IMAGE SIZE LIMIT
   const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -210,9 +202,6 @@ export default function RegisterProduct() {
     }
   };
 
-
-
-
   //PROCESS IMAGE PICKER - MULTIPLE UPLOAD
   const pickProcessImages = async () => {
     try {
@@ -256,10 +245,6 @@ export default function RegisterProduct() {
     }
   };
 
-
-
-
-
   const handleInputChange = (name, value) => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
@@ -271,9 +256,6 @@ export default function RegisterProduct() {
     Dimensions.addEventListener("change", resize);
     return () => Dimensions.removeEventListener("change", resize);
   }, []);
-
-
-
 
   //SUBMIT FOR REGISTRATION
   const handleSubmit = async () => {
@@ -1086,88 +1068,86 @@ export default function RegisterProduct() {
                 />
               )}
             </View>
-            {isLoading && (
-              <View
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  backgroundColor: "rgba(0,0,0,0.4)",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  zIndex: 9999,
-                }}
-              >
-                <View
-                  style={{
-                    backgroundColor: "#fff",
-                    padding: 20,
-                    borderRadius: 12,
-                    alignItems: "center",
-                  }}
-                >
-                  <ActivityIndicator size="large" color="#5177b0" />
-                  <Text style={{ marginTop: 10 }}>Registering Product...</Text>
-                </View>
-              </View>
-            )}
-
-            {resultVisible && (
-              <View style={styles.resultOverlay}>
-                <Animated.View
-                  style={[
-                    styles.resultContainer,
-                    {
-                      opacity: opacityAnim,
-                      transform: [
-                        { scale: resultType === "success" ? scaleAnim : 1 },
-                        { translateX: resultType === "error" ? shakeAnim : 0 },
-                      ],
-                    },
-                  ]}
-                >
-                  <Ionicons
-                    name={
-                      resultType === "success"
-                        ? "checkmark-circle"
-                        : "close-circle"
-                    }
-                    size={70}
-                    color={resultType === "success" ? "#4caf50" : "#d32f2f"}
-                    style={styles.resultIcon}
-                  />
-
-                  <Text
-                    style={[
-                      styles.resultTitle,
-                      {
-                        color: resultType === "success" ? "#2e7d32" : "#c62828",
-                      },
-                    ]}
-                  >
-                    {resultType === "success" ? "Success" : "Submission Failed"}
-                  </Text>
-
-                  <Text style={styles.resultMessage}>{resultMessage}</Text>
-
-                  <Pressable
-                    onPress={() => setResultVisible(false)}
-                    style={[
-                      styles.resultButton,
-                      {
-                        backgroundColor:
-                          resultType === "success" ? "#4caf50" : "#d32f2f",
-                      },
-                    ]}
-                  >
-                    <Text style={{ color: "#fff", fontWeight: "600" }}>OK</Text>
-                  </Pressable>
-                </Animated.View>
-              </View>
-            )}
           </View>
+        </View>
+      )}
+      {isLoading && (
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0,0,0,0.4)",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999,
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: "#fff",
+              padding: 20,
+              borderRadius: 12,
+              alignItems: "center",
+            }}
+          >
+            <ActivityIndicator size="large" color="#5177b0" />
+            <Text style={{ marginTop: 10 }}>Registering Product...</Text>
+          </View>
+        </View>
+      )}
+
+      {resultVisible && (
+        <View style={styles.resultOverlay}>
+          <Animated.View
+            style={[
+              styles.resultContainer,
+              {
+                opacity: opacityAnim,
+                transform: [
+                  { scale: resultType === "success" ? scaleAnim : 1 },
+                  { translateX: resultType === "error" ? shakeAnim : 0 },
+                ],
+              },
+            ]}
+          >
+            <Ionicons
+              name={
+                resultType === "success" ? "checkmark-circle" : "close-circle"
+              }
+              size={70}
+              color={resultType === "success" ? "#4caf50" : "#d32f2f"}
+              style={styles.resultIcon}
+            />
+
+            <Text
+              style={[
+                styles.resultTitle,
+                {
+                  color: resultType === "success" ? "#2e7d32" : "#c62828",
+                },
+              ]}
+            >
+              {resultType === "success" ? "Success" : "Submission Failed"}
+            </Text>
+
+            <Text style={styles.resultMessage}>{resultMessage}</Text>
+
+            <Pressable
+              onPress={() => setResultVisible(false)}
+              style={[
+                styles.resultButton,
+                {
+                  backgroundColor:
+                    resultType === "success" ? "#4caf50" : "#d32f2f",
+                },
+              ]}
+            >
+              <Text style={{ color: "#fff", fontWeight: "600" }}>OK</Text>
+            </Pressable>
+          </Animated.View>
         </View>
       )}
       {/* Product Registration Instructions Modal */}

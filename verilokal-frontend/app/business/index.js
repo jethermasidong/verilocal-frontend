@@ -1,9 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
-import * as ImagePicker from 'expo-image-picker';
 import axios from "axios";
 import { useFonts } from "expo-font";
+import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -52,6 +52,9 @@ export default function BusinessDashboard() {
 
   //Edit Modal
   const [editModalVisible, setEditModalVisible] = useState(false);
+
+  //Edit Confirmation Modal
+  const [showSaveModal, setShowSaveModal] = useState(false);
 
   // Product image (single)
   const [editProductImage, setEditProductImage] = useState(null);
@@ -145,8 +148,6 @@ export default function BusinessDashboard() {
   }, []);
   const isMobile = windowWidth < 768;
 
-
-
   //FILTER AND CATEGORIZATION:
   const typeOptions = [
     ...new Set(products.map((p) => p.type).filter(Boolean)),
@@ -161,9 +162,6 @@ export default function BusinessDashboard() {
     );
   };
 
-
-
-
   //EDIT FORM
   const [editForm, setEditForm] = useState({
     name: "",
@@ -177,9 +175,6 @@ export default function BusinessDashboard() {
     productImage: null,
     processImages: [],
   });
-
-
-
 
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString("en-US", {
@@ -314,9 +309,6 @@ export default function BusinessDashboard() {
     setModalVisible(true);
   };
 
-
-
-
   const updateProduct = async (id) => {
     setIsLoading(true);
     try {
@@ -329,14 +321,18 @@ export default function BusinessDashboard() {
       formData.append("origin", editForm.origin);
       formData.append("description", editForm.description);
       formData.append("productionDate", editForm.productionDate);
-    
-      if (editProductImage && (editProductImage.startsWith('blob:') || editProductImage.startsWith('file'))) {
-        if (Platform.OS === 'web') {
+
+      if (
+        editProductImage &&
+        (editProductImage.startsWith("blob:") ||
+          editProductImage.startsWith("file"))
+      ) {
+        if (Platform.OS === "web") {
           const response = await fetch(editProductImage);
           const blob = await response.blob();
           formData.append("product_image", blob, `product_${id}.jpg`);
         } else {
-          const uriParts = editProductImage.split('.');
+          const uriParts = editProductImage.split(".");
           const fileType = uriParts[uriParts.length - 1];
           formData.append("product_image", {
             uri: editProductImage,
@@ -347,36 +343,35 @@ export default function BusinessDashboard() {
       }
 
       const keptImages = editProcessImages.filter(
-        uri => !uri.startsWith('blob:') && !uri.startsWith('file')
+        (uri) => !uri.startsWith("blob:") && !uri.startsWith("file"),
       );
 
       const newImages = editProcessImages.filter(
-        uri => uri.startsWith('blob:') || uri.startsWith('file')
+        (uri) => uri.startsWith("blob:") || uri.startsWith("file"),
       );
 
-      keptImages.forEach(uri => {
+      keptImages.forEach((uri) => {
         formData.append("kept_process_images", uri);
       });
 
-    
-     for (let index = 0; index < newImages.length; index++) {
-      const uri = newImages[index];
-      if (uri.startsWith('blob:') || uri.startsWith('file')) {
-        if (Platform.OS === 'web') {
-          const response = await fetch(uri);
-          const blob = await response.blob();
-          formData.append("process_images", blob, `process_${index}.jpg`);
-        } else {
-          const uriParts = uri.split('.');
-          const fileType = uriParts[uriParts.length - 1];
-          formData.append("process_images", {
-            uri,
-            name: `process_${index}.${fileType}`,
-            type: `image/${fileType}`,
-          });
+      for (let index = 0; index < newImages.length; index++) {
+        const uri = newImages[index];
+        if (uri.startsWith("blob:") || uri.startsWith("file")) {
+          if (Platform.OS === "web") {
+            const response = await fetch(uri);
+            const blob = await response.blob();
+            formData.append("process_images", blob, `process_${index}.jpg`);
+          } else {
+            const uriParts = uri.split(".");
+            const fileType = uriParts[uriParts.length - 1];
+            formData.append("process_images", {
+              uri,
+              name: `process_${index}.${fileType}`,
+              type: `image/${fileType}`,
+            });
+          }
         }
       }
-    }
 
       const res = await axios.put(
         `https://verilocalph.onrender.com/api/products/${id}`,
@@ -436,11 +431,10 @@ export default function BusinessDashboard() {
       console.error("Failed to parse process images", e);
       existingProcess = [];
     }
-    
+
     setEditProcessImages(existingProcess);
     setEditModalVisible(true);
   };
-
 
   const MAX_FILE_SIZE = 5 * 1024 * 1024;
   //IMAGE PICKER - PRODUCT IMAGE
@@ -488,54 +482,55 @@ export default function BusinessDashboard() {
 
   //PROCESS IMAGE PICKER - MULTIPLE UPLOAD
   const pickProcessImages = async () => {
-  try {
-    if (Platform.OS === 'web') {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
-      input.multiple = true;
-      input.onchange = (e) => {
-        const files = Array.from(e.target.files);
-        const validFiles = files.filter(f => {
-          if (f.size > MAX_FILE_SIZE) {
-            Alert.alert("File too large", "Each image must be 5MB or less");
-            return false;
-          }
-          return true;
+    try {
+      if (Platform.OS === "web") {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+        input.multiple = true;
+        input.onchange = (e) => {
+          const files = Array.from(e.target.files);
+          const validFiles = files.filter((f) => {
+            if (f.size > MAX_FILE_SIZE) {
+              Alert.alert("File too large", "Each image must be 5MB or less");
+              return false;
+            }
+            return true;
+          });
+          const uris = validFiles.map((f) => URL.createObjectURL(f));
+          setEditProcessImages((prev) => [
+            ...(Array.isArray(prev) ? prev : []),
+            ...uris,
+          ]);
+        };
+        input.click();
+      } else {
+        const result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsMultipleSelection: true,
+          quality: 1,
         });
-        const uris = validFiles.map(f => URL.createObjectURL(f));
-        setEditProcessImages(prev => [...(Array.isArray(prev) ? prev : []), ...uris]);
-      };
-      input.click();
-    } else {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsMultipleSelection: true,
-        quality: 1,
-      });
 
-      if (!result.canceled) {
-        const validAssets = result.assets.filter(asset => {
-          if (asset.fileSize && asset.fileSize > MAX_FILE_SIZE) {
-            Alert.alert("File too large", "Each image must be 5MB or less");
-            return false;
-          }
-          return true;
-        });
-        const newUris = validAssets.map(asset => asset.uri);
-        setEditProcessImages(prev => [...(Array.isArray(prev) ? prev : []), ...newUris]);
+        if (!result.canceled) {
+          const validAssets = result.assets.filter((asset) => {
+            if (asset.fileSize && asset.fileSize > MAX_FILE_SIZE) {
+              Alert.alert("File too large", "Each image must be 5MB or less");
+              return false;
+            }
+            return true;
+          });
+          const newUris = validAssets.map((asset) => asset.uri);
+          setEditProcessImages((prev) => [
+            ...(Array.isArray(prev) ? prev : []),
+            ...newUris,
+          ]);
+        }
       }
+    } catch (err) {
+      console.error(err);
+      Alert.alert("Error selecting images");
     }
-  } catch (err) {
-    console.error(err);
-    Alert.alert("Error selecting images");
-  }
-};
-
-
-
-
-
+  };
 
   const downloadQRCode = async (qrUrl) => {
     try {
@@ -1648,13 +1643,9 @@ export default function BusinessDashboard() {
           <Modal visible={editModalVisible} animationType="fade" transparent>
             <View style={styles.modalOverlay}>
               <View style={styles.editModalCard}>
-                <ScrollView
-                  showsVerticalScrollIndicator={false}
-                  contentContainerStyle={styles.editHeader}
-                  keyboardShouldPersistTaps="handled"
-                >
+                <View style={styles.editHeader}>
                   <Text style={styles.editTitle}>Edit Product</Text>
-                </ScrollView>
+                </View>
 
                 <ScrollView
                   style={{ width: "100%" }}
@@ -1931,17 +1922,6 @@ export default function BusinessDashboard() {
                       )}
                     </View>
 
-                    {isLoading && (
-                      <View style={styles.loadingContainer}>
-                        <View style={styles.loadingCard}>
-                          <ActivityIndicator size="large" color="#5177b0" />
-                          <Text style={{ marginTop: 10 }}>
-                            Updating Product Information...
-                          </Text>
-                        </View>
-                      </View>
-                    )}
-
                     <View style={{ marginBottom: 5 }}>
                       <Text
                         style={{
@@ -1979,7 +1959,7 @@ export default function BusinessDashboard() {
                     <Pressable onPress={() => pickImage("productImage")}>
                       <View style={styles.imagePicker}>
                         {editProductImage ? (
-                          <View style={{width: '100%', height: '100%'}}>
+                          <View style={{ width: "100%", height: "100%" }}>
                             <Image
                               source={{ uri: editProductImage }}
                               style={{
@@ -1989,10 +1969,21 @@ export default function BusinessDashboard() {
                                 resizeMode: "cover",
                               }}
                             />
-                            <View style={{ position: 'absolute', bottom: 5, right: 5, backgroundColor: 'rgba(0,0,0,0.5)', padding: 4, borderRadius: 4 }}>
-                              <Text style={{ color: 'white', fontSize: 10 }}>Change Photo</Text>
+                            <View
+                              style={{
+                                position: "absolute",
+                                bottom: 5,
+                                right: 5,
+                                backgroundColor: "rgba(0,0,0,0.5)",
+                                padding: 4,
+                                borderRadius: 4,
+                              }}
+                            >
+                              <Text style={{ color: "white", fontSize: 10 }}>
+                                Change Photo
+                              </Text>
                             </View>
-                        </View>
+                          </View>
                         ) : (
                           <Text style={styles.imageText}>
                             Select Product Image
@@ -2003,7 +1994,9 @@ export default function BusinessDashboard() {
 
                     {/* PROCESS IMAGES BOX */}
                     <Text style={styles.label}>Images of the Process*</Text>
-                    <Pressable onPress={() => pickProcessImages("processImages")}>
+                    <Pressable
+                      onPress={() => pickProcessImages("processImages")}
+                    >
                       <View style={styles.imagePicker}>
                         <Text style={styles.imageText}>Add Process Images</Text>
                         <Text
@@ -2016,18 +2009,46 @@ export default function BusinessDashboard() {
                         </Text>
                       </View>
                     </Pressable>
-                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 10, marginBottom: 15 }}>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        flexWrap: "wrap",
+                        gap: 10,
+                        marginTop: 10,
+                        marginBottom: 15,
+                      }}
+                    >
                       {editProcessImages.map((uri, index) => (
-                        <View key={index} style={{ position: 'relative' }}>
-                          <Image 
-                            source={{ uri }} 
-                            style={{ width: 70, height: 70, borderRadius: 8, borderWidth: 1, borderColor: '#ccc' }} 
+                        <View key={index} style={{ position: "relative" }}>
+                          <Image
+                            source={{ uri }}
+                            style={{
+                              width: 70,
+                              height: 70,
+                              borderRadius: 8,
+                              borderWidth: 1,
+                              borderColor: "#ccc",
+                            }}
                           />
-                          <Pressable 
-                            onPress={() => setEditProcessImages(prev => prev.filter((_, i) => i !== index))}
-                            style={{ position: 'absolute', top: -5, right: -5, backgroundColor: 'white', borderRadius: 12 }}
+                          <Pressable
+                            onPress={() =>
+                              setEditProcessImages((prev) =>
+                                prev.filter((_, i) => i !== index),
+                              )
+                            }
+                            style={{
+                              position: "absolute",
+                              top: -5,
+                              right: -5,
+                              backgroundColor: "white",
+                              borderRadius: 12,
+                            }}
                           >
-                            <Ionicons name="close-circle" size={22} color="#E74C3C" />
+                            <Ionicons
+                              name="close-circle"
+                              size={22}
+                              color="#E74C3C"
+                            />
                           </Pressable>
                         </View>
                       ))}
@@ -2036,9 +2057,25 @@ export default function BusinessDashboard() {
 
                   <View style={styles.buttonRow}>
                     <Pressable
+                      style={styles.cancelButton}
+                      onPress={() => setEditModalVisible(false)}
+                    >
+                      <Text
+                        style={{
+                          color: "#fff",
+                          textAlign: "center",
+                          fontWeight: "600",
+                          fontFamily: "Montserrat-Regular",
+                        }}
+                      >
+                        CANCEL
+                      </Text>
+                    </Pressable>
+
+                    <Pressable
                       onPress={() => {
                         if (selectedProduct?.id) {
-                          updateProduct(selectedProduct.id);
+                          setShowSaveModal(true);
                         } else {
                           alert("No product selected!");
                         }
@@ -2056,24 +2093,60 @@ export default function BusinessDashboard() {
                         SAVE
                       </Text>
                     </Pressable>
+                  </View>
+                </ScrollView>
+                <Modal transparent visible={showSaveModal} animationType="fade">
+                  <View style={styles.modalOverlay}>
+                    <View style={styles.modalBox}>
+                      <Text style={styles.modalTitle}>Confirm Update</Text>
 
-                    <Pressable
-                      style={styles.cancelButton}
-                      onPress={() => setEditModalVisible(false)}
-                    >
                       <Text
                         style={{
-                          color: "#fff",
-                          textAlign: "center",
-                          fontWeight: "600",
+                          marginBottom: 20,
                           fontFamily: "Montserrat-Regular",
                         }}
                       >
-                        CANCEL
+                        Are you sure you want to save the changes to this
+                        product?
                       </Text>
-                    </Pressable>
+
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "flex-end",
+                          gap: 10,
+                        }}
+                      >
+                        <Pressable
+                          style={styles.confirm_cancelButton}
+                          onPress={() => setShowSaveModal(false)}
+                        >
+                          <Text style={styles.confirm_cancelText}>Cancel</Text>
+                        </Pressable>
+
+                        <Pressable
+                          style={styles.confirm_Button}
+                          onPress={() => {
+                            setShowSaveModal(false);
+                            updateProduct(selectedProduct.id);
+                          }}
+                        >
+                          <Text style={styles.confirm_deleteText}>Confirm</Text>
+                        </Pressable>
+                      </View>
+                    </View>
                   </View>
-                </ScrollView>
+                </Modal>
+                {isLoading && (
+                  <View style={styles.loadingContainer}>
+                    <View style={styles.loadingCard}>
+                      <ActivityIndicator size="large" color="#5177b0" />
+                      <Text style={{ marginTop: 10 }}>
+                        Updating Product Information...
+                      </Text>
+                    </View>
+                  </View>
+                )}
               </View>
             </View>
           </Modal>
@@ -2506,6 +2579,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center",
+    padding: 20,
   },
   blurredBackground: {
     position: "absolute",
@@ -2550,6 +2624,12 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: "#eee",
     borderRadius: 8,
+  },
+  confirm_Button: {
+    padding: 10,
+    backgroundColor: "#2ECC71",
+    borderRadius: 8,
+    justifyContent: "center",
   },
   confirm_cancelText: {
     fontFamily: "Montserrat-Regular",
@@ -2717,13 +2797,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
 
   editModalCard: {
     backgroundColor: "#fff",
@@ -2742,6 +2815,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 10,
     borderStyle: "dotted",
+    marginBottom: 5,
   },
 
   editTitle: {
@@ -2787,7 +2861,6 @@ const styles = StyleSheet.create({
   },
 
   buttonRow: {
-    flex: 1,
     flexDirection: "row",
     alignSelf: "flex-end",
     gap: 8,
@@ -2795,9 +2868,9 @@ const styles = StyleSheet.create({
 
   saveButton: {
     backgroundColor: "#4A70A9",
-    paddingVertical: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 15,
     borderRadius: 10,
-    padding: 10,
     minWidth: 90,
     justifyContent: "center",
     alignItems: "center",
@@ -2805,9 +2878,9 @@ const styles = StyleSheet.create({
 
   cancelButton: {
     backgroundColor: "#000",
-    paddingVertical: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 15,
     borderRadius: 10,
-    padding: 10,
     minWidth: 90,
     justifyContent: "center",
     alignItems: "center",
