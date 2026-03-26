@@ -85,6 +85,8 @@ export default function RegisterProduct() {
     });
   };
 
+  const origins = ["Abra", "Apayao", "Benguet", "Ifugao", "Kalinga", "Mountain Province", "Baguio City"];
+
   const onDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
     if (!selectedDate) return;
@@ -486,6 +488,7 @@ export default function RegisterProduct() {
                     label="Product Name"
                     value={form.name}
                     onChange={(v) => handleInputChange("name", v)}
+                    maxLength={50}
                     error={errors.name}
                   />
 
@@ -556,19 +559,23 @@ export default function RegisterProduct() {
                     </View>
                   )}
 
-                  <Text style={styles.label}>Origin*</Text>
-                  <InputField
-                    style={{ marginBottom: 10 }}
-                    label="Origin"
-                    value={form.origin}
-                    onChange={(v) => handleInputChange("origin", v)}
-                    error={errors.origin}
-                  />
+                  <View style={styles.inputContainer}>
+                    <Picker
+                      selectedValue={form.origin}
+                      style={styles.picker}
+                      onValueChange={(value) => handleInputChange("origin", value)}
+                    >
+                      <Picker.Item label="Select Origin" value="" />
+                      {origins.map((item, index) => (
+                        <Picker.Item key={index} label={item} value={item} />
+                      ))}
+                    </Picker>
+                  </View>
                 </View>
 
                 <View style={[styles.col, isMobile && { minWidth: "100%" }]}>
                   <Text style={[styles.label, { marginTop: -20 }]}>
-                    Production Date* (Start to End)
+                    Completion Date* (Start to End)
                   </Text>
                   {Platform.OS === "web" ? (
                     <>
@@ -800,6 +807,7 @@ export default function RegisterProduct() {
                     label="Product Name"
                     value={form.name}
                     onChange={(v) => handleInputChange("name", v)}
+                    maxLength={50}
                     error={errors.name}
                   />
 
@@ -869,14 +877,18 @@ export default function RegisterProduct() {
                       )}
                     </View>
                   )}
-
-                  <Text style={styles.label}>Origin*</Text>
-                  <InputField
-                    label="Origin"
-                    value={form.origin}
-                    onChange={(v) => handleInputChange("origin", v)}
-                    error={errors.origin}
-                  />
+                <View style={styles.inputContainer}>
+                  <Picker
+                    selectedValue={form.origin}
+                    style={styles.picker}
+                    onValueChange={(value) => handleInputChange("origin", value)}
+                  >
+                    <Picker.Item label="Select Origin" value="" />
+                    {origins.map((item, index) => (
+                      <Picker.Item key={index} label={item} value={item} />
+                    ))}
+                  </Picker>
+                  </View>
                 </View>
 
                 <View style={[styles.col, isMobile && { minWidth: "100%" }]}>
@@ -1383,7 +1395,7 @@ export default function RegisterProduct() {
   );
 }
 
-function InputField({ label, value, onChange, multiline, error }) {
+function InputField({ label, value, onChange, multiline, maxLength, error }) {
   return (
     <View style={styles.inputContainer}>
       <TextInput
@@ -1391,6 +1403,7 @@ function InputField({ label, value, onChange, multiline, error }) {
         value={value}
         onChangeText={onChange}
         multiline={multiline}
+        maxLength={maxLength}
         style={[
           styles.input,
           multiline && styles.textArea,
