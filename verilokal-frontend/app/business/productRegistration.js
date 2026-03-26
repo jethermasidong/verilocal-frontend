@@ -594,7 +594,7 @@ export default function RegisterProduct() {
                 </View>
 
                 <View style={[styles.col, isMobile && { minWidth: "100%" }]}>
-                  <Text style={[styles.label, { marginTop: -20 }]}>
+                  <Text style={[styles.label, { marginTop: -5 }]}>
                     Production Date* (Start to End)
                   </Text>
                   {Platform.OS === "web" ? (
@@ -704,7 +704,9 @@ export default function RegisterProduct() {
                 Images of the Process* (Process on how your product is made.)
               </Text>
               <Pressable
-                style={[styles.imagePicker, errors.type && styles.errorInput]}
+                style={[styles.imagePicker, errors.type && styles.errorInput, 
+                  form.processImages.length > 0 && { height: "auto", minHeight: 140 },
+                ]}
                 onPress={pickProcessImages}
               >
                 <Text style={styles.imageText}>
@@ -1040,7 +1042,9 @@ export default function RegisterProduct() {
               </Text>
 
               <Pressable
-                style={[styles.imagePicker, errors.type && styles.errorInput]}
+                style={[styles.imagePicker, errors.type && styles.errorInput, 
+                  form.processImages.length > 0 && { height: "auto", minHeight: 140 },
+                ]}
                 onPress={pickProcessImages}
               >
                 <Text style={styles.imageText}>
