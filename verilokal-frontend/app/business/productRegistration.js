@@ -593,8 +593,8 @@ export default function RegisterProduct() {
                   </View>
                 </View>
 
-                <View style={[styles.col, isMobile && { minWidth: "100%" }]}>
-                  <Text style={[styles.label, { marginTop: -5 }]}>
+                <View style={[styles.col, isMobile && { width: "100%" }]}>
+                  <Text style={[styles.label, { marginTop: -5, }]}>
                     Production Date* (Start to End)
                   </Text>
                   {Platform.OS === "web" ? (
@@ -1575,6 +1575,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 8,
+    height: 44,
+    width: "100%",
     backgroundColor: "#fafafa",
     marginBottom: 10,
   },
@@ -1586,17 +1588,17 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   webDateInput: {
-  flex: 1,
-  height: 20, 
-  borderRadius: 8,
-  paddingHorizontal: 12,
-  marginBottom: 10,
-  padding: 12,
-  fontFamily: "Montserrat-Regular",
-  borderWidth: 1,
-  borderColor: "#ccc",
-  backgroundColor: "#fafafa",
-},
+    borderWidth: 1,
+    borderColor: "#ccc",
+    marginBottom: 10,
+    paddingHorizontal: 12,
+    height: 44,
+    borderRadius: 8,
+    backgroundColor: "#fafafa",
+    width: "100%",
+    fontFamily: "Montserrat-Regular",
+    fontSize: 14,
+  },
 
 
   textArea: {

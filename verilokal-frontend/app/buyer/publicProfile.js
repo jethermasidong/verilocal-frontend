@@ -560,6 +560,9 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat-Regular',
     borderWidth: 1,
     borderColor: "#d1d5db",
+    flexWrap: 'wrap', 
+    maxWidth: '100%',
+    overflow: 'hidden',
   },
 
   previewImage: {
