@@ -482,7 +482,7 @@ export default function RegisterProduct() {
             <View style={[styles.rightPanel, isMobile && { width: "100%" }]}>
               <Text style={styles.formTitle}>Product Registration</Text>
               <Text style={styles.subtitle}>
-                Welcome! Register your product
+                Welcome Artisan, Register your product.
               </Text>
               <View
                 style={[styles.row, isMobile && { flexDirection: "column" }]}
@@ -608,7 +608,7 @@ export default function RegisterProduct() {
                             productionStartDate: e.target.value,
                           })
                         }
-                        style={styles.webDateInput}
+                        style={{...styles.webDateInput, borderColor: errors.productionDate ? "red" : "#ccc",}}
                       />
                       <input
                         type="date"
@@ -628,13 +628,13 @@ export default function RegisterProduct() {
                           }
                           setForm({ ...form, productionEndDate: selectedEnd });
                         }}
-                        style={styles.webDateInput}
+                        style={{...styles.webDateInput, borderColor: errors.productionDate ? "red" : "#ccc",}}
                       />
                     </>
                   ) : (
                     <>
                       <Pressable
-                        style={styles.dateWrapper}
+                        style={[styles.dateWrapper, errors.productionDate && styles.errorInput]}
                         onPress={() => {
                           setDateType("start");
                           setShowDatePicker(true);
@@ -648,7 +648,7 @@ export default function RegisterProduct() {
                       </Pressable>
 
                       <Pressable
-                        style={styles.dateWrapper}
+                        style={[styles.dateWrapper, errors.productionDate && styles.errorInput]}
                         onPress={() => {
                           setDateType("end");
                           setShowDatePicker(true);
@@ -664,7 +664,7 @@ export default function RegisterProduct() {
                   )}
 
                   {errors.productionDate && (
-                    <Text style={styles.errorText}>
+                    <Text style={[styles.errorText, {marginTop: -6, marginBottom: 10}]}>
                       {errors.productionDate}
                     </Text>
                   )}
@@ -680,7 +680,7 @@ export default function RegisterProduct() {
                   />
                 </View>
               </View>
-              <Text style={styles.label}>
+              <Text style={[styles.label, {marginTop: 10}]}>
                 Image of the Product* (Upload image of your product)
               </Text>
               <Pressable
@@ -697,13 +697,12 @@ export default function RegisterProduct() {
                 )}
               </Pressable>
               {errors.productImage && (
-                <Text style={styles.errorText}>{errors.productImage}</Text>
+                <Text style={[styles.errorText, {marginTop: -10, marginBottom: 10}]}>{errors.productImage}</Text>
               )}
 
               <Text style={styles.label}>
                 Images of the Process* (Process on how your product is made.)
               </Text>
-
               <Pressable
                 style={[styles.imagePicker, errors.type && styles.errorInput]}
                 onPress={pickProcessImages}
@@ -756,7 +755,7 @@ export default function RegisterProduct() {
               </Pressable>
 
               {errors.processImages && (
-                <Text style={styles.errorText}>{errors.processImages}</Text>
+                <Text style={[styles.errorText, {marginTop: -10, marginBottom: 10}]}>{errors.processImages}</Text>
               )}
               <Pressable
                 style={styles.submitButton}
@@ -819,7 +818,7 @@ export default function RegisterProduct() {
             <View style={[styles.rightPanel, isMobile && { width: "100%" }]}>
               <Text style={styles.formTitle}>Product Registration</Text>
               <Text style={styles.subtitle}>
-                Welcome! Register your product
+                Welcome Artisan, Register your product.
               </Text>
               <View
                 style={[styles.row, isMobile && { flexDirection: "column" }]}
@@ -944,7 +943,7 @@ export default function RegisterProduct() {
                             productionStartDate: e.target.value,
                           })
                         }
-                        style={styles.webDateInput}
+                        style={{...styles.webDateInput, borderColor: errors.productionDate ? "red" : "#ccc",}}
                       />
                       <input
                         type="date"
@@ -964,13 +963,13 @@ export default function RegisterProduct() {
                           }
                           setForm({ ...form, productionEndDate: selectedEnd });
                         }}
-                        style={styles.webDateInput}
+                        style={{...styles.webDateInput, borderColor: errors.productionDate ? "red" : "#ccc",}}
                       />
                     </>
                   ) : (
                     <>
                       <Pressable
-                        style={styles.dateWrapper}
+                        style={[styles.dateWrapper, errors.productionDate && styles.errorInput]}
                         onPress={() => {
                           setDateType("start");
                           setShowDatePicker(true);
@@ -984,7 +983,7 @@ export default function RegisterProduct() {
                       </Pressable>
 
                       <Pressable
-                        style={styles.dateWrapper}
+                        style={[styles.dateWrapper, errors.productionDate && styles.errorInput]}
                         onPress={() => {
                           setDateType("end");
                           setShowDatePicker(true);
@@ -1000,7 +999,7 @@ export default function RegisterProduct() {
                   )}
 
                   {errors.productionDate && (
-                    <Text style={styles.errorText}>
+                    <Text style={[styles.errorText, {marginTop: -6, marginBottom: 10}]}>
                       {errors.productionDate}
                     </Text>
                   )}
@@ -1033,7 +1032,7 @@ export default function RegisterProduct() {
                 )}
               </Pressable>
               {errors.productImage && (
-                <Text style={styles.errorText}>{errors.productImage}</Text>
+                <Text style={[styles.errorText, {marginTop: -10, marginBottom: 10}]}>{errors.productImage}</Text>
               )}
 
               <Text style={styles.label}>
@@ -1092,7 +1091,7 @@ export default function RegisterProduct() {
               </Pressable>
 
               {errors.processImages && (
-                <Text style={styles.errorText}>{errors.processImages}</Text>
+                <Text style={[styles.errorText, {marginTop: -10, marginBottom: 10}]}>{errors.processImages}</Text>
               )}
               <Pressable
                 style={styles.submitButton}
