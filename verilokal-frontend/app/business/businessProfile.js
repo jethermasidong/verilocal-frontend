@@ -265,6 +265,7 @@ export default function BusinessProfile() {
               icon="location-outline"
               value={business.address}
               editable={isEditing}
+              maxLength={100}
               onChangeText={(text) => handleChange("address", text)}
             />
             <DetailItem
@@ -288,12 +289,14 @@ export default function BusinessProfile() {
               icon="mail-outline"
               value={business.email}
               editable={isEditing}
+              maxLength={40}
               onChangeText={(text) => handleChange("email", text)}
             />
             <DetailItem
               icon="link-outline"
               value={business.social_link}
               editable={isEditing}
+              maxLength={40}
               placeholder="(Facebook, Instagram, Official Business Website)"
               onChangeText={(text) => handleChange("social_link", text)}
             />
