@@ -111,6 +111,10 @@ export default function BusinessDashboard() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [dateType, setDateType] = useState(null);
 
+  const origins = ["Abra", "Apayao", "Benguet", "Ifugao", "Kalinga", "Mountain Province", "Baguio City"];
+
+  const [errors, setErrors] = useState({});
+  
   const onHoverIn = () => {
     Animated.spring(hoverAnimReport, {
       toValue: 1,
@@ -412,7 +416,7 @@ export default function BusinessDashboard() {
       origin: product.origin || "",
       materials: product.materials || "",
       description: product.description || "",
-      type: product.type?.toLowerCase() || "",
+      type: product.type || "",
       productionStart: start,
       productionEnd: end,
       productionDate: product.productionDate || "",
@@ -472,6 +476,7 @@ export default function BusinessDashboard() {
           } else setUploadError("");
 
           setEditProductImage(asset.uri);
+          setErrors(prev => ({ ...prev, productImage: null }));
         }
       }
     } catch (err) {
@@ -524,6 +529,7 @@ export default function BusinessDashboard() {
             ...(Array.isArray(prev) ? prev : []),
             ...newUris,
           ]);
+          setErrors(prev => ({ ...prev, processImages: null }));
         }
       }
     } catch (err) {
@@ -531,6 +537,28 @@ export default function BusinessDashboard() {
       Alert.alert("Error selecting images");
     }
   };
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!editForm.name) newErrors.name = "Product name is required";
+    if (!editForm.type) newErrors.type = "Product type is required";
+    if (!editForm.materials) newErrors.materials = "Materials are required";
+    if (!editForm.origin) newErrors.origin = "Origin is required";
+    if (!editForm.productionDate)
+      newErrors.productionDate = "Finish date is required";
+    if (!editForm.description) newErrors.description = "Description required";
+
+    if (!editProductImage) 
+    newErrors.productImage = "Product image is required";
+    
+  if (!editProcessImages || editProcessImages.length === 0) 
+    newErrors.processImages = "At least one process image is required";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+
+    };
+
 
   const downloadQRCode = async (qrUrl) => {
     try {
@@ -1661,10 +1689,12 @@ export default function BusinessDashboard() {
                     <TextInput
                       placeholder="Product Name"
                       value={editForm.name}
-                      onChangeText={(t) =>
-                        setEditForm({ ...editForm, name: t })
-                      }
-                      style={styles.input}
+                      maxLength={50}
+                      onChangeText={(t) => {
+                        setEditForm({ ...editForm, name: t });
+                        if (errors.name) setErrors({ ...errors, name: null }); 
+                      }}
+                      style={[styles.input, , errors.name && { borderColor: '#E74C3C', borderWidth: 1 }]}
                     />
 
                     <View style={{ marginBottom: 7 }}>
@@ -1697,10 +1727,10 @@ export default function BusinessDashboard() {
                         }}
                       >
                         <Picker.Item label="Select Type" value="" />
-                        <Picker.Item label="Woodcrafts" value="woodcraft" />
+                        <Picker.Item label="Woodcrafts" value="Woodcraft" />
                         <Picker.Item
                           label="Weaving and Textiles"
-                          value="textile"
+                          value="Textile"
                         />
                       </Picker>
                       <Text
@@ -1715,7 +1745,7 @@ export default function BusinessDashboard() {
                         Materials*
                       </Text>
                     </View>
-                    {editForm.type === "woodcraft" && (
+                    {editForm.type === "Woodcraft" && (
                       <View style={{ marginBottom: 7 }}>
                         <Picker
                           selectedValue={editForm.materials}
@@ -1744,7 +1774,7 @@ export default function BusinessDashboard() {
                         </Picker>
                       </View>
                     )}
-                    {editForm.type === "textile" && (
+                    {editForm.type === "Textile" && (
                       <View style={{ marginBottom: 7 }}>
                         <Picker
                           selectedValue={editForm.materials}
@@ -1772,24 +1802,9 @@ export default function BusinessDashboard() {
                       </View>
                     )}
 
-                    <View style={{ marginBottom: 7 }}>
-                      <Text
-                        style={{
-                          fontWeight: "600",
-                          marginTop: 0,
-                          marginBottom: 4,
-                          fontSize: 13,
-                          fontFamily: "Montserrat-Regular",
-                        }}
-                      >
-                        Origin*
-                      </Text>
-                      <TextInput
-                        placeholder="Origin"
-                        value={editForm.origin}
-                        onChangeText={(t) =>
-                          setEditForm({ ...editForm, origin: t })
-                        }
+                  <View style={{marginBottom: 7}}>
+                      <Picker
+                        selectedValue={editForm.origin}
                         style={{
                           borderWidth: 1,
                           borderColor: "#ccc",
@@ -1800,8 +1815,15 @@ export default function BusinessDashboard() {
                           fontFamily: "Montserrat-Regular",
                           fontSize: 13,
                         }}
-                      />
-                    </View>
+                        onValueChange={(value) => handleInputChange("origin", value)}
+                      >
+                        <Picker.Item label="Select Origin" value="" />
+                        {origins.map((item, index) => (
+                          <Picker.Item key={index} label={item} value={item} />
+                        ))}
+                      </Picker>
+                    </View>       
+
 
                     <View style={{ marginBottom: 7 }}>
                       <Text
@@ -1837,6 +1859,7 @@ export default function BusinessDashboard() {
                               fontSize: 13,
                               marginBottom: 7,
                             }}
+                            
                           />
                           <input
                             type="date"
@@ -1938,10 +1961,13 @@ export default function BusinessDashboard() {
                         placeholder="Description"
                         multiline
                         value={editForm.description}
-                        onChangeText={(t) =>
-                          setEditForm({ ...editForm, description: t })
-                        }
-                        style={{
+                        onChangeText={(t) => {
+                          setEditForm({ ...editForm, description: t });
+                          if (errors.description) {
+                            setErrors({ ...errors, description: false });
+                          }
+                        }}
+                        style={[{
                           borderWidth: 1,
                           borderColor: "#ccc",
                           padding: 8,
@@ -1951,13 +1977,15 @@ export default function BusinessDashboard() {
                           fontFamily: "Montserrat-Regular",
                           fontSize: 14,
                           height: 180,
-                        }}
+                        },
+                        errors.description && { borderColor: "#E74C3C", borderWidth: 1.5 }
+                      ]}
                       />
                     </View>
                     {/* PRODUCT IMAGE BOX */}
                     <Text style={styles.label}>Image of the Product*</Text>
                     <Pressable onPress={() => pickImage("productImage")}>
-                      <View style={styles.imagePicker}>
+                      <View style={[styles.imagePicker, errors.productImage && { borderColor: "#E74C3C", borderWidth: 1.5 }]}>
                         {editProductImage ? (
                           <View style={{ width: "100%", height: "100%" }}>
                             <Image
@@ -1991,13 +2019,14 @@ export default function BusinessDashboard() {
                         )}
                       </View>
                     </Pressable>
+                    {errors.productImage && <Text style={styles.errorText}>{errors.productImage}</Text>}
 
                     {/* PROCESS IMAGES BOX */}
                     <Text style={styles.label}>Images of the Process*</Text>
                     <Pressable
                       onPress={() => pickProcessImages("processImages")}
                     >
-                      <View style={styles.imagePicker}>
+                      <View style={[styles.imagePicker, errors.processImages && { borderColor: "#E74C3C", borderWidth: 1.5,  borderStyle: 'dashed'}]}>
                         <Text style={styles.imageText}>Add Process Images</Text>
                         <Text
                           style={[
@@ -2007,6 +2036,7 @@ export default function BusinessDashboard() {
                         >
                           (Tap to select multiple)
                         </Text>
+                        {errors.processImages && <Text style={styles.errorText}>{errors.processImages}</Text>}
                       </View>
                     </Pressable>
                     <View
@@ -2074,10 +2104,14 @@ export default function BusinessDashboard() {
 
                     <Pressable
                       onPress={() => {
-                        if (selectedProduct?.id) {
+                        if (validateForm()) {
+                          if (selectedProduct?.id) {
                           setShowSaveModal(true);
+                          } else {
+                            alert("No product selected!");
+                          }
                         } else {
-                          alert("No product selected!");
+                          Alert.alert("Error", "Please fill in all required fields.");
                         }
                       }}
                       style={styles.saveButton}
@@ -2928,5 +2962,13 @@ const styles = StyleSheet.create({
   imageText: {
     color: "#666",
     fontFamily: "Montserrat-Regular",
+  },
+  errorText: {
+  color: "#E74C3C",
+  fontSize: 12,
+  fontFamily: "Montserrat-Regular",
+  marginTop: 3,
+  marginBottom: 10,
+  marginLeft: 5,
   },
 });

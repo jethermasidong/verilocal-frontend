@@ -417,7 +417,7 @@ export default function RegisterBusiness() {
                 style={[styles.input, errors.name && styles.inputError]}
                 value={name}
                 placeholder='Enter owner full name'
-                maxLength={11}
+                maxLength={50}
                 onChangeText={setName}
               />
               {errors.name && <Text style={styles.error}>{errors.name}</Text>}
