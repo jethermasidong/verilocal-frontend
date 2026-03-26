@@ -150,7 +150,13 @@ export default function RegisterBusiness() {
   const validate = () => {
     const e = {};
     if (!name) e.name = "Owner name is required";
+    else {
+      if (name.length > 5) {
+        e.name = "Name must be 0-50 characters";
+      }
+    }
     if (!business_name) e.business_name = "Business name is required";
+
     if (!email) e.email = "Email is required";
     else {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -158,6 +164,7 @@ export default function RegisterBusiness() {
         e.email = "Please enter a valid email address";
       }
     }
+
     if (!password) e.password = "Password is required";
     else {
       const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+=[\]{};':"\\|,.<>/?~-]{8,}$/;
@@ -165,6 +172,7 @@ export default function RegisterBusiness() {
         e.password = "Password must be at least 8 characters long and include at least one letter & number"
       }
     }
+
     if (!address) e.address = "Address is required";
     if (!contact_no) { 
       e.contact_no = "Contact number is required";
@@ -409,6 +417,7 @@ export default function RegisterBusiness() {
                 style={[styles.input, errors.name && styles.inputError]}
                 value={name}
                 placeholder='Enter owner full name'
+                maxLength={11}
                 onChangeText={setName}
               />
               {errors.name && <Text style={styles.error}>{errors.name}</Text>}
@@ -418,6 +427,7 @@ export default function RegisterBusiness() {
                 style={[styles.input, errors.business_name && styles.inputError]}
                 value={business_name}
                 placeholder='Enter your Business Registered Name'
+                maxLength={50}
                 onChangeText={setBusinessName}
               />
               {errors.business_name && <Text style={styles.error}>{errors.business_name}</Text>}
@@ -451,6 +461,7 @@ export default function RegisterBusiness() {
                 value={email}
                 placeholder='Enter your professional email address'
                 onChangeText={setEmail}
+                maxLength={40}
                 keyboardType="email-address"
               />
               {errors.email && <Text style={styles.error}>{errors.email}</Text>}
@@ -461,6 +472,7 @@ export default function RegisterBusiness() {
                 style={[styles.input, errors.password && styles.inputError]}
                 value={password}
                 placeholder='Enter your strong password'
+                maxLength={50}
                 onChangeText={setPassword}
               />
               {errors.password && <Text style={styles.error}>{errors.password}</Text>}
@@ -484,6 +496,7 @@ export default function RegisterBusiness() {
                 value={social_link}
                 placeholder='Paste your Facebook, Instagram, or LinkedIn profile URL'
                 onChangeText={setSocialLink}
+                maxLength={50}
                 keyboardType="social_link"
               />
               {errors.social_link && <Text style={styles.error}>{errors.social_link}</Text>}
