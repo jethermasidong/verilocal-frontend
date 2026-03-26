@@ -1579,6 +1579,7 @@ const styles = StyleSheet.create({
     width: "100%",
     backgroundColor: "#fafafa",
     marginBottom: 10,
+    ...(Platform.OS === 'web' && { boxSizing: 'border-box' }),
   },
   webDateWrapper: {
     display: "flex",
