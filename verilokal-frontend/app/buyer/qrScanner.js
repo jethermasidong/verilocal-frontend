@@ -882,7 +882,7 @@ export default function ProductScanner() {
         }}
       >
         <ActivityIndicator size="large" color="#5177b0" />
-        <Text style={{ marginTop: 10 }}>Verifying Product, Please wait.</Text>
+        <Text style={{ marginTop: 10, fontFamily: 'Montserrat-Regular' }}>Verifying Product, Please wait.</Text>
       </View>
     </View>
   )}
@@ -923,6 +923,7 @@ export default function ProductScanner() {
         style={{
           fontSize: 20,
           fontWeight: "700",
+          fontFamily: 'Montserrat-Regular',
           marginBottom: 10,
           color: resultType === "success" ? "#2e7d32" : "#c62828",
         }}
@@ -936,6 +937,7 @@ export default function ProductScanner() {
           marginBottom: 20,
           fontSize: 14,
           color: "#444",
+          fontFamily: 'Montserrat-Regular'
         }}
       >
         {resultMessage}
