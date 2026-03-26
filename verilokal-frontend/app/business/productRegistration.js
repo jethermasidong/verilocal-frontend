@@ -1586,13 +1586,18 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   webDateInput: {
-    flex: 1,
-    height: 50,
-    padding: "0 12px",
-    borderRadius: 8,
-    border: "1px solid #ccc",
-    backgroundColor: "#fafafa",
-  },
+  flex: 1,
+  height: 20, 
+  borderRadius: 8,
+  paddingHorizontal: 12,
+  marginBottom: 10,
+  padding: 12,
+  fontFamily: "Montserrat-Regular",
+  borderWidth: 1,
+  borderColor: "#ccc",
+  backgroundColor: "#fafafa",
+},
+
 
   textArea: {
     width: "100%",
@@ -1692,14 +1697,4 @@ const styles = StyleSheet.create({
   },
   submitText: { color: "#fff", fontSize: 16, fontWeight: "600" },
 
-  webDateInput: {
-    height: 20,
-    borderRadius: 8,
-    padding: 12,
-    fontFamily: "Montserrat-Regular",
-    borderWidth: 1,
-    marginBottom: 10,
-    borderColor: "#ccc",
-    backgroundColor: "#fafafa",
-  },
 });
