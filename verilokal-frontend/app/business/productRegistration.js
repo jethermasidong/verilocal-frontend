@@ -575,7 +575,7 @@ export default function RegisterProduct() {
 
                 <View style={[styles.col, isMobile && { minWidth: "100%" }]}>
                   <Text style={[styles.label, { marginTop: -20 }]}>
-                    Completion Date* (Start to End)
+                    Production Date* (Start to End)
                   </Text>
                   {Platform.OS === "web" ? (
                     <>
