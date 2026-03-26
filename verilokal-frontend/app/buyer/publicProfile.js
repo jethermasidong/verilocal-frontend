@@ -70,11 +70,7 @@ export default function PublicProfile() {
 
   const [activeCertIndex, setActiveCertIndex] = useState(0);
 
-  const certIndex = useRef(0);
-  const permitIndex = useRef(0);
-
   const certScrollRef = useRef(null);
-  const permitScrollRef = useRef(null);
 
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
@@ -232,12 +228,6 @@ export default function PublicProfile() {
                       onPress={() => togglePanel("certificates")}
                     />
                   )}
-                  <IconButton
-                    icon="cube-outline"
-                    label="Permits"
-                    active={activePanel === "permits"}
-                    onPress={() => togglePanel("permits")}
-                  />
                 </View>
 
                 <View style={styles.previewNote}>
@@ -246,21 +236,6 @@ export default function PublicProfile() {
                     Click on the image to Preview
                   </Text>
                 </View>
-
-                {activePanel === "permits" && (
-                  <Animated.View style={[styles.dropdown, dropdownStyle]}>
-                    <ScrollView horizontal pagingEnabled ref={permitScrollRef}>
-                      {business.permit && (
-                        <Pressable onPress={() => openPreview(business.permit)}>
-                          <Image
-                            source={{ uri: business.permit }}
-                            style={{ width: width - 40, height: 220 }}
-                          />
-                        </Pressable>
-                      )}
-                    </ScrollView>
-                  </Animated.View>
-                )}
 
                 {!!business.show_certificates && activePanel === "certificates" && (
                   <Animated.View style={[styles.dropdown, dropdownStyle]}>
@@ -316,12 +291,6 @@ export default function PublicProfile() {
                     onPress={() => togglePanel("certificates")}
                   />
                 )}
-                <IconButton
-                  icon="cube-outline"
-                  label="Permits"
-                  active={activePanel === "permits"}
-                  onPress={() => togglePanel("permits")}
-                />
               </View>
               <View style={styles.previewNote}>
                 <Ionicons name="eye-outline" size={22} color={"#466be5"} />
@@ -330,38 +299,6 @@ export default function PublicProfile() {
                 </Text>
               </View>
 
-              {activePanel === "permits" && (
-                <Animated.View
-                  style={[
-                    styles.dropdown,
-                    dropdownStyle,
-                    isMobile && {
-                      marginTop: 15,
-                    },
-                  ]}
-                >
-                  <ScrollView
-                    horizontal
-                    pagingEnabled
-                    ref={permitScrollRef}
-                    showsHorizontalScrollIndicator={false}
-                  >
-                    {business.permit && (
-                      <View style={styles.imageWrapper}>
-                        <Pressable onPress={() => openPreview(business.permit)}>
-                          <Image
-                            source={{uri: business.permit}}
-                            style={[
-                              styles.dropdownImage,
-                              isMobile && { width: width - 40, height: 220 },
-                            ]}
-                          />
-                        </Pressable>
-                      </View>
-                    )}
-                  </ScrollView>
-                </Animated.View>
-              )}
               {!!business.show_certificates && activePanel === "certificates" && (
                 <Animated.View
                   style={[
@@ -498,7 +435,7 @@ export default function PublicProfile() {
 
 function DetailItem({ icon, value, multiline}) {
   if (!value || value === "") return null;
-  
+
   return (
     <View style={styles.detailRow}>
       <Ionicons name={icon} size={22} />
