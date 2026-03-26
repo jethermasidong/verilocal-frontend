@@ -62,9 +62,6 @@ export default function BusinessDashboard() {
   // Process images (multiple)
   const [editProcessImages, setEditProcessImages] = useState([]);
 
-  // For removed process images
-  const [removedProcessImages, setRemovedProcessImages] = useState([]);
-
   //Profile Sidebar
   const [profileSidebarVisible, setProfileSidebarVisible] = useState(false);
   const profileBtnOpacity = useRef(new Animated.Value(1)).current;
@@ -410,6 +407,8 @@ export default function BusinessDashboard() {
       start = parts[0];
       end = parts[1];
     }
+
+    setErrors({});
     setSelectedProduct(product);
     setEditForm({
       name: product.name || "",
@@ -1733,6 +1732,9 @@ export default function BusinessDashboard() {
                           value="Textile"
                         />
                       </Picker>
+                    </View>
+                    {editForm.type === "Woodcraft" && (
+                      <View style={{ marginBottom: 7 }}>
                       <Text
                         style={{
                           fontWeight: "600",
@@ -1744,9 +1746,6 @@ export default function BusinessDashboard() {
                       >
                         Materials*
                       </Text>
-                    </View>
-                    {editForm.type === "Woodcraft" && (
-                      <View style={{ marginBottom: 7 }}>
                         <Picker
                           selectedValue={editForm.materials}
                           onValueChange={(v) =>
@@ -1776,6 +1775,17 @@ export default function BusinessDashboard() {
                     )}
                     {editForm.type === "Textile" && (
                       <View style={{ marginBottom: 7 }}>
+                      <Text
+                        style={{
+                          fontWeight: "600",
+                          marginTop: 6,
+                          marginBottom: 1,
+                          fontSize: 13,
+                          fontFamily: "Montserrat-Regular",
+                        }}
+                      >
+                        Materials*
+                      </Text>
                         <Picker
                           selectedValue={editForm.materials}
                           onValueChange={(v) =>
@@ -1801,7 +1811,17 @@ export default function BusinessDashboard() {
                         </Picker>
                       </View>
                     )}
-
+                 <Text
+                    style={{
+                      fontWeight: "600",
+                      marginTop: 6,
+                      marginBottom: 4,
+                      fontSize: 13,
+                      fontFamily: "Montserrat-Regular",
+                    }}
+                  >
+                    Origin*
+                  </Text>
                   <View style={{marginBottom: 7}}>
                       <Picker
                         selectedValue={editForm.origin}
@@ -2088,7 +2108,8 @@ export default function BusinessDashboard() {
                   <View style={styles.buttonRow}>
                     <Pressable
                       style={styles.cancelButton}
-                      onPress={() => setEditModalVisible(false)}
+                      onPress={() => {setEditModalVisible(false)
+                      setErrors({}); }}
                     >
                       <Text
                         style={{
@@ -2199,6 +2220,7 @@ export default function BusinessDashboard() {
                 borderColor: "#000",
                 borderRadius: 12,
                 paddingVertical: 6,
+                paddingRight: 15,
                 marginTop: 5,
                 elevation: 50,
                 zIndex: 99999,

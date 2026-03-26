@@ -85,7 +85,15 @@ export default function RegisterProduct() {
     });
   };
 
-  const origins = ["Abra", "Apayao", "Benguet", "Ifugao", "Kalinga", "Mountain Province", "Baguio City"];
+  const origins = [
+    "Abra",
+    "Apayao",
+    "Benguet",
+    "Ifugao",
+    "Kalinga",
+    "Mountain Province",
+    "Baguio City",
+  ];
 
   const onDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
@@ -267,7 +275,7 @@ export default function RegisterProduct() {
     if (!form.materials) newErrors.materials = "Materials are required";
     if (!form.origin) newErrors.origin = "Origin is required";
     if (!form.productionDate)
-      newErrors.productionDate = "Finish date is required";
+      newErrors.productionDate = "Start and Finish Date are required";
     if (!form.description) newErrors.description = "Description required";
     if (!form.productImage)
       newErrors.productImage = "Product image is required";
@@ -500,7 +508,7 @@ export default function RegisterProduct() {
                         handleInputChange("type", v);
                         handleInputChange("materials", "");
                       }}
-                      style={styles.picker}
+                      style={[styles.picker, errors.type && styles.errorInput]}
                     >
                       <Picker.Item label="Select Type" value="" />
                       <Picker.Item label="Woodcrafts" value="Woodcraft" />
@@ -519,7 +527,10 @@ export default function RegisterProduct() {
                       <Picker
                         selectedValue={form.materials}
                         onValueChange={(v) => handleInputChange("materials", v)}
-                        style={styles.picker}
+                        style={[
+                          styles.picker,
+                          errors.type && styles.errorInput,
+                        ]}
                       >
                         <Picker.Item label="Select Material" value="" />
                         <Picker.Item label="Kamagong" value="Kamagong" />
@@ -544,7 +555,10 @@ export default function RegisterProduct() {
                       <Picker
                         selectedValue={form.materials}
                         onValueChange={(v) => handleInputChange("materials", v)}
-                        style={styles.picker}
+                        style={[
+                          styles.picker,
+                          errors.type && styles.errorInput,
+                        ]}
                       >
                         <Picker.Item label="Select Material" value="" />
                         <Picker.Item label="Abaca" value="Abaca" />
@@ -559,17 +573,23 @@ export default function RegisterProduct() {
                     </View>
                   )}
 
+                  <Text style={[styles.label]}>Origin of the Product*</Text>
                   <View style={styles.inputContainer}>
                     <Picker
                       selectedValue={form.origin}
-                      style={styles.picker}
-                      onValueChange={(value) => handleInputChange("origin", value)}
+                      style={[styles.picker, errors.type && styles.errorInput]}
+                      onValueChange={(value) =>
+                        handleInputChange("origin", value)
+                      }
                     >
                       <Picker.Item label="Select Origin" value="" />
                       {origins.map((item, index) => (
                         <Picker.Item key={index} label={item} value={item} />
                       ))}
                     </Picker>
+                    {errors.origin && (
+                      <Text style={styles.errorText}>{errors.origin}</Text>
+                    )}
                   </View>
                 </View>
 
@@ -664,7 +684,7 @@ export default function RegisterProduct() {
                 Image of the Product* (Upload image of your product)
               </Text>
               <Pressable
-                style={styles.imagePicker}
+                style={[styles.imagePicker, errors.type && styles.errorInput]}
                 onPress={() => pickImage("productImage")}
               >
                 {form.productImage ? (
@@ -676,12 +696,18 @@ export default function RegisterProduct() {
                   <Text style={styles.imageText}>Select Product Image</Text>
                 )}
               </Pressable>
+              {errors.productImage && (
+                <Text style={styles.errorText}>{errors.productImage}</Text>
+              )}
 
               <Text style={styles.label}>
                 Images of the Process* (Process on how your product is made.)
               </Text>
 
-              <Pressable style={styles.imagePicker} onPress={pickProcessImages}>
+              <Pressable
+                style={[styles.imagePicker, errors.type && styles.errorInput]}
+                onPress={pickProcessImages}
+              >
                 <Text style={styles.imageText}>
                   Upload process photos (e.g., raw materials, artisan at work,
                   finished product){" "}
@@ -819,7 +845,7 @@ export default function RegisterProduct() {
                         handleInputChange("type", v);
                         handleInputChange("materials", "");
                       }}
-                      style={styles.picker}
+                      style={[styles.picker, errors.type && styles.errorInput]}
                     >
                       <Picker.Item label="Select Type" value="" />
                       <Picker.Item label="Woodcrafts" value="Woodcraft" />
@@ -838,7 +864,10 @@ export default function RegisterProduct() {
                       <Picker
                         selectedValue={form.materials}
                         onValueChange={(v) => handleInputChange("materials", v)}
-                        style={styles.picker}
+                        style={[
+                          styles.picker,
+                          errors.type && styles.errorInput,
+                        ]}
                       >
                         <Picker.Item label="Select Material" value="" />
                         <Picker.Item label="Kamagong" value="Kamagong" />
@@ -863,7 +892,10 @@ export default function RegisterProduct() {
                       <Picker
                         selectedValue={form.materials}
                         onValueChange={(v) => handleInputChange("materials", v)}
-                        style={styles.picker}
+                        style={[
+                          styles.picker,
+                          errors.type && styles.errorInput,
+                        ]}
                       >
                         <Picker.Item label="Select Material" value="" />
                         <Picker.Item label="Abaca" value="Abaca" />
@@ -877,17 +909,23 @@ export default function RegisterProduct() {
                       )}
                     </View>
                   )}
-                <View style={styles.inputContainer}>
-                  <Picker
-                    selectedValue={form.origin}
-                    style={styles.picker}
-                    onValueChange={(value) => handleInputChange("origin", value)}
-                  >
-                    <Picker.Item label="Select Origin" value="" />
-                    {origins.map((item, index) => (
-                      <Picker.Item key={index} label={item} value={item} />
-                    ))}
-                  </Picker>
+                  <Text style={styles.label}>Origin of the Product*</Text>
+                  <View style={styles.inputContainer}>
+                    <Picker
+                      selectedValue={form.origin}
+                      style={[styles.picker, errors.type && styles.errorInput]}
+                      onValueChange={(value) =>
+                        handleInputChange("origin", value)
+                      }
+                    >
+                      <Picker.Item label="Select Origin" value="" />
+                      {origins.map((item, index) => (
+                        <Picker.Item key={index} label={item} value={item} />
+                      ))}
+                    </Picker>
+                    {errors.origin && (
+                      <Text style={styles.errorText}>{errors.origin}</Text>
+                    )}
                   </View>
                 </View>
 
@@ -982,7 +1020,7 @@ export default function RegisterProduct() {
                 Image of the Product* (Upload image of your product)
               </Text>
               <Pressable
-                style={styles.imagePicker}
+                style={[styles.imagePicker, errors.type && styles.errorInput]}
                 onPress={() => pickImage("productImage")}
               >
                 {form.productImage ? (
@@ -994,12 +1032,18 @@ export default function RegisterProduct() {
                   <Text style={styles.imageText}>Select Product Image</Text>
                 )}
               </Pressable>
+              {errors.productImage && (
+                <Text style={styles.errorText}>{errors.productImage}</Text>
+              )}
 
               <Text style={styles.label}>
                 Images of the Process* (Process on how your product is made.)
               </Text>
 
-              <Pressable style={styles.imagePicker} onPress={pickProcessImages}>
+              <Pressable
+                style={[styles.imagePicker, errors.type && styles.errorInput]}
+                onPress={pickProcessImages}
+              >
                 <Text style={styles.imageText}>
                   Upload process photos (e.g., raw materials, artisan at work,
                   finished product){" "}
@@ -1516,7 +1560,7 @@ const styles = StyleSheet.create({
   errorText: {
     color: "red",
     marginTop: 1,
-    marginBottom: 2,
+    marginBottom: 3,
     fontFamily: "Montserrat-Regular",
     fontSize: 12,
   },
@@ -1553,9 +1597,9 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderRadius: 12,
     padding: 10,
-    height: 96,
+    height: 116,
     textAlignVertical: "top",
-    marginBottom: 30,
+    marginBottom: 5,
   },
   imagePicker: {
     borderWidth: 1,

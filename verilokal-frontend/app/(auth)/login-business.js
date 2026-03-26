@@ -54,7 +54,13 @@ export default function BusinessLogin() {
 
   const handleBusinessLogin = async () => {
     const newErrors = {};
-    if (!email) newErrors.email = "Email is required!";
+    if (!email) newErrors.email = "Email is required";
+    else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        newErrors.email = "Please enter a valid email address";
+      }
+    }
     if (!password) newErrors.password = "Password is required!";
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
@@ -195,6 +201,7 @@ export default function BusinessLogin() {
               <TextInput
                 placeholder="Enter your email"
                 value={email}
+                maxLength={64}
                 onChangeText={(text) => {
                   setEmail(text);
                   setErrors((prev) => ({ ...prev, email: null }));
@@ -209,7 +216,7 @@ export default function BusinessLogin() {
                   paddingLeft: 45,
                   paddingRight: 15,
                   height: 44,
-                  marginBottom: 20,
+                  marginBottom: 5,
                 }}
               />
               </View>
@@ -237,6 +244,7 @@ export default function BusinessLogin() {
               <TextInput
                 placeholder="Enter your password"
                 secureTextEntry
+                maxLength={64}
                 value={password}
                 onChangeText={(text) => {
                   setPassword(text);
