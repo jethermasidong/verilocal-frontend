@@ -358,6 +358,7 @@ export default function ProductScanner() {
           color: "#000",
           textAlign: "center",
           marginBottom: 30,
+          marginTop: 100,
         }}
       >
         Product Verification
