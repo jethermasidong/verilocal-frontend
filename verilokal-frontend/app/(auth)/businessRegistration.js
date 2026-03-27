@@ -392,7 +392,7 @@ export default function RegisterBusiness() {
       }}>
     <ScrollView
       keyboardShouldPersistTaps="handled"
-      style={{ flex: 1, backgroundColor: "#f6f7fb" }}
+      style={{ flex: 1, marginTop: 100,  }}
       contentContainerStyle={{ alignItems: "center", paddingVertical: 20 }}
     >
     <BackButton fallback="/login-business" forceFallback />
@@ -668,7 +668,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   leftPanel: {
-    width: "30%",
+    width: "25%",
     justifyContent: "center",
     alignItems: "center",
     padding: 0,
@@ -682,7 +682,7 @@ const styles = StyleSheet.create({
   rightPanel: {
     flex: 1,
     padding: 28,
-    backgroundColor: "#fff",
+    backgroundColor: "#f3f7fb",
   },
   successMessage: { backgroundColor: "#d4edda", color: "#155724", fontFamily: "Montserrat-Regular" },
   errorMessage: { backgroundColor: "#f8d7da", color: "#721c24", fontFamily: "Montserrat-Regular" },
