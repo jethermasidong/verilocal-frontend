@@ -408,8 +408,8 @@ export default function RegisterBusiness() {
 
         {/* RIGHT FORM */}
         <View style={[styles.rightPanel, isMobile && { width: "100%" }]}>
-          <Text style={styles.title}>Business Registration</Text>
-          <Text style={styles.subtitle}>Register your business to be part of our community</Text>
+          <Text style={styles.title}>Account Registration</Text>
+          <Text style={styles.subtitle}>Register your account to be part of our community</Text>
           <View style={[styles.row, isMobile && { flexDirection: "column" }]}>
             <View style={[styles.col, isMobile && { minWidth: "100%"}]}>
               <Text style={styles.label}>Owner Name*</Text>

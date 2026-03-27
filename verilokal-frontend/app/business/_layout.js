@@ -90,6 +90,7 @@ export default function BusinessLayout() {
         onProfilePress={toggleSidebar}
       />
 
+
       {/* BUSINESS PROFILE SIDEBAR */}
       <Modal visible={sidebarVisible} transparent animationType="none">
         <Pressable

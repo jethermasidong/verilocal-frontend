@@ -41,11 +41,11 @@ export default function Contact() {
   ];
 
   const [fontsLoaded] = useFonts({
-    "Garet-Book": require("../assets/fonts/garet/Garet-Book.ttf"),
-    "Garet-Heavy": require("../assets/fonts/garet/Garet-Heavy.ttf"),
-    "Montserrat-Regular": require("../assets/fonts/Montserrat/static/Montserrat-Regular.ttf"),
-    "Montserrat-Bold": require("../assets/fonts/Montserrat/static/Montserrat-Bold.ttf"),
-    "Montserrat-Black": require("../assets/fonts/Montserrat/static/Montserrat-Black.ttf"),
+    "Garet-Book": require("../../assets/fonts/garet/Garet-Book.ttf"),
+    "Garet-Heavy": require("../../assets/fonts/garet/Garet-Heavy.ttf"),
+    "Montserrat-Regular": require("../../assets/fonts/Montserrat/static/Montserrat-Regular.ttf"),
+    "Montserrat-Bold": require("../../assets/fonts/Montserrat/static/Montserrat-Bold.ttf"),
+    "Montserrat-Black": require("../../assets/fonts/Montserrat/static/Montserrat-Black.ttf"),
   });
 
   useEffect(() => {

@@ -11,9 +11,9 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
-import bgImage from "../assets/bg.jpg";
-import craftGif from "../assets/crafts.gif";
-import LoginButtons from "../components/LoginButtons";
+import bgImage from "../../assets/bg.jpg";
+import craftGif from "../../assets/crafts.gif";
+import LoginButtons from "../../components/LoginButtons";
 import AboutMe from "./aboutme";
 import Contact from "./contact";
 
@@ -34,9 +34,9 @@ export default function Home() {
   const isMobile = width < 900;
 
   const [fontsLoaded] = useFonts({
-    "Garet-Book":      require("../assets/fonts/garet/Garet-Book.ttf"),
-    "Garet-Heavy":     require("../assets/fonts/garet/Garet-Heavy.ttf"),
-    "Montserrat-Bold": require("../assets/fonts/Montserrat/static/Montserrat-Bold.ttf"),
+    "Garet-Book":      require("../../assets/fonts/garet/Garet-Book.ttf"),
+    "Garet-Heavy":     require("../../assets/fonts/garet/Garet-Heavy.ttf"),
+    "Montserrat-Bold": require("../../assets/fonts/Montserrat/static/Montserrat-Bold.ttf"),
   });
 
   const masterFade  = useRef(new Animated.Value(0)).current;
@@ -98,6 +98,7 @@ export default function Home() {
               styles.hero,
               {
                 minHeight: height,
+                paddingTop: 150,
                 flexDirection: isMobile ? "column" : "row",
                 paddingHorizontal: isMobile ? 28 : 80,
                 opacity: masterFade,
@@ -230,24 +231,18 @@ export default function Home() {
                 ]}
               >
 
-                {/* 1. wide ambient glow blob */}
                 <View style={styles.glowBlob} />
 
-                {/* 2. outer dashed orbit */}
                 <View style={styles.orbitDash} />
 
-                {/* 3. inner crisp ring */}
                 <View style={styles.ringCrisp} />
 
-                {/* 4. tilted frost card (behind main) */}
                 <View style={styles.tiltCard} />
 
-                {/* 5. second slight-tilt card */}
                 <View style={styles.tiltCard2} />
 
-                {/* 6. main image card */}
                 <View style={styles.mainCard}>
-                  {/* soft corner washes */}
+  
                   <View style={[styles.wash, { top: 0, left: 0, borderTopLeftRadius: 26 }]} />
                   <View style={[styles.wash, { bottom: 0, right: 0, borderBottomRightRadius: 26 }]} />
 

@@ -1,8 +1,9 @@
 import { Slot } from "expo-router";
 import { View } from "react-native";
-import Footer from "../components/Footer";
-import Navbar from "../components/Navbar";
+import Footer from "../../components/Footer";
+import Navbar from "../../components/Navbar";
 import Head from 'expo-router/head';
+
 export default function HomeLayout() {
   return (
     <>
@@ -20,8 +21,6 @@ export default function HomeLayout() {
         ]}
       />
 
-      <View style={{ height: 70, }} />
-      
       <Slot />
 
       <Footer />

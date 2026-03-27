@@ -2415,6 +2415,7 @@ const styles = StyleSheet.create({
 
   dashboard_welcomeCard: {
     width: "100%",
+    marginTop: 100,
     maxWidth: 900,
     marginBottom: 10,
     borderWidth: 2,

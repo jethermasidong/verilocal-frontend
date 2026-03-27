@@ -8,7 +8,7 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
-import Logo from "../assets/images/verilokal_text.png";
+import Logo from "../../assets/images/verilokal_text.png";
 
 const INDIGO = "#4338ca";
 const INDIGO_SOFT = "#6366f1";
