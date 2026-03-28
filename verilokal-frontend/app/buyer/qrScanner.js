@@ -4,7 +4,6 @@ import { useFonts } from "expo-font";
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {ActivityIndicator, Animated, Dimensions, Image, ImageBackground, Modal, Pressable, ScrollView, Text, View } from "react-native";
-import BackButton from "../../components/BackButton";
 
 
 export default function ProductScanner() {
@@ -348,7 +347,6 @@ export default function ProductScanner() {
         paddingHorizontal: 40,
       }}
     >
-    <BackButton fallback="/" forceFallback />
 
       {/* HEADER */}
       <Text

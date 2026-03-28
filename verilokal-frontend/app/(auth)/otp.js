@@ -15,7 +15,6 @@ import {
   ScrollView,
   StyleSheet
 } from "react-native";
-import BackButton from "../../components/BackButton";
 
 const OTP_LENGTH = 6;
 

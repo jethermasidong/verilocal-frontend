@@ -4,6 +4,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
 import axios from "axios";
 import { useFonts } from "expo-font";
+import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -21,7 +22,6 @@ import {
   TextInput,
   View,
 } from "react-native";
-import BackButton from "../../components/BackButton";
 
 //REGISTER PRODUCT
 export default function RegisterProduct() {
@@ -449,6 +449,7 @@ export default function RegisterProduct() {
       style={{
         opacity: fadeAnim,
         flex: 1,
+        marginTop: 80,
         transform: [{ translateY: slideAnim }],
       }}
     >
@@ -460,7 +461,6 @@ export default function RegisterProduct() {
             justifyContent: "center",
             alignItems: "center",
             paddingVertical: 30,
-            backgroundColor: "#f6f7fb",
           }}
           showsVerticalScrollIndicator={false}
         >
@@ -480,7 +480,7 @@ export default function RegisterProduct() {
             </View>
             {/* RIGHT PANEL */}
             <View style={[styles.rightPanel, isMobile && { width: "100%" }]}>
-              <Text style={styles.formTitle}>Product Registration</Text>
+                <Text style={styles.formTitle}>Product Registration</Text>
               <Text style={styles.subtitle}>
                 Welcome Artisan, Register your product.
               </Text>
@@ -798,10 +798,8 @@ export default function RegisterProduct() {
             justifyContent: "center",
             alignItems: "center",
             paddingVertical: 30,
-            backgroundColor: "#f6f7fb",
           }}
         >
-          <BackButton fallback="/business/" forceFallback />
           <View style={[styles.card, { flexDirection: "row" }]}>
             {/* DESKTOP VIEW */}
             <View
@@ -818,7 +816,26 @@ export default function RegisterProduct() {
             </View>
             {/* RIGHT PANEL */}
             <View style={[styles.rightPanel, isMobile && { width: "100%" }]}>
-              <Text style={styles.formTitle}>Product Registration</Text>
+              <View style={{flexDirection: 'row', 
+                justifyContent: 'space-between', 
+                alignItems: 'center', 
+                paddingHorizontal: 16, 
+                width: '100%'}}>
+                <Text style={styles.formTitle}>Product Registration</Text>
+                <Pressable
+                  style={{padding: 5,}}
+                  onPress={() => router.push("/business")}
+                >
+                {({ hovered }) => (
+                  <Ionicons
+                    name="arrow-back-circle-outline"
+                    size={40}
+                    color={hovered ? "#000" : "#375a96"}
+                    style={styles.resultIcon}
+                  />
+                )}
+                </Pressable>
+              </View>
               <Text style={styles.subtitle}>
                 Welcome Artisan, Register your product.
               </Text>
@@ -1273,7 +1290,7 @@ export default function RegisterProduct() {
             <View style={{ flexDirection: "row", marginBottom: 4 }}>
               <Text style={{ marginRight: 6 }}>•</Text>
               <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 12 }}>
-                <Text style={{ fontFamily: "Montserrat-Bold" }}>
+                <Text style={{ fontFamily: "Montserrat-Bold", }}>
                   Product Name
                 </Text>{" "}
                 – Name of your product
@@ -1471,14 +1488,16 @@ const styles = StyleSheet.create({
     width: "95%",
     maxWidth: 1200,
     backgroundColor: "#fff",
-    borderRadius: 20,
+    borderRadius: 25,
     overflow: "hidden",
     elevation: 6,
+    borderColor: "#cae2f3",
+    borderWidth: 1,
   },
   rightPanel: {
     flex: 1,
     padding: 28,
-    backgroundColor: "#fff",
+    backgroundColor: "#f2f8fc",
   },
   infoPanel: {
     flex: 1,
@@ -1507,6 +1526,7 @@ const styles = StyleSheet.create({
   label: {
     fontWeight: "600",
     marginTop: 0,
+    color: "#223049",
     marginBottom: 4,
     fontSize: 13,
     fontFamily: "Montserrat-Regular",
@@ -1522,12 +1542,14 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: "700",
     marginBottom: 4,
+    color: "#223049",
     textAlign: "left",
     fontFamily: "Montserrat-Bold",
   },
   subtitle: {
     fontSize: 14,
     fontWeight: "500",
+    color: "#223049",
     marginBottom: 12,
     textAlign: "left",
     fontFamily: "Montserrat-Regular",
@@ -1692,7 +1714,7 @@ const styles = StyleSheet.create({
   },
 
   submitButton: {
-    backgroundColor: "#4A70A9",
+    backgroundColor: "#375a96",
     padding: 14,
     borderRadius: 50,
     alignItems: "center",

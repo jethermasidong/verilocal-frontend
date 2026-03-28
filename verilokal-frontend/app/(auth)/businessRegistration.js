@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useFonts } from "expo-font";
+import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -21,7 +22,6 @@ import {
   TextInput,
   View
 } from "react-native";
-import BackButton from "../../components/BackButton";
 
 export default function RegisterBusiness() {
   const [name, setName] = useState("");
@@ -45,6 +45,7 @@ export default function RegisterBusiness() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [submitting, setIsSubmitting] = useState(false);
+
   
   const loadGooglePlaces = () =>
   new Promise((resolve, reject) => {
@@ -395,7 +396,6 @@ export default function RegisterBusiness() {
       style={{ flex: 1, marginTop: 100,  }}
       contentContainerStyle={{ alignItems: "center", paddingVertical: 20 }}
     >
-    <BackButton fallback="/login-business" forceFallback />
       <View style={[styles.card, isMobile && { flexDirection: "column" }]}>
         {/* LEFT IMAGE */}
         <View style={[styles.leftPanel, isMobile && { width: "100%", height: 200, }]}>
@@ -408,8 +408,33 @@ export default function RegisterBusiness() {
 
         {/* RIGHT FORM */}
         <View style={[styles.rightPanel, isMobile && { width: "100%" }]}>
-          <Text style={styles.title}>Account Registration</Text>
-          <Text style={styles.subtitle}>Register your account to be part of our community</Text>
+          <View style=
+          {{flexDirection: 'row', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            paddingHorizontal: 16, 
+            width: '100%'}}>
+          <View style={{flexDirection: 'column'}}>
+            <Text style={styles.title}>Create An Account</Text>
+            <Text style={styles.subtitle}>Sign up to be part of our community</Text>
+          </View>
+          {Platform.OS === 'web' && (
+            <Pressable
+              style={{padding: 5,}}
+              onPress={() => router.push("/login-business")}
+            >
+              {({ hovered }) => (
+                <Ionicons
+                  name="arrow-back-circle-outline"
+                  size={40}
+                  color={hovered ? "#000" : "#375a96"}
+                  style={styles.resultIcon}
+                />
+              )}
+            </Pressable>
+          )}
+          </View>
+
           <View style={[styles.row, isMobile && { flexDirection: "column" }]}>
             <View style={[styles.col, isMobile && { minWidth: "100%"}]}>
               <Text style={styles.label}>Owner Name*</Text>
@@ -515,13 +540,13 @@ export default function RegisterBusiness() {
 
 
           <Text style={styles.label}>Business Permit* (Mayor's Permit) </Text>
-          <Pressable style={[styles.upload, errors.description && styles.inputError]} onPress={() => pickImage(setPermit)}>
+          <Pressable style={[styles.upload, errors.permit && styles.inputError]} onPress={() => pickImage(setPermit)}>
             <Text>{permit ? permit.name : <FontAwesomeIcon icon={faFileUpload} size="2x" />}</Text>
           </Pressable>
           {errors.permit && <Text style={styles.error}>{errors.permit}</Text>}
           
           <Text style={styles.label}>Certificates* (DENR / DTI)</Text>
-          <Pressable style={[styles.upload, errors.description && styles.inputError]} onPress={multipleImages}>
+          <Pressable style={[styles.upload, errors.certificates && styles.inputError]} onPress={multipleImages}>
             <Text>
               {certificates.length > 0
                 ? `${certificates.length} files selected`
@@ -657,11 +682,13 @@ export default function RegisterBusiness() {
 
 const styles = StyleSheet.create({
   card: {
-    width: "92%",
-    maxWidth: 1400,
+    width: "90%",
+    maxWidth: 1300,
     minHeight: 400,
-    backgroundColor: "#fff",
+    backgroundColor: "#f2f8fc",
     borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#cae2f3",
     overflow: "hidden",
     flexDirection: "row",
     elevation: 6,
@@ -689,16 +716,19 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 30,
     fontWeight: "700",
-    marginBottom: 2,
+    marginBottom: -5,
     textAlign: "left",
-    fontFamily: "Montserrat-Bold",
+    color: "#223049",
+    fontFamily: "Garet-Heavy  ",
   },
   subtitle: {
     fontSize: 14,
     fontWeight: "500",
+    color: "#223049",
     marginBottom: 14,
     textAlign: "left",
-    fontFamily: "Montserrat-Regular",
+    fontWeight: "100",
+    fontFamily: "Garet-Book",
   },
   row: {
     flexDirection: "row",
@@ -713,6 +743,7 @@ const styles = StyleSheet.create({
   label: {
     fontWeight: "600",
     marginTop: 5,
+    color: "#223049",
     marginBottom: 4,
     fontFamily: "Montserrat-Regular",
     fontSize: 12
@@ -751,15 +782,16 @@ const styles = StyleSheet.create({
   },
   upload: {
     borderWidth: 1,
+    width: "97%",
     borderStyle: "dashed",
     borderColor: "#aaa",
-    padding: 30,
+    padding: 25,
     borderRadius: 12,
     marginTop: 6,
     alignItems: "center",
   },
   submitBtn: {
-    backgroundColor: "#5177b0",
+    backgroundColor: "#375a96",
     padding: 12,
     borderRadius: 14,
     marginTop: 25,

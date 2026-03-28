@@ -19,7 +19,6 @@ import {
   View,
 } from "react-native";
 import bgImage from "../../assets/bg1.jpg";
-import BackButton from "../../components/BackButton";
 
 export default function BusinessLogin() {
   const router = useRouter();
@@ -132,7 +131,6 @@ export default function BusinessLogin() {
           keyboardShouldPersistTaps="handled"
           scrollEnabled={isMobile}
         >
-          <BackButton fallback="/" forceFallback />
 
           <View
             style={[
@@ -168,13 +166,6 @@ export default function BusinessLogin() {
                 { paddingTop: isMobile ? 36 : 44 },
               ]}
             >
-              {isMobile && (
-                <Image
-                  source={require("../../assets/images/login.png")}
-                  style={styles.mobileIllustration}
-                  resizeMode="contain"
-                />
-              )}
 
               {/* Header */}
               <View style={styles.formHeader}>
@@ -340,6 +331,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     borderRadius: 24,
     overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "#cae2f3",
     alignSelf: "center",
     shadowColor: "#3a5a8a",
     shadowOpacity: 0.14,
@@ -461,7 +454,6 @@ const styles = StyleSheet.create({
     fontFamily: "Montserrat-Regular",
   },
 
-  /* ── Fields ── */
   fieldGroup: {
     marginBottom: 18,
   },
@@ -513,7 +505,6 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
   },
 
-  /* ── Login Button ── */
   loginButton: {
     height: 48,
     borderRadius: 12,
@@ -541,7 +532,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
 
-  /* ── Sign up row ── */
   signupRow: {
     flexDirection: "row",
     justifyContent: "center",
