@@ -108,10 +108,18 @@ export default function BusinessDashboard() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [dateType, setDateType] = useState(null);
 
-  const origins = ["Abra", "Apayao", "Benguet", "Ifugao", "Kalinga", "Mountain Province", "Baguio City"];
+  const origins = [
+    "Abra",
+    "Apayao",
+    "Benguet",
+    "Ifugao",
+    "Kalinga",
+    "Mountain Province",
+    "Baguio City",
+  ];
 
   const [errors, setErrors] = useState({});
-  
+
   const onHoverIn = () => {
     Animated.spring(hoverAnimReport, {
       toValue: 1,
@@ -475,7 +483,7 @@ export default function BusinessDashboard() {
           } else setUploadError("");
 
           setEditProductImage(asset.uri);
-          setErrors(prev => ({ ...prev, productImage: null }));
+          setErrors((prev) => ({ ...prev, productImage: null }));
         }
       }
     } catch (err) {
@@ -528,7 +536,7 @@ export default function BusinessDashboard() {
             ...(Array.isArray(prev) ? prev : []),
             ...newUris,
           ]);
-          setErrors(prev => ({ ...prev, processImages: null }));
+          setErrors((prev) => ({ ...prev, processImages: null }));
         }
       }
     } catch (err) {
@@ -547,17 +555,14 @@ export default function BusinessDashboard() {
       newErrors.productionDate = "Finish date is required";
     if (!editForm.description) newErrors.description = "Description required";
 
-    if (!editProductImage) 
-    newErrors.productImage = "Product image is required";
-    
-  if (!editProcessImages || editProcessImages.length === 0) 
-    newErrors.processImages = "At least one process image is required";
+    if (!editProductImage) newErrors.productImage = "Product image is required";
+
+    if (!editProcessImages || editProcessImages.length === 0)
+      newErrors.processImages = "At least one process image is required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-
-    };
-
+  };
 
   const downloadQRCode = async (qrUrl) => {
     try {
@@ -1008,40 +1013,6 @@ export default function BusinessDashboard() {
           style={styles.dashboard_scroll}
           contentContainerStyle={styles.dashboard_scrollContent}
         >
-          {/* Welcome Section */}
-          <View style={styles.dashboard_welcomeCard}>
-            <Text
-              style={[
-                styles.dashboard_welcomeText,
-                isMobile && { fontSize: 22, textAlign: "center" },
-              ]}
-            >
-              Welcome,
-            </Text>
-            <Text
-              style={[
-                styles.dashboard_welcomeBusinessText,
-                isMobile && { fontSize: 20, textAlign: "center" },
-              ]}
-            >
-              {business?.registered_business_name || "Loading..."}
-            </Text>
-          </View>
-
-          {/* Header Controls */}
-          <View style={styles.dashboard_headerContainer}>
-            <Text
-              style={[
-                styles.dashboard_headerText,
-                isMobile && {
-                  fontSize: 18,
-                  textAlign: "center",
-                },
-              ]}
-            >
-              Business Dashboard
-            </Text>
-          </View>
           {/* Search Products */}
           <View
             style={[
@@ -1135,30 +1106,129 @@ export default function BusinessDashboard() {
                 </Pressable>
               </Animated.View>
             </View>
-            {/* Product Registration Button */}
-            <Pressable
-              onHoverIn={() => setHoverRegister(true)}
-              onHoverOut={() => setHoverRegister(false)}
+          </View>
+          {/* Welcome Section */}
+          <View style={styles.dashboard_welcomeCard}>
+            <Text
               style={[
-                styles.productRegistration_btn,
-                isMobile && { width: "100%" },
+                styles.dashboard_headerText,
+                isMobile && { fontSize: 22, textAlign: "center" },
               ]}
-              onPress={() => router.push("/business/productRegistration")}
             >
-              <Text style={styles.productRegistration_btnText}>+ Register</Text>
-            </Pressable>
+              Artisan Dashboard
+            </Text>
+            <Text
+              style={[
+                styles.dashboard_welcomeText,
+                isMobile && { fontSize: 22, textAlign: "center" },
+              ]}
+            >
+              Greetings,
+            </Text>
+            <Text
+              style={[
+                styles.dashboard_welcomeBusinessText,
+                isMobile && { fontSize: 20, textAlign: "center" },
+              ]}
+            >
+              {business?.registered_business_name || "Loading..."}!
+            </Text>
+          </View>
+
+          {/* Summary Cards */}
+          <View style={styles.summaryCardContainer}>
+            {/* Total Products Card */}
+            <View style={styles.summaryCard}>
+              <View style={styles.summaryCardContent}>
+                <View
+                  style={[
+                    styles.summaryIconBox,
+                    { backgroundColor: "#F8EBE6" },
+                  ]}
+                >
+                  <Ionicons name="cube-outline" size={40} color="#B85C38" />
+                </View>
+                <View style={styles.summaryTextContainer}>
+                  <Text style={styles.summaryCardTitle}>Total Products</Text>
+                  <Text style={styles.summaryProgress}>
+                    {filteredProducts.length} items
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Product Type Card */}
+            <View style={styles.summaryCard}>
+              <View style={styles.summaryCardContent}>
+                <View
+                  style={[
+                    styles.summaryIconBox,
+                    { backgroundColor: "#FDF4E6" },
+                  ]}
+                >
+                  <Ionicons name="grid-outline" size={40} color="#D49A36" />
+                </View>
+                <View style={styles.summaryTextContainer}>
+                  <Text style={styles.summaryCardTitle}>Product Types</Text>
+                  <Text style={styles.summaryProgress}>
+                    {[...new Set(products.map((p) => p.type))].length} types
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Materials Card */}
+            <View style={styles.summaryCard}>
+              <View style={styles.summaryCardContent}>
+                <View
+                  style={[
+                    styles.summaryIconBox,
+                    { backgroundColor: "#E8F1EC" },
+                  ]}
+                >
+                  <Ionicons
+                    name="construct-outline"
+                    size={40}
+                    color="#457B5D"
+                  />
+                </View>
+                <View style={styles.summaryTextContainer}>
+                  <Text style={styles.summaryCardTitle}>Materials</Text>
+                  <Text style={styles.summaryProgress}>
+                    {[...new Set(products.map((p) => p.materials))].length}{" "}
+                    material types
+                  </Text>
+                </View>
+              </View>
+            </View>
           </View>
 
           {/* Product List */}
-          <View style={{ width: "100%", maxWidth: 900 }}>
-            <Text
-              style={[
-                styles.productListText,
-                isMobile && { textAlign: "center" },
-              ]}
+          <View style={{ width: "100%", maxWidth: 1200 }}>
+            <View
+              style={{
+                flexDirection: "row",
+                marginVertical: 10,
+                alignItems: "center",
+                gap: 10,
+              }}
             >
-              Total Products: {filteredProducts.length}
-            </Text>
+              {/* Product Registration Button */}
+              <Pressable
+                onHoverIn={() => setHoverRegister(true)}
+                onHoverOut={() => setHoverRegister(false)}
+                style={[
+                  styles.productRegistration_btn,
+                  isMobile && { width: "100%" },
+                ]}
+                onPress={() => router.push("/business/productRegistration")}
+              >
+                <Text style={styles.productRegistration_btnText}>
+                  Add Product
+                </Text>
+                <Ionicons name="bag-add-outline" size={22} color="#fff" />
+              </Pressable>
+            </View>
             <FlatList
               data={filteredProducts.slice(0, visibleCount)}
               keyExtractor={(item) => item.id.toString()}
@@ -1691,9 +1761,16 @@ export default function BusinessDashboard() {
                       maxLength={50}
                       onChangeText={(t) => {
                         setEditForm({ ...editForm, name: t });
-                        if (errors.name) setErrors({ ...errors, name: null }); 
+                        if (errors.name) setErrors({ ...errors, name: null });
                       }}
-                      style={[styles.input, , errors.name && { borderColor: '#E74C3C', borderWidth: 1 }]}
+                      style={[
+                        styles.input,
+                        ,
+                        errors.name && {
+                          borderColor: "#E74C3C",
+                          borderWidth: 1,
+                        },
+                      ]}
                     />
 
                     <View style={{ marginBottom: 7 }}>
@@ -1735,17 +1812,17 @@ export default function BusinessDashboard() {
                     </View>
                     {editForm.type === "Woodcraft" && (
                       <View style={{ marginBottom: 7 }}>
-                      <Text
-                        style={{
-                          fontWeight: "600",
-                          marginTop: 6,
-                          marginBottom: 1,
-                          fontSize: 13,
-                          fontFamily: "Montserrat-Regular",
-                        }}
-                      >
-                        Materials*
-                      </Text>
+                        <Text
+                          style={{
+                            fontWeight: "600",
+                            marginTop: 6,
+                            marginBottom: 1,
+                            fontSize: 13,
+                            fontFamily: "Montserrat-Regular",
+                          }}
+                        >
+                          Materials*
+                        </Text>
                         <Picker
                           selectedValue={editForm.materials}
                           onValueChange={(v) =>
@@ -1775,17 +1852,17 @@ export default function BusinessDashboard() {
                     )}
                     {editForm.type === "Textile" && (
                       <View style={{ marginBottom: 7 }}>
-                      <Text
-                        style={{
-                          fontWeight: "600",
-                          marginTop: 6,
-                          marginBottom: 1,
-                          fontSize: 13,
-                          fontFamily: "Montserrat-Regular",
-                        }}
-                      >
-                        Materials*
-                      </Text>
+                        <Text
+                          style={{
+                            fontWeight: "600",
+                            marginTop: 6,
+                            marginBottom: 1,
+                            fontSize: 13,
+                            fontFamily: "Montserrat-Regular",
+                          }}
+                        >
+                          Materials*
+                        </Text>
                         <Picker
                           selectedValue={editForm.materials}
                           onValueChange={(v) =>
@@ -1811,18 +1888,18 @@ export default function BusinessDashboard() {
                         </Picker>
                       </View>
                     )}
-                 <Text
-                    style={{
-                      fontWeight: "600",
-                      marginTop: 6,
-                      marginBottom: 4,
-                      fontSize: 13,
-                      fontFamily: "Montserrat-Regular",
-                    }}
-                  >
-                    Origin*
-                  </Text>
-                  <View style={{marginBottom: 7}}>
+                    <Text
+                      style={{
+                        fontWeight: "600",
+                        marginTop: 6,
+                        marginBottom: 4,
+                        fontSize: 13,
+                        fontFamily: "Montserrat-Regular",
+                      }}
+                    >
+                      Origin*
+                    </Text>
+                    <View style={{ marginBottom: 7 }}>
                       <Picker
                         selectedValue={editForm.origin}
                         style={{
@@ -1835,15 +1912,16 @@ export default function BusinessDashboard() {
                           fontFamily: "Montserrat-Regular",
                           fontSize: 13,
                         }}
-                        onValueChange={(value) => handleInputChange("origin", value)}
+                        onValueChange={(value) =>
+                          handleInputChange("origin", value)
+                        }
                       >
                         <Picker.Item label="Select Origin" value="" />
                         {origins.map((item, index) => (
                           <Picker.Item key={index} label={item} value={item} />
                         ))}
                       </Picker>
-                    </View>       
-
+                    </View>
 
                     <View style={{ marginBottom: 7 }}>
                       <Text
@@ -1879,7 +1957,6 @@ export default function BusinessDashboard() {
                               fontSize: 13,
                               marginBottom: 7,
                             }}
-                            
                           />
                           <input
                             type="date"
@@ -1987,25 +2064,37 @@ export default function BusinessDashboard() {
                             setErrors({ ...errors, description: false });
                           }
                         }}
-                        style={[{
-                          borderWidth: 1,
-                          borderColor: "#ccc",
-                          padding: 8,
-                          borderRadius: 8,
-                          backgroundColor: "#fafafa",
-                          width: "100%",
-                          fontFamily: "Montserrat-Regular",
-                          fontSize: 14,
-                          height: 180,
-                        },
-                        errors.description && { borderColor: "#E74C3C", borderWidth: 1.5 }
-                      ]}
+                        style={[
+                          {
+                            borderWidth: 1,
+                            borderColor: "#ccc",
+                            padding: 8,
+                            borderRadius: 8,
+                            backgroundColor: "#fafafa",
+                            width: "100%",
+                            fontFamily: "Montserrat-Regular",
+                            fontSize: 14,
+                            height: 180,
+                          },
+                          errors.description && {
+                            borderColor: "#E74C3C",
+                            borderWidth: 1.5,
+                          },
+                        ]}
                       />
                     </View>
                     {/* PRODUCT IMAGE BOX */}
                     <Text style={styles.label}>Image of the Product*</Text>
                     <Pressable onPress={() => pickImage("productImage")}>
-                      <View style={[styles.imagePicker, errors.productImage && { borderColor: "#E74C3C", borderWidth: 1.5 }]}>
+                      <View
+                        style={[
+                          styles.imagePicker,
+                          errors.productImage && {
+                            borderColor: "#E74C3C",
+                            borderWidth: 1.5,
+                          },
+                        ]}
+                      >
                         {editProductImage ? (
                           <View style={{ width: "100%", height: "100%" }}>
                             <Image
@@ -2039,14 +2128,27 @@ export default function BusinessDashboard() {
                         )}
                       </View>
                     </Pressable>
-                    {errors.productImage && <Text style={styles.errorText}>{errors.productImage}</Text>}
+                    {errors.productImage && (
+                      <Text style={styles.errorText}>
+                        {errors.productImage}
+                      </Text>
+                    )}
 
                     {/* PROCESS IMAGES BOX */}
                     <Text style={styles.label}>Images of the Process*</Text>
                     <Pressable
                       onPress={() => pickProcessImages("processImages")}
                     >
-                      <View style={[styles.imagePicker, errors.processImages && { borderColor: "#E74C3C", borderWidth: 1.5,  borderStyle: 'dashed'}]}>
+                      <View
+                        style={[
+                          styles.imagePicker,
+                          errors.processImages && {
+                            borderColor: "#E74C3C",
+                            borderWidth: 1.5,
+                            borderStyle: "dashed",
+                          },
+                        ]}
+                      >
                         <Text style={styles.imageText}>Add Process Images</Text>
                         <Text
                           style={[
@@ -2056,7 +2158,11 @@ export default function BusinessDashboard() {
                         >
                           (Tap to select multiple)
                         </Text>
-                        {errors.processImages && <Text style={styles.errorText}>{errors.processImages}</Text>}
+                        {errors.processImages && (
+                          <Text style={styles.errorText}>
+                            {errors.processImages}
+                          </Text>
+                        )}
                       </View>
                     </Pressable>
                     <View
@@ -2108,8 +2214,10 @@ export default function BusinessDashboard() {
                   <View style={styles.buttonRow}>
                     <Pressable
                       style={styles.cancelButton}
-                      onPress={() => {setEditModalVisible(false)
-                      setErrors({}); }}
+                      onPress={() => {
+                        setEditModalVisible(false);
+                        setErrors({});
+                      }}
                     >
                       <Text
                         style={{
@@ -2127,12 +2235,15 @@ export default function BusinessDashboard() {
                       onPress={() => {
                         if (validateForm()) {
                           if (selectedProduct?.id) {
-                          setShowSaveModal(true);
+                            setShowSaveModal(true);
                           } else {
                             alert("No product selected!");
                           }
                         } else {
-                          Alert.alert("Error", "Please fill in all required fields.");
+                          Alert.alert(
+                            "Error",
+                            "Please fill in all required fields.",
+                          );
                         }
                       }}
                       style={styles.saveButton}
@@ -2393,10 +2504,11 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     height: "100%",
+    backgroundColor: "#eaf2f5",
   },
 
   dashboard_bgImage: {
-    opacity: 0.3,
+    opacity: 0,
   },
 
   dashboard_animatedContainer: {
@@ -2415,18 +2527,22 @@ const styles = StyleSheet.create({
 
   dashboard_welcomeCard: {
     width: "100%",
-    marginTop: 100,
-    maxWidth: 900,
-    marginBottom: 10,
-    borderWidth: 2,
-    borderColor: "#000",
-    borderRadius: 20,
+    marginVertical: 10,
+    maxWidth: 1200,
+    borderRadius: 40,
     paddingVertical: 20,
     paddingHorizontal: 25,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 4,
+    backgroundColor: "rgba(255, 255, 255, 0.85)",
+    borderWidth: 1,
+    borderColor: "rgba(200, 210, 230, 0.6)",
+    shadowColor: "#1a2f5a",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.1,
+    shadowRadius: 24,
   },
 
   dashboard_searchInput: {
@@ -2436,7 +2552,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#000",
     borderRadius: 32,
-    fontFamily: "Montserrat-Regular",
+    fontFamily: "Garet-Book",
   },
 
   dashboard_productCard: {
@@ -2482,37 +2598,24 @@ const styles = StyleSheet.create({
     maxHeight: "85%",
   },
   dashboard_welcomeText: {
-    fontFamily: "Garet-Heavy",
-    color: "#000",
-    fontSize: 32,
+    fontFamily: "Garet-Book",
+    color: "#2a323c",
+    fontSize: 40,
     textAlign: "left",
+    fontWeight: "600",
   },
   dashboard_welcomeBusinessText: {
-    fontSize: 28,
-    fontFamily: "Montserrat-Black",
+    fontSize: 40,
+    fontFamily: "Garet-Book",
     color: "#4A70A9",
     textAlign: "left",
     marginTop: 5,
-  },
-  dashboard_headerContainer: {
-    width: "100%",
-    maxWidth: 900,
-    borderWidth: 2,
-    borderColor: "#000",
-    borderRadius: 20,
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 4,
-    marginBottom: 20,
-    gap: 10,
+    fontWeight: "600",
   },
   dashboard_headerText: {
-    fontSize: 28,
-    fontFamily: "Garet-Heavy",
-    color: "#000",
+    fontSize: 22,
+    fontFamily: "Garet-Book",
+    color: "#2a323c",
     letterSpacing: 1,
     textAlign: "left",
   },
@@ -2522,15 +2625,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     gap: 10,
-    maxWidth: 900,
+    maxWidth: 1200,
     alignSelf: "center",
-    marginBottom: 15,
+    marginTop: 50,
   },
   searchProducts_wrapper: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    width: "70%",
+    width: "100%",
     position: "relative",
   },
   filterProducts_btn: {
@@ -2550,7 +2653,7 @@ const styles = StyleSheet.create({
     cursor: "pointer",
   },
   productRegistration_btn: {
-    width: "29%",
+    width: "25%",
     backgroundColor: "#4A70A9",
     paddingVertical: 14,
     borderRadius: 999,
@@ -2561,20 +2664,17 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     borderColor: "#000",
     borderWidth: 2,
+    flexDirection: "row",
     elevation: 3,
+    gap: 10,
   },
   productRegistration_btnText: {
     color: "#fff",
     fontFamily: "Montserrat-Bold",
-    fontSize: 14,
+    fontSize: 16,
     letterSpacing: 0.5,
   },
-  productListText: {
-    fontSize: 14,
-    fontFamily: "Montserrat-Regular",
-    marginBottom: 10,
-    textAlign: "left",
-  },
+
   closeBtn: {
     borderWidth: 1,
     borderColor: "#000",
@@ -2626,7 +2726,7 @@ const styles = StyleSheet.create({
   },
   edit_delete_btn: {
     borderWidth: 1,
-    borderColor: "rgb(139, 132, 132)",
+    borderColor: "#d8e6ed",
     borderRadius: 50,
     paddingVertical: 8,
     paddingHorizontal: 12,
@@ -2698,7 +2798,7 @@ const styles = StyleSheet.create({
     padding: 13,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#d9d9d9",
+    borderColor: "#d8e6ed",
   },
   infoText: {
     fontFamily: "Montserrat-Regular",
@@ -2709,7 +2809,7 @@ const styles = StyleSheet.create({
     padding: 13,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#d9d9d9",
+    borderColor: "#d8e6ed",
     marginBottom: 15,
     marginTop: 5,
   },
@@ -2723,7 +2823,7 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "#d8e6ed",
     marginBottom: 20,
   },
   qrImage: {
@@ -2736,7 +2836,7 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#d9d9d9",
+    borderColor: "#d8e6ed",
     marginBottom: 20,
   },
   blockchainTitle: {
@@ -2776,7 +2876,7 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "#d8e6ed",
     marginBottom: 20,
   },
 
@@ -2795,7 +2895,7 @@ const styles = StyleSheet.create({
 
   qrIconButton: {
     borderWidth: 1,
-    borderColor: "rgb(139, 132, 132)",
+    borderColor: "#d8e6ed",
     borderRadius: 50,
     paddingVertical: 8,
     paddingHorizontal: 12,
@@ -2808,7 +2908,7 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#d9d9d9",
+    borderColor: "#d8e6ed",
     marginBottom: 20,
   },
 
@@ -2896,7 +2996,7 @@ const styles = StyleSheet.create({
 
   input: {
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "#d8e6ed",
     padding: 8,
     borderRadius: 8,
     backgroundColor: "#fafafa",
@@ -2907,7 +3007,7 @@ const styles = StyleSheet.create({
 
   multilineInput: {
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "#d8e6ed",
     padding: 8,
     borderRadius: 8,
     backgroundColor: "#fafafa",
@@ -2966,7 +3066,7 @@ const styles = StyleSheet.create({
   },
   imagePicker: {
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "#d8e6ed",
     padding: 20,
     borderRadius: 10,
     alignItems: "center",
@@ -2987,11 +3087,60 @@ const styles = StyleSheet.create({
     fontFamily: "Montserrat-Regular",
   },
   errorText: {
-  color: "#E74C3C",
-  fontSize: 12,
-  fontFamily: "Montserrat-Regular",
-  marginTop: 3,
-  marginBottom: 10,
-  marginLeft: 5,
+    color: "#E74C3C",
+    fontSize: 12,
+    fontFamily: "Montserrat-Regular",
+    marginTop: 3,
+    marginBottom: 10,
+    marginLeft: 5,
+  },
+  summaryCardContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    maxWidth: 1200,
+    width: "100%",
+    gap: 10,
+  },
+
+  summaryCard: {
+    flex: 1,
+    backgroundColor: "#f9fafb",
+    borderRadius: 30,
+    padding: 20,
+    alignItems: "flex-start",
+    flexDirection: "row",
+    borderColor: "rgba(200, 210, 230, 0.6)",
+    shadowColor: "#1a2f5a",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.1,
+    shadowRadius: 24,
+  },
+  summaryCardContent: {
+    flexDirection: "row",
+    gap: 10,
+  },
+
+  summaryIconBox: {
+    backgroundColor: "#ede9fe",
+    padding: 8,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  summaryTextContainer: {
+    flexDirection: "column",
+    textAlign: "center",
+  },
+  summaryProgress: {
+    fontSize: 16,
+    fontFamily: "Garet-Book",
+    color: "#9ca3af",
+    marginBottom: 2,
+  },
+
+  summaryCardTitle: {
+    fontSize: 22,
+    fontFamily: "Garet-Book",
+    fontWeight: "600",
+    color: "#111827",
   },
 });
