@@ -1,16 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from 'axios';
+import axios from "axios";
 import { Slot, usePathname, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import {
-  Animated,
-  Image,
-  Modal,
-  Pressable,
-  Text,
-  View,
-} from "react-native";
+import { Animated, Image, Modal, Pressable, Text, View } from "react-native";
 import Navbar from "../../components/Navbar";
 
 export default function BusinessLayout() {
@@ -21,6 +14,8 @@ export default function BusinessLayout() {
     "/business",
     "/business/businessProfile",
     "/business/productRegistration",
+    "/business/batchRegistration",
+    "/business/optionRegistration",
   ];
 
   const showProfile = allowedPages.includes(pathname);
@@ -31,25 +26,23 @@ export default function BusinessLayout() {
 
   const [business, setBusiness] = useState(null);
   useEffect(() => {
-        const fetchBusinessProfile = async () => {
-          try {
-            const token = await AsyncStorage.getItem("token");
-  
-            const res = await axios.get(
-              "https://verilocalph.onrender.com/api/business/profile",
-              {
-                headers: { Authorization: `Bearer ${token}` },
-              }
-            );
-            setBusiness(res.data);
-          } catch (err) {
-            console.error("Failed to load business profile:", err);
-          }
-        };
-        fetchBusinessProfile();
-      }, []);
+    const fetchBusinessProfile = async () => {
+      try {
+        const token = await AsyncStorage.getItem("token");
 
-
+        const res = await axios.get(
+          "https://verilocalph.onrender.com/api/business/profile",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+        setBusiness(res.data);
+      } catch (err) {
+        console.error("Failed to load business profile:", err);
+      }
+    };
+    fetchBusinessProfile();
+  }, []);
 
   // OPEN SIDEBAR
   const openSidebar = () => {
@@ -90,7 +83,6 @@ export default function BusinessLayout() {
         onProfilePress={toggleSidebar}
       />
 
-
       {/* BUSINESS PROFILE SIDEBAR */}
       <Modal visible={sidebarVisible} transparent animationType="none">
         <Pressable
@@ -117,10 +109,17 @@ export default function BusinessLayout() {
             {/* PROFILE */}
             <View style={{ alignItems: "center", marginBottom: 20 }}>
               {business && business.logo ? (
-                 <Image
-                source={{uri: business.logo}}
-                style={{width: 100, height: 100, borderRadius: 100, borderColor: '#000' ,borderWidth: 2, marginBottom: 10}}
-              />
+                <Image
+                  source={{ uri: business.logo }}
+                  style={{
+                    width: 100,
+                    height: 100,
+                    borderRadius: 100,
+                    borderColor: "#000",
+                    borderWidth: 2,
+                    marginBottom: 10,
+                  }}
+                />
               ) : (
                 <Ionicons
                   name="person-circle-outline"
@@ -128,14 +127,35 @@ export default function BusinessLayout() {
                   color="#000"
                 />
               )}
-                {business && business.registered_business_name ? (
-                  <Text style={{ fontSize: 16, fontWeight: "700", fontFamily: 'Montserrat-Bold' }}>
+              {business && business.registered_business_name ? (
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: "700",
+                    fontFamily: "Montserrat-Bold",
+                  }}
+                >
                   {business.registered_business_name}
-                  </Text>
-                ) : (
-                  <Text style={{ fontSize: 16, fontWeight: "700", fontFamily: 'Montserrat-Bold' }}> Your Business </Text>
-                )}
-              <Text style={{ fontSize: 12, color: "#666", fontFamily: 'Montserrat-Regular' }}>
+                </Text>
+              ) : (
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: "700",
+                    fontFamily: "Montserrat-Bold",
+                  }}
+                >
+                  {" "}
+                  Your Business{" "}
+                </Text>
+              )}
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: "#666",
+                  fontFamily: "Montserrat-Regular",
+                }}
+              >
                 Business Account
               </Text>
             </View>
@@ -153,7 +173,13 @@ export default function BusinessLayout() {
                 router.push("/business/businessProfile");
               }}
             >
-              <Text style={{ textAlign: "center", fontWeight: "600", fontFamily: 'Montserrat-Regular'}}>
+              <Text
+                style={{
+                  textAlign: "center",
+                  fontWeight: "600",
+                  fontFamily: "Montserrat-Regular",
+                }}
+              >
                 Manage Account
               </Text>
             </Pressable>
@@ -174,7 +200,7 @@ export default function BusinessLayout() {
                   color: "#fff",
                   textAlign: "center",
                   fontWeight: "700",
-                  fontFamily: 'Montserrat-Regular',
+                  fontFamily: "Montserrat-Regular",
                 }}
               >
                 Log out

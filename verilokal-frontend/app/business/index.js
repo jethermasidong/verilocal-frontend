@@ -1014,12 +1014,7 @@ export default function BusinessDashboard() {
           contentContainerStyle={styles.dashboard_scrollContent}
         >
           {/* Search Products */}
-          <View
-            style={[
-              styles.searchProducts_container,
-              isMobile && { flexDirection: "column" },
-            ]}
-          >
+          <View style={[styles.searchProducts_container]}>
             <View
               style={[
                 styles.searchProducts_wrapper,
@@ -1146,7 +1141,7 @@ export default function BusinessDashboard() {
                     { backgroundColor: "#F8EBE6" },
                   ]}
                 >
-                  <Ionicons name="cube-outline" size={40} color="#B85C38" />
+                  <Ionicons name="cube-outline" size={24} color="#B85C38" />
                 </View>
                 <View style={styles.summaryTextContainer}>
                   <Text style={styles.summaryCardTitle}>Total Products</Text>
@@ -1166,12 +1161,12 @@ export default function BusinessDashboard() {
                     { backgroundColor: "#FDF4E6" },
                   ]}
                 >
-                  <Ionicons name="grid-outline" size={40} color="#D49A36" />
+                  <Ionicons name="grid-outline" size={24} color="#D49A36" />
                 </View>
                 <View style={styles.summaryTextContainer}>
                   <Text style={styles.summaryCardTitle}>Product Types</Text>
                   <Text style={styles.summaryProgress}>
-                    {[...new Set(products.map((p) => p.type))].length} types
+                    {[...new Set(products.map((p) => p.type))].length} Items
                   </Text>
                 </View>
               </View>
@@ -1188,7 +1183,7 @@ export default function BusinessDashboard() {
                 >
                   <Ionicons
                     name="construct-outline"
-                    size={40}
+                    size={24}
                     color="#457B5D"
                   />
                 </View>
@@ -1196,7 +1191,7 @@ export default function BusinessDashboard() {
                   <Text style={styles.summaryCardTitle}>Materials</Text>
                   <Text style={styles.summaryProgress}>
                     {[...new Set(products.map((p) => p.materials))].length}{" "}
-                    material types
+                    Items
                   </Text>
                 </View>
               </View>
@@ -1204,67 +1199,97 @@ export default function BusinessDashboard() {
           </View>
 
           {/* Product List */}
-          <View style={{ width: "100%", maxWidth: 1200 }}>
-            <View
-              style={{
-                flexDirection: "row",
-                marginVertical: 10,
-                alignItems: "center",
-                gap: 10,
-              }}
-            >
-              {/* Product Registration Button */}
-              <Pressable
-                onHoverIn={() => setHoverRegister(true)}
-                onHoverOut={() => setHoverRegister(false)}
-                style={[
-                  styles.productRegistration_btn,
-                  isMobile && { width: "100%" },
-                ]}
-                onPress={() => router.push("/business/productRegistration")}
-              >
-                <Text style={styles.productRegistration_btnText}>
-                  Add Product
-                </Text>
-                <Ionicons name="bag-add-outline" size={22} color="#fff" />
-              </Pressable>
-            </View>
+          <View style={{ width: "100%", maxWidth: 1200, marginVertical: 10 }}>
             <FlatList
-              data={filteredProducts.slice(0, visibleCount)}
-              keyExtractor={(item) => item.id.toString()}
+              data={[
+                { __isAddButton: true },
+                ...filteredProducts.slice(0, visibleCount),
+              ]}
+              keyExtractor={(item) =>
+                item.__isAddButton ? "add-btn" : item.id.toString()
+              }
+              key="grid-4"
+              numColumns={4}
               scrollEnabled={false}
-              contentContainerStyle={{ paddingBottom: 20 }}
-              renderItem={({ item }) => (
-                <View style={styles.dashboard_productCard}>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      gap: 10,
-                    }}
-                  >
-                    {item.product_image && (
+              columnWrapperStyle={{ gap: 14, justifyContent: "flex-start" }}
+              contentContainerStyle={{ paddingBottom: 20, gap: 14 }}
+              renderItem={({ item }) => {
+                if (item.__isAddButton) {
+                  return (
+                    <Pressable
+                      onHoverIn={() => setHoverRegister(true)}
+                      onHoverOut={() => setHoverRegister(false)}
+                      onPress={() =>
+                        router.push("/business/optionRegistration")
+                      }
+                      style={styles.dashboard_addProductCard}
+                    >
+                      <Ionicons
+                        name="bag-add-outline"
+                        size={40}
+                        color="#4A70A9"
+                      />
+                      <Text style={styles.dashboard_addProductText}>
+                        Add Product
+                      </Text>
+                    </Pressable>
+                  );
+                }
+
+                return (
+                  <View style={styles.dashboard_productCard}>
+                    {/* Image */}
+                    {item.product_image ? (
                       <Image
                         source={{ uri: item.product_image }}
                         style={styles.dashboard_productImage}
                       />
+                    ) : (
+                      <View style={styles.dashboard_productImagePlaceholder}>
+                        <Ionicons
+                          name="image-outline"
+                          size={36}
+                          color="#b0bec5"
+                        />
+                      </View>
                     )}
 
-                    <View style={{ flex: 1 }}>
-                      <Text style={{ fontWeight: "bold", fontSize: 14 }}>
+                    {/* Info */}
+                    <View style={styles.dashboard_productCardBody}>
+                      <Text
+                        style={styles.dashboard_productCardName}
+                        numberOfLines={2}
+                      >
                         {item.name}
                       </Text>
+                      {item.status ? (
+                        <View style={styles.dashboard_productTypeBadge}>
+                          <Text style={styles.dashboard_productTypeText}>
+                            {item.status}
+                          </Text>
+                        </View>
+                      ) : null}
+                      {item.materials ? (
+                        <Text
+                          style={styles.dashboard_productMaterialText}
+                          numberOfLines={1}
+                        >
+                          {item.materials}
+                        </Text>
+                      ) : null}
                     </View>
 
+                    {/* View Button */}
                     <Pressable
                       onPress={() => openModal(item)}
                       style={styles.dashboard_viewButton}
                     >
-                      <Ionicons name="eye-outline" size={18} color="#000" />
+                      <Ionicons name="eye-outline" size={14} color="#fff" />
+                      <Text style={styles.dashboard_viewButtonText}>View</Text>
                     </Pressable>
                   </View>
-                </View>
-              )}
+                );
+              }}
             />
           </View>
 
@@ -2549,36 +2574,131 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     paddingHorizontal: 18,
-    borderWidth: 2,
-    borderColor: "#000",
+    borderWidth: 1,
+    backgroundColor: "#f9fafb",
     borderRadius: 32,
     fontFamily: "Garet-Book",
+    borderColor: "rgba(200, 210, 230, 0.6)",
+    shadowColor: "#1a2f5a",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.1,
+    shadowRadius: 24,
+  },
+
+  dashboard_addProductCard: {
+    width: "24%",
+    borderRadius: 18,
+    overflow: "hidden",
+    backgroundColor: "transparent",
+    shadowColor: "#1a2f5a",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 4,
+    borderWidth: 1.5,
+    borderColor: "#4A70A9",
+    borderStyle: "dashed",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: 200,
+    gap: 10,
+    cursor: "pointer",
+  },
+
+  dashboard_addProductText: {
+    color: "#4A70A9",
+    fontWeight: "700",
+    fontSize: 13,
+    fontFamily: "Montserrat-Regular",
   },
 
   dashboard_productCard: {
-    borderWidth: 2,
-    borderColor: "#000",
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 16,
-    width: "100%",
+    width: "24%",
+    borderRadius: 18,
+    overflow: "hidden",
+    backgroundColor: "#fff",
+    shadowColor: "#1a2f5a",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: "rgba(200, 210, 230, 0.5)",
   },
 
   dashboard_productImage: {
-    width: 70,
-    height: 70,
-    borderRadius: 10,
+    width: "100%",
+    height: 150,
     resizeMode: "cover",
   },
 
-  dashboard_viewButton: {
-    borderWidth: 2,
-    borderColor: "#000",
-    borderRadius: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+  dashboard_productImagePlaceholder: {
+    width: "100%",
+    height: 150,
+    backgroundColor: "#f0f4f8",
     alignItems: "center",
     justifyContent: "center",
+  },
+
+  dashboard_productCardBody: {
+    padding: 12,
+    paddingBottom: 8,
+  },
+
+  dashboard_productCardName: {
+    fontWeight: "700",
+    fontSize: 13,
+    fontFamily: "Montserrat-Regular",
+    color: "#1a2f5a",
+    marginBottom: 7,
+    lineHeight: 18,
+  },
+
+  dashboard_productTypeBadge: {
+    backgroundColor: "#c6e9c6c4",
+    paddingHorizontal: 9,
+    paddingVertical: 3,
+    borderRadius: 20,
+    alignSelf: "flex-start",
+    marginBottom: 5,
+  },
+
+  dashboard_productTypeText: {
+    fontSize: 11,
+    color: "#000",
+    fontFamily: "Montserrat-Regular",
+    fontWeight: "400",
+  },
+
+  dashboard_productMaterialText: {
+    fontSize: 11,
+    backgroundColor: "#eef2ff",
+    borderRadius: 20,
+    paddingHorizontal: 9,
+    alignSelf: "flex-start",
+    paddingVertical: 3,
+    color: "#4A70A9",
+    fontFamily: "Montserrat-Regular",
+    marginTop: 2,
+  },
+
+  dashboard_viewButton: {
+    backgroundColor: "#4A70A9",
+    margin: 12,
+    marginTop: 8,
+    paddingVertical: 9,
+    borderRadius: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+  },
+
+  dashboard_viewButtonText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "700",
+    fontFamily: "Montserrat-Regular",
   },
 
   dashboard_modalOverlay: {
@@ -2598,7 +2718,7 @@ const styles = StyleSheet.create({
     maxHeight: "85%",
   },
   dashboard_welcomeText: {
-    fontFamily: "Garet-Book",
+    fontFamily: "Garet-Heavy",
     color: "#2a323c",
     fontSize: 40,
     textAlign: "left",
@@ -2606,10 +2726,10 @@ const styles = StyleSheet.create({
   },
   dashboard_welcomeBusinessText: {
     fontSize: 40,
-    fontFamily: "Garet-Book",
+    fontFamily: "Garet-Heavy",
     color: "#4A70A9",
     textAlign: "left",
-    marginTop: 5,
+    marginTop: 1,
     fontWeight: "600",
   },
   dashboard_headerText: {
@@ -2618,6 +2738,7 @@ const styles = StyleSheet.create({
     color: "#2a323c",
     letterSpacing: 1,
     textAlign: "left",
+    fontWeight: "600",
   },
   searchProducts_container: {
     width: "100%",
@@ -3100,13 +3221,14 @@ const styles = StyleSheet.create({
     maxWidth: 1200,
     width: "100%",
     gap: 10,
+    marginVertical: 5,
   },
 
   summaryCard: {
     flex: 1,
     backgroundColor: "#f9fafb",
     borderRadius: 30,
-    padding: 20,
+    padding: 10,
     alignItems: "flex-start",
     flexDirection: "row",
     borderColor: "rgba(200, 210, 230, 0.6)",
@@ -3124,7 +3246,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ede9fe",
     padding: 8,
     borderRadius: 10,
-    marginBottom: 10,
+    margin: 5,
   },
   summaryTextContainer: {
     flexDirection: "column",
@@ -3138,7 +3260,7 @@ const styles = StyleSheet.create({
   },
 
   summaryCardTitle: {
-    fontSize: 22,
+    fontSize: 20,
     fontFamily: "Garet-Book",
     fontWeight: "600",
     color: "#111827",

@@ -3,17 +3,12 @@ import axios from "axios";
 import { useFonts } from "expo-font";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import { useWindowDimensions } from "react-native";
 import {
   ActivityIndicator,
   Alert,
   Animated,
-  Pressable,
-  Text,
-  TextInput,
-  View,
-  ScrollView,
-  StyleSheet
+  Pressable, StyleSheet, Text,
+  TextInput, useWindowDimensions, View
 } from "react-native";
 
 const OTP_LENGTH = 6;
@@ -31,7 +26,6 @@ export default function OtpScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [isResendLoadingOtp, setIsResendLoadingOtp] = useState(false);
 
- 
   const blinkAnim = useRef(new Animated.Value(1)).current;
 
   const shakeAnim = useRef(new Animated.Value(0)).current;
@@ -80,7 +74,7 @@ export default function OtpScreen() {
           duration: 500,
           useNativeDriver: true,
         }),
-      ])
+      ]),
     ).start();
   }, []);
 
@@ -94,7 +88,7 @@ export default function OtpScreen() {
     try {
       const response = await axios.post(
         "https://verilocalph.onrender.com/api/verify-otp",
-        { email, otp }
+        { email, otp },
       );
 
       const { token, business } = response.data;
@@ -118,7 +112,7 @@ export default function OtpScreen() {
 
       setIsOtpError(true);
       setErrorMessage(
-        error.response?.data?.message || "Invalid or expired OTP"
+        error.response?.data?.message || "Invalid or expired OTP",
       );
 
       triggerShake();
@@ -132,15 +126,15 @@ export default function OtpScreen() {
       setIsResendLoadingOtp(true);
       setIsOtpError(false);
       setErrorMessage("");
-      await axios.post("https://verilocalph.onrender.com/api/resend-otp", { email });
+      await axios.post("https://verilocalph.onrender.com/api/resend-otp", {
+        email,
+      });
       Alert.alert("OTP resent successfully!");
     } catch (error) {
       console.error(error.response?.data || error.message);
 
       setIsOtpError(true);
-      setErrorMessage(
-        error.response?.data?.message || "Failed to resend OTP"
-      );
+      setErrorMessage(error.response?.data?.message || "Failed to resend OTP");
     } finally {
       setIsResendLoadingOtp(false);
     }
@@ -157,106 +151,101 @@ export default function OtpScreen() {
   });
 
   return (
-      <View style={styles.desktop_mainContainer}>
-        <BackButton fallback="/login-business" forceFallback />
+    <View style={styles.desktop_mainContainer}>
+      <View style={styles.desktop_otpCard}>
+        <Text style={styles.desktop_otpTitle}>OTP Verification</Text>
 
-        <View style={styles.desktop_otpCard}>
-          <Text style={styles.desktop_otpTitle}>
-            OTP Verification
-          </Text>
+        <Text style={styles.desktop_otpDescription}>
+          Please enter the OTP (One-Time Password) sent to your registered email
+          address ({email}) to complete your verifcation.
+        </Text>
 
-          <Text style={styles.desktop_otpDescription}>
-            Please enter the OTP (One-Time Password) sent to your registered
-            email address ({email}) to complete your verifcation.
-          </Text>
-
-          {/* Hidden Input */}
-          <TextInput
-            ref={inputRef}
-            value={otp}
-            onChangeText={(text) => {
-              if (/^\d*$/.test(text) && text.length <= OTP_LENGTH) {
-                setOtp(text);
-                if (isOtpError) {
-                  setIsOtpError(false);
-                  setErrorMessage("");
-                }
+        {/* Hidden Input */}
+        <TextInput
+          ref={inputRef}
+          value={otp}
+          onChangeText={(text) => {
+            if (/^\d*$/.test(text) && text.length <= OTP_LENGTH) {
+              setOtp(text);
+              if (isOtpError) {
+                setIsOtpError(false);
+                setErrorMessage("");
               }
-            }}
-            keyboardType="number-pad"
-            maxLength={OTP_LENGTH}
-            autoFocus
-            style={styles.desktop_hiddenInput}
-          />
+            }
+          }}
+          keyboardType="number-pad"
+          maxLength={OTP_LENGTH}
+          autoFocus
+          style={styles.desktop_hiddenInput}
+        />
 
-          {/* OTP Boxes with Cursor Indicator */}
-          <Animated.View
-            style={[
-              styles.desktop_otpBoxesContainer,
-              { transform: [{ translateX: shakeAnim }] }
-            ]}
+        {/* OTP Boxes with Cursor Indicator */}
+        <Animated.View
+          style={[
+            styles.desktop_otpBoxesContainer,
+            { transform: [{ translateX: shakeAnim }] },
+          ]}
+        >
+          <Pressable
+            onPress={() => inputRef.current.focus()}
+            style={styles.desktop_otpRow}
           >
-            <Pressable
-              onPress={() => inputRef.current.focus()}
-              style={styles.desktop_otpRow}
-            >
-              {Array.from({ length: OTP_LENGTH }).map((_, index) => {
-                const isActive =
-                  index === otp.length && otp.length < OTP_LENGTH;
-                const isFilled = Boolean(otp[index]);
+            {Array.from({ length: OTP_LENGTH }).map((_, index) => {
+              const isActive = index === otp.length && otp.length < OTP_LENGTH;
+              const isFilled = Boolean(otp[index]);
 
-                return (
-                  <View
-                    key={index}
-                    style={{
-                      width: isMobile ? 50 : 52,
-                      height: 60,
-                      borderWidth: 1.5,
-                      borderRadius: 10,
-                      borderColor: isOtpError
-                        ? "#ff3b30"
-                        : isActive
+              return (
+                <View
+                  key={index}
+                  style={{
+                    width: isMobile ? 50 : 52,
+                    height: 60,
+                    borderWidth: 1.5,
+                    borderRadius: 10,
+                    borderColor: isOtpError
+                      ? "#ff3b30"
+                      : isActive
                         ? "#5177b0"
                         : isFilled
-                        ? "#5177b0"
-                        : "#ccc",
-                      overflow: "hidden",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    {isActive ? (
-                      <Animated.View
-                        style={{
-                          width: 2,
-                          height: 24,
-                          backgroundColor: "#5177b0",
-                          opacity: blinkAnim,
-                        }}
-                      />
-                    ) : (
-                      <Text style={{ fontSize: 22, fontWeight: "600" }}>
-                        {otp[index] || ""}
-                      </Text>
-                    )}
-                  </View>
-                );
-              })}
-            </Pressable>
+                          ? "#5177b0"
+                          : "#ccc",
+                    overflow: "hidden",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  {isActive ? (
+                    <Animated.View
+                      style={{
+                        width: 2,
+                        height: 24,
+                        backgroundColor: "#5177b0",
+                        opacity: blinkAnim,
+                      }}
+                    />
+                  ) : (
+                    <Text style={{ fontSize: 22, fontWeight: "600" }}>
+                      {otp[index] || ""}
+                    </Text>
+                  )}
+                </View>
+              );
+            })}
+          </Pressable>
 
-            {isOtpError && (
-              <Text
-                style={{
-                  color: "#ff3b30",
-                  marginVertical: 6,
-                  textAlign: "center",
-                  fontSize: 12,
-                }}
-              >
-                {errorMessage}
-              </Text>
-            )}
-          </Animated.View>
+          {isOtpError && (
+            <Text
+              style={{
+                color: "#ff3b30",
+                marginVertical: 6,
+                textAlign: "center",
+                fontSize: 12,
+              }}
+            >
+              {errorMessage}
+            </Text>
+          )}
+        </Animated.View>
 
         {/* Verify Button */}
         <Pressable
@@ -264,21 +253,19 @@ export default function OtpScreen() {
           disabled={otp.length !== OTP_LENGTH}
           style={styles.desktop_verifyButton}
         >
-          <Text style={styles.desktop_verifyButtonText}>
-            Verify OTP
-          </Text>
+          <Text style={styles.desktop_verifyButtonText}>Verify OTP</Text>
         </Pressable>
 
         {/* Resend */}
-        <Pressable onPress={resendOtp} disabled={isResendLoadingOtp}
-        style={styles.desktop_resendButton}>
+        <Pressable
+          onPress={resendOtp}
+          disabled={isResendLoadingOtp}
+          style={styles.desktop_resendButton}
+        >
           {isResendLoadingOtp ? (
             <ActivityIndicator size="small" color="#5177b0" />
-
           ) : (
-            <Text style={styles.desktop_resendText}>
-              Resend OTP
-            </Text>
+            <Text style={styles.desktop_resendText}>Resend OTP</Text>
           )}
         </Pressable>
         <Text style={styles.desktop_expirationText}>
@@ -292,13 +279,12 @@ export default function OtpScreen() {
             <Text style={{ marginTop: 10 }}>Logging in...</Text>
           </View>
         </View>
-      )}  
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-
   desktop_mainContainer: {
     flex: 1,
     justifyContent: "center",
@@ -401,5 +387,4 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
   },
-
 });

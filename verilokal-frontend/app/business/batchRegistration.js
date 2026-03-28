@@ -8,19 +8,19 @@ import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Animated,
-  Dimensions,
-  Easing,
-  Image,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
+    ActivityIndicator,
+    Alert,
+    Animated,
+    Dimensions,
+    Easing,
+    Image,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
 } from "react-native";
 
 //REGISTER PRODUCT
@@ -602,7 +602,15 @@ export default function RegisterProduct() {
                 </View>
 
                 <View style={[styles.col, isMobile && { width: "100%" }]}>
-                  <Text style={[styles.label, { marginTop: -5 }]}>
+                  <Text style={styles.label}>Quantity*</Text>
+                  <InputField
+                    label="Product Quantity"
+                    value={form.name}
+                    onChange={(v) => handleInputChange("name", v)}
+                    maxLength={50}
+                    error={errors.name}
+                  />
+                  <Text style={[styles.label, { marginTop: 0 }]}>
                     Production Date* (Start to End)
                   </Text>
                   {Platform.OS === "web" ? (
@@ -989,6 +997,14 @@ export default function RegisterProduct() {
                 </View>
 
                 <View style={[styles.col, isMobile && { minWidth: "100%" }]}>
+                  <Text style={styles.label}>Quantity*</Text>
+                  <InputField
+                    label="Product Quantity"
+                    value={form.name}
+                    onChange={(v) => handleInputChange("name", v)}
+                    maxLength={50}
+                    error={errors.name}
+                  />
                   <Text style={styles.label}>
                     Production Date* (Start to End)
                   </Text>
