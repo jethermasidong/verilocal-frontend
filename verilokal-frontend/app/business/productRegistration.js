@@ -8,19 +8,19 @@ import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Animated,
-  Dimensions,
-  Easing,
-  Image,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
+    ActivityIndicator,
+    Alert,
+    Animated,
+    Dimensions,
+    Easing,
+    Image,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
 } from "react-native";
 
 //REGISTER PRODUCT
@@ -36,6 +36,8 @@ export default function RegisterProduct() {
     description: "",
     productImage: null,
     processImages: [],
+    quantity: "",
+    current_owner: "",
   });
 
   //FONTS
@@ -274,6 +276,8 @@ export default function RegisterProduct() {
     if (!form.type) newErrors.type = "Product type is required";
     if (!form.materials) newErrors.materials = "Materials are required";
     if (!form.origin) newErrors.origin = "Origin is required";
+    if (!form.current_owner) newErrors.current_owner = "Current Owner is Required";
+     if (!form.quantity) newErrors.quantity = "Quantity is Required";
     if (!form.productionDate)
       newErrors.productionDate = "Start and Finish Date are required";
     if (!form.description) newErrors.description = "Description required";
@@ -335,6 +339,8 @@ export default function RegisterProduct() {
         description: "",
         productImage: null,
         processImages: [],
+        quantity: "",
+        current_owner: "",
       });
     } catch (error) {
       const serverMessage =
@@ -594,15 +600,23 @@ export default function RegisterProduct() {
                   <Text style={styles.label}>Current Owner*</Text>
                   <InputField
                     label="Current Owner"
-                    value={form.name}
-                    onChange={(v) => handleInputChange("name", v)}
+                    value={form.current_owner}
+                    onChange={(v) => handleInputChange("current_owner", v)}
                     maxLength={50}
-                    error={errors.name}
+                    error={errors.current_owner}
                   />
                 </View>
 
                 <View style={[styles.col, isMobile && { width: "100%" }]}>
-                  <Text style={[styles.label, { marginTop: -5 }]}>
+                  <Text style={styles.label}>Quantity*</Text>
+                  <InputField
+                    label="Product Quantity"
+                    value={form.quantity}
+                    onChange={(v) => handleInputChange("quantity", v)}
+                    maxLength={50}
+                    error={errors.quantity}
+                  />
+                  <Text style={[styles.label, { marginTop: 0 }]}>
                     Production Date* (Start to End)
                   </Text>
                   {Platform.OS === "web" ? (
@@ -981,14 +995,22 @@ export default function RegisterProduct() {
                   <Text style={styles.label}>Current Owner*</Text>
                   <InputField
                     label="Current Owner"
-                    value={form.name}
-                    onChange={(v) => handleInputChange("name", v)}
+                    value={form.current_owner}
+                    onChange={(v) => handleInputChange("current_owner", v)}
                     maxLength={50}
-                    error={errors.name}
+                    error={errors.current_owner}
                   />
                 </View>
 
                 <View style={[styles.col, isMobile && { minWidth: "100%" }]}>
+                  <Text style={styles.label}>Quantity*</Text>
+                  <InputField
+                    label="Product Quantity"
+                    value={form.quantity}
+                    onChange={(v) => handleInputChange("quantity", v)}
+                    maxLength={50}
+                    error={errors.quantity}
+                  />
                   <Text style={styles.label}>
                     Production Date* (Start to End)
                   </Text>

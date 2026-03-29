@@ -77,6 +77,7 @@ export default function BusinessDashboard() {
   //Filter and Report Generation Animation
   const hoverAnimReport = useRef(new Animated.Value(0)).current;
   const hoverAnimFilter = useRef(new Animated.Value(0)).current;
+  const hoverAnimTransfer = useRef(new Animated.Value(0)).current;
 
   //Loading State
   const [isLoading, setIsLoading] = useState(false);
@@ -145,6 +146,20 @@ export default function BusinessDashboard() {
       useNativeDriver: true,
     }).start();
   };
+
+  const onHoverIn2 = () => {
+    Animated.spring(hoverAnimTransfer, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
+  const onHoverOut2 = () => {
+    Animated.spring(hoverAnimTransfer, {
+      toValue: 0,
+      useNativeDriver: true,
+    }).start();
+  };
+
 
   const [windowWidth, setWindowWidth] = useState(
     Dimensions.get("window").width,
@@ -1100,6 +1115,32 @@ export default function BusinessDashboard() {
                   )}
                 </Pressable>
               </Animated.View>
+
+              <Animated.View
+                style={{
+                  transform: [
+                    {
+                      translateY: hoverAnimTransfer.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, -6],
+                      }),
+                    },
+                  ],
+                }}
+              >
+                <Pressable
+                  onHoverIn={onHoverIn2}
+                  onHoverOut={onHoverOut2}
+                  style={styles.filterProducts_btn}
+                  onPress={() => router.push('/business/transferOwnership')}
+                >
+                  <Ionicons name="swap-horizontal-outline" size={30} />
+                  {!isMobile && onHoverIn2 && (
+                    <Text style={styles.hoverText}>Transfer Ownership</Text>
+                  )}
+                </Pressable>
+              </Animated.View>
+
             </View>
           </View>
           {/* Welcome Section */}
@@ -1138,10 +1179,10 @@ export default function BusinessDashboard() {
                 <View
                   style={[
                     styles.summaryIconBox,
-                    { backgroundColor: "#F8EBE6" },
+                    { backgroundColor: "#d8e2f0" },
                   ]}
                 >
-                  <Ionicons name="cube-outline" size={24} color="#B85C38" />
+                  <Ionicons name="cube-outline" size={24} color="#3C6CB4" />
                 </View>
                 <View style={styles.summaryTextContainer}>
                   <Text style={styles.summaryCardTitle}>Total Products</Text>
@@ -1152,46 +1193,65 @@ export default function BusinessDashboard() {
               </View>
             </View>
 
-            {/* Product Type Card */}
+            {/* Registered Card */}
             <View style={styles.summaryCard}>
               <View style={styles.summaryCardContent}>
                 <View
                   style={[
                     styles.summaryIconBox,
-                    { backgroundColor: "#FDF4E6" },
+                    { backgroundColor: "#e8f5e4" },
                   ]}
                 >
-                  <Ionicons name="grid-outline" size={24} color="#D49A36" />
+                  <Ionicons name="checkmark-circle-outline" size={24} color="#8acc78" />
                 </View>
                 <View style={styles.summaryTextContainer}>
-                  <Text style={styles.summaryCardTitle}>Product Types</Text>
+                  <Text style={styles.summaryCardTitle}>Registered</Text>
                   <Text style={styles.summaryProgress}>
-                    {[...new Set(products.map((p) => p.type))].length} Items
+                    {products.filter((p) => p.status === 'approved').length} Items
                   </Text>
                 </View>
               </View>
             </View>
 
-            {/* Materials Card */}
+            {/* Pending Card */}
             <View style={styles.summaryCard}>
               <View style={styles.summaryCardContent}>
                 <View
                   style={[
                     styles.summaryIconBox,
-                    { backgroundColor: "#E8F1EC" },
+                    { backgroundColor: "#f3f3dc" },
+                  ]}
+                >
+                  <Ionicons name="reload-circle-outline" size={24} color="#c4c251" />
+                </View>
+                <View style={styles.summaryTextContainer}>
+                  <Text style={styles.summaryCardTitle}>Pending</Text>
+                  <Text style={styles.summaryProgress}>
+                    {products.filter((p) => p.status === 'pending').length} Items
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Failed Card */}
+            <View style={styles.summaryCard}>
+              <View style={styles.summaryCardContent}>
+                <View
+                  style={[
+                    styles.summaryIconBox,
+                    { backgroundColor: "#faf0ef" },
                   ]}
                 >
                   <Ionicons
-                    name="construct-outline"
+                    name="alert-outline"
                     size={24}
-                    color="#457B5D"
+                    color="#c74242"
                   />
                 </View>
                 <View style={styles.summaryTextContainer}>
-                  <Text style={styles.summaryCardTitle}>Materials</Text>
+                  <Text style={styles.summaryCardTitle}>Failed</Text>
                   <Text style={styles.summaryProgress}>
-                    {[...new Set(products.map((p) => p.materials))].length}{" "}
-                    Items
+                    {products.filter((p) => p.status === 'failed').length} Items
                   </Text>
                 </View>
               </View>
@@ -1220,7 +1280,7 @@ export default function BusinessDashboard() {
                       onHoverIn={() => setHoverRegister(true)}
                       onHoverOut={() => setHoverRegister(false)}
                       onPress={() =>
-                        router.push("/business/optionRegistration")
+                        router.push("/business/productRegistration")
                       }
                       style={styles.dashboard_addProductCard}
                     >
@@ -1263,7 +1323,10 @@ export default function BusinessDashboard() {
                         {item.name}
                       </Text>
                       {item.status ? (
-                        <View style={styles.dashboard_productTypeBadge}>
+                        <View style={[styles.dashboard_productTypeBadge, {
+                           backgroundColor: item.status === 'registered' ? '#e8f5e4' :
+                                  item.status === 'failed' ? '#faf0ef' : '#f3f3dc'
+                        }]}>
                           <Text style={styles.dashboard_productTypeText}>
                             {item.status}
                           </Text>
@@ -2655,7 +2718,6 @@ const styles = StyleSheet.create({
   },
 
   dashboard_productTypeBadge: {
-    backgroundColor: "#c6e9c6c4",
     paddingHorizontal: 9,
     paddingVertical: 3,
     borderRadius: 20,
