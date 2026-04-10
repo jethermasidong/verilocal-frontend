@@ -333,7 +333,7 @@ export default function BusinessDashboard() {
     setModalVisible(true);
   };
 
-  const updateProduct = async (id) => {
+  const updateProduct = async (uid) => {
     setIsLoading(true);
     try {
       const token = await AsyncStorage.getItem("token");
@@ -354,13 +354,13 @@ export default function BusinessDashboard() {
         if (Platform.OS === "web") {
           const response = await fetch(editProductImage);
           const blob = await response.blob();
-          formData.append("product_image", blob, `product_${id}.jpg`);
+          formData.append("product_image", blob, `product_${uid}.jpg`);
         } else {
           const uriParts = editProductImage.split(".");
           const fileType = uriParts[uriParts.length - 1];
           formData.append("product_image", {
             uri: editProductImage,
-            name: `product_${id}.${fileType}`,
+            name: `product_${uid}.${fileType}`,
             type: `image/${fileType}`,
           });
         }
@@ -398,11 +398,12 @@ export default function BusinessDashboard() {
       }
 
       const res = await axios.put(
-        `https://verilocalph.onrender.com/api/products/${id}`,
+        `https://verilocalph.onrender.com/api/products/${uid}`,
         formData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
           },
         },
       );
@@ -1324,7 +1325,7 @@ export default function BusinessDashboard() {
                       </Text>
                       {item.status ? (
                         <View style={[styles.dashboard_productTypeBadge, {
-                           backgroundColor: item.status === 'registered' ? '#e8f5e4' :
+                           backgroundColor: item.status === 'approved' ? '#e8f5e4' :
                                   item.status === 'failed' ? '#faf0ef' : '#f3f3dc'
                         }]}>
                           <Text style={styles.dashboard_productTypeText}>
@@ -1807,7 +1808,7 @@ export default function BusinessDashboard() {
                           <Pressable
                             onPress={() =>
                               Linking.openURL(
-                                `https://eth-sepolia.blockscout.com/tx/${selectedProduct.tx_hash}`,
+                                `https://sepolia.etherscan.io//tx/${selectedProduct.tx_hash}`,
                               )
                             }
                             style={styles.viewBlockchainButton}
@@ -2322,7 +2323,7 @@ export default function BusinessDashboard() {
                     <Pressable
                       onPress={() => {
                         if (validateForm()) {
-                          if (selectedProduct?.id) {
+                          if (selectedProduct?.uid) {
                             setShowSaveModal(true);
                           } else {
                             alert("No product selected!");
@@ -2382,7 +2383,7 @@ export default function BusinessDashboard() {
                           style={styles.confirm_Button}
                           onPress={() => {
                             setShowSaveModal(false);
-                            updateProduct(selectedProduct.id);
+                            updateProduct(selectedProduct.uid);
                           }}
                         >
                           <Text style={styles.confirm_deleteText}>Confirm</Text>

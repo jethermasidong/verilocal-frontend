@@ -1,11 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
-import { faFileUpload } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFileUpload } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useFonts } from "expo-font";
-import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
+import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -20,7 +20,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  View
+  View,
 } from "react-native";
 
 export default function RegisterBusiness() {
@@ -46,29 +46,28 @@ export default function RegisterBusiness() {
   const [isLoading, setIsLoading] = useState(false);
   const [submitting, setIsSubmitting] = useState(false);
 
-  
   const loadGooglePlaces = () =>
-  new Promise((resolve, reject) => {
-    if (
-      window.google?.maps?.places ||
-      document.querySelector('script[src*="maps.googleapis.com/maps/api/js"]')
-    ) {
-      resolve();
-      return;
-    }
+    new Promise((resolve, reject) => {
+      if (
+        window.google?.maps?.places ||
+        document.querySelector('script[src*="maps.googleapis.com/maps/api/js"]')
+      ) {
+        resolve();
+        return;
+      }
 
-    const script = document.createElement("script");
-    script.src =
-      "https://maps.googleapis.com/maps/api/js?key=AIzaSyA493-QTAo8nnU_qzSNEXhc5sQDINRz2TU&libraries=places";
-    script.async = true;
-    script.defer = true;
-    script.onload = resolve;
-    script.onerror = reject;
+      const script = document.createElement("script");
+      script.src =
+        "https://maps.googleapis.com/maps/api/js?key=AIzaSyA493-QTAo8nnU_qzSNEXhc5sQDINRz2TU&libraries=places";
+      script.async = true;
+      script.defer = true;
+      script.onload = resolve;
+      script.onerror = reject;
 
-    document.head.appendChild(script);
-  });
+      document.head.appendChild(script);
+    });
   const addressInputRef = useRef(null);
-  const autocompleteRef = useRef(null); 
+  const autocompleteRef = useRef(null);
 
   const pickImage = async (setter) => {
     try {
@@ -108,35 +107,35 @@ export default function RegisterBusiness() {
   };
 
   const multipleImages = async () => {
-      try {
-        const result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          allowsMultipleSelection: true,
-          quality: 1,
-        });
-  
-        if (!result.canceled) {
-          const selectedImages = await Promise.all(
-            result.assets.map(async (asset) => {
-              const response = await fetch(asset.uri);
-              const blob = await response.blob();
-  
-              return {
-                uri: asset.uri,
-                name: asset.fileName || `certificates${Date.now()}.jpg`,
-                type: asset.mimeType || "image/jpeg",
-                file: blob, 
-              };
-            })
-          );
-  
-          setCertificates(prev => [...prev, ...selectedImages]);
-        }
-      } catch (err) {
-        console.error(err);
-        Alert.alert("Error selecting images");
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsMultipleSelection: true,
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        const selectedImages = await Promise.all(
+          result.assets.map(async (asset) => {
+            const response = await fetch(asset.uri);
+            const blob = await response.blob();
+
+            return {
+              uri: asset.uri,
+              name: asset.fileName || `certificates${Date.now()}.jpg`,
+              type: asset.mimeType || "image/jpeg",
+              file: blob,
+            };
+          }),
+        );
+
+        setCertificates((prev) => [...prev, ...selectedImages]);
       }
-    };
+    } catch (err) {
+      console.error(err);
+      Alert.alert("Error selecting images");
+    }
+  };
 
   useEffect(() => {
     const resize = () => {
@@ -168,21 +167,25 @@ export default function RegisterBusiness() {
 
     if (!password) e.password = "Password is required";
     else {
-      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+=[\]{};':"\\|,.<>/?~-]{8,}$/;
+      const passwordRegex =
+        /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+=[\]{};':"\\|,.<>/?~-]{8,}$/;
       if (!passwordRegex.test(password)) {
-        e.password = "Password must be at least 8 characters long and include at least one letter & number"
+        e.password =
+          "Password must be at least 8 characters long and include at least one letter & number";
       }
     }
 
     if (!address) e.address = "Address is required";
-    if (!contact_no) { 
+    if (!contact_no) {
       e.contact_no = "Contact number is required";
     } else if (!/^09\d{9}$/.test(contact_no)) {
-      e.contact_no = "Enter a valid 11-digit Philippine mobile number starting with 09";
+      e.contact_no =
+        "Enter a valid 11-digit Philippine mobile number starting with 09";
     }
     if (!description) e.description = "Description is required";
     if (!permit) e.permit = "Permit is required";
-    if (!certificates || certificates.length === 0) e.certificates = "Certificate is required";
+    if (!certificates || certificates.length === 0)
+      e.certificates = "Certificate is required";
     return e;
   };
 
@@ -197,7 +200,6 @@ export default function RegisterBusiness() {
     setShowConsentModal(true);
   };
 
- 
   const handleConfirmConsent = async () => {
     setConsent(true);
     setShowConsentModal(false);
@@ -230,11 +232,16 @@ export default function RegisterBusiness() {
       const appendFile = (key, file) => {
         if (!file) return;
         if (Platform.OS === "web") formData.append(key, file.file, file.name);
-        else formData.append(key, { uri: file.uri, name: file.name, type: file.type });
+        else
+          formData.append(key, {
+            uri: file.uri,
+            name: file.name,
+            type: file.type,
+          });
       };
 
       appendFile("permit", permit);
-      certificates.forEach(file => {
+      certificates.forEach((file) => {
         if (Platform.OS === "web") {
           formData.append("certificates", file.file, file.name);
         } else {
@@ -247,38 +254,52 @@ export default function RegisterBusiness() {
       });
       appendFile("logo", logo);
 
-      await axios.post("https://verilocalph.onrender.com/api/business", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
+      await axios.post(
+        "https://verilocalph.onrender.com/api/business",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
-      
-      setResultType("success");
-      setResultMessage("Your business registration has been submitted successfully.");
-      setResultVisible(true);
-      setName(""); setBusinessName(""); setAddress(""); setDescription("");
-      setPermit(null); setCertificates([]); setLogo(null);
-      setEmail(""); setPassword(""); setContactNo(""); setSocialLink(""); setErrors({}); setConsent(false);
+      );
 
+      setResultType("success");
+      setResultMessage(
+        "Your business registration has been submitted successfully.",
+      );
+      setResultVisible(true);
+      setName("");
+      setBusinessName("");
+      setAddress("");
+      setDescription("");
+      setPermit(null);
+      setCertificates([]);
+      setLogo(null);
+      setEmail("");
+      setPassword("");
+      setContactNo("");
+      setSocialLink("");
+      setErrors({});
+      setConsent(false);
     } catch (error) {
       const serverMessage =
-        error.response?.data?.message ||
-        "Submission failed. Please try again.";
+        error.response?.data?.message || "Submission failed. Please try again.";
 
       setResultType("error");
       setResultMessage(serverMessage);
       setResultVisible(true);
 
       if (serverMessage.toLowerCase().includes("email")) {
-        setErrors(prev => ({
+        setErrors((prev) => ({
           ...prev,
           email: "This email is already registered!",
         }));
       }
 
       if (serverMessage.toLowerCase().includes("registered_business_name")) {
-        setErrors(prev => ({
+        setErrors((prev) => ({
           ...prev,
           business_name: "This business name is already taken!",
         }));
@@ -289,13 +310,13 @@ export default function RegisterBusiness() {
   };
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(20)).current; 
-  
+  const slideAnim = useRef(new Animated.Value(20)).current;
+
   const [fontsLoaded] = useFonts({
     "Montserrat-Regular": require("../../assets/fonts/Montserrat/static/Montserrat-Regular.ttf"),
     "Montserrat-Bold": require("../../assets/fonts/Montserrat/static/Montserrat-Bold.ttf"),
   });
-  
+
   if (!fontsLoaded) return null;
 
   useEffect(() => {
@@ -306,14 +327,13 @@ export default function RegisterBusiness() {
     loadGooglePlaces().then(() => {
       if (!addressInputRef.current) return;
 
-      autocompleteRef.current =
-        new window.google.maps.places.Autocomplete(
-          addressInputRef.current,
-          {
-            types: ["address"],
-            componentRestrictions: { country: "ph" },
-          }
-        );
+      autocompleteRef.current = new window.google.maps.places.Autocomplete(
+        addressInputRef.current,
+        {
+          types: ["address"],
+          componentRestrictions: { country: "ph" },
+        },
+      );
 
       listener = autocompleteRef.current.addListener("place_changed", () => {
         const place = autocompleteRef.current.getPlace();
@@ -328,140 +348,182 @@ export default function RegisterBusiness() {
   }, []);
 
   useEffect(() => {
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }, []);
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
-    useEffect(() => {
-      if (resultVisible) {
+  useEffect(() => {
+    if (resultVisible) {
+      if (resultType === "success") {
+        scaleAnim.setValue(0.8);
+        opacityAnim.setValue(0);
 
-        if (resultType === "success") {
-          scaleAnim.setValue(0.8);
-          opacityAnim.setValue(0);
-
-          Animated.parallel([
-            Animated.timing(scaleAnim, {
-              toValue: 1,
-              duration: 350,
-              easing: Easing.out(Easing.ease),
-              useNativeDriver: true,
-            }),
-            Animated.timing(opacityAnim, {
-              toValue: 1,
-              duration: 300,
-              useNativeDriver: true,
-            }),
-          ]).start();
-        }
-
-        if (resultType === "error") {
-          opacityAnim.setValue(0);
-          shakeAnim.setValue(0);
-
-          Animated.sequence([
-            Animated.timing(opacityAnim, {
-              toValue: 1,
-              duration: 200,
-              useNativeDriver: true,
-            }),
-            Animated.timing(shakeAnim, { toValue: 10, duration: 50, useNativeDriver: true }),
-            Animated.timing(shakeAnim, { toValue: -10, duration: 50, useNativeDriver: true }),
-            Animated.timing(shakeAnim, { toValue: 6, duration: 50, useNativeDriver: true }),
-            Animated.timing(shakeAnim, { toValue: -6, duration: 50, useNativeDriver: true }),
-            Animated.timing(shakeAnim, { toValue: 0, duration: 50, useNativeDriver: true }),
-          ]).start();
-        }
+        Animated.parallel([
+          Animated.timing(scaleAnim, {
+            toValue: 1,
+            duration: 350,
+            easing: Easing.out(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.timing(opacityAnim, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+        ]).start();
       }
-    }, [resultVisible, resultType]);
+
+      if (resultType === "error") {
+        opacityAnim.setValue(0);
+        shakeAnim.setValue(0);
+
+        Animated.sequence([
+          Animated.timing(opacityAnim, {
+            toValue: 1,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+          Animated.timing(shakeAnim, {
+            toValue: 10,
+            duration: 50,
+            useNativeDriver: true,
+          }),
+          Animated.timing(shakeAnim, {
+            toValue: -10,
+            duration: 50,
+            useNativeDriver: true,
+          }),
+          Animated.timing(shakeAnim, {
+            toValue: 6,
+            duration: 50,
+            useNativeDriver: true,
+          }),
+          Animated.timing(shakeAnim, {
+            toValue: -6,
+            duration: 50,
+            useNativeDriver: true,
+          }),
+          Animated.timing(shakeAnim, {
+            toValue: 0,
+            duration: 50,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      }
+    }
+  }, [resultVisible, resultType]);
 
   return (
-    <Animated.View style = 
-      {{ 
+    <Animated.View
+      style={{
         opacity: fadeAnim,
         flex: 1,
         transform: [{ translateY: slideAnim }],
-      }}>
-    <ScrollView
-      keyboardShouldPersistTaps="handled"
-      style={{ flex: 1, marginTop: 100,  }}
-      contentContainerStyle={{ alignItems: "center", paddingVertical: 20 }}
+      }}
     >
-      <View style={[styles.card, isMobile && { flexDirection: "column" }]}>
-        {/* LEFT IMAGE */}
-        <View style={[styles.leftPanel, isMobile && { width: "100%", height: 200, }]}>
-          <Image
-            source={isMobile ? require("../../assets/images/mobile.png") : require("../../assets/business.png")}
-            style={styles.leftImage}
-            resizeMode={isMobile ? "cover" : "wrap"}
-          />
-        </View>
-
-        {/* RIGHT FORM */}
-        <View style={[styles.rightPanel, isMobile && { width: "100%" }]}>
-          <View style=
-          {{flexDirection: 'row', 
-            justifyContent: 'space-between', 
-            alignItems: 'center', 
-            paddingHorizontal: 16, 
-            width: '100%'}}>
-          <View style={{flexDirection: 'column'}}>
-            <Text style={styles.title}>Create An Account</Text>
-            <Text style={styles.subtitle}>Sign up to be part of our community</Text>
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        style={{ flex: 1, marginTop: 100 }}
+        contentContainerStyle={{ alignItems: "center", paddingVertical: 20 }}
+      >
+        <View style={[styles.card, isMobile && { flexDirection: "column" }]}>
+          {/* LEFT IMAGE */}
+          <View
+            style={[
+              styles.leftPanel,
+              isMobile && { width: "100%", height: 200 },
+            ]}
+          >
+            <Image
+              source={
+                isMobile
+                  ? require("../../assets/images/mobile.png")
+                  : require("../../assets/business.png")
+              }
+              style={styles.leftImage}
+              resizeMode={isMobile ? "cover" : "wrap"}
+            />
           </View>
-          {Platform.OS === 'web' && (
-            <Pressable
-              style={{padding: 5,}}
-              onPress={() => router.push("/login-business")}
+
+          {/* RIGHT FORM */}
+          <View style={[styles.rightPanel, isMobile && { width: "100%" }]}>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                paddingHorizontal: 16,
+                width: "100%",
+              }}
             >
-              {({ hovered }) => (
-                <Ionicons
-                  name="arrow-back-circle-outline"
-                  size={40}
-                  color={hovered ? "#000" : "#375a96"}
-                  style={styles.resultIcon}
-                />
+              <View style={{ flexDirection: "column" }}>
+                <Text style={styles.title}>Create An Account</Text>
+                <Text style={styles.subtitle}>
+                  Sign up to be part of our community
+                </Text>
+              </View>
+              {Platform.OS === "web" && (
+                <Pressable
+                  style={{ padding: 5 }}
+                  onPress={() => router.push("/login-business")}
+                >
+                  {({ hovered }) => (
+                    <Ionicons
+                      name="arrow-back-circle-outline"
+                      size={40}
+                      color={hovered ? "#000" : "#375a96"}
+                      style={styles.resultIcon}
+                    />
+                  )}
+                </Pressable>
               )}
-            </Pressable>
-          )}
-          </View>
+            </View>
 
-          <View style={[styles.row, isMobile && { flexDirection: "column" }]}>
-            <View style={[styles.col, isMobile && { minWidth: "100%"}]}>
-              <Text style={styles.label}>Owner Name*</Text>
-              <TextInput
-                style={[styles.input, errors.name && styles.inputError]}
-                value={name}
-                placeholder='Enter owner full name'
-                maxLength={64}
-                onChangeText={setName}
-              />
-              {errors.name && <Text style={styles.error}>{errors.name}</Text>}
+            <View style={[styles.row, isMobile && { flexDirection: "column" }]}>
+              <View style={[styles.col, isMobile && { minWidth: "100%" }]}>
+                <Text style={styles.label}>Owner Name*</Text>
+                <TextInput
+                  style={[styles.input, errors.name && styles.inputError]}
+                  value={name}
+                  placeholder="Enter owner full name"
+                  maxLength={64}
+                  onChangeText={setName}
+                />
+                {errors.name && <Text style={styles.error}>{errors.name}</Text>}
 
-              <Text style={styles.label}>Business Name*</Text>
-              <TextInput
-                style={[styles.input, errors.business_name && styles.inputError]}
-                value={business_name}
-                placeholder='Enter your Business Registered Name'
-                maxLength={64}
-                onChangeText={setBusinessName}
-              />
-              {errors.business_name && <Text style={styles.error}>{errors.business_name}</Text>}
+                <Text style={styles.label}>Business Name*</Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    errors.business_name && styles.inputError,
+                  ]}
+                  value={business_name}
+                  placeholder="Enter your Business Registered Name"
+                  maxLength={64}
+                  onChangeText={setBusinessName}
+                />
+                {errors.business_name && (
+                  <Text style={styles.error}>{errors.business_name}</Text>
+                )}
 
-              <Text style={styles.label}>Address*</Text>
+                <Text style={styles.label}>Address*</Text>
                 <View style={{ position: "relative", zIndex: 9999 }}>
                   {Platform.OS === "web" ? (
                     <TextInput
-                      style={[ styles.input, errors.address && styles.inputError ]}
+                      style={[
+                        styles.input,
+                        errors.address && styles.inputError,
+                      ]}
                       ref={addressInputRef}
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
@@ -476,207 +538,300 @@ export default function RegisterBusiness() {
                       onChangeText={setAddress}
                     />
                   )}
-                  {errors.address && <Text style={styles.error}>{errors.address}</Text>}
+                  {errors.address && (
+                    <Text style={styles.error}>{errors.address}</Text>
+                  )}
                 </View>
               </View>
-            <View style={[styles.col, isMobile && { minWidth: "100%"}]}>
-              <Text style={[styles.label]}>Email*</Text>
-              <TextInput
-                style={[styles.input, errors.email && styles.inputError]}
-                value={email}
-                placeholder='Enter your professional email address'
-                onChangeText={setEmail}
-                maxLength={64}
-                keyboardType="email-address"
-              />
-              {errors.email && <Text style={styles.error}>{errors.email}</Text>}
+              <View style={[styles.col, isMobile && { minWidth: "100%" }]}>
+                <Text style={[styles.label]}>Email*</Text>
+                <TextInput
+                  style={[styles.input, errors.email && styles.inputError]}
+                  value={email}
+                  placeholder="Enter your professional email address"
+                  onChangeText={setEmail}
+                  maxLength={64}
+                  keyboardType="email-address"
+                />
+                {errors.email && (
+                  <Text style={styles.error}>{errors.email}</Text>
+                )}
 
-              <Text style={styles.label}>Password*</Text>
-              <TextInput
-                secureTextEntry
-                style={[styles.input, errors.password && styles.inputError]}
-                value={password}
-                placeholder='Enter your strong password'
-                maxLength={64}
-                onChangeText={setPassword}
-              />
-              {errors.password && <Text style={styles.error}>{errors.password}</Text>}
+                <Text style={styles.label}>Password*</Text>
+                <TextInput
+                  secureTextEntry
+                  style={[styles.input, errors.password && styles.inputError]}
+                  value={password}
+                  placeholder="Enter your strong password"
+                  maxLength={64}
+                  onChangeText={setPassword}
+                />
+                {errors.password && (
+                  <Text style={styles.error}>{errors.password}</Text>
+                )}
 
-              <Text style={styles.label}>Contact Number*</Text>
-              <TextInput
-                style={[styles.input, errors.contact_no && styles.inputError]}
-                value={contact_no}
-                keyboardType="numeric"
-                placeholder='09XXXXXXXXX'
-                maxLength={11}
-                onChangeText={(t) => setContactNo(t.replace(/[^0-9]/g, ""))}
-              />
-              {errors.contact_no && <Text style={styles.error}>{errors.contact_no}</Text>}
+                <Text style={styles.label}>Contact Number*</Text>
+                <TextInput
+                  style={[styles.input, errors.contact_no && styles.inputError]}
+                  value={contact_no}
+                  keyboardType="numeric"
+                  placeholder="09XXXXXXXXX"
+                  maxLength={11}
+                  onChangeText={(t) => setContactNo(t.replace(/[^0-9]/g, ""))}
+                />
+                {errors.contact_no && (
+                  <Text style={styles.error}>{errors.contact_no}</Text>
+                )}
+              </View>
+
+              <View style={[styles.col, isMobile && { minWidth: "100%" }]}>
+                <Text style={styles.label}>
+                  Social Media Account (Optional)
+                </Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    errors.social_link && styles.inputError,
+                    { borderColor: "#ccc" },
+                  ]}
+                  value={social_link}
+                  placeholder="Paste your Facebook, Instagram, or LinkedIn profile URL"
+                  onChangeText={setSocialLink}
+                  maxLength={64}
+                  keyboardType="social_link"
+                />
+                {errors.social_link && (
+                  <Text style={styles.error}>{errors.social_link}</Text>
+                )}
+
+                <Text style={styles.label}>Description*</Text>
+                <TextInput
+                  multiline
+                  style={[
+                    styles.textArea,
+                    errors.description && styles.inputError,
+                  ]}
+                  value={description}
+                  placeholder="Tell us a little bit about what your business does..."
+                  onChangeText={setDescription}
+                />
+                {errors.description && (
+                  <Text style={styles.error}>{errors.description}</Text>
+                )}
+              </View>
             </View>
 
-            <View style={[styles.col, isMobile && { minWidth: "100%"}]}>
-              <Text style={[styles.label]}>Social Media Account*</Text>
-              <TextInput
-                style={[styles.input, errors.social_link && styles.inputError]}
-                value={social_link}
-                placeholder='Paste your Facebook, Instagram, or LinkedIn profile URL'
-                onChangeText={setSocialLink}
-                maxLength={64}
-                keyboardType="social_link"
-              />
-              {errors.social_link && <Text style={styles.error}>{errors.social_link}</Text>}
-
-              <Text style={styles.label}>Description*</Text>
-              <TextInput
-                multiline
-                style={[styles.textArea, errors.description && styles.inputError]}
-                value={description}
-                placeholder='Tell us a little bit about what your business does...'
-                onChangeText={setDescription}
-              />
-              {errors.description && <Text style={styles.error}>{errors.description}</Text>}
-            </View>
-          </View>
-
-
-          <Text style={styles.label}>Business Permit* (Mayor's Permit) </Text>
-          <Pressable style={[styles.upload, errors.permit && styles.inputError]} onPress={() => pickImage(setPermit)}>
-            <Text>{permit ? permit.name : <FontAwesomeIcon icon={faFileUpload} size="2x" />}</Text>
-          </Pressable>
-          {errors.permit && <Text style={styles.error}>{errors.permit}</Text>}
-          
-          <Text style={styles.label}>Certificates* (DENR / DTI)</Text>
-          <Pressable style={[styles.upload, errors.certificates && styles.inputError]} onPress={multipleImages}>
-            <Text>
-              {certificates.length > 0
-                ? `${certificates.length} files selected`
-                : <FontAwesomeIcon icon={faFileUpload} size="2x" />}
-            </Text>
-          </Pressable>
-          {errors.certificates && <Text style={styles.error}>{errors.certificates}</Text>}
-
-          <Text style={styles.label}>Business Logo (Optional)</Text>
-          <Pressable style={styles.upload} onPress={() => pickImage(setLogo)}>
-            <Text>{logo ? logo.name : <FontAwesomeIcon icon={faFileUpload} size="2x" />}</Text>
-          </Pressable>
-
-          <Pressable style={[styles.submitBtn, isMobile && { minWidth : "100%"}]} onPress={handleRegisterClick}>
-            <Text style={styles.submitText}>Submit</Text>
-          </Pressable>
-
-        </View>
-      </View>
-      
-
-      {/* Consent Modal */}
-      {showConsentModal && (
-        <View style={[styles.consentContainer, isMobile && { justifyContent : "flex-end" }]}>
-          <View style={styles.consentCard}>
-            <Text style={styles.consentTitle}>
-              VeriLocal Terms and Conditions
-            </Text>
-            <Text style={styles.consentText}>
-              Welcome to VeriLocal. By registering for an artisan account, you agree to the following terms regarding the use of our platform to verify and record local woodcrafts.
-            </Text>
-            <Text style={styles.consentHeading}>
-              1. Accuracy of Business Information
-            </Text>
-            <Text style={styles.consentText}>
-              To maintain the integrity of the platform, you agree to provide accurate, current, and complete business credentials during registration. This includes submitting valid business permits, accurate contact details, and true shop locations. VeriLocal reserves the right to suspend accounts found to be using falsified documents.
-            </Text>
-            <Text style={styles.consentHeading}>
-              2. Blockchain and Data Permanence
-            </Text>
-            <Text style={styles.consentText}>
-              VeriLocal utilizes blockchain technology to create secure digital records for your woodcrafts. You acknowledge that once a product is "minted" to the blockchain, the record becomes permanent and immutable (unchangeable). You are solely responsible for ensuring that all product details, materials, and process images are accurate before finalizing a registration.
-            </Text>
-            <Text style={styles.consentHeading}>
-              3. Data Storage and Privacy
-            </Text>
-            <Text style={styles.consentText}>
-              By uploading files to the platform, you consent to the storage of your media (such as business permits and process images) on secure off-chain cloud servers. Your business profile information and product provenance data will be made publicly accessible via QR code scans to facilitate tourist verification.
-            </Text>
-            <Text style={styles.consentHeading}>
-              4. Acceptable Use
-            </Text>
-            <Text style={styles.consentText}>
-              You agree to use the platform exclusively for registering genuine, locally crafted goods. You may not upload prohibited items, plagiarized designs, or inappropriate media.
-            </Text>
-            <View style={{ marginTop: "auto", paddingTop: 20}}>
-            <Pressable onPress={handleConfirmConsent} style={{ backgroundColor: "#e98669", padding: 8, borderRadius: 10, marginBottom: 10 }}>
-              <Text style={{ fontSize: 12,fontFamily: "Montserrat-Regular", fontWeight: "700", textAlign: "center" }}>I Agree / Confirm</Text>
+            <Text style={styles.label}>Business Permit* (Mayor's Permit) </Text>
+            <Pressable
+              style={[styles.upload, errors.permit && styles.inputError]}
+              onPress={() => pickImage(setPermit)}
+            >
+              <Text>
+                {permit ? (
+                  permit.name
+                ) : (
+                  <FontAwesomeIcon icon={faFileUpload} size="2x" />
+                )}
+              </Text>
             </Pressable>
-            <Pressable onPress={() => setShowConsentModal(false)} style={{ padding: 2}}>
-              <Text style={{ fontFamily: "Montserrat-Regular", textAlign: "center", color: "#444" }}>Cancel</Text>
+            {errors.permit && <Text style={styles.error}>{errors.permit}</Text>}
+
+            <Text style={styles.label}>Certificates* (DENR / DTI)</Text>
+            <Pressable
+              style={[styles.upload, errors.certificates && styles.inputError]}
+              onPress={multipleImages}
+            >
+              <Text>
+                {certificates.length > 0 ? (
+                  `${certificates.length} files selected`
+                ) : (
+                  <FontAwesomeIcon icon={faFileUpload} size="2x" />
+                )}
+              </Text>
             </Pressable>
-            </View>
+            {errors.certificates && (
+              <Text style={styles.error}>{errors.certificates}</Text>
+            )}
+
+            <Text style={styles.label}>Business Logo (Optional)</Text>
+            <Pressable
+              style={[styles.upload, { borderColor: "#ccc" }]}
+              onPress={() => pickImage(setLogo)}
+            >
+              <Text>
+                {logo ? (
+                  logo.name
+                ) : (
+                  <FontAwesomeIcon icon={faFileUpload} size="2x" />
+                )}
+              </Text>
+            </Pressable>
+
+            <Pressable
+              style={[styles.submitBtn, isMobile && { minWidth: "100%" }]}
+              onPress={handleRegisterClick}
+            >
+              <Text style={styles.submitText}>Submit</Text>
+            </Pressable>
           </View>
         </View>
-      )}
 
-      {/* Loading */}
-      {isLoading && (
-        <View style={styles.loadingContainer}>
-          <View style={styles.loadingCard}>
-            <ActivityIndicator size="large" color="#5177b0" />
-            <Text style={{ marginTop: 10 }}>Submitting Business.....</Text>
-          </View>
-        </View>
-      )}
-    </ScrollView>
-    {resultVisible && (
-      <View style={styles.resultOverlay}>
-        <Animated.View 
-          style={[
-            styles.resultContainer,
-            {
-              opacity: opacityAnim,
-              transform: [
-                { scale: resultType === "success" ? scaleAnim : 1 },
-                { translateX: resultType === "error" ? shakeAnim : 0 },
-              ],
-            },
-          ]}
-        >
-          <Ionicons
-            name={resultType === "success" ? "checkmark-circle" : "close-circle"}
-            size={70}
-            color={resultType === "success" ? "#4caf50" : "#d32f2f"}
-            style={styles.resultIcon}
-          />
-
-          <Text
+        {/* Consent Modal */}
+        {showConsentModal && (
+          <View
             style={[
-              styles.resultTitle,
-              { color: resultType === "success" ? "#2e7d32" : "#c62828" }
+              styles.consentContainer,
+              isMobile && { justifyContent: "flex-end" },
             ]}
           >
-            {resultType === "success" ? "Success" : "Submission Failed"}
-          </Text>
+            <View style={styles.consentCard}>
+              <Text style={styles.consentTitle}>
+                VeriLocal Terms and Conditions
+              </Text>
+              <Text style={styles.consentText}>
+                Welcome to VeriLocal. By registering for an artisan account, you
+                agree to the following terms regarding the use of our platform
+                to verify and record local woodcrafts.
+              </Text>
+              <Text style={styles.consentHeading}>
+                1. Accuracy of Business Information
+              </Text>
+              <Text style={styles.consentText}>
+                To maintain the integrity of the platform, you agree to provide
+                accurate, current, and complete business credentials during
+                registration. This includes submitting valid business permits,
+                accurate contact details, and true shop locations. VeriLocal
+                reserves the right to suspend accounts found to be using
+                falsified documents.
+              </Text>
+              <Text style={styles.consentHeading}>
+                2. Blockchain and Data Permanence
+              </Text>
+              <Text style={styles.consentText}>
+                VeriLocal utilizes blockchain technology to create secure
+                digital records for your woodcrafts. You acknowledge that once a
+                product is "minted" to the blockchain, the record becomes
+                permanent and immutable (unchangeable). You are solely
+                responsible for ensuring that all product details, materials,
+                and process images are accurate before finalizing a
+                registration.
+              </Text>
+              <Text style={styles.consentHeading}>
+                3. Data Storage and Privacy
+              </Text>
+              <Text style={styles.consentText}>
+                By uploading files to the platform, you consent to the storage
+                of your media (such as business permits and process images) on
+                secure off-chain cloud servers. Your business profile
+                information and product provenance data will be made publicly
+                accessible via QR code scans to facilitate tourist verification.
+              </Text>
+              <Text style={styles.consentHeading}>4. Acceptable Use</Text>
+              <Text style={styles.consentText}>
+                You agree to use the platform exclusively for registering
+                genuine, locally crafted goods. You may not upload prohibited
+                items, plagiarized designs, or inappropriate media.
+              </Text>
+              <View style={{ marginTop: "auto", paddingTop: 20 }}>
+                <Pressable
+                  onPress={handleConfirmConsent}
+                  style={{
+                    backgroundColor: "#e98669",
+                    padding: 8,
+                    borderRadius: 10,
+                    marginBottom: 10,
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      fontFamily: "Montserrat-Regular",
+                      fontWeight: "700",
+                      textAlign: "center",
+                    }}
+                  >
+                    I Agree / Confirm
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => setShowConsentModal(false)}
+                  style={{ padding: 2 }}
+                >
+                  <Text
+                    style={{
+                      fontFamily: "Montserrat-Regular",
+                      textAlign: "center",
+                      color: "#444",
+                    }}
+                  >
+                    Cancel
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        )}
 
-          <Text style={styles.resultMessage}>
-            {resultMessage}
-          </Text>
-
-          <Pressable
-            onPress={() => setResultVisible(false)}
+        {/* Loading */}
+        {isLoading && (
+          <View style={styles.loadingContainer}>
+            <View style={styles.loadingCard}>
+              <ActivityIndicator size="large" color="#5177b0" />
+              <Text style={{ marginTop: 10 }}>Submitting Business.....</Text>
+            </View>
+          </View>
+        )}
+      </ScrollView>
+      {resultVisible && (
+        <View style={styles.resultOverlay}>
+          <Animated.View
             style={[
-              styles.resultButton,
+              styles.resultContainer,
               {
-                backgroundColor:
-                  resultType === "success" ? "#4caf50" : "#d32f2f",
+                opacity: opacityAnim,
+                transform: [
+                  { scale: resultType === "success" ? scaleAnim : 1 },
+                  { translateX: resultType === "error" ? shakeAnim : 0 },
+                ],
               },
             ]}
           >
-            <Text style={{ color: "#fff", fontWeight: "600" }}>
-              OK
-            </Text>
-          </Pressable>
+            <Ionicons
+              name={
+                resultType === "success" ? "checkmark-circle" : "close-circle"
+              }
+              size={70}
+              color={resultType === "success" ? "#4caf50" : "#d32f2f"}
+              style={styles.resultIcon}
+            />
 
-        </Animated.View>
-      </View>
-    )}
-  </Animated.View>
+            <Text
+              style={[
+                styles.resultTitle,
+                { color: resultType === "success" ? "#2e7d32" : "#c62828" },
+              ]}
+            >
+              {resultType === "success" ? "Success" : "Submission Failed"}
+            </Text>
+
+            <Text style={styles.resultMessage}>{resultMessage}</Text>
+
+            <Pressable
+              onPress={() => setResultVisible(false)}
+              style={[
+                styles.resultButton,
+                {
+                  backgroundColor:
+                    resultType === "success" ? "#4caf50" : "#d32f2f",
+                },
+              ]}
+            >
+              <Text style={{ color: "#fff", fontWeight: "600" }}>OK</Text>
+            </Pressable>
+          </Animated.View>
+        </View>
+      )}
+    </Animated.View>
   );
 }
 
@@ -711,8 +866,16 @@ const styles = StyleSheet.create({
     padding: 28,
     backgroundColor: "#f3f7fb",
   },
-  successMessage: { backgroundColor: "#d4edda", color: "#155724", fontFamily: "Montserrat-Regular" },
-  errorMessage: { backgroundColor: "#f8d7da", color: "#721c24", fontFamily: "Montserrat-Regular" },
+  successMessage: {
+    backgroundColor: "#d4edda",
+    color: "#155724",
+    fontFamily: "Montserrat-Regular",
+  },
+  errorMessage: {
+    backgroundColor: "#f8d7da",
+    color: "#721c24",
+    fontFamily: "Montserrat-Regular",
+  },
   title: {
     fontSize: 30,
     fontWeight: "700",
@@ -746,31 +909,30 @@ const styles = StyleSheet.create({
     color: "#223049",
     marginBottom: 4,
     fontFamily: "Montserrat-Regular",
-    fontSize: 12
-  },  
+    fontSize: 12,
+  },
   input: {
     width: "100%",
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "red",
     borderRadius: 12,
     padding: 12,
     marginBottom: 4,
     alignItems: "center",
     fontFamily: "Montserrat-Regular",
-    fontSize: 12
+    fontSize: 12,
   },
   textArea: {
     width: "100%",
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "red",
     borderRadius: 12,
     padding: 16,
     height: 125,
     textAlignVertical: "top",
     marginBottom: 4,
     fontFamily: "Montserrat-Regular",
-    fontSize: 12
-
+    fontSize: 12,
   },
   inputError: {
     borderColor: "red",
@@ -784,7 +946,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     width: "97%",
     borderStyle: "dashed",
-    borderColor: "#aaa",
+    borderColor: "red",
     padding: 25,
     borderRadius: 12,
     marginTop: 6,
@@ -801,7 +963,7 @@ const styles = StyleSheet.create({
   submitText: {
     color: "#fff",
     fontWeight: "600",
-    fontFamily: "Montserrat-Regular"
+    fontFamily: "Montserrat-Regular",
   },
   resultOverlay: {
     position: "absolute",
@@ -858,13 +1020,16 @@ const styles = StyleSheet.create({
   },
   consentContainer: {
     position: "absolute",
-    top: 0, left: 0, right: 0, bottom: 0,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
   },
-  consentCard : {
+  consentCard: {
     backgroundColor: "#fff",
     padding: 30,
     borderRadius: 16,
@@ -873,25 +1038,25 @@ const styles = StyleSheet.create({
     minHeight: 250,
     flexDirection: "space-between",
   },
-  consentTitle : {
-    fontFamily: "Montserrat-Bold", 
-    fontSize: 14, 
-    marginBottom: 5, 
+  consentTitle: {
+    fontFamily: "Montserrat-Bold",
+    fontSize: 14,
+    marginBottom: 5,
     fontWeight: "500",
   },
-  consentText : {
-    fontFamily: "Montserrat-Regular", 
-    fontSize: 12, 
-    marginBottom: 20, 
+  consentText: {
+    fontFamily: "Montserrat-Regular",
+    fontSize: 12,
+    marginBottom: 20,
     fontWeight: "300",
   },
-  consentHeading : { 
-    fontFamily: "Montserrat-Bold", 
-    fontSize: 12, 
-    marginBottom: 5, 
+  consentHeading: {
+    fontFamily: "Montserrat-Bold",
+    fontSize: 12,
+    marginBottom: 5,
     fontWeight: "500",
   },
-  loadingContainer : {
+  loadingContainer: {
     position: "absolute",
     top: 0,
     left: 0,
@@ -909,4 +1074,3 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
-
