@@ -4,6 +4,7 @@ import { Picker } from "@react-native-picker/picker";
 import axios from "axios";
 import { useFonts } from "expo-font";
 import * as ImagePicker from "expo-image-picker";
+import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -159,7 +160,6 @@ export default function BusinessDashboard() {
       useNativeDriver: true,
     }).start();
   };
-
 
   const [windowWidth, setWindowWidth] = useState(
     Dimensions.get("window").width,
@@ -1133,7 +1133,7 @@ export default function BusinessDashboard() {
                   onHoverIn={onHoverIn2}
                   onHoverOut={onHoverOut2}
                   style={styles.filterProducts_btn}
-                  onPress={() => router.push('/business/transferOwnership')}
+                  onPress={() => router.push("/business/transferOwnership")}
                 >
                   <Ionicons name="swap-horizontal-outline" size={30} />
                   {!isMobile && onHoverIn2 && (
@@ -1141,11 +1141,15 @@ export default function BusinessDashboard() {
                   )}
                 </Pressable>
               </Animated.View>
-
             </View>
           </View>
           {/* Welcome Section */}
-          <View style={styles.dashboard_welcomeCard}>
+          <LinearGradient
+            colors={["#f4f6fb", "#4A70A9"]} // you can change colors
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.dashboard_welcomeCard}
+          >
             <Text
               style={[
                 styles.dashboard_headerText,
@@ -1154,6 +1158,7 @@ export default function BusinessDashboard() {
             >
               Artisan Dashboard
             </Text>
+
             <Text
               style={[
                 styles.dashboard_welcomeText,
@@ -1162,6 +1167,7 @@ export default function BusinessDashboard() {
             >
               Greetings,
             </Text>
+
             <Text
               style={[
                 styles.dashboard_welcomeBusinessText,
@@ -1170,7 +1176,7 @@ export default function BusinessDashboard() {
             >
               {business?.registered_business_name || "Loading..."}!
             </Text>
-          </View>
+          </LinearGradient>
 
           {/* Summary Cards */}
           <View style={styles.summaryCardContainer}>
@@ -1203,12 +1209,17 @@ export default function BusinessDashboard() {
                     { backgroundColor: "#e8f5e4" },
                   ]}
                 >
-                  <Ionicons name="checkmark-circle-outline" size={24} color="#8acc78" />
+                  <Ionicons
+                    name="checkmark-circle-outline"
+                    size={24}
+                    color="#8acc78"
+                  />
                 </View>
                 <View style={styles.summaryTextContainer}>
                   <Text style={styles.summaryCardTitle}>Registered</Text>
                   <Text style={styles.summaryProgress}>
-                    {products.filter((p) => p.status === 'approved').length} Items
+                    {products.filter((p) => p.status === "approved").length}{" "}
+                    Items
                   </Text>
                 </View>
               </View>
@@ -1223,12 +1234,17 @@ export default function BusinessDashboard() {
                     { backgroundColor: "#f3f3dc" },
                   ]}
                 >
-                  <Ionicons name="reload-circle-outline" size={24} color="#c4c251" />
+                  <Ionicons
+                    name="reload-circle-outline"
+                    size={24}
+                    color="#c4c251"
+                  />
                 </View>
                 <View style={styles.summaryTextContainer}>
                   <Text style={styles.summaryCardTitle}>Pending</Text>
                   <Text style={styles.summaryProgress}>
-                    {products.filter((p) => p.status === 'pending').length} Items
+                    {products.filter((p) => p.status === "pending").length}{" "}
+                    Items
                   </Text>
                 </View>
               </View>
@@ -1243,16 +1259,12 @@ export default function BusinessDashboard() {
                     { backgroundColor: "#faf0ef" },
                   ]}
                 >
-                  <Ionicons
-                    name="alert-outline"
-                    size={24}
-                    color="#c74242"
-                  />
+                  <Ionicons name="alert-outline" size={24} color="#c74242" />
                 </View>
                 <View style={styles.summaryTextContainer}>
                   <Text style={styles.summaryCardTitle}>Failed</Text>
                   <Text style={styles.summaryProgress}>
-                    {products.filter((p) => p.status === 'failed').length} Items
+                    {products.filter((p) => p.status === "failed").length} Items
                   </Text>
                 </View>
               </View>
@@ -1324,10 +1336,19 @@ export default function BusinessDashboard() {
                         {item.name}
                       </Text>
                       {item.status ? (
-                        <View style={[styles.dashboard_productTypeBadge, {
-                           backgroundColor: item.status === 'approved' ? '#e8f5e4' :
-                                  item.status === 'failed' ? '#faf0ef' : '#f3f3dc'
-                        }]}>
+                        <View
+                          style={[
+                            styles.dashboard_productTypeBadge,
+                            {
+                              backgroundColor:
+                                item.status === "approved"
+                                  ? "#e8f5e4"
+                                  : item.status === "failed"
+                                    ? "#faf0ef"
+                                    : "#f3f3dc",
+                            },
+                          ]}
+                        >
                           <Text style={styles.dashboard_productTypeText}>
                             {item.status}
                           </Text>

@@ -8,19 +8,19 @@ import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Animated,
-    Dimensions,
-    Easing,
-    Image,
-    Platform,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  ActivityIndicator,
+  Alert,
+  Animated,
+  Dimensions,
+  Easing,
+  Image,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 
 //REGISTER PRODUCT
@@ -276,8 +276,9 @@ export default function RegisterProduct() {
     if (!form.type) newErrors.type = "Product type is required";
     if (!form.materials) newErrors.materials = "Materials are required";
     if (!form.origin) newErrors.origin = "Origin is required";
-    if (!form.current_owner) newErrors.current_owner = "Current Owner is Required";
-     if (!form.quantity) newErrors.quantity = "Quantity is Required";
+    if (!form.current_owner)
+      newErrors.current_owner = "Current Owner is Required";
+    if (!form.quantity) newErrors.quantity = "Quantity is Required";
     if (!form.productionDate)
       newErrors.productionDate = "Start and Finish Date are required";
     if (!form.description) newErrors.description = "Description required";
@@ -864,11 +865,13 @@ export default function RegisterProduct() {
                   flexDirection: "row",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  paddingHorizontal: 16,
+                  paddingHorizontal: 0,
                   width: "100%",
                 }}
               >
-                <Text style={styles.formTitle}>Product Registration</Text>
+                <Text style={[styles.formTitle, { fontSize: 32 }]}>
+                  Product Registration
+                </Text>
                 <Pressable
                   style={{ padding: 5 }}
                   onPress={() => router.push("/business")}

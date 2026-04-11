@@ -1,24 +1,34 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useState, useEffect } from "react";
-import { Modal, Alert } from "react-native";
-import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { useEffect, useRef, useState } from "react";
 import {
-    FlatList,
-    SafeAreaView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Animated,
+  Easing,
+  FlatList,
+  Modal,
+  Pressable,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 const STATUS_STYLES = {
-  Active: { bg: "#DCFCE7", text: "#16A34A" },
-  Pending: { bg: "#FEF9C3", text: "#CA8A04" },
-  "Under Review": { bg: "#FEE2E2", text: "#DC2626" },
-  Transferred: { bg: "#E0E7FF", text: "#4F46E5" },
+  Approved: { bg: "#DCFCE7", text: "#15803D" },
+  Pending: { bg: "#FEF3C7", text: "#B45309" },
+  Failed: { bg: "#FEE2E2", text: "#B91C1C" },
+};
+
+// Normalise whatever the API returns ("approved", "APPROVED", etc.)
+const normalizeStatus = (raw) => {
+  if (!raw) return "Pending";
+  const key = raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase();
+  return STATUS_STYLES[key] ? key : "Pending";
 };
 
 const FilterIcon = () => (
@@ -60,77 +70,149 @@ export default function TransferOwnership() {
   const [modalVisible, setModalVisible] = useState(false);
   const [newOwner, setNewOwner] = useState("");
 
-    useEffect(() => {
-        fetchProducts();
-    }, []);
+  // Result modal state
+  const [isLoading, setIsLoading] = useState(false);
+  const [resultVisible, setResultVisible] = useState(false);
+  const [resultType, setResultType] = useState(null);
+  const [resultMessage, setResultMessage] = useState("");
 
-    const fetchProducts = async () => {
-        try {
-            const token = await AsyncStorage.getItem("token");
+  // Result animations
+  const scaleAnim = useRef(new Animated.Value(0.8)).current;
+  const opacityAnim = useRef(new Animated.Value(0)).current;
+  const shakeAnim = useRef(new Animated.Value(0)).current;
 
-            const res = await axios.get(
-                "https://verilocalph.onrender.com/api/products/transferable",
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-            setProducts(res.data);
-        } catch (err) {
-            console.error("Failed to fetch products:", err);
-        }
-    };
-    
- 
-    const handleConfirmTransfer = async () => {
-      if (!newOwner.trim()) {
-        alert("Please enter a new owner");
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  // Trigger animations when result modal appears
+  useEffect(() => {
+    if (!resultVisible) return;
+    if (resultType === "success") {
+      scaleAnim.setValue(0.8);
+      opacityAnim.setValue(0);
+      Animated.parallel([
+        Animated.timing(scaleAnim, {
+          toValue: 1,
+          duration: 350,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacityAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      opacityAnim.setValue(0);
+      shakeAnim.setValue(0);
+      Animated.sequence([
+        Animated.timing(opacityAnim, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: 10,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: -10,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: 6,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: -6,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: 0,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [resultVisible, resultType]);
+
+  const fetchProducts = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+
+      const res = await axios.get(
+        "https://verilocalph.onrender.com/api/products/transferable",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      setProducts(res.data);
+    } catch (err) {
+      console.error("Failed to fetch products:", err);
+    }
+  };
+
+  const handleConfirmTransfer = async () => {
+    if (!newOwner.trim()) {
+      alert("Please enter a new owner");
+      return;
+    }
+
+    try {
+      setModalVisible(false);
+      setIsLoading(true);
+
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        setIsLoading(false);
         return;
       }
 
-      const proceed = window.confirm(
-        `Transfer ${selectedIds.length} product(s) to ${newOwner}`
+      await axios.put(
+        "https://verilocalph.onrender.com/api/transfer",
+        {
+          product_ids: selectedIds,
+          newOwner: newOwner,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
       );
 
-      if (!proceed) return;
-
-      try {
-        const token = await AsyncStorage.getItem("token");
-        if (!token) {
-          console.log("No token found");
-          return;
-        }
-
-        await axios.put("https://verilocalph.onrender.com/api/transfer",
-          {
-            product_ids: selectedIds,
-            newOwner: newOwner,
-          },
-          {
-            headers: { Authorization: `Bearer ${token}`}
-          }
-        );
-
-          alert("Ownership Transferred");
-          setModalVisible(false);
-          setSelectedIds([]);
-          setNewOwner("");
-          fetchProducts();
-        
-      } catch (err) {
-        console.error(err);
-        alert("Transfer Failed");
-      }
-    };
-
-
+      setResultType("success");
+      setResultMessage(
+        `Ownership of ${selectedIds.length} item${selectedIds.length > 1 ? "s" : ""} has been successfully transferred to ${newOwner}.`,
+      );
+      setSelectedIds([]);
+      setNewOwner("");
+      fetchProducts();
+    } catch (err) {
+      console.error(err);
+      const serverMessage =
+        err.response?.data?.message || "Transfer failed. Please try again.";
+      setResultType("error");
+      setResultMessage(serverMessage);
+    } finally {
+      setIsLoading(false);
+      setResultVisible(true);
+    }
+  };
 
   const filtered = products.filter(
     (item) =>
       (item.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (item.uid || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (item.current_owner || "").toLowerCase().includes(searchQuery.toLowerCase()),
+      (item.current_owner || "")
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()),
   );
 
   const toggleSelect = (uid) => {
@@ -149,7 +231,8 @@ export default function TransferOwnership() {
 
   const renderItem = ({ item, index }) => {
     const isSelected = selectedIds.includes(item.uid);
-    const statusStyle = STATUS_STYLES[item.status] || STATUS_STYLES["Pending"];
+    const statusKey = normalizeStatus(item.status);
+    const statusStyle = STATUS_STYLES[statusKey];
 
     return (
       <TouchableOpacity
@@ -171,9 +254,11 @@ export default function TransferOwnership() {
 
         {/* Product Name */}
         <View style={styles.cellProduct}>
-          <View style={[styles.avatar, { backgroundColor: getColor(item.name) }]}>
+          <View
+            style={[styles.avatar, { backgroundColor: getColor(item.name) }]}
+          >
             <Text style={styles.avatarText}>{getInitial(item.name)}</Text>
-        </View>
+          </View>
           <Text style={styles.productName} numberOfLines={1}>
             {item.name}
           </Text>
@@ -181,7 +266,9 @@ export default function TransferOwnership() {
 
         {/* UID */}
         <View style={styles.cellUid}>
-          <Text style={styles.uidText}>{item.uid}</Text>
+          <Text style={styles.uidText} numberOfLines={2}>
+            {item.uid}
+          </Text>
         </View>
 
         {/* Current Owner */}
@@ -197,7 +284,7 @@ export default function TransferOwnership() {
             style={[styles.statusBadge, { backgroundColor: statusStyle.bg }]}
           >
             <Text style={[styles.statusText, { color: statusStyle.text }]}>
-              {item.status}
+              {statusKey}
             </Text>
           </View>
         </View>
@@ -291,7 +378,9 @@ export default function TransferOwnership() {
           {/* Rows */}
           <FlatList
             data={filtered}
-            keyExtractor={(item, index) => (item.uid ? String(item.uid) : `fallback-${index}`)}
+            keyExtractor={(item, index) =>
+              item.uid ? String(item.uid) : `fallback-${index}`
+            }
             renderItem={renderItem}
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
@@ -311,7 +400,10 @@ export default function TransferOwnership() {
             >
               <Text style={styles.cancelBtnText}>Cancel</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.transferBtn} onPress={() => setModalVisible(true)}>
+            <TouchableOpacity
+              style={styles.transferBtn}
+              onPress={() => setModalVisible(true)}
+            >
               <Text style={styles.transferBtnText}>
                 Transfer {selectedIds.length} Item
                 {selectedIds.length > 1 ? "s" : ""}
@@ -320,40 +412,138 @@ export default function TransferOwnership() {
           </View>
         )}
 
-        <Modal
-            visible={modalVisible}
-            transparent
-            animationType="fade"
-            >
-            <View style={styles.modalOverlay}>
-                <View style={styles.modalContainer}>
-                <Text style={styles.modalTitle}>Transfer Ownership</Text>
-
-                <TextInput
-                    placeholder="Enter new owner"
-                    value={newOwner}
-                    onChangeText={setNewOwner}
-                    style={styles.modalInput}
+        <Modal visible={modalVisible} transparent animationType="fade">
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              {/* Icon */}
+              <View style={styles.modalIconWrap}>
+                <Ionicons
+                  name="swap-horizontal-outline"
+                  size={22}
+                  color="#111827"
                 />
+              </View>
 
-                <View style={styles.modalActions}>
-                    <TouchableOpacity
-                    onPress={() => setModalVisible(false)}
-                    style={styles.cancelBtn}
-                    >
-                    <Text>Cancel</Text>
-                    </TouchableOpacity>
+              {/* Title & subtitle */}
+              <Text style={styles.modalTitle}>Transfer Ownership</Text>
+              <Text style={styles.modalSubtitle}>
+                You are about to transfer{" "}
+                <Text style={styles.modalSubtitleBold}>
+                  {selectedIds.length} item{selectedIds.length > 1 ? "s" : ""}
+                </Text>
+                . Enter the new owner below.
+              </Text>
 
-                    <TouchableOpacity
-                    onPress={handleConfirmTransfer}
-                    style={styles.transferBtn}
-                    >
-                    <Text style={{ color: "#fff" }}>Confirm</Text>
-                    </TouchableOpacity>
-                </View>
-                </View>
+              {/* Input */}
+              <View style={styles.modalInputWrap}>
+                <Ionicons
+                  name="person-outline"
+                  size={16}
+                  color="#9CA3AF"
+                  style={styles.modalInputIcon}
+                />
+                <TextInput
+                  placeholder="New owner name"
+                  placeholderTextColor="#9CA3AF"
+                  value={newOwner}
+                  onChangeText={setNewOwner}
+                  style={styles.modalInput}
+                  autoCapitalize="none"
+                />
+              </View>
+
+              {/* Divider */}
+              <View style={styles.modalDivider} />
+
+              {/* Actions */}
+              <View style={styles.modalActions}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setModalVisible(false);
+                    setNewOwner("");
+                  }}
+                  style={styles.modalCancelBtn}
+                >
+                  <Text style={styles.modalCancelText}>Cancel</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={handleConfirmTransfer}
+                  style={styles.modalConfirmBtn}
+                >
+                  <Text style={styles.modalConfirmText}>Confirm Transfer</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-            </Modal>
+          </View>
+        </Modal>
+        {/* Loading Modal */}
+        {isLoading && (
+          <View style={styles.resultOverlay}>
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#111827" />
+              <Text style={styles.loadingText}>Transferring ownership…</Text>
+            </View>
+          </View>
+        )}
+
+        {/* Success / Failed Result Modal */}
+        {resultVisible && (
+          <View style={styles.resultOverlay}>
+            <Animated.View
+              style={[
+                styles.resultContainer,
+                {
+                  opacity: opacityAnim,
+                  transform: [
+                    { scale: resultType === "success" ? scaleAnim : 1 },
+                    { translateX: resultType === "error" ? shakeAnim : 0 },
+                  ],
+                },
+              ]}
+            >
+              <Ionicons
+                name={
+                  resultType === "success" ? "checkmark-circle" : "close-circle"
+                }
+                size={70}
+                color={resultType === "success" ? "#4caf50" : "#d32f2f"}
+                style={styles.resultIcon}
+              />
+              <Text
+                style={[
+                  styles.resultTitle,
+                  { color: resultType === "success" ? "#2e7d32" : "#c62828" },
+                ]}
+              >
+                {resultType === "success"
+                  ? "Transfer Successful"
+                  : "Transfer Failed"}
+              </Text>
+              <Text style={styles.resultMessage}>{resultMessage}</Text>
+              <Pressable
+                onPress={() => setResultVisible(false)}
+                style={[
+                  styles.resultButton,
+                  {
+                    backgroundColor:
+                      resultType === "success" ? "#4caf50" : "#d32f2f",
+                  },
+                ]}
+              >
+                <Text
+                  style={{
+                    color: "#fff",
+                    fontWeight: "600",
+                    fontFamily: "Garet-Book",
+                  }}
+                >
+                  OK
+                </Text>
+              </Pressable>
+            </Animated.View>
+          </View>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -544,25 +734,28 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   colProduct: {
-    flex: 2.5,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  colUid: {
-    flex: 1.2,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  colOwner: {
     flex: 2,
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
+    paddingRight: 8,
+  },
+  colUid: {
+    flex: 2,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingRight: 8,
+  },
+  colOwner: {
+    flex: 1.8,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingRight: 8,
   },
   colStatus: {
-    flex: 1.3,
+    flex: 1.4,
     alignItems: "flex-end",
   },
   colLabel: {
@@ -613,7 +806,7 @@ const styles = StyleSheet.create({
 
   // Cells
   cellProduct: {
-    flex: 2.5,
+    flex: 2,
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
@@ -640,17 +833,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cellUid: {
-    flex: 1.2,
+    flex: 2,
+    paddingRight: 8,
   },
   uidText: {
-    fontSize: 13,
+    fontSize: 12,
     fontFamily: "Garet-Book",
     color: "#374151",
     fontWeight: "500",
     fontVariant: ["tabular-nums"],
+    flexShrink: 1,
   },
   cellOwner: {
-    flex: 2,
+    flex: 1.8,
     paddingRight: 8,
   },
   ownerText: {
@@ -659,7 +854,7 @@ const styles = StyleSheet.create({
     color: "#6B7280",
   },
   cellStatus: {
-    flex: 1.3,
+    flex: 1.4,
     alignItems: "flex-end",
   },
   statusBadge: {
@@ -720,35 +915,179 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: "rgba(0,0,0,0.45)",
     justifyContent: "center",
     alignItems: "center",
-},
-
-modalContainer: {
-    width: "90%",
-    backgroundColor: "#fff",
-    padding: 20,
+    paddingHorizontal: 24,
+  },
+  modalContainer: {
+    width: "100%",
+    maxWidth: 700,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    paddingHorizontal: 24,
+    paddingTop: 28,
+    paddingBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.15,
+    shadowRadius: 32,
+    elevation: 10,
+  },
+  modalIconWrap: {
+    width: 44,
+    height: 44,
     borderRadius: 12,
-},
-
-modalTitle: {
+    backgroundColor: "#F3F4F6",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  modalTitle: {
     fontSize: 18,
     fontWeight: "700",
-    marginBottom: 10,
-},
-
-modalInput: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 15,
-},
-
-modalActions: {
+    color: "#111827",
+    fontFamily: "Garet-Heavy",
+    marginBottom: 6,
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: "#6B7280",
+    fontFamily: "Garet-Book",
+    lineHeight: 20,
+    marginBottom: 20,
+  },
+  modalSubtitleBold: {
+    color: "#111827",
+    fontWeight: "600",
+  },
+  modalInputWrap: {
     flexDirection: "row",
-    justifyContent: "flex-end",
+    alignItems: "center",
+    backgroundColor: "#F9FAFB",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
     gap: 10,
-},
+    marginBottom: 20,
+  },
+  modalInputIcon: {
+    marginTop: 1,
+  },
+  modalInput: {
+    flex: 1,
+    fontSize: 14,
+    color: "#111827",
+    fontFamily: "Garet-Book",
+    padding: 5,
+  },
+  modalDivider: {
+    height: 1,
+    backgroundColor: "#F3F4F6",
+    marginBottom: 16,
+  },
+  modalActions: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  modalCancelBtn: {
+    flex: 1,
+    paddingVertical: 13,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: "#E5E7EB",
+    alignItems: "center",
+  },
+  modalCancelText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#374151",
+    fontFamily: "Garet-Book",
+  },
+  modalConfirmBtn: {
+    flex: 2,
+    paddingVertical: 13,
+    borderRadius: 12,
+    backgroundColor: "#111827",
+    alignItems: "center",
+  },
+  modalConfirmText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#FFFFFF",
+    fontFamily: "Garet-Book",
+  },
+  // Loading & Result modals
+  resultOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.45)",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    zIndex: 999,
+  },
+  loadingContainer: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    paddingVertical: 28,
+    paddingHorizontal: 32,
+    alignItems: "center",
+    gap: 14,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 10,
+  },
+  loadingText: {
+    fontSize: 14,
+    fontFamily: "Garet-Book",
+    color: "#374151",
+    fontWeight: "500",
+  },
+  resultContainer: {
+    width: "100%",
+    maxWidth: 380,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
+    paddingVertical: 28,
+    paddingHorizontal: 22,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  resultIcon: {
+    marginBottom: 15,
+  },
+  resultTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    fontFamily: "Garet-Heavy",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  resultMessage: {
+    fontSize: 14,
+    textAlign: "center",
+    color: "#4B5563",
+    fontFamily: "Garet-Book",
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+  resultButton: {
+    width: "100%",
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });
