@@ -29,6 +29,8 @@ export default function ProductScanner() {
   const resultScale = useRef(new Animated.Value(0.8)).current;
   const resultOpacity = useRef(new Animated.Value(0)).current;
 
+  const [hoveredScanning, setHoveredScanning] = useState(false);
+
   //PROCESS IMAGES
   const processImages = Array.isArray(productDetails?.process_images)
     ? productDetails.process_images
@@ -147,18 +149,26 @@ export default function ProductScanner() {
         setIsScanning(false);
         setIsLoading(true);
 
-        const [product_id_str, blockchain_hash] = decodedText.split("|");
-        const product_id = Number(product_id_str);
+        let parsed;
 
-        if (!product_id || !blockchain_hash)
-          throw new Error("Invalid QR data format");
+        try {
+          parsed = JSON.parse(decodedText);
+        } catch (err) {
+          throw new Error("Invalid QR Format")
+        }
+
+        const { uid, hash } = parsed;
+
+        if (!uid || !hash) {
+          throw new Error("Invalid QR data");
+        }
 
         let res;
 
         try {
           res = await axios.post(
             "https://verilocalph.onrender.com/api/products/verify",
-            { product_id, blockchain_hash }
+            { uid, hash }
           );
 
           setProduct(res.data);
@@ -189,7 +199,7 @@ export default function ProductScanner() {
             "https://verilocalph.onrender.com/api/products"
           );
 
-          const matched = allRes.data.find((p) => p.id === product_id);
+          const matched = allRes.data.find((p) => p.uid === uid);
 
           if (matched) {
             setProductDetails(matched);
@@ -316,7 +326,6 @@ export default function ProductScanner() {
         }),
       ]).start();
 
-      // ✅ If success → auto close after 3 seconds
       if (type === "success") {
         setTimeout(() => {
           setResultVisible(false);
@@ -453,15 +462,19 @@ export default function ProductScanner() {
       {/* BUTTONS */}
       <View style={{ flexDirection: isMobile? "column": "row", gap: 15, marginBottom: 20 }}>
         <Pressable
+          onHoverIn={() => setHoveredScanning(true)}
+          onHoverOut={() => setHoveredScanning(false)}
           onPress={startScanner}
           style={{
+            backgrounColor: hoveredScanning ? "#0000000" : "#5177b0",
+            cursor: "pointer",
             paddingVertical: 12,
             paddingHorizontal: 24,
-            borderColor: "#4a79af",
             borderWidth: 1,
             borderRadius: 30,
             shadowColor: "#000",
             shadowOpacity: 0.1,
+            shadowOffset: { width: 0, height: 2 },
             shadowRadius: 3,
             elevation: 3,
           }}
@@ -660,6 +673,9 @@ export default function ProductScanner() {
                 </Text>
                 <Text style={{ fontSize: 14, fontFamily: "Montserrat-Regular", color: "#444" }}>
                   <Text style={{ fontWeight: "700" }}>Origin: </Text>{productDetails.origin}
+                </Text>
+                <Text style={{ fontSize: 14, fontFamily: "Montserrat-Regular", color: "#444" }}>
+                  <Text style={{ fontWeight: "700" }}>Current Owner: </Text>{productDetails.current_owner}
                 </Text>
                 <Text style={{ fontSize: 14, fontFamily: "Montserrat-Regular", color: "#444" }}>
                   <Text style={{ fontWeight: "700" }}>Production Date: </Text>{productDetails.productionDate}

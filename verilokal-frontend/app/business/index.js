@@ -795,6 +795,7 @@ export default function BusinessDashboard() {
                 <p><strong>Materials: </strong>${p.materials} </p>
                 <p><strong>Origin: </strong>${p.origin} </p>
                 <p><strong>Production Date: </strong>${p.productionDate} </p>
+                <p><strong>Current Owner: </strong>${p.current_owner} </p>  
                 <p><strong>Description:</strong></p>
                 <p>${p.description}</p>
                 <p><strong>Transaction Hash:</strong></p>
@@ -1450,6 +1451,7 @@ export default function BusinessDashboard() {
                       contentContainerStyle={{ paddingBottom: 20 }}
                       showsVerticalScrollIndicator={false}
                     >
+                    {selectedProduct?.current_owner === business?.registered_business_name && (
                       <View style={styles.buttonContainer}>
                         <View style={{ position: "auto" }}>
                           {/* EDIT PRODUCT BUTTON */}
@@ -1496,6 +1498,7 @@ export default function BusinessDashboard() {
                           </Pressable>
                         </View>
                       </View>
+                    )}
 
                       {/* Delete Modal */}
                       <Modal
@@ -1562,6 +1565,10 @@ export default function BusinessDashboard() {
                         <Text style={styles.infoText}>
                           <Text style={{ fontWeight: "600" }}>Origin:</Text>{" "}
                           {selectedProduct.origin}
+                        </Text>
+                        <Text style={styles.infoText}>
+                          <Text style={{ fontWeight: "600" }}>Current Owner:</Text>{" "}
+                          {selectedProduct.current_owner}
                         </Text>
                         <Text style={styles.infoText}>
                           <Text style={{ fontWeight: "600" }}>

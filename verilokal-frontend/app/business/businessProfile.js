@@ -1033,9 +1033,8 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255,255,255,0.2)",
     borderRadius: 100,
     padding: 8,
-  },
+  },  
 
-  // ── Loading overlay
   loadingOverlay: {
     position: "absolute",
     top: 0,

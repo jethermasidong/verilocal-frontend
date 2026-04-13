@@ -7,7 +7,7 @@ export default function LoginButtons() {
   
   const router = useRouter();
   const [ hoveredJoin, setHoveredJoin ] = useState(false);
-  const [ hoveredScan, setHoveredScan ] = useState(false)
+  const [ hoveredScan, setHoveredScan ] = useState(false);
   const [fontsLoaded] = useFonts({
       "Garet-Book": require("../assets/fonts/garet/Garet-Book.ttf"),
       "Garet-Heavy": require("../assets/fonts/garet/Garet-Heavy.ttf"),

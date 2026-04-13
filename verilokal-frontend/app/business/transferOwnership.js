@@ -23,8 +23,6 @@ const STATUS_STYLES = {
   Pending: { bg: "#FEF3C7", text: "#B45309" },
   Failed: { bg: "#FEE2E2", text: "#B91C1C" },
 };
-
-// Normalise whatever the API returns ("approved", "APPROVED", etc.)
 const normalizeStatus = (raw) => {
   if (!raw) return "Pending";
   const key = raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase();

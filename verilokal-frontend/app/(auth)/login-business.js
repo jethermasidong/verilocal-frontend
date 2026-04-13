@@ -49,7 +49,6 @@ export default function BusinessLogin() {
     return () => Dimensions.removeEventListener("change", handleResize);
   }, []);
 
-  // ── ALL ORIGINAL LOGIC UNTOUCHED ──
   const handleBusinessLogin = async () => {
     const newErrors = {};
     if (!email) newErrors.email = "Email is required";
@@ -118,7 +117,6 @@ export default function BusinessLogin() {
         imageStyle={{ opacity: 0.08 }}
         resizeMode="cover"
       >
-        {/* Subtle gradient overlay layer */}
         <View style={styles.overlayGradient} />
 
         <ScrollView
@@ -171,7 +169,7 @@ export default function BusinessLogin() {
               <View style={styles.formHeader}>
                 <View style={styles.formBadge}>
                   <Ionicons name="business-outline" size={14} color="#5177b0" />
-                  <Text style={styles.formBadgeText}>Business Account</Text>
+                  <Text style={styles.formBadgeText}>Artisan Account</Text>
                 </View>
                 <Text style={styles.formTitle}>Sign In</Text>
                 <Text style={styles.formSubtitle}>
