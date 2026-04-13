@@ -1145,7 +1145,7 @@ export default function BusinessDashboard() {
           </View>
           {/* Welcome Section */}
           <LinearGradient
-            colors={["#f4f6fb", "#4A70A9"]} // you can change colors
+            colors={["#f4f6fb", "#4A70A9"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.dashboard_welcomeCard}

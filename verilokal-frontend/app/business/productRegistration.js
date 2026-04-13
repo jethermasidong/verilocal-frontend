@@ -633,7 +633,7 @@ export default function RegisterProduct() {
                         }
                         style={{
                           ...styles.webDateInput,
-                          borderColor: errors.productionDate ? "red" : "#ccc",
+                          borderColor: errors.productionDate ? "red" : "red",
                         }}
                       />
                       <input
@@ -656,7 +656,7 @@ export default function RegisterProduct() {
                         }}
                         style={{
                           ...styles.webDateInput,
-                          borderColor: errors.productionDate ? "red" : "#ccc",
+                          borderColor: errors.productionDate ? "red" : "red",
                         }}
                       />
                     </>
@@ -865,13 +865,10 @@ export default function RegisterProduct() {
                   flexDirection: "row",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  paddingHorizontal: 0,
                   width: "100%",
                 }}
               >
-                <Text style={[styles.formTitle, { fontSize: 32 }]}>
-                  Product Registration
-                </Text>
+                <Text style={styles.formTitle}>Product Registration</Text>
                 <Pressable
                   style={{ padding: 5 }}
                   onPress={() => router.push("/business")}
@@ -1030,7 +1027,7 @@ export default function RegisterProduct() {
                         }
                         style={{
                           ...styles.webDateInput,
-                          borderColor: errors.productionDate ? "red" : "#ccc",
+                          borderColor: errors.productionDate ? "red" : "red",
                         }}
                       />
                       <input
@@ -1053,7 +1050,7 @@ export default function RegisterProduct() {
                         }}
                         style={{
                           ...styles.webDateInput,
-                          borderColor: errors.productionDate ? "red" : "#ccc",
+                          borderColor: "red",
                         }}
                       />
                     </>
@@ -1639,7 +1636,7 @@ const styles = StyleSheet.create({
   statusMessage: { fontSize: 12, color: "#67AA61", marginBottom: 10 },
 
   formTitle: {
-    fontSize: 26,
+    fontSize: 34,
     fontWeight: "700",
     marginBottom: 4,
     color: "#223049",
@@ -1661,7 +1658,7 @@ const styles = StyleSheet.create({
   inputContainer: { marginBottom: 10 },
   input: {
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "red",
     paddingHorizontal: 12,
     height: 44,
     borderRadius: 8,
@@ -1673,7 +1670,7 @@ const styles = StyleSheet.create({
   picker: {
     height: 44,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "red",
     padding: 12,
     borderRadius: 8,
     backgroundColor: "#fafafa",
@@ -1695,7 +1692,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 12,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "red",
     borderRadius: 8,
     height: 44,
     width: "100%",
@@ -1712,7 +1709,7 @@ const styles = StyleSheet.create({
   },
   webDateInput: {
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "red",
     marginBottom: 10,
     paddingHorizontal: 12,
     height: 44,
@@ -1726,7 +1723,7 @@ const styles = StyleSheet.create({
   textArea: {
     width: "100%",
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "red",
     borderRadius: 12,
     padding: 10,
     height: 116,
@@ -1735,7 +1732,7 @@ const styles = StyleSheet.create({
   },
   imagePicker: {
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "red",
     padding: 20,
     borderRadius: 10,
     alignItems: "center",
