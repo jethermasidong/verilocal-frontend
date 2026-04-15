@@ -16,6 +16,7 @@ export default function BusinessLayout() {
     "/business/productRegistration",
     "/business/batchRegistration",
     "/business/optionRegistration",
+    "/business/transferOwnership",
   ];
 
   const showProfile = allowedPages.includes(pathname);

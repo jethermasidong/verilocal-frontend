@@ -196,7 +196,7 @@ export default function AdminDashboard() {
     try {
       setShowAddMaterialModal(false);
       setIsLoading(true);
-      await axios.post(`${serverUrl}/api/admin/materials`, {
+      await axios.post("https://verilocalph.onrender.com/api/materials/create", {
         name: newMaterialName,
         type: newMaterialType,
       });
@@ -226,7 +226,7 @@ export default function AdminDashboard() {
     try {
       setShowAddOriginModal(false);
       setIsLoading(true);
-      await axios.post(`${serverUrl}/api/admin/origins`, {
+      await axios.post("https://verilocalph.onrender.com/api/origin/create", {
         name: newOriginName,
       });
       setResultType("success");
@@ -264,14 +264,14 @@ export default function AdminDashboard() {
             style={styles.addButtonsContainer}
             onPress={() => setShowAddMaterialModal(true)}
           >
-            <Ionicons name="hammer-outline" size={22} color="#fff" />
+            <Ionicons name="hammer-outline" size={22} color="#000000" />
             <Text style={styles.addButtonText}>Add Material</Text>
           </Pressable>
           <Pressable
             style={styles.addButtonsContainer}
             onPress={() => setShowAddOriginModal(true)}
           >
-            <Ionicons name="location-outline" size={22} color="#fff" />
+            <Ionicons name="location-outline" size={22} color="#000000" />
             <Text style={styles.addButtonText}>Add Origin</Text>
           </Pressable>
         </View>
@@ -630,6 +630,7 @@ export default function AdminDashboard() {
                 placeholderTextColor="#9CA3AF"
                 style={styles.addMaterial_modalInput}
                 autoCapitalize="none"
+                maxLength={64}
                 value={newMaterialName}
                 onChangeText={setNewMaterialName}
               />
@@ -640,6 +641,7 @@ export default function AdminDashboard() {
                 placeholderTextColor="#9CA3AF"
                 style={styles.addMaterial_modalInput}
                 autoCapitalize="none"
+                maxLength={64}
                 value={newMaterialType}
                 onChangeText={setNewMaterialType}
               />
@@ -703,6 +705,7 @@ export default function AdminDashboard() {
                 style={styles.addMaterial_modalInput}
                 autoCapitalize="none"
                 value={newOriginName}
+                maxLength={64}
                 onChangeText={setNewOriginName}
               />
             </View>
@@ -1005,17 +1008,18 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   addButtonsContainer: {
-    backgroundColor: "#4A70A9",
-    padding: 18,
-    borderRadius: 50,
+    padding: 8,
+    borderWidth: 1,
+    borderRadius: 10,
     alignItems: "center",
     flexDirection: "row",
     gap: 6,
   },
   addButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontFamily: "Montserrat-Bold",
+    color: "#000000",
+    fontWeight: "thin",
+    fontSize: 14,
+    fontFamily: "Montserrat-Regular",
   },
   addMaterial_modalOverlay: {
     flex: 1,

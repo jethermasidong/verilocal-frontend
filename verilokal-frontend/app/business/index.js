@@ -71,6 +71,7 @@ export default function BusinessDashboard() {
   //Types and Materials
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [selectedMaterials, setSelectedMaterials] = useState([]);
+  const [selectedStatus, setSelectedStatus] = useState([]);
 
   //Delete Confirmation
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -110,15 +111,9 @@ export default function BusinessDashboard() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [dateType, setDateType] = useState(null);
 
-  const origins = [
-    "Abra",
-    "Apayao",
-    "Benguet",
-    "Ifugao",
-    "Kalinga",
-    "Mountain Province",
-    "Baguio City",
-  ];
+  const [types, setTypes] = useState([]);
+  const [materials, setMaterials] = useState([]);
+  const [origins, setOrigins] = useState([]);  
 
   const [errors, setErrors] = useState({});
 
@@ -178,6 +173,9 @@ export default function BusinessDashboard() {
   ].sort((a, b) => a.localeCompare(b));
   const materialOptions = [
     ...new Set(products.map((p) => p.materials).filter(Boolean)),
+  ].sort((a, b) => a.localeCompare(b));
+  const statusOptions = [
+    ...new Set(products.map((p) => p.status).filter(Boolean)),
   ].sort((a, b) => a.localeCompare(b));
 
   const toggleFilter = (value, selected, setSelected) => {
@@ -316,7 +314,10 @@ export default function BusinessDashboard() {
     const matchesMaterials =
       selectedMaterials.length === 0 || selectedMaterials.includes(p.materials);
 
-    return matchesSearch && matchesType && matchesMaterials;
+    const matchesStatus =
+      selectedStatus.length === 0 || selectedStatus.includes(p.status);
+
+    return matchesSearch && matchesType && matchesMaterials && matchesStatus;
   });
 
   const openModal = (product) => {
@@ -785,6 +786,7 @@ export default function BusinessDashboard() {
         <div class="products">
             <h2>Product Catalog</h2>
             ${products
+              .filter((p) => p.status === "approved")
               .map(
                 (p) => `<div class="products">
                 <div class="image-box">
@@ -935,6 +937,70 @@ export default function BusinessDashboard() {
   const SIDEBAR_WIDTH = 280;
   const slideX = useRef(new Animated.Value(SIDEBAR_WIDTH)).current;
   const [sidebarMounted, setSidebarMounted] = useState(false);
+
+ useEffect(() => {
+    if (editForm.type) {
+      fetchMaterials(editForm.type);
+    }
+  }, [editForm.type])
+
+  const fetchMaterials = async (type) => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      const res = await axios.get(
+        `https://verilocalph.onrender.com/api/materials/type/${type}`,
+        {
+          headers: { Authorization: `Bearer ${token}`},
+        }
+      );
+      if (type === editForm.type) {
+        setMaterials(res.data);
+      }
+    } catch (err) {
+      console.error("Error fetching materials", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchTypes();
+  }, []);
+
+  const fetchTypes = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      console.log("FETCHING TYPES...");
+      const res = await axios.get(
+        "https://verilocalph.onrender.com/api/materials/types",
+        {
+          headers: { Authorization: `Bearer ${token}`},
+        }
+      );
+      setTypes(res.data);
+    } catch (err) {
+      console.error("Error fetching types", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrigins();
+  }, []);
+
+  const fetchOrigins = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      const res = await axios.get(
+        "https://verilocalph.onrender.com/api/origin",
+        {
+          headers: { Authorization: `Bearer ${token}`},
+        }
+      );
+      setOrigins(res.data);
+    } catch (err) {
+      console.error("Error fetching origin", err);
+    }
+  };
+
+
 
   useEffect(() => {
     if (profileSidebarVisible) {
@@ -1920,31 +1986,22 @@ export default function BusinessDashboard() {
                         }}
                       >
                         <Picker.Item label="Select Type" value="" />
-                        <Picker.Item label="Woodcrafts" value="Woodcraft" />
-                        <Picker.Item
-                          label="Weaving and Textiles"
-                          value="Textile"
-                        />
+                        {types.map((type, index) => (
+                        <Picker.Item key={index} label={type} value={type} />
+                      ))}
                       </Picker>
                     </View>
-                    {editForm.type === "Woodcraft" && (
-                      <View style={{ marginBottom: 7 }}>
-                        <Text
-                          style={{
-                            fontWeight: "600",
-                            marginTop: 6,
-                            marginBottom: 1,
-                            fontSize: 13,
-                            fontFamily: "Montserrat-Regular",
-                          }}
-                        >
-                          Materials*
-                        </Text>
+                    {editForm.type !== "" && (
+                      <View style={{
+                        fontWeight: "600",
+                        marginTop: 0,
+                        marginBottom: 4,
+                        fontSize: 13,
+                        fontFamily: "Montserrat-Regular",
+                      }}>
                         <Picker
                           selectedValue={editForm.materials}
-                          onValueChange={(v) =>
-                            handleInputChange("materials", v)
-                          }
+                          onValueChange={(v) => handleInputChange("materials", v)}
                           style={{
                             borderWidth: 1,
                             borderColor: "#ccc",
@@ -1955,54 +2012,15 @@ export default function BusinessDashboard() {
                             fontFamily: "Montserrat-Regular",
                             fontSize: 13,
                           }}
-                        >
-                          <Picker.Item label="Select Material" value="" />
-                          <Picker.Item label="Kamagong" value="Kamagong" />
-                          <Picker.Item label="Acacia" value="Acacia" />
-                          <Picker.Item label="Narra" value="Narra" />
-                          <Picker.Item label="Molave" value="Molave" />
-                          <Picker.Item label="Mahogany" value="Mahogany" />
-                          <Picker.Item label="Batikuling" value="Batikuling" />
-                          <Picker.Item label="Gmelina" value="Gmelina" />
-                        </Picker>
-                      </View>
-                    )}
-                    {editForm.type === "Textile" && (
-                      <View style={{ marginBottom: 7 }}>
-                        <Text
-                          style={{
-                            fontWeight: "600",
-                            marginTop: 6,
-                            marginBottom: 1,
-                            fontSize: 13,
-                            fontFamily: "Montserrat-Regular",
-                          }}
-                        >
-                          Materials*
-                        </Text>
-                        <Picker
-                          selectedValue={editForm.materials}
-                          onValueChange={(v) =>
-                            handleInputChange("materials", v)
-                          }
-                          style={{
-                            borderWidth: 1,
-                            borderColor: "#ccc",
-                            padding: 8,
-                            borderRadius: 8,
-                            backgroundColor: "#fafafa",
-                            width: "100%",
-                            fontFamily: "Montserrat-Regular",
-                            fontSize: 13,
-                          }}
-                        >
-                          <Picker.Item label="Select Material" value="" />
-                          <Picker.Item label="Abaca" value="Abaca" />
-                          <Picker.Item label="Piña" value="Piña" />
-                          <Picker.Item label="Cotton" value="Cotton" />
-                          <Picker.Item label="Silk" value="Silk" />
-                          <Picker.Item label="Maguay" value="Maguay" />
-                        </Picker>
+                          >
+                        <Picker.Item label="Select Material" value="" />
+                          {materials.map((mat, index) => (
+                            <Picker.Item key={index} label={mat.name} value={mat.name} />
+                          ))}
+                          </Picker>
+                            {errors.materials && (
+                              <Text style={styles.errorText}>{errors.materials}</Text>
+                            )}
                       </View>
                     )}
                     <Text
@@ -2034,9 +2052,13 @@ export default function BusinessDashboard() {
                         }
                       >
                         <Picker.Item label="Select Origin" value="" />
-                        {origins.map((item, index) => (
-                          <Picker.Item key={index} label={item} value={item} />
-                        ))}
+                          {origins.map((item, index) => (
+                            <Picker.Item
+                              key={index}
+                              label={item.name || item}
+                              value={item.name || item}
+                            />
+                          ))}   
                       </Picker>
                     </View>
 
@@ -2537,6 +2559,46 @@ export default function BusinessDashboard() {
                       />
                       <Text style={{ fontFamily: "Montserrat-Regular" }}>
                         {mat}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+                {/* STATUS FILTER */}
+                <Text
+                  style={{
+                    fontWeight: "600",
+                    marginBottom: 6,
+                    marginTop: 4,
+                    fontFamily: "Montserrat-Regular",
+                  }}
+                >
+                  Status
+                </Text>
+                <View
+                  style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}
+                >
+                  {statusOptions.map((status) => (
+                    <Pressable
+                      key={status}
+                      onPress={() =>
+                        toggleFilter(status, selectedStatus, setSelectedStatus)
+                      }
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 6,
+                      }}
+                    >
+                      <Ionicons
+                        name={
+                          selectedStatus.includes(status)
+                            ? "checkbox"
+                            : "square-outline"
+                        }
+                        size={18}
+                      />
+                      <Text style={{ fontFamily: "Montserrat-Regular" }}>
+                        {status}
                       </Text>
                     </Pressable>
                   ))}

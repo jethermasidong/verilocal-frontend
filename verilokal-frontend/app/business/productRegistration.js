@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
+import { Assets } from "@react-navigation/elements";
 import axios from "axios";
 import { useFonts } from "expo-font";
 import * as ImagePicker from "expo-image-picker";
@@ -78,6 +79,10 @@ export default function RegisterProduct() {
 
   const [dateType, setDateType] = useState(null);
 
+  const [types, setTypes] = useState([]);
+  const [materials, setMaterials] = useState([]);
+  const [origins, setOrigins] = useState([]);
+
   //DATE FORMAT
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString("en-US", {
@@ -86,16 +91,6 @@ export default function RegisterProduct() {
       year: "numeric",
     });
   };
-
-  const origins = [
-    "Abra",
-    "Apayao",
-    "Benguet",
-    "Ifugao",
-    "Kalinga",
-    "Mountain Province",
-    "Baguio City",
-  ];
 
   const onDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
@@ -358,6 +353,68 @@ export default function RegisterProduct() {
     }
   };
 
+  useEffect(() => {
+    if (form.type) {
+      fetchMaterials(form.type);
+    }
+  }, [form.type])
+
+  const fetchMaterials = async (type) => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      const res = await axios.get(
+        `https://verilocalph.onrender.com/api/materials/type/${type}`,
+        {
+          headers: { Authorization: `Bearer ${token}`},
+        }
+      );
+      if (type === form.type) {
+        setMaterials(res.data);
+      }
+    } catch (err) {
+      console.error("Error fetching materials", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchTypes();
+  }, []);
+
+  const fetchTypes = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      console.log("FETCHING TYPES...");
+      const res = await axios.get(
+        "https://verilocalph.onrender.com/api/materials/types",
+        {
+          headers: { Authorization: `Bearer ${token}`},
+        }
+      );
+      setTypes(res.data);
+    } catch (err) {
+      console.error("Error fetching types", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrigins();
+  }, []);
+
+  const fetchOrigins = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      const res = await axios.get(
+        "https://verilocalph.onrender.com/api/origin",
+        {
+          headers: { Authorization: `Bearer ${token}`},
+        }
+      );
+      setOrigins(res.data);
+    } catch (err) {
+      console.error("Error fetching origin", err);
+    }
+  };
+
   //PAGE ANIMATION
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
@@ -517,18 +574,16 @@ export default function RegisterProduct() {
                       style={[styles.picker, errors.type && styles.errorInput]}
                     >
                       <Picker.Item label="Select Type" value="" />
-                      <Picker.Item label="Woodcrafts" value="Woodcraft" />
-                      <Picker.Item
-                        label="Weaving and Textiles"
-                        value="Textile"
-                      />
-                    </Picker>
+                      {types.map((type, index) => (
+                        <Picker.Item key={index} label={type} value={type} />
+                      ))}
+                      </Picker>
                     {errors.type && (
                       <Text style={styles.errorText}>{errors.type}</Text>
                     )}
                   </View>
 
-                  {form.type === "Woodcraft" && (
+                  {form.type !== "" && (
                     <View style={styles.inputContainer}>
                       <Picker
                         selectedValue={form.materials}
@@ -539,39 +594,9 @@ export default function RegisterProduct() {
                         ]}
                       >
                         <Picker.Item label="Select Material" value="" />
-                        <Picker.Item label="Kamagong" value="Kamagong" />
-                        <Picker.Item label="Acacia" value="Acacia" />
-                        <Picker.Item label="Narra" value="Narra" />
-                        <Picker.Item label="Molave" value="Molave" />
-                        <Picker.Item label="Mahogany" value="Mahogany" />
-                        <Picker.Item label="Batikuling" value="Batikuling" />
-                        <Picker.Item label="Gmelina" value="Gmelina" />
-                        <Picker.Item label="Mangga" value="Mangga" />
-                        <Picker.Item label="Alnus" value="Alnus" />
-                        <Picker.Item label="Langka" value="Langka" />
-                      </Picker>
-                      {errors.materials && (
-                        <Text style={styles.errorText}>{errors.materials}</Text>
-                      )}
-                    </View>
-                  )}
-
-                  {form.type === "Textile" && (
-                    <View style={styles.inputContainer}>
-                      <Picker
-                        selectedValue={form.materials}
-                        onValueChange={(v) => handleInputChange("materials", v)}
-                        style={[
-                          styles.picker,
-                          errors.type && styles.errorInput,
-                        ]}
-                      >
-                        <Picker.Item label="Select Material" value="" />
-                        <Picker.Item label="Abaca" value="Abaca" />
-                        <Picker.Item label="Piña" value="Piña" />
-                        <Picker.Item label="Cotton" value="Cotton" />
-                        <Picker.Item label="Silk" value="Silk" />
-                        <Picker.Item label="Maguay" value="Maguay" />
+                        {materials.map((mat, index) => (
+                          <Picker.Item key={index} label={mat.name} value={mat.name} />
+                        ))}
                       </Picker>
                       {errors.materials && (
                         <Text style={styles.errorText}>{errors.materials}</Text>
@@ -583,14 +608,18 @@ export default function RegisterProduct() {
                   <View style={styles.inputContainer}>
                     <Picker
                       selectedValue={form.origin}
-                      style={[styles.picker, errors.type && styles.errorInput]}
+                      style={[styles.picker, errors.origins && styles.errorInput]}
                       onValueChange={(value) =>
                         handleInputChange("origin", value)
                       }
                     >
                       <Picker.Item label="Select Origin" value="" />
                       {origins.map((item, index) => (
-                        <Picker.Item key={index} label={item} value={item} />
+                        <Picker.Item
+                          key={index}
+                          label={item.name || item}
+                          value={item.name || item}
+                        />
                       ))}
                     </Picker>
                     {errors.origin && (
@@ -912,18 +941,16 @@ export default function RegisterProduct() {
                       style={[styles.picker, errors.type && styles.errorInput]}
                     >
                       <Picker.Item label="Select Type" value="" />
-                      <Picker.Item label="Woodcrafts" value="Woodcraft" />
-                      <Picker.Item
-                        label="Weaving and Textiles"
-                        value="Textile"
-                      />
-                    </Picker>
+                      {types.map((type, index) => (
+                        <Picker.Item key={index} label={type} value={type} />
+                      ))}
+                      </Picker>
                     {errors.type && (
                       <Text style={styles.errorText}>{errors.type}</Text>
                     )}
                   </View>
 
-                  {form.type === "Woodcraft" && (
+                  {form.type !== "" && (
                     <View style={styles.inputContainer}>
                       <Picker
                         selectedValue={form.materials}
@@ -934,39 +961,9 @@ export default function RegisterProduct() {
                         ]}
                       >
                         <Picker.Item label="Select Material" value="" />
-                        <Picker.Item label="Kamagong" value="Kamagong" />
-                        <Picker.Item label="Acacia" value="Acacia" />
-                        <Picker.Item label="Narra" value="Narra" />
-                        <Picker.Item label="Molave" value="Molave" />
-                        <Picker.Item label="Mahogany" value="Mahogany" />
-                        <Picker.Item label="Batikuling" value="Batikuling" />
-                        <Picker.Item label="Gmelina" value="Gmelina" />
-                        <Picker.Item label="Mangga" value="Mangga" />
-                        <Picker.Item label="Alnus" value="Alnus" />
-                        <Picker.Item label="Langka" value="Langka" />
-                      </Picker>
-                      {errors.materials && (
-                        <Text style={styles.errorText}>{errors.materials}</Text>
-                      )}
-                    </View>
-                  )}
-
-                  {form.type === "Textile" && (
-                    <View style={styles.inputContainer}>
-                      <Picker
-                        selectedValue={form.materials}
-                        onValueChange={(v) => handleInputChange("materials", v)}
-                        style={[
-                          styles.picker,
-                          errors.type && styles.errorInput,
-                        ]}
-                      >
-                        <Picker.Item label="Select Material" value="" />
-                        <Picker.Item label="Abaca" value="Abaca" />
-                        <Picker.Item label="Piña" value="Piña" />
-                        <Picker.Item label="Cotton" value="Cotton" />
-                        <Picker.Item label="Silk" value="Silk" />
-                        <Picker.Item label="Maguay" value="Maguay" />
+                        {materials.map((mat, index) => (
+                          <Picker.Item key={index} label={mat.name} value={mat.name} />
+                        ))}
                       </Picker>
                       {errors.materials && (
                         <Text style={styles.errorText}>{errors.materials}</Text>
@@ -977,14 +974,18 @@ export default function RegisterProduct() {
                   <View style={styles.inputContainer}>
                     <Picker
                       selectedValue={form.origin}
-                      style={[styles.picker, errors.type && styles.errorInput]}
+                      style={[styles.picker, errors.origins && styles.errorInput]}
                       onValueChange={(value) =>
                         handleInputChange("origin", value)
                       }
                     >
                       <Picker.Item label="Select Origin" value="" />
                       {origins.map((item, index) => (
-                        <Picker.Item key={index} label={item} value={item} />
+                        <Picker.Item
+                          key={index}
+                          label={item.name || item}
+                          value={item.name || item}
+                        />
                       ))}
                     </Picker>
                     {errors.origin && (
