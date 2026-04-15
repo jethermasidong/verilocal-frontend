@@ -456,7 +456,6 @@ export default function RegisterProduct() {
       style={{
         opacity: fadeAnim,
         flex: 1,
-        marginTop: 80,
         transform: [{ translateY: slideAnim }],
       }}
     >
@@ -841,7 +840,7 @@ export default function RegisterProduct() {
             flex: 1,
             justifyContent: "center",
             alignItems: "center",
-            paddingVertical: 30,
+            paddingVertical: 0,
           }}
         >
           <View style={[styles.card, { flexDirection: "row" }]}>
@@ -1764,7 +1763,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 20,
-    zIndex: 999,
+    zIndex: 9999,
   },
 
   resultContainer: {

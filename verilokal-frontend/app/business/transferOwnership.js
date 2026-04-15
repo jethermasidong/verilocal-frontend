@@ -18,6 +18,32 @@ import {
   View,
 } from "react-native";
 
+// ─── Static filter options (mirrored from index.js) ───────────────────────────
+const TYPE_OPTIONS = ["Woodcraft", "Textile"];
+
+const MATERIAL_OPTIONS = {
+  Woodcraft: [
+    "Kamagong",
+    "Acacia",
+    "Narra",
+    "Molave",
+    "Mahogany",
+    "Batikuling",
+    "Gmelina",
+  ],
+  Textile: ["Abaca", "Piña", "Cotton", "Silk", "Maguay"],
+};
+
+const ORIGIN_OPTIONS = [
+  "Abra",
+  "Apayao",
+  "Benguet",
+  "Ifugao",
+  "Kalinga",
+  "Mountain Province",
+  "Baguio City",
+];
+
 const STATUS_STYLES = {
   Approved: { bg: "#DCFCE7", text: "#15803D" },
   Pending: { bg: "#FEF3C7", text: "#B45309" },
@@ -78,6 +104,30 @@ export default function TransferOwnership() {
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
   const shakeAnim = useRef(new Animated.Value(0)).current;
+
+  // Filter panel
+  const filterRef = useRef(null);
+  const [showFilter, setShowFilter] = useState(false);
+  const [filterPos, setFilterPos] = useState({ x: 0, y: 0, width: 0 });
+  const [selectedTypes, setSelectedTypes] = useState([]);
+  const [selectedMaterials, setSelectedMaterials] = useState([]);
+  const [selectedOrigins, setSelectedOrigins] = useState([]);
+
+  // Derived material options based on selected types
+  const activeMaterialOptions =
+    selectedTypes.length > 0
+      ? selectedTypes.flatMap((t) => MATERIAL_OPTIONS[t] ?? [])
+      : Object.values(MATERIAL_OPTIONS).flat();
+
+  const toggleFilter = (value, selected, setSelected) => {
+    setSelected((prev) =>
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
+    );
+  };
+
+  // Final confirmation modal
+  const [showFinalConfirmModal, setShowFinalConfirmModal] = useState(false);
+  const [confirmText, setConfirmText] = useState("");
 
   useEffect(() => {
     fetchProducts();
@@ -204,14 +254,26 @@ export default function TransferOwnership() {
     }
   };
 
-  const filtered = products.filter(
-    (item) =>
+  const filtered = products.filter((item) => {
+    const matchesSearch =
       (item.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (item.uid || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (item.current_owner || "")
         .toLowerCase()
-        .includes(searchQuery.toLowerCase()),
-  );
+        .includes(searchQuery.toLowerCase());
+
+    const matchesType =
+      selectedTypes.length === 0 || selectedTypes.includes(item.type);
+
+    const matchesMaterial =
+      selectedMaterials.length === 0 ||
+      selectedMaterials.includes(item.materials);
+
+    const matchesOrigin =
+      selectedOrigins.length === 0 || selectedOrigins.includes(item.origin);
+
+    return matchesSearch && matchesType && matchesMaterial && matchesOrigin;
+  });
 
   const toggleSelect = (uid) => {
     setSelectedIds((prev) =>
@@ -322,7 +384,13 @@ export default function TransferOwnership() {
 
           <TouchableOpacity
             style={[styles.filterBtn, filterActive && styles.filterBtnActive]}
-            onPress={() => setFilterActive((v) => !v)}
+            ref={filterRef}
+            onPress={() => {
+              filterRef.current?.measureInWindow((x, y, width, height) => {
+                setFilterPos({ x, y: y + height, width });
+                setShowFilter(true);
+              });
+            }}
           >
             <Ionicons name="filter-outline" size={28} />
             <Text
@@ -466,7 +534,10 @@ export default function TransferOwnership() {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  onPress={handleConfirmTransfer}
+                  onPress={() => {
+                    setConfirmText("");
+                    setShowFinalConfirmModal(true);
+                  }}
                   style={styles.modalConfirmBtn}
                 >
                   <Text style={styles.modalConfirmText}>Confirm Transfer</Text>
@@ -475,6 +546,240 @@ export default function TransferOwnership() {
             </View>
           </View>
         </Modal>
+        {/* Filter Panel */}
+        <Modal visible={showFilter} transparent animationType="fade">
+          <Pressable style={{ flex: 1 }} onPress={() => setShowFilter(false)}>
+            <View
+              style={{
+                position: "absolute",
+                top: filterPos.y + 6,
+                left: filterPos.x - 120,
+                width: 220,
+                backgroundColor: "#fff",
+                borderWidth: 2,
+                borderColor: "#111827",
+                borderRadius: 12,
+                paddingVertical: 12,
+                paddingHorizontal: 14,
+                elevation: 50,
+                zIndex: 99999,
+                shadowColor: "#000",
+                shadowOpacity: 0.12,
+                shadowRadius: 8,
+              }}
+            >
+              {/* TYPE */}
+              <Text style={styles.filterSectionLabel}>Type</Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  flexWrap: "wrap",
+                  gap: 8,
+                  marginBottom: 10,
+                }}
+              >
+                {TYPE_OPTIONS.map((type) => (
+                  <Pressable
+                    key={type}
+                    onPress={() => {
+                      toggleFilter(type, selectedTypes, setSelectedTypes);
+                      setSelectedMaterials([]);
+                    }}
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 5,
+                    }}
+                  >
+                    <View
+                      style={[
+                        styles.filterCheckbox,
+                        selectedTypes.includes(type) &&
+                          styles.filterCheckboxChecked,
+                      ]}
+                    >
+                      {selectedTypes.includes(type) && (
+                        <Text style={styles.filterCheckmark}>✓</Text>
+                      )}
+                    </View>
+                    <Text style={styles.filterLabel}>{type}</Text>
+                  </Pressable>
+                ))}
+              </View>
+
+              {/* MATERIAL */}
+              <Text style={styles.filterSectionLabel}>Material</Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  flexWrap: "wrap",
+                  gap: 8,
+                  marginBottom: 10,
+                }}
+              >
+                {activeMaterialOptions.map((mat) => (
+                  <Pressable
+                    key={mat}
+                    onPress={() =>
+                      toggleFilter(mat, selectedMaterials, setSelectedMaterials)
+                    }
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 5,
+                    }}
+                  >
+                    <View
+                      style={[
+                        styles.filterCheckbox,
+                        selectedMaterials.includes(mat) &&
+                          styles.filterCheckboxChecked,
+                      ]}
+                    >
+                      {selectedMaterials.includes(mat) && (
+                        <Text style={styles.filterCheckmark}>✓</Text>
+                      )}
+                    </View>
+                    <Text style={styles.filterLabel}>{mat}</Text>
+                  </Pressable>
+                ))}
+              </View>
+
+              {/* ORIGIN */}
+              <Text style={styles.filterSectionLabel}>Origin</Text>
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+                {ORIGIN_OPTIONS.map((origin) => (
+                  <Pressable
+                    key={origin}
+                    onPress={() =>
+                      toggleFilter(origin, selectedOrigins, setSelectedOrigins)
+                    }
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 5,
+                    }}
+                  >
+                    <View
+                      style={[
+                        styles.filterCheckbox,
+                        selectedOrigins.includes(origin) &&
+                          styles.filterCheckboxChecked,
+                      ]}
+                    >
+                      {selectedOrigins.includes(origin) && (
+                        <Text style={styles.filterCheckmark}>✓</Text>
+                      )}
+                    </View>
+                    <Text style={styles.filterLabel}>{origin}</Text>
+                  </Pressable>
+                ))}
+              </View>
+
+              {/* Clear all */}
+              {(selectedTypes.length > 0 ||
+                selectedMaterials.length > 0 ||
+                selectedOrigins.length > 0) && (
+                <Pressable
+                  onPress={() => {
+                    setSelectedTypes([]);
+                    setSelectedMaterials([]);
+                    setSelectedOrigins([]);
+                  }}
+                  style={styles.filterClearBtn}
+                >
+                  <Text style={styles.filterClearText}>Clear all filters</Text>
+                </Pressable>
+              )}
+            </View>
+          </Pressable>
+        </Modal>
+
+        {/* Final Confirmation Modal */}
+        <Modal visible={showFinalConfirmModal} transparent animationType="fade">
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              {/* Icon */}
+              <View style={styles.modalIconWrap}>
+                <Ionicons
+                  name="shield-checkmark-outline"
+                  size={22}
+                  color="#111827"
+                />
+              </View>
+
+              {/* Title */}
+              <Text style={styles.modalTitle}>Final Confirmation</Text>
+              <Text style={styles.modalSubtitle}>
+                You are about to transfer{" "}
+                <Text style={styles.modalSubtitleBold}>
+                  {selectedIds.length} item{selectedIds.length > 1 ? "s" : ""}
+                </Text>{" "}
+                to{" "}
+                <Text style={styles.modalSubtitleBold}>
+                  {newOwner || "the new owner"}
+                </Text>
+                .{"\n\n"}This action cannot be undone. Type{" "}
+                <Text style={styles.modalSubtitleBold}>confirm</Text> below to
+                proceed.
+              </Text>
+
+              {/* Confirm text input */}
+              <View style={styles.modalInputWrap}>
+                <Ionicons
+                  name="lock-closed-outline"
+                  size={16}
+                  color="#9CA3AF"
+                  style={styles.modalInputIcon}
+                />
+                <TextInput
+                  placeholder='Type "confirm" to proceed'
+                  placeholderTextColor="#9CA3AF"
+                  value={confirmText}
+                  onChangeText={setConfirmText}
+                  style={styles.modalInput}
+                  autoCapitalize="none"
+                />
+              </View>
+
+              {/* Divider */}
+              <View style={styles.modalDivider} />
+
+              {/* Actions */}
+              <View style={styles.modalActions}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setShowFinalConfirmModal(false);
+                    setConfirmText("");
+                  }}
+                  style={styles.modalCancelBtn}
+                >
+                  <Text style={styles.modalCancelText}>Cancel</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    if (confirmText.trim().toLowerCase() !== "confirm") {
+                      return;
+                    }
+                    setShowFinalConfirmModal(false);
+                    setConfirmText("");
+                    handleConfirmTransfer();
+                  }}
+                  style={[
+                    styles.modalConfirmBtn,
+                    confirmText.trim().toLowerCase() !== "confirm" && {
+                      opacity: 0.4,
+                    },
+                  ]}
+                >
+                  <Text style={styles.modalConfirmText}>Confirm Transfer</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
         {/* Loading Modal */}
         {isLoading && (
           <View style={styles.resultOverlay}>
@@ -1087,5 +1392,53 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
+  },
+
+  // Filter panel
+  filterSectionLabel: {
+    fontFamily: "Garet-Book",
+    fontWeight: "700",
+    fontSize: 12,
+    color: "#374151",
+    textTransform: "uppercase",
+    letterSpacing: 0.4,
+    marginBottom: 6,
+  },
+  filterCheckbox: {
+    width: 16,
+    height: 16,
+    borderRadius: 4,
+    borderWidth: 1.5,
+    borderColor: "#D1D5DB",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  filterCheckboxChecked: {
+    backgroundColor: "#111827",
+    borderColor: "#111827",
+  },
+  filterCheckmark: {
+    color: "#fff",
+    fontSize: 9,
+    fontWeight: "700",
+  },
+  filterLabel: {
+    fontFamily: "Garet-Book",
+    fontSize: 13,
+    color: "#374151",
+  },
+  filterClearBtn: {
+    marginTop: 12,
+    alignSelf: "flex-start",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+  filterClearText: {
+    fontFamily: "Garet-Book",
+    fontSize: 12,
+    color: "#6B7280",
   },
 });
