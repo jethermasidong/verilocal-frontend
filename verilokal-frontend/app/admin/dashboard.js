@@ -114,6 +114,18 @@ export default function AdminDashboard() {
 
   const [hoverClose, setHoverClose] = useState(false);
 
+  // History modals
+  const [showMaterialHistoryModal, setShowMaterialHistoryModal] =
+    useState(false);
+  const [showOriginHistoryModal, setShowOriginHistoryModal] = useState(false);
+  const [materialHistory, setMaterialHistory] = useState([]);
+  const [originHistory, setOriginHistory] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+
+  // History item delete confirmation modal
+  const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
+  const [historyDeleteTarget, setHistoryDeleteTarget] = useState(null); // { id, name, type: 'material' | 'origin' }
+
   // Add Material inputs
   const [newMaterialName, setNewMaterialName] = useState("");
   const [newMaterialType, setNewMaterialType] = useState("");
@@ -188,6 +200,48 @@ export default function AdminDashboard() {
     }
   }, [resultVisible, resultType]);
 
+  const fetchMaterialHistory = async () => {
+    try {
+      setHistoryLoading(true);
+      const res = await axios.get(`${serverUrl}/api/materials`);
+      setMaterialHistory(Array.isArray(res.data) ? res.data : []);
+    } catch (error) {
+      Alert.alert("Error", "Failed to load material history");
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  const fetchOriginHistory = async () => {
+    try {
+      setHistoryLoading(true);
+      const res = await axios.get(`${serverUrl}/api/origin`);
+      setOriginHistory(Array.isArray(res.data) ? res.data : []);
+    } catch (error) {
+      Alert.alert("Error", "Failed to load origin history");
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  const deleteMaterialEntry = async (id) => {
+    try {
+      await axios.delete(`${serverUrl}/api/materials/${id}`);
+      setMaterialHistory((prev) => prev.filter((m) => m.id !== id));
+    } catch (error) {
+      Alert.alert("Error", "Failed to delete material");
+    }
+  };
+
+  const deleteOriginEntry = async (id) => {
+    try {
+      await axios.delete(`${serverUrl}/api/origin/${id}`);
+      setOriginHistory((prev) => prev.filter((o) => o.id !== id));
+    } catch (error) {
+      Alert.alert("Error", "Failed to delete origin");
+    }
+  };
+
   const handleAddMaterial = async () => {
     if (!newMaterialName.trim() || !newMaterialType.trim()) {
       Alert.alert("Validation", "Please fill in all material fields.");
@@ -196,10 +250,13 @@ export default function AdminDashboard() {
     try {
       setShowAddMaterialModal(false);
       setIsLoading(true);
-      await axios.post("https://verilocalph.onrender.com/api/materials/create", {
-        name: newMaterialName,
-        type: newMaterialType,
-      });
+      await axios.post(
+        "https://verilocalph.onrender.com/api/materials/create",
+        {
+          name: newMaterialName,
+          type: newMaterialType,
+        },
+      );
       setResultType("success");
       setResultMessage(
         `"${newMaterialName}" has been successfully added as a material.`,
@@ -619,9 +676,20 @@ export default function AdminDashboard() {
               </View>
 
               {/* Title & subtitle */}
-              <Text style={styles.addMaterial_modalTitle}>
+              <Text style={[styles.addMaterial_modalTitle, { flex: 1 }]}>
                 Material Addition
               </Text>
+
+              {/* History Button */}
+              <TouchableOpacity
+                onPress={() => {
+                  fetchMaterialHistory();
+                  setShowMaterialHistoryModal(true);
+                }}
+                style={styles.historyIconBtn}
+              >
+                <Ionicons name="time-outline" size={22} color="#4A70A9" />
+              </TouchableOpacity>
             </View>
             {/* Input */}
             <View style={styles.addMaterial_modalInputWrap}>
@@ -694,7 +762,20 @@ export default function AdminDashboard() {
               </View>
 
               {/* Title */}
-              <Text style={styles.addMaterial_modalTitle}>Origin Addition</Text>
+              <Text style={[styles.addMaterial_modalTitle, { flex: 1 }]}>
+                Origin Addition
+              </Text>
+
+              {/* History Button */}
+              <TouchableOpacity
+                onPress={() => {
+                  fetchOriginHistory();
+                  setShowOriginHistoryModal(true);
+                }}
+                style={styles.historyIconBtn}
+              >
+                <Ionicons name="time-outline" size={22} color="#4A70A9" />
+              </TouchableOpacity>
             </View>
 
             {/* Input */}
@@ -732,6 +813,268 @@ export default function AdminDashboard() {
                 <Text style={styles.addMaterial_modalConfirmText}>
                   Confirm Addition of Origin
                 </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Material History Modal */}
+      <Modal
+        visible={showMaterialHistoryModal}
+        transparent
+        animationType="fade"
+      >
+        <View style={styles.addMaterial_modalOverlay}>
+          <View
+            style={[styles.addMaterial_modalContainer, { maxHeight: "75%" }]}
+          >
+            {/* Header */}
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginBottom: 16,
+                gap: 10,
+              }}
+            >
+              <View style={styles.addMaterial_modalIconWrap}>
+                <Ionicons name="time-outline" size={22} color="#4A70A9" />
+              </View>
+              <Text
+                style={[
+                  styles.addMaterial_modalTitle,
+                  { flex: 1, marginBottom: 16 },
+                ]}
+              >
+                Material History
+              </Text>
+              <TouchableOpacity
+                onPress={() => setShowMaterialHistoryModal(false)}
+                style={{ marginBottom: 16 }}
+              >
+                <Ionicons name="close" size={22} color="#6B7280" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.addMaterial_modalDivider} />
+
+            {/* List */}
+            {historyLoading ? (
+              <View style={{ paddingVertical: 24, alignItems: "center" }}>
+                <ActivityIndicator size="small" color="#4A70A9" />
+                <Text style={[styles.admin_loadingText, { marginTop: 10 }]}>
+                  Loading…
+                </Text>
+              </View>
+            ) : materialHistory.length === 0 ? (
+              <View style={{ paddingVertical: 24, alignItems: "center" }}>
+                <Ionicons name="archive-outline" size={36} color="#D1D5DB" />
+                <Text
+                  style={{
+                    fontFamily: "Garet-Book",
+                    color: "#9CA3AF",
+                    marginTop: 10,
+                  }}
+                >
+                  No materials added yet
+                </Text>
+              </View>
+            ) : (
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                style={{ maxHeight: 340 }}
+              >
+                {materialHistory.map((item, index) => (
+                  <View key={item.id ?? index} style={styles.historyItem}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.historyItemName}>{item.name}</Text>
+                      {item.type ? (
+                        <Text style={styles.historyItemSub}>{item.type}</Text>
+                      ) : null}
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setHistoryDeleteTarget({
+                          id: item.id,
+                          name: item.name,
+                          type: "material",
+                        });
+                        setShowHistoryDeleteModal(true);
+                      }}
+                      style={styles.historyDeleteBtn}
+                    >
+                      <Ionicons
+                        name="trash-outline"
+                        size={16}
+                        color="#B91C1C"
+                      />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </ScrollView>
+            )}
+            <View
+              style={[styles.addMaterial_modalDivider, { marginTop: 12 }]}
+            />
+          </View>
+        </View>
+      </Modal>
+
+      {/* Origin History Modal */}
+      <Modal visible={showOriginHistoryModal} transparent animationType="fade">
+        <View style={styles.addMaterial_modalOverlay}>
+          <View
+            style={[styles.addMaterial_modalContainer, { maxHeight: "75%" }]}
+          >
+            {/* Header */}
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginBottom: 16,
+                gap: 10,
+              }}
+            >
+              <View style={styles.addMaterial_modalIconWrap}>
+                <Ionicons name="time-outline" size={22} color="#4A70A9" />
+              </View>
+              <Text
+                style={[
+                  styles.addMaterial_modalTitle,
+                  { flex: 1, marginBottom: 16 },
+                ]}
+              >
+                Origin History
+              </Text>
+              <TouchableOpacity
+                onPress={() => setShowOriginHistoryModal(false)}
+                style={{ marginBottom: 16 }}
+              >
+                <Ionicons name="close" size={22} color="#6B7280" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.addMaterial_modalDivider} />
+
+            {/* List */}
+            {historyLoading ? (
+              <View style={{ paddingVertical: 24, alignItems: "center" }}>
+                <ActivityIndicator size="small" color="#4A70A9" />
+                <Text style={[styles.admin_loadingText, { marginTop: 10 }]}>
+                  Loading…
+                </Text>
+              </View>
+            ) : originHistory.length === 0 ? (
+              <View style={{ paddingVertical: 24, alignItems: "center" }}>
+                <Ionicons name="archive-outline" size={36} color="#D1D5DB" />
+                <Text
+                  style={{
+                    fontFamily: "Garet-Book",
+                    color: "#9CA3AF",
+                    marginTop: 10,
+                  }}
+                >
+                  No origins added yet
+                </Text>
+              </View>
+            ) : (
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                style={{ maxHeight: 340 }}
+              >
+                {originHistory.map((item, index) => (
+                  <View key={item.id ?? index} style={styles.historyItem}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.historyItemName}>{item.name}</Text>
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setHistoryDeleteTarget({
+                          id: item.id,
+                          name: item.name,
+                          type: "origin",
+                        });
+                        setShowHistoryDeleteModal(true);
+                      }}
+                      style={styles.historyDeleteBtn}
+                    >
+                      <Ionicons
+                        name="trash-outline"
+                        size={16}
+                        color="#B91C1C"
+                      />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </ScrollView>
+            )}
+
+            <View
+              style={[styles.addMaterial_modalDivider, { marginTop: 12 }]}
+            />
+          </View>
+        </View>
+      </Modal>
+
+      {/* History Item Delete Confirmation Modal */}
+      <Modal transparent visible={showHistoryDeleteModal} animationType="fade">
+        <View style={styles.historyDelete_overlay}>
+          <View style={styles.historyDelete_card}>
+            {/* Icon */}
+            <View style={styles.historyDelete_iconWrap}>
+              <Ionicons name="trash-outline" size={28} color="#B91C1C" />
+            </View>
+
+            {/* Title */}
+            <Text style={styles.historyDelete_title}>
+              {historyDeleteTarget?.type === "material"
+                ? "Delete Material"
+                : "Delete Origin"}
+            </Text>
+
+            {/* Message */}
+            <Text style={styles.historyDelete_message}>
+              Are you sure you want to remove{" "}
+              <Text style={{ fontFamily: "Garet-Heavy", color: "#111827" }}>
+                "{historyDeleteTarget?.name}"
+              </Text>
+              {historyDeleteTarget?.type === "material"
+                ? " from materials?"
+                : " from origins?"}
+            </Text>
+
+            {/* Buttons */}
+            <View style={styles.historyDelete_buttonRow}>
+              <TouchableOpacity
+                style={styles.historyDelete_cancelBtn}
+                onPress={() => {
+                  setShowHistoryDeleteModal(false);
+                  setHistoryDeleteTarget(null);
+                }}
+              >
+                <Text style={styles.historyDelete_cancelText}>Cancel</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.historyDelete_confirmBtn}
+                onPress={() => {
+                  if (historyDeleteTarget?.type === "material") {
+                    deleteMaterialEntry(historyDeleteTarget.id);
+                  } else {
+                    deleteOriginEntry(historyDeleteTarget.id);
+                  }
+                  setShowHistoryDeleteModal(false);
+                  setHistoryDeleteTarget(null);
+                }}
+              >
+                <Ionicons
+                  name="trash-outline"
+                  size={14}
+                  color="#fff"
+                  style={{ marginRight: 6 }}
+                />
+                <Text style={styles.historyDelete_confirmText}>Delete</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -1197,5 +1540,123 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
+  },
+
+  // History
+  historyIconBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: "#DBEAFE",
+    backgroundColor: "#EFF6FF",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 14,
+  },
+  historyItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F3F4F6",
+  },
+  historyItemName: {
+    fontSize: 14,
+    fontFamily: "Garet-Heavy",
+    color: "#111827",
+  },
+  historyItemSub: {
+    fontSize: 12,
+    fontFamily: "Garet-Book",
+    color: "#6B7280",
+    marginTop: 2,
+  },
+  historyDeleteBtn: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: "#FEE2E2",
+    marginLeft: 10,
+  },
+
+  // History Delete Confirmation Modal
+  historyDelete_overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 24,
+  },
+  historyDelete_card: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 28,
+    width: "100%",
+    maxWidth: 380,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    elevation: 10,
+  },
+  historyDelete_iconWrap: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#FEE2E2",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  historyDelete_title: {
+    fontSize: 18,
+    fontFamily: "Garet-Heavy",
+    color: "#111827",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  historyDelete_message: {
+    fontSize: 14,
+    fontFamily: "Garet-Book",
+    color: "#6B7280",
+    textAlign: "center",
+    lineHeight: 22,
+    marginBottom: 24,
+  },
+  historyDelete_buttonRow: {
+    flexDirection: "row",
+    gap: 12,
+    width: "100%",
+  },
+  historyDelete_cancelBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: "#E5E7EB",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#F9FAFB",
+  },
+  historyDelete_cancelText: {
+    fontFamily: "Garet-Heavy",
+    color: "#374151",
+    fontSize: 14,
+  },
+  historyDelete_confirmBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: "#DC2626",
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+  },
+  historyDelete_confirmText: {
+    fontFamily: "Garet-Heavy",
+    color: "#fff",
+    fontSize: 14,
   },
 });
