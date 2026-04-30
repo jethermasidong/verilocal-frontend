@@ -258,20 +258,20 @@ export default function AdminDashboard() {
       </LinearGradient>
 
       <View style={styles.admin_headerContainer}>
-        <Text style={styles.admin_pendingTitle}>Pending Business Accounts</Text>
+        <Text style={styles.admin_pendingTitle}>Pending Artisan Accounts</Text>
         <View style={{ flexDirection: "row", gap: 12, alignItems: "center" }}>
           <Pressable
             style={styles.addButtonsContainer}
             onPress={() => setShowAddMaterialModal(true)}
           >
-            <Ionicons name="hammer-outline" size={22} color="#000000" />
+            <Ionicons name="hammer-outline" size={18} color="#000000" />
             <Text style={styles.addButtonText}>Add Material</Text>
           </Pressable>
           <Pressable
             style={styles.addButtonsContainer}
             onPress={() => setShowAddOriginModal(true)}
           >
-            <Ionicons name="location-outline" size={22} color="#000000" />
+            <Ionicons name="location-outline" size={18} color="#000000" />
             <Text style={styles.addButtonText}>Add Origin</Text>
           </Pressable>
         </View>
@@ -280,24 +280,28 @@ export default function AdminDashboard() {
       <View style={styles.admin_summaryContainer}>
         {/* Total Pending */}
         <View style={styles.admin_summaryCard}>
+          <View style={{flexDirection: "row", gap: 4}}>
+          <Ionicons name="time-outline" size={22} color="#54667f" />
           <Text
             style={{
-              fontFamily: "Montserrat-Bold",
+              fontFamily: "Montserrat-Regular",
               fontSize: 14,
-              color: "#6B7280",
+              paddingTop: 3,
               marginBottom: 6,
+              color: "#54667f",
             }}
           >
-            TOTAL PENDING
+            Total Pending
           </Text>
+          </View>
           <Text
             style={{
               fontFamily: "Montserrat-Black",
               fontSize: 28,
-              color: "#111827",
+              color: "#657c9d",
             }}
           >
-            {totalPending}
+            {totalPending} Artisan(s)
           </Text>
         </View>
       </View>
@@ -326,7 +330,7 @@ export default function AdminDashboard() {
                   color: "#9CA3AF",
                 }}
               >
-                No pending businesses
+                No pending accounts
               </Text>
             ) : (
               pendingBusinesses.map((b) => (
@@ -838,15 +842,15 @@ const styles = StyleSheet.create({
   },
 
   admin_headerTitle: {
-    fontSize: 32,
-    fontFamily: "Garet-Heavy",
+    fontSize: 28,
+    fontFamily: "Montserrat-Black",
     color: "#000",
     marginBottom: 5,
   },
 
   admin_pendingTitle: {
     fontSize: 20,
-    fontFamily: "Montserrat-Bold",
+    fontFamily: "Montserrat-Regular",
     color: "#6B7280",
   },
 
@@ -1008,17 +1012,19 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   addButtonsContainer: {
-    padding: 8,
+    padding: 10,
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 25,
     alignItems: "center",
     flexDirection: "row",
     gap: 6,
+    borderColor: "#54667f",
   },
   addButtonText: {
     color: "#000000",
     fontWeight: "thin",
-    fontSize: 14,
+    paddingRight: 6,
+    fontSize: 13,
     fontFamily: "Montserrat-Regular",
   },
   addMaterial_modalOverlay: {
