@@ -46,28 +46,36 @@ export default function RegisterBusiness() {
   const [isLoading, setIsLoading] = useState(false);
   const [submitting, setIsSubmitting] = useState(false);
 
-  const loadGooglePlaces = () =>
-    new Promise((resolve, reject) => {
-      if (
-        window.google?.maps?.places ||
-        document.querySelector('script[src*="maps.googleapis.com/maps/api/js"]')
-      ) {
-        resolve();
-        return;
-      }
+  const [suggestions, setSuggestions] = useState([]);
 
-      const script = document.createElement("script");
-      script.src =
-        "https://maps.googleapis.com/maps/api/js?key=AIzaSyA493-QTAo8nnU_qzSNEXhc5sQDINRz2TU&libraries=places";
-      script.async = true;
-      script.defer = true;
-      script.onload = resolve;
-      script.onerror = reject;
+  const searchAddress = async (text) => {
+    setAddress(text);
 
-      document.head.appendChild(script);
-    });
-  const addressInputRef = useRef(null);
-  const autocompleteRef = useRef(null);
+    if (text.length < 3) {
+      setSuggestions([]);
+      return;
+    }
+
+    try {
+      const res = await axios.get(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+          text
+        )}.json`,
+        {
+          params: {
+            access_token: process.env.PUBLIC_MAP_TOKEN,
+            autocomplete: true,
+            country: "ph",
+            limit: 5,
+          },
+        }
+      );
+
+      setSuggestions(res.data.features);
+    } catch (err) {
+      console.error("Mapbox error:", err);
+    }
+  };
 
   const pickImage = async (setter) => {
     try {
@@ -146,6 +154,67 @@ export default function RegisterBusiness() {
     Dimensions.addEventListener("change", resize);
     return () => Dimensions.removeEventListener("change", resize);
   }, []);
+
+  const validateField = (field, value) => {
+  let error = "";
+
+  switch (field) {
+    case "name":
+      if (!value) error = "Owner name is required";
+      else if (value.length > 50) error = "Name must be 0-50 characters";
+      break;
+
+    case "business_name":
+      if (!value) error = "Business name is required";
+      break;
+
+    case "email":
+      if (!value) error = "Email is required";
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        error = "Please enter a valid email address";
+      }
+      break;
+
+    case "password":
+      if (!value) error = "Password is required";
+      else if (
+        !/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+=[\]{};':"\\|,.<>/?~-]{8,}$/.test(
+          value
+        )
+      ) {
+        error =
+          "Password must be at least 8 characters with letters & numbers";
+      }
+      break;
+
+    case "contact_no":
+      if (!value) error = "Contact number is required";
+      else if (!/^09\d{9}$/.test(value)) {
+        error = "Invalid PH number (09XXXXXXXXX)";
+      }
+      break;
+
+    case "address":
+      if (!value) error = "Address is required";
+      break;
+
+    case "description":
+      if (!value) error = "Description is required";
+      break;
+
+    case "permit":
+      if (!value) error = "Permit is required";
+      break;
+
+    case "certificates":
+      if (!value) error = "Certificate is required";
+      break;
+  }
+    setErrors((prev) => ({
+      ...prev,
+      [field]: error,
+    }));
+  };
 
   const validate = () => {
     const e = {};
@@ -319,33 +388,6 @@ export default function RegisterBusiness() {
 
   if (!fontsLoaded) return null;
 
-  useEffect(() => {
-    if (Platform.OS !== "web") return;
-
-    let listener;
-
-    loadGooglePlaces().then(() => {
-      if (!addressInputRef.current) return;
-
-      autocompleteRef.current = new window.google.maps.places.Autocomplete(
-        addressInputRef.current,
-        {
-          types: ["address"],
-          componentRestrictions: { country: "ph" },
-        },
-      );
-
-      listener = autocompleteRef.current.addListener("place_changed", () => {
-        const place = autocompleteRef.current.getPlace();
-        if (!place?.formatted_address) return;
-        setAddress(place.formatted_address);
-      });
-    });
-
-    return () => {
-      if (listener) listener.remove();
-    };
-  }, []);
 
   useEffect(() => {
     Animated.parallel([
@@ -497,7 +539,10 @@ export default function RegisterBusiness() {
                   value={name}
                   placeholder="Enter owner full name"
                   maxLength={64}
-                  onChangeText={setName}
+                  onChangeText={(text) => {
+                    setName(text);
+                    validateField("name", text);
+                  }}
                 />
                 {errors.name && <Text style={styles.error}>{errors.name}</Text>}
 
@@ -510,7 +555,10 @@ export default function RegisterBusiness() {
                   value={business_name}
                   placeholder="Enter your Business Registered Name"
                   maxLength={64}
-                  onChangeText={setBusinessName}
+                  onChangeText={(text) => {
+                    setBusinessName(text);
+                    validateField("business_name", text);
+                  }}
                 />
                 {errors.business_name && (
                   <Text style={styles.error}>{errors.business_name}</Text>
@@ -524,32 +572,72 @@ export default function RegisterBusiness() {
                         styles.input,
                         errors.address && styles.inputError,
                       ]}
-                      ref={addressInputRef}
                       value={address}
-                      onChange={(e) => setAddress(e.target.value)}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setAddress(value);
+                        searchAddress(value);
+                        validateField("address", value);
+                      }}
                       placeholder="Enter your complete business address"
                       className="web-address-input"
-                      autoComplete="off"
                     />
                   ) : (
                     <TextInput
                       style={[styles.input]}
                       value={address}
-                      onChangeText={setAddress}
+                      onChangeText={(text) => {
+                        searchAddress(text);
+                        setAddress(text);
+                        validateField("address", text);
+                      }}
                     />
                   )}
                   {errors.address && (
                     <Text style={styles.error}>{errors.address}</Text>
                   )}
                 </View>
+                {suggestions.length > 0 && (
+                  <View
+                    style={{
+                      position: "absolute",
+                      top: 60,
+                      width: "100%",
+                      backgroundColor: "#fff",
+                      borderWidth: 1,
+                      borderColor: "#ccc",
+                      borderRadius: 10,
+                      zIndex: 9999,
+                    }}
+                  >
+                    {suggestions.map((item) => (
+                      <Pressable
+                        key={item.id}
+                        onPress={() => {
+                          setAddress(item.place_name);
+                          setSuggestions([]);
+                          validateField("address", item.place_name);
+                        }}
+                        style={{ padding: 10 }}
+                      >
+                        <Text>{item.place_name}</Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                )}
               </View>
+
+
               <View style={[styles.col, isMobile && { minWidth: "100%" }]}>
                 <Text style={[styles.label]}>Email*</Text>
                 <TextInput
                   style={[styles.input, errors.email && styles.inputError]}
                   value={email}
                   placeholder="Enter your professional email address"
-                  onChangeText={setEmail}
+                  onChangeText={(text) => {
+                    setEmail(text);
+                    validateField("email", text);
+                  }}
                   maxLength={64}
                   keyboardType="email-address"
                 />
@@ -564,7 +652,10 @@ export default function RegisterBusiness() {
                   value={password}
                   placeholder="Enter your strong password"
                   maxLength={64}
-                  onChangeText={setPassword}
+                  onChangeText={(text) => {
+                    setPassword(text);
+                    validateField("password", text);
+                  }}
                 />
                 {errors.password && (
                   <Text style={styles.error}>{errors.password}</Text>
@@ -577,7 +668,11 @@ export default function RegisterBusiness() {
                   keyboardType="numeric"
                   placeholder="09XXXXXXXXX"
                   maxLength={11}
-                  onChangeText={(t) => setContactNo(t.replace(/[^0-9]/g, ""))}
+                   onChangeText={(t) => {
+                    const clean = t.replace(/[^0-9]/g, "");
+                    setContactNo(clean);
+                    validateField("contact_no", clean);
+                  }}
                 />
                 {errors.contact_no && (
                   <Text style={styles.error}>{errors.contact_no}</Text>
@@ -613,7 +708,10 @@ export default function RegisterBusiness() {
                   ]}
                   value={description}
                   placeholder="Tell us a little bit about what your business does..."
-                  onChangeText={setDescription}
+                 onChangeText={(text) => {
+                    setDescription(text);
+                    validateField("description", text);
+                  }}
                 />
                 {errors.description && (
                   <Text style={styles.error}>{errors.description}</Text>
@@ -914,7 +1012,7 @@ const styles = StyleSheet.create({
   input: {
     width: "100%",
     borderWidth: 1,
-    borderColor: "red",
+    borderColor: "#ccc",
     borderRadius: 12,
     padding: 12,
     marginBottom: 4,
@@ -925,7 +1023,7 @@ const styles = StyleSheet.create({
   textArea: {
     width: "100%",
     borderWidth: 1,
-    borderColor: "red",
+    borderColor: "#ccc",
     borderRadius: 12,
     padding: 16,
     height: 125,
@@ -946,7 +1044,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     width: "97%",
     borderStyle: "dashed",
-    borderColor: "red",
+    borderColor: "#ccc",
     padding: 25,
     borderRadius: 12,
     marginTop: 6,

@@ -49,6 +49,27 @@ export default function BusinessLogin() {
     return () => Dimensions.removeEventListener("change", handleResize);
   }, []);
 
+  const validateField = (name, value) => {
+    let error = "";
+
+    if (name === "email") {
+      if (!value) error = "Email is required";
+      else {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) {
+          error = "Please enter a valid email address";
+        }
+      }
+    }
+
+    if (name === "password") {
+      if (!value) error = "Password is required!";
+      else if (value.length < 6) error = "Minimum 6 characters";
+    }
+
+    return error;
+  };
+
   const handleBusinessLogin = async () => {
     const newErrors = {};
     if (!email) newErrors.email = "Email is required";
@@ -208,7 +229,8 @@ export default function BusinessLogin() {
                     onBlur={() => setEmailFocused(false)}
                     onChangeText={(text) => {
                       setEmail(text);
-                      setErrors((prev) => ({ ...prev, email: null }));
+                      const error = validateField("email", text);
+                      setErrors((prev) => ({ ...prev, email: error }));
                     }}
                     style={styles.textInput}
                   />
@@ -250,7 +272,8 @@ export default function BusinessLogin() {
                     onBlur={() => setPasswordFocused(false)}
                     onChangeText={(text) => {
                       setPassword(text);
-                      setErrors((prev) => ({ ...prev, password: null }));
+                      const error = validateField("password", text);
+                      setErrors((prev) => ({ ...prev, password: error }));
                     }}
                     style={styles.textInput}
                   />

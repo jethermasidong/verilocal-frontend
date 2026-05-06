@@ -1619,7 +1619,7 @@ export default function BusinessDashboard() {
                         </View>
                       </Modal>
 
-                      <View style={styles.productInfoBox}>
+                      <View style={[styles.productInfoBox, selectedProduct?.current_owner !== business?.registered_business_name && { marginTop: 0 }]}>
                         <Text style={styles.infoText}>
                           <Text style={{ fontWeight: "600" }}>Type:</Text>{" "}
                           {selectedProduct.type}
