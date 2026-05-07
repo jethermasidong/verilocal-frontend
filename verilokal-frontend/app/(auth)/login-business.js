@@ -200,7 +200,7 @@ export default function BusinessLogin() {
 
               {/* EMAIL FIELD */}
               <View style={styles.fieldGroup}>
-                <Text style={styles.fieldLabel}>Email Address</Text>
+                <Text style={styles.fieldLabel}>Email Address<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                 <View
                   style={[
                     styles.inputWrapper,
@@ -242,7 +242,7 @@ export default function BusinessLogin() {
 
               {/* PASSWORD FIELD */}
               <View style={styles.fieldGroup}>
-                <Text style={styles.fieldLabel}>Password</Text>
+                <Text style={styles.fieldLabel}>Password<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                 <View
                   style={[
                     styles.inputWrapper,

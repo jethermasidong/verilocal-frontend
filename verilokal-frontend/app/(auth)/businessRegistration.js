@@ -533,7 +533,7 @@ export default function RegisterBusiness() {
 
             <View style={[styles.row, isMobile && { flexDirection: "column" }]}>
               <View style={[styles.col, isMobile && { minWidth: "100%" }]}>
-                <Text style={styles.label}>Owner Name*</Text>
+                <Text style={styles.label}>Owner Name<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                 <TextInput
                   style={[styles.input, errors.name && styles.inputError]}
                   value={name}
@@ -546,7 +546,7 @@ export default function RegisterBusiness() {
                 />
                 {errors.name && <Text style={styles.error}>{errors.name}</Text>}
 
-                <Text style={styles.label}>Business Name*</Text>
+                <Text style={styles.label}>Business Name<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                 <TextInput
                   style={[
                     styles.input,
@@ -564,7 +564,7 @@ export default function RegisterBusiness() {
                   <Text style={styles.error}>{errors.business_name}</Text>
                 )}
 
-                <Text style={styles.label}>Address*</Text>
+                <Text style={styles.label}>Address<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                 <View style={{ position: "relative", zIndex: 9999 }}>
                   {Platform.OS === "web" ? (
                     <TextInput
@@ -629,7 +629,7 @@ export default function RegisterBusiness() {
 
 
               <View style={[styles.col, isMobile && { minWidth: "100%" }]}>
-                <Text style={[styles.label]}>Email*</Text>
+                <Text style={[styles.label]}>Email<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                 <TextInput
                   style={[styles.input, errors.email && styles.inputError]}
                   value={email}
@@ -645,7 +645,7 @@ export default function RegisterBusiness() {
                   <Text style={styles.error}>{errors.email}</Text>
                 )}
 
-                <Text style={styles.label}>Password*</Text>
+                <Text style={styles.label}>Password<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                 <TextInput
                   secureTextEntry
                   style={[styles.input, errors.password && styles.inputError]}
@@ -661,7 +661,7 @@ export default function RegisterBusiness() {
                   <Text style={styles.error}>{errors.password}</Text>
                 )}
 
-                <Text style={styles.label}>Contact Number*</Text>
+                <Text style={styles.label}>Contact Number<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                 <TextInput
                   style={[styles.input, errors.contact_no && styles.inputError]}
                   value={contact_no}
@@ -699,7 +699,7 @@ export default function RegisterBusiness() {
                   <Text style={styles.error}>{errors.social_link}</Text>
                 )}
 
-                <Text style={styles.label}>Description*</Text>
+                <Text style={styles.label}>Description<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                 <TextInput
                   multiline
                   style={[
@@ -719,7 +719,7 @@ export default function RegisterBusiness() {
               </View>
             </View>
 
-            <Text style={styles.label}>Business Permit* (Mayor's Permit) </Text>
+            <Text style={styles.label}>Business Permit (Mayor's Permit)<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text> </Text>
             <Pressable
               style={[styles.upload, errors.permit && styles.inputError]}
               onPress={() => pickImage(setPermit)}
@@ -734,7 +734,7 @@ export default function RegisterBusiness() {
             </Pressable>
             {errors.permit && <Text style={styles.error}>{errors.permit}</Text>}
 
-            <Text style={styles.label}>Certificates* (DENR / DTI)</Text>
+            <Text style={styles.label}>Certificates (DENR / DTI)<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
             <Pressable
               style={[styles.upload, errors.certificates && styles.inputError]}
               onPress={multipleImages}
