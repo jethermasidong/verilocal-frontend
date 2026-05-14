@@ -98,6 +98,7 @@ export default function AdminDashboard() {
 
   const [showAddMaterialModal, setShowAddMaterialModal] = useState(false);
   const [showAddOriginModal, setShowAddOriginModal] = useState(false);
+  const [showManageDropdown, setShowManageDropdown] = useState(false);
 
   const totalPending = pendingBusinesses.length;
   const withPermit = pendingBusinesses.filter((b) => b.permit).length;
@@ -314,27 +315,54 @@ export default function AdminDashboard() {
         <Text style={styles.admin_headerTitle}>Admin Dashboard</Text>
       </LinearGradient>
 
-      <View style={styles.admin_headerContainer}>
+      <View style={[styles.admin_headerContainer, { zIndex: 20 }]}>
         <Text style={styles.admin_pendingTitle}>Pending Artisan Accounts</Text>
-        <View style={{ flexDirection: "row", gap: 12, alignItems: "center" }}>
+        <View style={{ position: "relative", zIndex: 100 }}>
           <Pressable
-            style={styles.addButtonsContainer}
-            onPress={() => setShowAddMaterialModal(true)}
+            style={styles.manageDropdownBtn}
+            onPress={() => setShowManageDropdown((prev) => !prev)}
           >
-            <Ionicons name="hammer-outline" size={18} color="#000000" />
-            <Text style={styles.addButtonText}>Add Material</Text>
+            <Ionicons name="settings-outline" size={16} color="#FFFFFF" />
+            <Text style={styles.manageDropdownBtnText}>Manage Product Registration</Text>
+            <Ionicons
+              name={showManageDropdown ? "chevron-up" : "chevron-down"}
+              size={14}
+              color="#FFFFFF"
+            />
           </Pressable>
-          <Pressable
-            style={styles.addButtonsContainer}
-            onPress={() => setShowAddOriginModal(true)}
-          >
-            <Ionicons name="location-outline" size={18} color="#000000" />
-            <Text style={styles.addButtonText}>Add Origin</Text>
-          </Pressable>
+          {showManageDropdown && (
+            <View style={styles.manageDropdownMenu}>
+              <Pressable
+                style={styles.manageDropdownItem}
+                onPress={() => {
+                  setShowManageDropdown(false);
+                  setShowAddMaterialModal(true);
+                }}
+              >
+                <View style={styles.manageDropdownItemIcon}>
+                  <Ionicons name="hammer-outline" size={15} color="#4A70A9" />
+                </View>
+                <Text style={styles.manageDropdownText}>Add Material</Text>
+              </Pressable>
+              <View style={styles.manageDropdownDivider} />
+              <Pressable
+                style={styles.manageDropdownItem}
+                onPress={() => {
+                  setShowManageDropdown(false);
+                  setShowAddOriginModal(true);
+                }}
+              >
+                <View style={styles.manageDropdownItemIcon}>
+                  <Ionicons name="location-outline" size={15} color="#4A70A9" />
+                </View>
+                <Text style={styles.manageDropdownText}>Add Origin</Text>
+              </Pressable>
+            </View>
+          )}
         </View>
       </View>
       {/* ===== SUMMARY CARDS ===== */}
-      <View style={styles.admin_summaryContainer}>
+      <View style={[styles.admin_summaryContainer, { zIndex: 0 }]}>
         {/* Total Pending */}
         <View style={styles.admin_summaryCard}>
           <View style={{flexDirection: "row", gap: 4}}>
@@ -1369,6 +1397,69 @@ const styles = StyleSheet.create({
     paddingRight: 6,
     fontSize: 13,
     fontFamily: "Montserrat-Regular",
+  },
+  manageDropdownBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "#4A70A9",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 25,
+    shadowColor: "#4A70A9",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  manageDropdownBtnText: {
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontFamily: "Montserrat-Regular",
+    fontWeight: "600",
+  },
+  manageDropdownMenu: {
+    position: "absolute",
+    top: 48,
+    right: 0,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(200, 210, 230, 0.6)",
+    shadowColor: "#1a2f5a",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 20,
+    elevation: 10,
+    zIndex: 999,
+    minWidth: 190,
+    overflow: "hidden",
+  },
+  manageDropdownItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 13,
+    paddingHorizontal: 16,
+    gap: 12,
+  },
+  manageDropdownItemIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: 8,
+    backgroundColor: "#EFF6FF",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  manageDropdownDivider: {
+    height: 1,
+    backgroundColor: "#F3F4F6",
+    marginHorizontal: 16,
+  },
+  manageDropdownText: {
+    fontFamily: "Montserrat-Regular",
+    fontSize: 13,
+    color: "#111827",
+    fontWeight: "500",
   },
   addMaterial_modalOverlay: {
     flex: 1,
