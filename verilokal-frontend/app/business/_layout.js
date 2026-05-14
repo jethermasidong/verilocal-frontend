@@ -45,6 +45,28 @@ export default function BusinessLayout() {
     fetchBusinessProfile();
   }, []);
 
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const token = await AsyncStorage.getItem("token");
+
+        if (!token) {
+          router.replace("/login-business");
+          return;
+        }
+
+        setLoading(false);
+      } catch (error) {
+        console.log("Auth error:", error);
+        router.replace("/login-business");
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+
   // OPEN SIDEBAR
   const openSidebar = () => {
     setSidebarVisible(true);

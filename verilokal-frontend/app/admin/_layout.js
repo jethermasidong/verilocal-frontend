@@ -5,6 +5,7 @@ import { Slot, usePathname, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Animated, Image, Modal, Pressable, Text, View } from "react-native";
 import Navbar from "../../components/Navbar";
+import { parse } from "qs";
 
 export default function AdminLayout() {
   const pathname = usePathname();
@@ -41,6 +42,27 @@ export default function AdminLayout() {
     fetchBusinessProfile();
   }, []);
 
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const token = await AsyncStorage.getItem("token");
+
+        if (!token) {
+          router.replace("/login-business");
+          return;
+        }
+
+        setLoading(false);
+      } catch (error) {
+        console.log("Auth error:", error);
+        router.replace("/login-business");
+      }
+    };
+
+    checkAuth();
+  }, []);
+
   // OPEN SIDEBAR
   const openSidebar = () => {
     setSidebarVisible(true);
@@ -70,6 +92,7 @@ export default function AdminLayout() {
       openSidebar();
     }
   };
+
 
   return (
     <>
@@ -183,8 +206,8 @@ export default function AdminLayout() {
           </Animated.View>
         </Pressable>
       </Modal>
-
       <Slot />
     </>
   );
 }
+
