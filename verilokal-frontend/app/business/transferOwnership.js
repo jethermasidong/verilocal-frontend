@@ -128,6 +128,10 @@ export default function TransferOwnership() {
   const [showFinalConfirmModal, setShowFinalConfirmModal] = useState(false);
   const [confirmText, setConfirmText] = useState("");
 
+  // Validation errors
+  const [newOwnerError, setNewOwnerError] = useState("");
+  const [confirmTextError, setConfirmTextError] = useState("");
+
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -500,7 +504,12 @@ export default function TransferOwnership() {
               </Text>
 
               {/* Input */}
-              <View style={styles.modalInputWrap}>
+              <View
+                style={[
+                  styles.modalInputWrap,
+                  newOwnerError ? { borderColor: "#EF4444", marginBottom: 6 } : null,
+                ]}
+              >
                 <Ionicons
                   name="person-outline"
                   size={16}
@@ -511,11 +520,24 @@ export default function TransferOwnership() {
                   placeholder="New owner name"
                   placeholderTextColor="#9CA3AF"
                   value={newOwner}
-                  onChangeText={setNewOwner}
+                  onChangeText={(text) => {
+                    setNewOwner(text);
+                    if (
+                      text.trim() &&
+                      text === text.trim() &&
+                      !/\s{2,}/.test(text) &&
+                      /^[a-zA-Z\u00C0-\u024F]/.test(text)
+                    ) {
+                      setNewOwnerError("");
+                    }
+                  }}
                   style={styles.modalInput}
                   autoCapitalize="none"
                 />
               </View>
+              {newOwnerError ? (
+                <Text style={styles.inputErrorText}>{newOwnerError}</Text>
+              ) : null}
 
               {/* Divider */}
               <View style={styles.modalDivider} />
@@ -526,6 +548,7 @@ export default function TransferOwnership() {
                   onPress={() => {
                     setModalVisible(false);
                     setNewOwner("");
+                    setNewOwnerError("");
                   }}
                   style={styles.modalCancelBtn}
                 >
@@ -534,6 +557,23 @@ export default function TransferOwnership() {
 
                 <TouchableOpacity
                   onPress={() => {
+                    if (!newOwner.trim()) {
+                      setNewOwnerError("This field is required before ownership transfer can proceed.");
+                      return;
+                    }
+                    if (newOwner !== newOwner.trim()) {
+                      setNewOwnerError("Name must not start or end with spaces.");
+                      return;
+                    }
+                    if (!/^[a-zA-Z\u00C0-\u024F][a-zA-Z\u00C0-\u024F '-]*[a-zA-Z\u00C0-\u024F]$/.test(newOwner) && newOwner.length > 1) {
+                      setNewOwnerError("Enter a valid name (letters, spaces, hyphens, or apostrophes only).");
+                      return;
+                    }
+                    if (/\s{2,}/.test(newOwner)) {
+                      setNewOwnerError("Name must not contain consecutive spaces.");
+                      return;
+                    }
+                    setNewOwnerError("");
                     setConfirmText("");
                     setShowFinalConfirmModal(true);
                   }}
@@ -724,7 +764,12 @@ export default function TransferOwnership() {
               </Text>
 
               {/* Confirm text input */}
-              <View style={styles.modalInputWrap}>
+              <View
+                style={[
+                  styles.modalInputWrap,
+                  confirmTextError ? { borderColor: "#EF4444", marginBottom: 6 } : null,
+                ]}
+              >
                 <Ionicons
                   name="lock-closed-outline"
                   size={16}
@@ -735,11 +780,17 @@ export default function TransferOwnership() {
                   placeholder='Type "confirm" to proceed'
                   placeholderTextColor="#9CA3AF"
                   value={confirmText}
-                  onChangeText={setConfirmText}
+                  onChangeText={(text) => {
+                    setConfirmText(text);
+                    if (text.trim()) setConfirmTextError("");
+                  }}
                   style={styles.modalInput}
                   autoCapitalize="none"
                 />
               </View>
+              {confirmTextError ? (
+                <Text style={styles.inputErrorText}>{confirmTextError}</Text>
+              ) : null}
 
               {/* Divider */}
               <View style={styles.modalDivider} />
@@ -750,6 +801,7 @@ export default function TransferOwnership() {
                   onPress={() => {
                     setShowFinalConfirmModal(false);
                     setConfirmText("");
+                    setConfirmTextError("");
                   }}
                   style={styles.modalCancelBtn}
                 >
@@ -758,9 +810,15 @@ export default function TransferOwnership() {
 
                 <TouchableOpacity
                   onPress={() => {
-                    if (confirmText.trim().toLowerCase() !== "confirm") {
+                    if (!confirmText.trim()) {
+                      setConfirmTextError("This field is required before continuing.");
                       return;
                     }
+                    if (confirmText.trim().toLowerCase() !== "confirm") {
+                      setConfirmTextError('Please type "confirm" exactly to proceed.');
+                      return;
+                    }
+                    setConfirmTextError("");
                     setShowFinalConfirmModal(false);
                     setConfirmText("");
                     handleConfirmTransfer();
@@ -1284,6 +1342,13 @@ const styles = StyleSheet.create({
     color: "#111827",
     fontFamily: "Garet-Book",
     padding: 5,
+  },
+  inputErrorText: {
+    fontSize: 12,
+    color: "#EF4444",
+    fontFamily: "Garet-Book",
+    marginBottom: 14,
+    marginLeft: 2,
   },
   modalDivider: {
     height: 1,
