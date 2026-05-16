@@ -583,6 +583,34 @@ export default function RegisterProduct() {
 
   const STANDARD_INPUT_HEIGHT = 44;
 
+  const HoverButton = ({
+    children,
+    style,
+    hoverStyle,
+    pressedStyle,
+    onPress,
+    disabled,
+  }) => {
+    const [hovered, setHovered] = useState(false);
+
+    return (
+      <Pressable
+        disabled={disabled}
+        onPress={onPress}
+        onHoverIn={() => setHovered(true)}
+        onHoverOut={() => setHovered(false)}
+        style={({ pressed }) => [
+          style,
+          hovered && hoverStyle,
+          pressed && pressedStyle,
+          disabled && { opacity: 0.5 },
+        ]}
+      >
+        {children}
+      </Pressable>
+    );
+  };
+
   return (
     <Animated.View
       style={{
@@ -909,13 +937,15 @@ export default function RegisterProduct() {
                   {errors.processImages}
                 </Text>
               )}
-              <Pressable
+              <HoverButton
                 style={styles.submitButton}
                 onPress={handleSubmit}
+                hoverStyle={styles.hoverPrimary}
+                pressedStyle={styles.pressedButton}
                 disabled={isSubmitting}
               >
                 <Text style={styles.submitText}>Submit</Text>
-              </Pressable>
+              </HoverButton>
 
               {showDatePicker && (
                 <DateTimePicker
@@ -1292,13 +1322,15 @@ export default function RegisterProduct() {
                   )}
                 </View>
               </View>
-              <Pressable
+              <HoverButton
                 style={styles.submitButton}
                 onPress={handleSubmit}
+                hoverStyle={styles.hoverPrimary}
+                pressedStyle={styles.pressedButton}
                 disabled={isSubmitting}
               >
                 <Text style={styles.submitText}>Submit</Text>
-              </Pressable>
+              </HoverButton>
 
               {showDatePicker && (
                 <DateTimePicker
@@ -1898,4 +1930,19 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   submitText: { color: "#fff", fontSize: 16, fontWeight: "600" },
+
+  hoverPrimary: {
+    backgroundColor: "#1e3a5f",
+    transform: [{ scale: 1.01 }],
+  },
+
+  hoverSecondary: {
+    backgroundColor: "#F3F4F6 ",
+    transform: [{ scale: 1.01 }],
+  },
+
+  pressedButton: {
+    transform: [{ scale: 0.98 }],
+    opacity: 0.9,
+  },
 });

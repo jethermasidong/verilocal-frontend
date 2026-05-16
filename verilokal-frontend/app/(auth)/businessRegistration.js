@@ -465,6 +465,35 @@ export default function RegisterBusiness() {
     }
   }, [resultVisible, resultType]);
 
+
+  const HoverButton = ({
+    children,
+    style,
+    hoverStyle,
+    pressedStyle,
+    onPress,
+    disabled,
+  }) => {
+    const [hovered, setHovered] = useState(false);
+
+    return (
+      <Pressable
+        disabled={disabled}
+        onPress={onPress}
+        onHoverIn={() => setHovered(true)}
+        onHoverOut={() => setHovered(false)}
+        style={({ pressed }) => [
+          style,
+          hovered && hoverStyle,
+          pressed && pressedStyle,
+          disabled && { opacity: 0.5 },
+        ]}
+      >
+        {children}
+      </Pressable>
+    );
+  };
+
   return (
     <Animated.View
       style={{
@@ -511,7 +540,7 @@ export default function RegisterBusiness() {
               <View style={{ flexDirection: "column" }}>
                 <Text style={styles.title}>Create An Account</Text>
                 <Text style={styles.subtitle}>
-                  Sign up to be part of our community
+                  Join a community of verified artisans protecting local heritage through digital innovation.
                 </Text>
               </View>
               {Platform.OS === "web" && (
@@ -765,12 +794,14 @@ export default function RegisterBusiness() {
               </Text>
             </Pressable>
 
-            <Pressable
+            <HoverButton
               style={[styles.submitBtn, isMobile && { minWidth: "100%" }]}
               onPress={handleRegisterClick}
+              hoverStyle={styles.hoverPrimary}
+              pressedStyle={styles.pressedButton}
             >
               <Text style={styles.submitText}>Submit</Text>
-            </Pressable>
+            </HoverButton>
           </View>
         </View>
 
@@ -990,6 +1021,20 @@ const styles = StyleSheet.create({
     textAlign: "left",
     fontWeight: "100",
     fontFamily: "Garet-Book",
+  },
+  hoverPrimary: {
+  backgroundColor: "#1e3a5f",
+  transform: [{ scale: 1.01 }],
+  },
+
+  hoverSecondary: {
+    backgroundColor: "#F3F4F6 ",
+    transform: [{ scale: 1.01 }],
+  },
+
+  pressedButton: {
+    transform: [{ scale: 0.98 }],
+    opacity: 0.9,
   },
   row: {
     flexDirection: "row",
