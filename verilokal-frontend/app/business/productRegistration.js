@@ -104,6 +104,10 @@ export default function RegisterProduct() {
         handleInputChange("productionEndDate", "");
       }
       handleInputChange("productionStartDate", selectedDate);
+      setErrors((prev) => ({
+        ...prev,
+        productionDate: "",
+      }));
     } else if (dateType === "end") {
       if (
         form.productionStartDate &&
@@ -116,6 +120,10 @@ export default function RegisterProduct() {
         return;
       }
       handleInputChange("productionEndDate", selectedDate);
+      setErrors((prev) => ({
+        ...prev,
+        productionDate: "",
+      }));
     }
   };
 
@@ -173,6 +181,10 @@ export default function RegisterProduct() {
               file,
             },
           }));
+          setErrors((prev) => ({
+            ...prev,
+            productImage: "",
+          }));
         };
         input.click();
       } else {
@@ -200,6 +212,10 @@ export default function RegisterProduct() {
               type: asset.mimeType || "image/jpeg",
               file: blob,
             },
+          }));
+          setErrors((prev) => ({
+            ...prev,
+            productImage: "",
           }));
         }
       }
@@ -245,6 +261,10 @@ export default function RegisterProduct() {
             ...selectedImages.filter(Boolean),
           ],
         }));
+        setErrors((prev) => ({
+          ...prev,
+          processImages: "",
+        }));
       }
     } catch (err) {
       console.error(err);
@@ -252,8 +272,63 @@ export default function RegisterProduct() {
     }
   };
 
+  const validateField = (name, value) => {
+    let error = "";
+
+    switch (name) {
+      case "name":
+        if (!value.trim()) error = "Product name is required";
+        else if (value.length < 3)
+          error = "Product name must be at least 3 characters";
+        break;
+
+      case "type":
+        if (!value) error = "Product type is required";
+        break;
+
+      case "materials":
+        if (!value) error = "Materials are required";
+        break;
+
+      case "origin":
+        if (!value) error = "Origin is required";
+        break;
+
+      case "current_owner":
+        if (!value.trim()) error = "Current owner is required";
+        break;
+
+      case "quantity":
+        if (!value) error = "Quantity is required";
+        else if (!/^[0-9]+$/.test(value))
+          error = "Quantity must be a number";
+        break;
+
+      case "description":
+        if (!value.trim()) error = "Description is required";
+        else if (value.length < 10)
+          error = "Description must be at least 10 characters";
+        break;
+
+      default:
+        break;
+    }
+
+    return error;
+  };
+
   const handleInputChange = (name, value) => {
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    const error = validateField(name, value);
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: error,
+    }));
   };
 
   const [isMobile, setIsMobile] = useState(false);
@@ -545,7 +620,7 @@ export default function RegisterProduct() {
             <View style={[styles.rightPanel, isMobile && { width: "100%" }]}>
               <Text style={styles.formTitle}>Product Registration</Text>
               <Text style={styles.subtitle}>
-                Welcome Artisan, Register your product.
+                Secure the legacy. Activate the permanent digital record of your authentic item.
               </Text>
               <View
                 style={[styles.row, isMobile && { flexDirection: "column" }]}
@@ -554,7 +629,7 @@ export default function RegisterProduct() {
                   {statusMessage !== "" && (
                     <Text style={styles.statusMessage}>{statusMessage}</Text>
                   )}
-                  <Text style={styles.label}>Name of the Product*</Text>
+                  <Text style={styles.label}>Name of the Product<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                   <InputField
                     label="Product Name"
                     value={form.name}
@@ -563,7 +638,7 @@ export default function RegisterProduct() {
                     error={errors.name}
                   />
 
-                  <Text style={styles.label}>Type of Product*</Text>
+                  <Text style={styles.label}>Type of Product<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                   <View style={styles.inputContainer}>
                     <Picker
                       selectedValue={form.type}
@@ -590,7 +665,7 @@ export default function RegisterProduct() {
                         onValueChange={(v) => handleInputChange("materials", v)}
                         style={[
                           styles.picker,
-                          errors.type && styles.errorInput,
+                          errors.materials && styles.errorInput,
                         ]}
                       >
                         <Picker.Item label="Select Material" value="" />
@@ -604,11 +679,11 @@ export default function RegisterProduct() {
                     </View>
                   )}
 
-                  <Text style={[styles.label]}>Origin of the Product*</Text>
+                  <Text style={[styles.label]}>Origin of the Product<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                   <View style={styles.inputContainer}>
                     <Picker
                       selectedValue={form.origin}
-                      style={[styles.picker, errors.origins && styles.errorInput]}
+                      style={[styles.picker, errors.origin && styles.errorInput]}
                       onValueChange={(value) =>
                         handleInputChange("origin", value)
                       }
@@ -626,7 +701,7 @@ export default function RegisterProduct() {
                       <Text style={styles.errorText}>{errors.origin}</Text>
                     )}
                   </View>
-                  <Text style={styles.label}>Current Owner*</Text>
+                  <Text style={styles.label}>Current Owner<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                   <InputField
                     label="Current Owner"
                     value={form.current_owner}
@@ -637,16 +712,17 @@ export default function RegisterProduct() {
                 </View>
 
                 <View style={[styles.col, isMobile && { width: "100%" }]}>
-                  <Text style={styles.label}>Quantity*</Text>
+                  <Text style={styles.label}>Quantity<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                   <InputField
                     label="Product Quantity"
                     value={form.quantity}
+                    keyboardType="numeric"
                     onChange={(v) => handleInputChange("quantity", v)}
-                    maxLength={50}
+                    maxLength={3}
                     error={errors.quantity}
                   />
                   <Text style={[styles.label, { marginTop: 0 }]}>
-                    Production Date* (Start to End)
+                    Production Date* (Start to End)<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text>
                   </Text>
                   {Platform.OS === "web" ? (
                     <>
@@ -661,7 +737,8 @@ export default function RegisterProduct() {
                         }
                         style={{
                           ...styles.webDateInput,
-                          borderColor: errors.productionDate ? "red" : "red",
+                          borderColor: errors.productionDate ? "red" : "#ccc",
+                          backgroundColor: errors.productionDate ? "#fef2f2" : "#fafafa",
                         }}
                       />
                       <input
@@ -684,7 +761,8 @@ export default function RegisterProduct() {
                         }}
                         style={{
                           ...styles.webDateInput,
-                          borderColor: errors.productionDate ? "red" : "red",
+                          borderColor: errors.productionDate ? "red" : "#ccc",
+                          backgroundColor: errors.productionDate ? "#fef2f2" : "#fafafa",
                         }}
                       />
                     </>
@@ -737,7 +815,7 @@ export default function RegisterProduct() {
                     </Text>
                   )}
 
-                  <Text style={styles.label}>Description*</Text>
+                  <Text style={styles.label}>Description<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                   <InputField
                     style={styles.textArea}
                     label="Description"
@@ -749,10 +827,10 @@ export default function RegisterProduct() {
                 </View>
               </View>
               <Text style={[styles.label, { marginTop: 10 }]}>
-                Image of the Product*
+                Image of the Product<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text>
               </Text>
               <Pressable
-                style={[styles.imagePicker, errors.type && styles.errorInput]}
+                style={[styles.imagePicker, errors.productImage && styles.errorInput]}
                 onPress={() => pickImage("productImage")}
               >
                 {form.productImage ? (
@@ -768,10 +846,10 @@ export default function RegisterProduct() {
                 <Text style={styles.errorText}>{errors.productImage}</Text>
               )}
 
-              <Text style={styles.label}>Images of the Process*</Text>
+              <Text style={styles.label}>Images of the Process<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
 
               <Pressable
-                style={[styles.imagePicker, errors.type && styles.errorInput]}
+                style={[styles.imagePicker, errors.productImage && styles.errorInput]}
                 onPress={pickProcessImages}
               >
                 <Text style={styles.imageText}>
@@ -912,7 +990,7 @@ export default function RegisterProduct() {
                 </Pressable>
               </View>
               <Text style={styles.subtitle}>
-                Welcome Artisan, Register your product.
+                Secure the legacy. Activate the permanent digital record of your authentic item.
               </Text>
               <View
                 style={[styles.row, isMobile && { flexDirection: "column" }]}
@@ -921,7 +999,7 @@ export default function RegisterProduct() {
                   {statusMessage !== "" && (
                     <Text style={styles.statusMessage}>{statusMessage}</Text>
                   )}
-                  <Text style={styles.label}>Name of the Product*</Text>
+                  <Text style={styles.label}>Name of the Product<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                   <InputField
                     label="Product Name"
                     value={form.name}
@@ -930,7 +1008,7 @@ export default function RegisterProduct() {
                     error={errors.name}
                   />
 
-                  <Text style={styles.label}>Type of Product*</Text>
+                  <Text style={styles.label}>Type of Product<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                   <View style={styles.inputContainer}>
                     <Picker
                       selectedValue={form.type}
@@ -957,7 +1035,7 @@ export default function RegisterProduct() {
                         onValueChange={(v) => handleInputChange("materials", v)}
                         style={[
                           styles.picker,
-                          errors.type && styles.errorInput,
+                          errors.materials && styles.errorInput,
                         ]}
                       >
                         <Picker.Item label="Select Material" value="" />
@@ -970,11 +1048,11 @@ export default function RegisterProduct() {
                       )}
                     </View>
                   )}
-                  <Text style={styles.label}>Origin of the Product*</Text>
+                  <Text style={styles.label}>Origin of the Product<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                   <View style={styles.inputContainer}>
                     <Picker
                       selectedValue={form.origin}
-                      style={[styles.picker, errors.origins && styles.errorInput]}
+                      style={[styles.picker, errors.origin && styles.errorInput]}
                       onValueChange={(value) =>
                         handleInputChange("origin", value)
                       }
@@ -992,7 +1070,7 @@ export default function RegisterProduct() {
                       <Text style={styles.errorText}>{errors.origin}</Text>
                     )}
                   </View>
-                  <Text style={styles.label}>Current Owner*</Text>
+                  <Text style={styles.label}>Current Owner<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                   <InputField
                     label="Current Owner"
                     value={form.current_owner}
@@ -1003,16 +1081,17 @@ export default function RegisterProduct() {
                 </View>
 
                 <View style={[styles.col, isMobile && { minWidth: "100%" }]}>
-                  <Text style={styles.label}>Quantity*</Text>
+                  <Text style={styles.label}>Quantity<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                   <InputField
                     label="Product Quantity"
                     value={form.quantity}
+                    keyboardType="numeric"
                     onChange={(v) => handleInputChange("quantity", v)}
-                    maxLength={50}
+                    maxLength={3}
                     error={errors.quantity}
                   />
                   <Text style={styles.label}>
-                    Production Date* (Start to End)
+                    Production Date* (Start to End)<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text>
                   </Text>
                   {Platform.OS === "web" ? (
                     <>
@@ -1027,7 +1106,8 @@ export default function RegisterProduct() {
                         }
                         style={{
                           ...styles.webDateInput,
-                          borderColor: errors.productionDate ? "red" : "red",
+                          borderColor: errors.productionDate ? "red" : "#ccc",
+                          backgroundColor: errors.productionDate ? "#fef2f2" : "#fafafa",
                         }}
                       />
                       <input
@@ -1050,7 +1130,8 @@ export default function RegisterProduct() {
                         }}
                         style={{
                           ...styles.webDateInput,
-                          borderColor: "red",
+                          borderColor: errors.productionDate ? "red" : "#ccc",
+                          backgroundColor: errors.productionDate ? "#fef2f2" : "#fafafa",
                         }}
                       />
                     </>
@@ -1103,7 +1184,7 @@ export default function RegisterProduct() {
                     </Text>
                   )}
 
-                  <Text style={styles.label}>Description*</Text>
+                  <Text style={styles.label}>Description<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                   <InputField
                     style={styles.textArea}
                     label="Description"
@@ -1116,11 +1197,11 @@ export default function RegisterProduct() {
               </View>
               <View style={{ flexDirection: "row", gap: 16, marginBottom: 10 }}>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.label}>Image of the Product*</Text>
+                  <Text style={styles.label}>Image of the Product<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                   <Pressable
                     style={[
                       styles.imagePicker,
-                      errors.type && styles.errorInput,
+                      errors.productImage && styles.errorInput,
                     ]}
                     onPress={() => pickImage("productImage")}
                   >
@@ -1138,12 +1219,12 @@ export default function RegisterProduct() {
                   )}
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.label}>Images of the Process*</Text>
+                  <Text style={styles.label}>Images of the Process<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
 
                   <Pressable
                     style={[
                       styles.imagePicker,
-                      errors.type && styles.errorInput,
+                      errors.processImages && styles.errorInput,
                     ]}
                     onPress={pickProcessImages}
                   >
@@ -1637,17 +1718,17 @@ const styles = StyleSheet.create({
 
   formTitle: {
     fontSize: 34,
-    fontWeight: "700",
-    marginBottom: 4,
+    fontWeight: "800",
     color: "#223049",
     textAlign: "left",
     fontFamily: "Montserrat-Bold",
+    marginBottom: -20,
   },
   subtitle: {
     fontSize: 14,
     fontWeight: "500",
     color: "#223049",
-    marginBottom: 12,
+    marginBottom: 20,
     textAlign: "left",
     fontFamily: "Montserrat-Regular",
   },
@@ -1658,7 +1739,7 @@ const styles = StyleSheet.create({
   inputContainer: { marginBottom: 10 },
   input: {
     borderWidth: 1,
-    borderColor: "red",
+    borderColor: "#ccc",
     paddingHorizontal: 12,
     height: 44,
     borderRadius: 8,
@@ -1670,7 +1751,7 @@ const styles = StyleSheet.create({
   picker: {
     height: 44,
     borderWidth: 1,
-    borderColor: "red",
+    borderColor: "#ccc",
     padding: 12,
     borderRadius: 8,
     backgroundColor: "#fafafa",
@@ -1678,7 +1759,7 @@ const styles = StyleSheet.create({
     fontFamily: "Montserrat-Regular",
     fontSize: 14,
   },
-  errorInput: { borderColor: "red" },
+  errorInput: { borderColor: "red", backgroundColor: "#fef2f2" },
   errorText: {
     color: "red",
     marginTop: 1,
@@ -1692,7 +1773,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 12,
     borderWidth: 1,
-    borderColor: "red",
+    borderColor: "#ccc",
     borderRadius: 8,
     height: 44,
     width: "100%",
@@ -1709,7 +1790,7 @@ const styles = StyleSheet.create({
   },
   webDateInput: {
     borderWidth: 1,
-    borderColor: "red",
+    borderColor: "#ccc",
     marginBottom: 10,
     paddingHorizontal: 12,
     height: 44,
@@ -1723,7 +1804,7 @@ const styles = StyleSheet.create({
   textArea: {
     width: "100%",
     borderWidth: 1,
-    borderColor: "red",
+    borderColor: "#ccc",
     borderRadius: 12,
     padding: 10,
     height: 116,
@@ -1732,7 +1813,7 @@ const styles = StyleSheet.create({
   },
   imagePicker: {
     borderWidth: 1,
-    borderColor: "red",
+    borderColor: "#ccc",
     padding: 20,
     borderRadius: 10,
     alignItems: "center",

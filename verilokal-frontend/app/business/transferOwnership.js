@@ -18,7 +18,6 @@ import {
   View,
 } from "react-native";
 
-// ─── Static filter options (mirrored from index.js) ───────────────────────────
 const TYPE_OPTIONS = ["Woodcraft", "Textile"];
 
 const MATERIAL_OPTIONS = {

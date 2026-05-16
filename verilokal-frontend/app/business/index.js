@@ -1283,7 +1283,7 @@ export default function BusinessDashboard() {
                   />
                 </View>
                 <View style={styles.summaryTextContainer}>
-                  <Text style={styles.summaryCardTitle}>Registered</Text>
+                  <Text style={styles.summaryCardTitle}>Approved</Text>
                   <Text style={styles.summaryProgress}>
                     {products.filter((p) => p.status === "approved").length}{" "}
                     Items
@@ -2598,7 +2598,7 @@ export default function BusinessDashboard() {
                         size={18}
                       />
                       <Text style={{ fontFamily: "Montserrat-Regular" }}>
-                        {status}
+                        {status?.charAt(0).toUpperCase() + status?.slice(1)}
                       </Text>
                     </Pressable>
                   ))}

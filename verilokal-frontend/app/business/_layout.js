@@ -46,6 +46,7 @@ export default function BusinessLayout() {
   }, []);
 
   const [loading, setLoading] = useState(true);
+  
   useEffect(() => {
     const checkAuth = async () => {
       try {
