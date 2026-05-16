@@ -1,3 +1,8 @@
+
+///////////////////////////////////////////
+////IMPORTS///////////////////////////////
+//////////////////////////////////////////
+
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
@@ -18,30 +23,11 @@ import {
   View,
 } from "react-native";
 
-const TYPE_OPTIONS = ["Woodcraft", "Textile"];
 
-const MATERIAL_OPTIONS = {
-  Woodcraft: [
-    "Kamagong",
-    "Acacia",
-    "Narra",
-    "Molave",
-    "Mahogany",
-    "Batikuling",
-    "Gmelina",
-  ],
-  Textile: ["Abaca", "Piña", "Cotton", "Silk", "Maguay"],
-};
+///////////////////////////////////////////
+////CONSTANTS///////////////////////////////
+//////////////////////////////////////////
 
-const ORIGIN_OPTIONS = [
-  "Abra",
-  "Apayao",
-  "Benguet",
-  "Ifugao",
-  "Kalinga",
-  "Mountain Province",
-  "Baguio City",
-];
 
 const STATUS_STYLES = {
   Approved: { bg: "#DCFCE7", text: "#15803D" },
@@ -84,6 +70,14 @@ const SortIcon = () => (
   </View>
 );
 
+
+
+///////////////////////////////////////////
+////FUNCTION///////////////////////////////
+//////////////////////////////////////////
+
+
+
 export default function TransferOwnership() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState([]);
@@ -98,31 +92,25 @@ export default function TransferOwnership() {
   const [resultVisible, setResultVisible] = useState(false);
   const [resultType, setResultType] = useState(null);
   const [resultMessage, setResultMessage] = useState("");
+  const NAME_OPTIONS = [...new Set(products.map((item) => item.name))];
 
   // Result animations
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
   const shakeAnim = useRef(new Animated.Value(0)).current;
+  
 
   // Filter panel
   const filterRef = useRef(null);
   const [showFilter, setShowFilter] = useState(false);
   const [filterPos, setFilterPos] = useState({ x: 0, y: 0, width: 0 });
-  const [selectedTypes, setSelectedTypes] = useState([]);
-  const [selectedMaterials, setSelectedMaterials] = useState([]);
-  const [selectedOrigins, setSelectedOrigins] = useState([]);
-
-  // Derived material options based on selected types
-  const activeMaterialOptions =
-    selectedTypes.length > 0
-      ? selectedTypes.flatMap((t) => MATERIAL_OPTIONS[t] ?? [])
-      : Object.values(MATERIAL_OPTIONS).flat();
-
+  const [selectedNames, setSelectedNames] = useState([]);
   const toggleFilter = (value, selected, setSelected) => {
     setSelected((prev) =>
       prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
     );
   };
+
 
   // Final confirmation modal
   const [showFinalConfirmModal, setShowFinalConfirmModal] = useState(false);
@@ -193,6 +181,12 @@ export default function TransferOwnership() {
     }
   }, [resultVisible, resultType]);
 
+
+
+///////////////////////////////////////////
+////FETCH PRODUCTS///////////////////////////////
+//////////////////////////////////////////
+
   const fetchProducts = async () => {
     try {
       const token = await AsyncStorage.getItem("token");
@@ -257,6 +251,11 @@ export default function TransferOwnership() {
     }
   };
 
+
+///////////////////////////////////////////
+////FILTER FUNCTION///////////////////////
+//////////////////////////////////////////
+
   const filtered = products.filter((item) => {
     const matchesSearch =
       (item.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -265,18 +264,16 @@ export default function TransferOwnership() {
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
 
-    const matchesType =
-      selectedTypes.length === 0 || selectedTypes.includes(item.type);
+    const matchesName =
+      selectedNames.length === 0 ||
+      selectedNames.includes(item.name);
 
-    const matchesMaterial =
-      selectedMaterials.length === 0 ||
-      selectedMaterials.includes(item.materials);
-
-    const matchesOrigin =
-      selectedOrigins.length === 0 || selectedOrigins.includes(item.origin);
-
-    return matchesSearch && matchesType && matchesMaterial && matchesOrigin;
+    return matchesSearch && matchesName;
   });
+
+///////////////////////////////////////////
+////SELECT FUNCTION///////////////////////
+//////////////////////////////////////////
 
   const toggleSelect = (uid) => {
     setSelectedIds((prev) =>
@@ -354,6 +351,10 @@ export default function TransferOwnership() {
       </TouchableOpacity>
     );
   };
+
+///////////////////////////////////////////
+////RETURN JSX////////////////////////////
+//////////////////////////////////////////
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -607,8 +608,8 @@ export default function TransferOwnership() {
                 shadowRadius: 8,
               }}
             >
-              {/* TYPE */}
-              <Text style={styles.filterSectionLabel}>Type</Text>
+             {/* PRODUCT NAME */}
+            <Text style={styles.filterSectionLabel}>Product Name</Text>
               <View
                 style={{
                   flexDirection: "row",
@@ -617,50 +618,15 @@ export default function TransferOwnership() {
                   marginBottom: 10,
                 }}
               >
-                {TYPE_OPTIONS.map((type) => (
+                {NAME_OPTIONS.map((name) => (
                   <Pressable
-                    key={type}
-                    onPress={() => {
-                      toggleFilter(type, selectedTypes, setSelectedTypes);
-                      setSelectedMaterials([]);
-                    }}
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      gap: 5,
-                    }}
-                  >
-                    <View
-                      style={[
-                        styles.filterCheckbox,
-                        selectedTypes.includes(type) &&
-                          styles.filterCheckboxChecked,
-                      ]}
-                    >
-                      {selectedTypes.includes(type) && (
-                        <Text style={styles.filterCheckmark}>✓</Text>
-                      )}
-                    </View>
-                    <Text style={styles.filterLabel}>{type}</Text>
-                  </Pressable>
-                ))}
-              </View>
-
-              {/* MATERIAL */}
-              <Text style={styles.filterSectionLabel}>Material</Text>
-              <View
-                style={{
-                  flexDirection: "row",
-                  flexWrap: "wrap",
-                  gap: 8,
-                  marginBottom: 10,
-                }}
-              >
-                {activeMaterialOptions.map((mat) => (
-                  <Pressable
-                    key={mat}
+                    key={name}
                     onPress={() =>
-                      toggleFilter(mat, selectedMaterials, setSelectedMaterials)
+                      toggleFilter(
+                        name,
+                        selectedNames,
+                        setSelectedNames
+                      )
                     }
                     style={{
                       flexDirection: "row",
@@ -671,59 +637,25 @@ export default function TransferOwnership() {
                     <View
                       style={[
                         styles.filterCheckbox,
-                        selectedMaterials.includes(mat) &&
+                        selectedNames.includes(name) &&
                           styles.filterCheckboxChecked,
                       ]}
                     >
-                      {selectedMaterials.includes(mat) && (
+                      {selectedNames.includes(name) && (
                         <Text style={styles.filterCheckmark}>✓</Text>
                       )}
                     </View>
-                    <Text style={styles.filterLabel}>{mat}</Text>
-                  </Pressable>
-                ))}
-              </View>
 
-              {/* ORIGIN */}
-              <Text style={styles.filterSectionLabel}>Origin</Text>
-              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-                {ORIGIN_OPTIONS.map((origin) => (
-                  <Pressable
-                    key={origin}
-                    onPress={() =>
-                      toggleFilter(origin, selectedOrigins, setSelectedOrigins)
-                    }
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      gap: 5,
-                    }}
-                  >
-                    <View
-                      style={[
-                        styles.filterCheckbox,
-                        selectedOrigins.includes(origin) &&
-                          styles.filterCheckboxChecked,
-                      ]}
-                    >
-                      {selectedOrigins.includes(origin) && (
-                        <Text style={styles.filterCheckmark}>✓</Text>
-                      )}
-                    </View>
-                    <Text style={styles.filterLabel}>{origin}</Text>
+                    <Text style={styles.filterLabel}>{name}</Text>
                   </Pressable>
                 ))}
               </View>
 
               {/* Clear all */}
-              {(selectedTypes.length > 0 ||
-                selectedMaterials.length > 0 ||
-                selectedOrigins.length > 0) && (
+              {(selectedNames.length > 0) && (
                 <Pressable
                   onPress={() => {
-                    setSelectedTypes([]);
-                    setSelectedMaterials([]);
-                    setSelectedOrigins([]);
+                    setSelectedNames([]);
                   }}
                   style={styles.filterClearBtn}
                 >
@@ -908,6 +840,12 @@ export default function TransferOwnership() {
     </SafeAreaView>
   );
 }
+
+
+
+///////////////////////////////////////////
+////STYLES///////////////////////////////
+//////////////////////////////////////////
 
 const styles = StyleSheet.create({
   safe: {
