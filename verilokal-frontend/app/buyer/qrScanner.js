@@ -400,7 +400,7 @@ export default function ProductScanner() {
             padding: 5,
           }}
         >
-          <Text style={{ backgroundColor: "#4a79af", borderColor: "#2d4049", borderWidth: 1, paddingBottom: 4, paddingTop: 4, paddingLeft: 4, paddingRight: 4, borderRadius: 10, textAlign: "center", color: "#ffffff", fontFamily: 'Montserrat-Regular' }}>
+          <Text style={{borderColor: "#2d4049", borderWidth: 1, paddingBottom: 4, paddingTop: 4, paddingLeft: 7, paddingRight: 7, borderRadius: 25, textAlign: "center", color: "#000000", fontFamily: 'Montserrat-Regular' }}>
             {isScanning ? "Scanning..." : "Scanner Inactive"}
           </Text>
         </View>

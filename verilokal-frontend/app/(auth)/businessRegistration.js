@@ -63,7 +63,7 @@ export default function RegisterBusiness() {
         )}.json`,
         {
           params: {
-            access_token: process.env.PUBLIC_MAP_TOKEN,
+            access_token: process.env.EXPO_PUBLIC_MAP_TOKEN,
             autocomplete: true,
             country: "ph",
             limit: 5,
@@ -594,7 +594,7 @@ export default function RegisterBusiness() {
                 )}
 
                 <Text style={styles.label}>Address<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
-                <View style={{ position: "relative", zIndex: 9999 }}>
+                <View style={{ position: "relative", width: "100%", zIndex: 9999}}>
                   {Platform.OS === "web" ? (
                     <TextInput
                       style={[
@@ -613,7 +613,7 @@ export default function RegisterBusiness() {
                     />
                   ) : (
                     <TextInput
-                      style={[styles.input]}
+                      style={[styles.input, errors.address && styles.inputError,]}
                       value={address}
                       onChangeText={(text) => {
                         searchAddress(text);
@@ -630,28 +630,42 @@ export default function RegisterBusiness() {
                   <View
                     style={{
                       position: "absolute",
-                      top: 60,
-                      width: "100%",
+                      top: 210,
+                      left: 0,
+                      right: 0,
                       backgroundColor: "#fff",
                       borderWidth: 1,
-                      borderColor: "#ccc",
-                      borderRadius: 10,
-                      zIndex: 9999,
+                      borderColor: "#ddd",
+                      borderRadius: 12,
+                      zIndex: 999999,
+                      elevation: 9999,
+                      maxHeight: 220,
+
+                      shadowColor: "#000",
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: 0.15,
+                      shadowRadius: 6,
                     }}
                   >
-                    {suggestions.map((item) => (
-                      <Pressable
-                        key={item.id}
-                        onPress={() => {
-                          setAddress(item.place_name);
-                          setSuggestions([]);
-                          validateField("address", item.place_name);
-                        }}
-                        style={{ padding: 10 }}
-                      >
-                        <Text>{item.place_name}</Text>
-                      </Pressable>
-                    ))}
+                    <ScrollView nestedScrollEnabled>
+                      {suggestions.map((item) => (
+                        <Pressable
+                          key={item.id}
+                          onPress={() => {
+                            setAddress(item.place_name);
+                            setSuggestions([]);
+                            validateField("address", item.place_name);
+                          }}
+                          style={{
+                            padding: 14,
+                            borderBottomWidth: 1,
+                            borderBottomColor: "#eee",
+                          }}
+                        >
+                          <Text>{item.place_name}</Text>
+                        </Pressable>
+                      ))}
+                    </ScrollView>
                   </View>
                 )}
               </View>
@@ -973,7 +987,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: "#cae2f3",
-    overflow: "hidden",
+    overflow: "visible",
     flexDirection: "row",
     elevation: 6,
     alignSelf: "center",
@@ -994,6 +1008,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 28,
     backgroundColor: "#f3f7fb",
+    overflow: "visible",
   },
   successMessage: {
     backgroundColor: "#d4edda",
@@ -1039,12 +1054,15 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     gap: 20,
+    overflow: "visible",
+    zIndex: 1,
   },
   col: {
     flex: 1,
     minWidth: 280,
-
     width: "100%",
+    position: "relative",
+    zIndex: 1,
   },
   label: {
     fontWeight: "600",
