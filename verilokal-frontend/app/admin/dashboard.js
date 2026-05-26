@@ -648,7 +648,9 @@ export default function AdminDashboard() {
               </View>
 
               {/* Image */}
-              <Image style={styles.admin_modalImage} />
+              <Image 
+                source={{ uri: currentImages[currentIndex] }}
+                style={styles.admin_modalImage} />
 
               {/* Right Arrow */}
               <View style={{ width: 0, alignItems: "center" }}>
@@ -1278,7 +1280,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    width: "75%%",
+    width: "75%",
   },
 
   admin_modalImage: {

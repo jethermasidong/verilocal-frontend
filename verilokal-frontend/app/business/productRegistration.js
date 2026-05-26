@@ -272,6 +272,8 @@ export default function RegisterProduct() {
     }
   };
 
+
+  //ERROR HANDLING
   const validateField = (name, value) => {
     let error = "";
 
@@ -339,7 +341,7 @@ export default function RegisterProduct() {
     return () => Dimensions.removeEventListener("change", resize);
   }, []);
 
-  //SUBMIT FOR REGISTRATION
+  //ERROR HANDLING
   const handleSubmit = async () => {
     const newErrors = {};
     if (!form.name) newErrors.name = "Product name is required";
@@ -434,6 +436,8 @@ export default function RegisterProduct() {
     }
   }, [form.type])
 
+
+  //FETCH MATERIALS FOR INPUT FIELD
   const fetchMaterials = async (type) => {
     try {
       const token = await AsyncStorage.getItem("token");
@@ -455,6 +459,8 @@ export default function RegisterProduct() {
     fetchTypes();
   }, []);
 
+
+  //FETCH TYPES FOR INPUT FIELD
   const fetchTypes = async () => {
     try {
       const token = await AsyncStorage.getItem("token");
@@ -475,6 +481,8 @@ export default function RegisterProduct() {
     fetchOrigins();
   }, []);
 
+
+  //FETCH ORIGINS FOR INPUT FIELD
   const fetchOrigins = async () => {
     try {
       const token = await AsyncStorage.getItem("token");
@@ -489,6 +497,7 @@ export default function RegisterProduct() {
       console.error("Error fetching origin", err);
     }
   };
+
 
   //PAGE ANIMATION
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -570,6 +579,8 @@ export default function RegisterProduct() {
     }
   }, [resultVisible, resultType]);
 
+
+  //PRODUCTION DATE FORMAT
   useEffect(() => {
     if (form.productionStartDate && form.productionEndDate) {
       const start = formatDate(form.productionStartDate);
@@ -583,34 +594,8 @@ export default function RegisterProduct() {
 
   const STANDARD_INPUT_HEIGHT = 44;
 
-  const HoverButton = ({
-    children,
-    style,
-    hoverStyle,
-    pressedStyle,
-    onPress,
-    disabled,
-  }) => {
-    const [hovered, setHovered] = useState(false);
 
-    return (
-      <Pressable
-        disabled={disabled}
-        onPress={onPress}
-        onHoverIn={() => setHovered(true)}
-        onHoverOut={() => setHovered(false)}
-        style={({ pressed }) => [
-          style,
-          hovered && hoverStyle,
-          pressed && pressedStyle,
-          disabled && { opacity: 0.5 },
-        ]}
-      >
-        {children}
-      </Pressable>
-    );
-  };
-
+  //JSX
   return (
     <Animated.View
       style={{
@@ -635,11 +620,11 @@ export default function RegisterProduct() {
             <View
               style={[
                 styles.leftPanel,
-                !isMobile && { width: "35%", height: "100%" },
+                !isMobile && { width: "25%", height: "100%" },
               ]}
             >
               <Image
-                source={require("../../assets/business1.png")}
+                source={require("../../assets/business1.gif")}
                 style={styles.bannerImage}
                 resizeMode="cover"
               />
@@ -648,7 +633,7 @@ export default function RegisterProduct() {
             <View style={[styles.rightPanel, isMobile && { width: "100%" }]}>
               <Text style={styles.formTitle}>Product Registration</Text>
               <Text style={styles.subtitle}>
-                Secure the legacy. Activate the permanent digital record of your authentic item.
+                Welcome Artisan, Register your product.
               </Text>
               <View
                 style={[styles.row, isMobile && { flexDirection: "column" }]}
@@ -730,25 +715,46 @@ export default function RegisterProduct() {
                     )}
                   </View>
                   <Text style={styles.label}>Current Owner<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
-                  <InputField
-                    label="Current Owner"
-                    value={form.current_owner}
-                    onChange={(v) => handleInputChange("current_owner", v)}
-                    maxLength={50}
-                    error={errors.current_owner}
-                  />
+                    <View style={styles.inputContainer}>
+                      <Picker
+                        selectedValue={form.current_owner}
+                        style={[styles.picker, errors.current_owner && styles.errorInput]}
+                        onValueChange={(value) => handleInputChange("current_owner", value)}
+                      >
+                        <Picker.Item label="Select Artisan" value="" />
+                        <Picker.Item label="Mondiguing Woodcrafts" value="Mondiguing Woodcrafts" />
+                        <Picker.Item label="Kultura Filipino" value="Kultura Filipino" />
+                        <Picker.Item label="Balikbayan" value="Balikbayan" />
+                        <Picker.Item label="Obra" value="Obra" />
+                      </Picker>
+                      {errors.current_owner && (
+                        <Text style={styles.errorText}>{errors.current_owner}</Text>
+                      )}
+                    </View>
                 </View>
 
                 <View style={[styles.col, isMobile && { width: "100%" }]}>
                   <Text style={styles.label}>Quantity<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
-                  <InputField
-                    label="Product Quantity"
-                    value={form.quantity}
-                    keyboardType="numeric"
-                    onChange={(v) => handleInputChange("quantity", v)}
-                    maxLength={3}
-                    error={errors.quantity}
-                  />
+                    <View style={styles.inputContainer}>
+                      <Picker
+                        selectedValue={form.quantity}
+                        style={[styles.picker, errors.quantity && styles.errorInput]}
+                        onValueChange={(value) => handleInputChange("quantity", value)}
+                        numberOfLines={5}
+                      >
+                        <Picker.Item label="Select Quantity" value="" />
+                        {Array.from({ length: 5 }, (_, i) => i + 1).map((num) => (
+                          <Picker.Item 
+                            key={num} 
+                            label={num.toString()} 
+                            value={num.toString()}
+                          />
+                        ))}
+                      </Picker>
+                      {errors.quantity && (
+                        <Text style={styles.errorText}>{errors.quantity}</Text>
+                      )}
+                    </View>
                   <Text style={[styles.label, { marginTop: 0 }]}>
                     Production Date* (Start to End)<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text>
                   </Text>
@@ -766,7 +772,7 @@ export default function RegisterProduct() {
                         style={{
                           ...styles.webDateInput,
                           borderColor: errors.productionDate ? "red" : "#ccc",
-                          backgroundColor: errors.productionDate ? "#fef2f2" : "#fafafa",
+                          backgroundColor: errors.productionDate ? "#fef2f2" : "#f2f8fc",
                         }}
                       />
                       <input
@@ -790,7 +796,7 @@ export default function RegisterProduct() {
                         style={{
                           ...styles.webDateInput,
                           borderColor: errors.productionDate ? "red" : "#ccc",
-                          backgroundColor: errors.productionDate ? "#fef2f2" : "#fafafa",
+                          backgroundColor: errors.productionDate ? "#fef2f2" : "#f2f8fc",
                         }}
                       />
                     </>
@@ -857,95 +863,95 @@ export default function RegisterProduct() {
               <Text style={[styles.label, { marginTop: 10 }]}>
                 Image of the Product<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text>
               </Text>
-              <Pressable
-                style={[styles.imagePicker, errors.productImage && styles.errorInput]}
-                onPress={() => pickImage("productImage")}
-              >
-                {form.productImage ? (
-                  <Image
-                    source={{ uri: form.productImage.uri }}
-                    style={styles.imagePreview}
-                  />
-                ) : (
-                  <Text style={styles.imageText}>Select Product Image</Text>
-                )}
-              </Pressable>
+              <View style={{ position: 'relative' }}>
+                <Pressable
+                  style={({ hovered }) => [styles.imagePicker, errors.productImage && styles.errorInput, 
+                    hovered && {boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.15)', transition: 'box-shadow 0.2s ease-in-out'}
+                  ]}
+                  onPress={() => pickImage("productImage")}
+                >
+                  {form.productImage ? (
+                    <Image
+                      source={{ uri: form.productImage.uri }}
+                      style={styles.imagePreview}
+                    />
+                  ) : (
+                    <Text style={styles.imageText}>Select Product Image</Text>
+                  )}
+                </Pressable>
+                {form.productImage && (
+                  <Pressable 
+                    style={styles.removeButton} 
+                    onPress={() => setForm(prev => ({ ...prev, productImage: null }))} 
+                  >
+                    <Text style={styles.removeButtonText}>✕</Text>
+                  </Pressable>
+                    )}
+              </View>
               {errors.productImage && (
                 <Text style={styles.errorText}>{errors.productImage}</Text>
               )}
 
               <Text style={styles.label}>Images of the Process<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
-
-              <Pressable
-                style={[styles.imagePicker, errors.productImage && styles.errorInput]}
-                onPress={pickProcessImages}
-              >
-                <Text style={styles.imageText}>
-                  Upload process photos (e.g., raw materials, artisan at work,
-                  finished product){" "}
-                </Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  {form.processImages.map((img, index) => (
-                    <View key={index} style={{ marginRight: 10 }}>
-                      <Image
-                        source={{ uri: img.uri }}
-                        style={{
-                          width: 120,
-                          height: 120,
-                          borderRadius: 10,
-                        }}
-                      />
-                      <Pressable
-                        onPress={() => {
-                          const updatedImages = form.processImages.filter(
-                            (_, i) => i !== index,
-                          );
-                          setForm({
-                            ...form,
-                            processImages: updatedImages,
-                          });
-                        }}
-                        style={{
-                          position: "absolute",
-                          top: -6,
-                          right: -6,
-                          backgroundColor: "#ff4444",
-                          width: 24,
-                          height: 24,
-                          borderRadius: 12,
-                          justifyContent: "center",
-                          alignItems: "center",
-                          elevation: 3,
-                        }}
-                      >
-                        <Text style={{ color: "white", fontWeight: "bold" }}>
-                          ×
-                        </Text>
-                      </Pressable>
-                    </View>
-                  ))}
-                </ScrollView>
-              </Pressable>
-
-              {errors.processImages && (
-                <Text
-                  style={[
-                    styles.errorText,
-                    { marginTop: -10, marginBottom: 10 },
-                  ]}
+                <View style={[styles.processImageContainer, errors.processImages && styles.errorInput,
+                  Platform.OS === 'web' ? { transition: 'box-shadow 0.2s ease-in-out' } : null
+                ]}
+                  onMouseEnter={(e) => {
+                    if (Platform.OS === 'web') e.currentTarget.style.boxShadow = '0px 8px 16px rgba(0, 0, 0, 0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (Platform.OS === 'web') e.currentTarget.style.boxShadow = 'none';
+                  }}
                 >
-                  {errors.processImages}
-                </Text>
-              )}
-              <HoverButton
+                  {form.processImages.length === 0 ? (
+                    <Pressable style={styles.processPickerInnerClick} onPress={pickProcessImages}>
+                      <Ionicons name="cloud-upload-outline" size={24} color="#666" style={{ marginBottom: 8 }} />
+                      <Text style={styles.imageText}>Upload process photos</Text>
+                    </Pressable>
+                  ) : (
+                    <View style={styles.processScrollWrapper}>
+                      <ScrollView 
+                        horizontal 
+                        showsHorizontalScrollIndicator={true}
+                        contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 10 }}
+                      >
+                        {form.processImages.map((img, index) => (
+                          <View key={index} style={styles.processThumbnailWrapper}>
+                            <Image source={{ uri: img.uri }} style={styles.processThumbnail} />
+                            <Pressable
+                              onPress={() => {
+                                const updatedImages = form.processImages.filter((_, i) => i !== index);
+                                setForm({ ...form, processImages: updatedImages });
+                              }}
+                              style={styles.removeBadge}
+                            >
+                              <Text style={styles.removeBadgeText}>×</Text>
+                            </Pressable>
+                          </View>
+                        ))}
+                        <Pressable style={styles.inlineAddMoreButton} onPress={pickProcessImages}>
+                          <Ionicons name="add" size={24} color="#666" />
+                          <Text style={styles.inlineAddText}>Add</Text>
+                        </Pressable>
+                      </ScrollView>
+                    </View>
+                  )}
+                </View>
+                {errors.processImages && (
+                  <Text style={[styles.errorText, { marginTop: 4, marginBottom: 10 }]}>
+                    {errors.processImages}
+                  </Text>
+                )}
+              <Pressable
                 style={styles.submitButton}
                 onPress={handleSubmit}
-                hoverStyle={styles.hoverPrimary}
-                pressedStyle={styles.pressedButton}
                 disabled={isSubmitting}
               >
-                <Text style={styles.submitText}>Submit</Text>
-              </HoverButton>
+                <View style={{flexDirection: "row", alignItems: "center"}}>
+                  <Text style={styles.submitText}>Submit</Text>
+                  <Ionicons name="return-up-forward-outline" size={18} color="#fafafa" style={{marginLeft: 2}}/>
+                </View>
+              </Pressable>
 
               {showDatePicker && (
                 <DateTimePicker
@@ -971,7 +977,8 @@ export default function RegisterProduct() {
             </View>
           </View>
         </ScrollView>
-      ) : (
+      ) : ( 
+        //DESKTOP VIEW
         <View
           style={{
             flex: 1,
@@ -989,22 +996,28 @@ export default function RegisterProduct() {
               ]}
             >
               <Image
-                source={require("../../assets/business1.png")}
+                source={require("../../assets/business1.gif")}
                 style={styles.bannerImage}
                 resizeMode="cover"
               />
             </View>
             {/* RIGHT PANEL */}
-            <View style={[styles.rightPanel, isMobile && { width: "100%" }]}>
+            <View style={[styles.rightPanel, isMobile && { width: "100%"}]}>
               <View
                 style={{
                   flexDirection: "row",
                   justifyContent: "space-between",
                   alignItems: "center",
                   width: "100%",
+                  paddingBottom: 10,
                 }}
               >
+                <View style={{ flexDirection: "column" }}>
                 <Text style={styles.formTitle}>Product Registration</Text>
+                <Text style={styles.subtitle}>
+                  Welcome Artisan. Register your product, secure its identity, and build trust.
+                </Text>
+                </View>
                 <Pressable
                   style={{ padding: 5 }}
                   onPress={() => router.push("/business")}
@@ -1019,9 +1032,6 @@ export default function RegisterProduct() {
                   )}
                 </Pressable>
               </View>
-              <Text style={styles.subtitle}>
-                Secure the legacy. Activate the permanent digital record of your authentic item.
-              </Text>
               <View
                 style={[styles.row, isMobile && { flexDirection: "column" }]}
               >
@@ -1101,25 +1111,45 @@ export default function RegisterProduct() {
                     )}
                   </View>
                   <Text style={styles.label}>Current Owner<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
-                  <InputField
-                    label="Current Owner"
-                    value={form.current_owner}
-                    onChange={(v) => handleInputChange("current_owner", v)}
-                    maxLength={50}
-                    error={errors.current_owner}
-                  />
+                    <View style={styles.inputContainer}>
+                      <Picker
+                        selectedValue={form.current_owner}
+                        style={[styles.picker, errors.current_owner && styles.errorInput]}
+                        onValueChange={(value) => handleInputChange("current_owner", value)}
+                      >
+                        <Picker.Item label="Select Artisan" value="" />
+                        <Picker.Item label="Mondiguing Woodcrafts" value="Mondiguing Woodcrafts" />
+                        <Picker.Item label="Kultura Filipino" value="Kultura Filipino" />
+                        <Picker.Item label="Balikbayan" value="Balikbayan" />
+                        <Picker.Item label="Obra" value="Obra" />
+                      </Picker>
+                      {errors.current_owner && (
+                        <Text style={styles.errorText}>{errors.current_owner}</Text>
+                      )}
+                    </View>
                 </View>
 
                 <View style={[styles.col, isMobile && { minWidth: "100%" }]}>
                   <Text style={styles.label}>Quantity<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
-                  <InputField
-                    label="Product Quantity"
-                    value={form.quantity}
-                    keyboardType="numeric"
-                    onChange={(v) => handleInputChange("quantity", v)}
-                    maxLength={3}
-                    error={errors.quantity}
-                  />
+                  <View style={styles.inputContainer}>
+                      <Picker
+                        selectedValue={form.quantity}
+                        style={[styles.picker, errors.quantity && styles.errorInput]}
+                        onValueChange={(value) => handleInputChange("quantity", value)}
+                      >
+                        <Picker.Item label="Select Quantity" value="" />
+                        {Array.from({ length: 5 }, (_, i) => i + 1).map((num) => (
+                          <Picker.Item 
+                            key={num} 
+                            label={num.toString()} 
+                            value={num.toString()}
+                          />
+                        ))}
+                      </Picker>
+                      {errors.quantity && (
+                        <Text style={styles.errorText}>{errors.quantity}</Text>
+                      )}
+                    </View>
                   <Text style={styles.label}>
                     Production Date* (Start to End)<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text>
                   </Text>
@@ -1137,7 +1167,7 @@ export default function RegisterProduct() {
                         style={{
                           ...styles.webDateInput,
                           borderColor: errors.productionDate ? "red" : "#ccc",
-                          backgroundColor: errors.productionDate ? "#fef2f2" : "#fafafa",
+                          backgroundColor: errors.productionDate ? "#fef2f2" : "#f2f8fc",
                         }}
                       />
                       <input
@@ -1161,7 +1191,7 @@ export default function RegisterProduct() {
                         style={{
                           ...styles.webDateInput,
                           borderColor: errors.productionDate ? "red" : "#ccc",
-                          backgroundColor: errors.productionDate ? "#fef2f2" : "#fafafa",
+                          backgroundColor: errors.productionDate ? "#fef2f2" : "#f2f8fc",
                         }}
                       />
                     </>
@@ -1228,109 +1258,103 @@ export default function RegisterProduct() {
               <View style={{ flexDirection: "row", gap: 16, marginBottom: 10 }}>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.label}>Image of the Product<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
-                  <Pressable
-                    style={[
-                      styles.imagePicker,
-                      errors.productImage && styles.errorInput,
-                    ]}
-                    onPress={() => pickImage("productImage")}
-                  >
-                    {form.productImage ? (
-                      <Image
-                        source={{ uri: form.productImage.uri }}
-                        style={styles.imagePreview}
-                      />
-                    ) : (
-                      <Text style={styles.imageText}>Select Product Image</Text>
+                  <View style={{ position: 'relative' }}>
+                    <Pressable
+                      style={({ hovered }) => [styles.imagePicker, errors.productImage && styles.errorInput, 
+                        hovered && {boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.15)', transition: 'box-shadow 0.2s ease-in-out'}
+                      ]}
+                      onPress={() => pickImage("productImage")}
+                    >
+                      {form.productImage ? (
+                        <Image
+                          source={{ uri: form.productImage.uri }}
+                          style={styles.imagePreview}
+                        />
+                      ) : (
+                        <View style={{alignItems: "center"}}>
+                          <Ionicons name="cloud-upload-outline" size={24} color="#666" style={{ marginBottom: 8 }} />
+                          <Text style={styles.imageText}>Select Product Image</Text>
+                        </View>
+                      )}
+                    </Pressable>
+                    {form.productImage && (
+                    <Pressable 
+                      style={styles.removeButton} 
+                      onPress={() => setForm(prev => ({ ...prev, productImage: null }))} 
+                    >
+                      <Text style={styles.removeButtonText}>✕</Text>
+                    </Pressable>
                     )}
-                  </Pressable>
+                  </View>
                   {errors.productImage && (
                     <Text style={styles.errorText}>{errors.productImage}</Text>
                   )}
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.label}>Images of the Process<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
-
-                  <Pressable
-                    style={[
-                      styles.imagePicker,
-                      errors.processImages && styles.errorInput,
+                    <View style={[styles.processImageContainer, errors.processImages && styles.errorInput,
+                      Platform.OS === 'web' ? { transition: 'box-shadow 0.2s ease-in-out' } : null
                     ]}
-                    onPress={pickProcessImages}
-                  >
-                    <Text style={styles.imageText}>
-                      Upload process photos (e.g., raw materials, artisan at
-                      work, finished product){" "}
-                    </Text>
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
+                      onMouseEnter={(e) => {
+                        if (Platform.OS === 'web') e.currentTarget.style.boxShadow = '0px 8px 16px rgba(0, 0, 0, 0.15)';
+                      }}
+                      onMouseLeave={(e) => {
+                        if (Platform.OS === 'web') e.currentTarget.style.boxShadow = 'none';
+                      }}
                     >
-                      {form.processImages.map((img, index) => (
-                        <View key={index} style={{ marginRight: 10 }}>
-                          <Image
-                            source={{ uri: img.uri }}
-                            style={{
-                              width: 120,
-                              height: 120,
-                              borderRadius: 10,
-                            }}
-                          />
-                          <Pressable
-                            onPress={() => {
-                              const updatedImages = form.processImages.filter(
-                                (_, i) => i !== index,
-                              );
-                              setForm({
-                                ...form,
-                                processImages: updatedImages,
-                              });
-                            }}
-                            style={{
-                              position: "absolute",
-                              top: -6,
-                              right: -6,
-                              backgroundColor: "#ff4444",
-                              width: 24,
-                              height: 24,
-                              borderRadius: 12,
-                              justifyContent: "center",
-                              alignItems: "center",
-                              elevation: 3,
-                            }}
+                      {form.processImages.length === 0 ? (
+                        <Pressable style={styles.processPickerInnerClick} onPress={pickProcessImages}>
+                          <Ionicons name="cloud-upload-outline" size={24} color="#666" style={{ marginBottom: 8 }} />
+                          <Text style={styles.imageText}>Upload process photos</Text>
+                        </Pressable>
+                      ) : (
+                        <View style={styles.processScrollWrapper}>
+                          <ScrollView 
+                            horizontal 
+                            showsHorizontalScrollIndicator={true}
+                            contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 10 }}
                           >
-                            <Text
-                              style={{ color: "white", fontWeight: "bold" }}
-                            >
-                              ×
-                            </Text>
-                          </Pressable>
+                            {form.processImages.map((img, index) => (
+                              <View key={index} style={styles.processThumbnailWrapper}>
+                                <Image source={{ uri: img.uri }} style={styles.processThumbnail} />
+                                <Pressable
+                                  onPress={() => {
+                                    const updatedImages = form.processImages.filter((_, i) => i !== index);
+                                    setForm({ ...form, processImages: updatedImages });
+                                  }}
+                                  style={styles.removeBadge}
+                                >
+                                  <Text style={styles.removeBadgeText}>×</Text>
+                                </Pressable>
+                              </View>
+                            ))}
+                            <Pressable style={styles.inlineAddMoreButton} onPress={pickProcessImages}>
+                              <Ionicons name="add" size={24} color="#666" />
+                              <Text style={styles.inlineAddText}>Add</Text>
+                            </Pressable>
+                          </ScrollView>
                         </View>
-                      ))}
-                    </ScrollView>
-                  </Pressable>
-
+                      )}
+                    </View>
                   {errors.processImages && (
-                    <Text
-                      style={[
-                        styles.errorText,
-                        { marginTop: -10, marginBottom: 10 },
-                      ]}
-                    >
+                    <Text style={[styles.errorText, { marginTop: 4, marginBottom: 10 }]}>
                       {errors.processImages}
                     </Text>
                   )}
                 </View>
               </View>
-              <HoverButton
-                style={styles.submitButton}
+              <Pressable
+                style={({ hovered }) => [styles.submitButton, 
+                  hovered && {boxShadow: '0px 8px 16px rgba(0, 0, 0.12, 0.20)', transition: 'box-shadow 0.2s ease-in-out'}
+                ]}
                 onPress={handleSubmit}
-                hoverStyle={styles.hoverPrimary}
-                pressedStyle={styles.pressedButton}
                 disabled={isSubmitting}
               >
-                <Text style={styles.submitText}>Submit</Text>
-              </HoverButton>
+                <View style={{flexDirection: "row", alignItems: "center"}}> 
+                  <Text style={styles.submitText}>Submit</Text>
+                  <Ionicons name="return-up-forward-outline" size={18} color="#fafafa" style={{marginLeft: 2}}/>
+                </View>
+              </Pressable>
 
               {showDatePicker && (
                 <DateTimePicker
@@ -1691,12 +1715,20 @@ function InputField({ label, value, onChange, multiline, maxLength, error }) {
 
 const styles = StyleSheet.create({
   bannerImage: {
-    width: "100%",
-    height: "100%",
+    width: "96%",
+    height: "98%",
+    marginLeft: 7,
+    marginTop: 7,
+    marginRight: 10,
+    marginBottom: 7,
+    borderTopLeftRadius: 25,   
+    borderBottomLeftRadius: 25, 
+    borderTopRightRadius: 25,   
+    borderBottomRightRadius: 25
   },
   card: {
     width: "95%",
-    maxWidth: 1200,
+    maxWidth: 1100,
     backgroundColor: "#fff",
     borderRadius: 25,
     overflow: "hidden",
@@ -1706,7 +1738,7 @@ const styles = StyleSheet.create({
   },
   rightPanel: {
     flex: 1,
-    padding: 28,
+    padding: 30,
     backgroundColor: "#f2f8fc",
   },
   infoPanel: {
@@ -1743,26 +1775,26 @@ const styles = StyleSheet.create({
   },
   leftPanel: {
     width: "100%",
-    height: 220,
+    height: 200,
   },
 
   statusMessage: { fontSize: 12, color: "#67AA61", marginBottom: 10 },
 
   formTitle: {
     fontSize: 34,
-    fontWeight: "800",
+    fontWeight: "700",
+    marginBottom: -5,
     color: "#223049",
     textAlign: "left",
-    fontFamily: "Montserrat-Bold",
-    marginBottom: -20,
+    fontFamily: "Garet-Heavy",
   },
   subtitle: {
     fontSize: 14,
     fontWeight: "500",
     color: "#223049",
-    marginBottom: 20,
+    marginBottom: 12,
     textAlign: "left",
-    fontFamily: "Montserrat-Regular",
+    fontFamily: "Garet-Book",
   },
 
   columnsWrapper: { justifyContent: "space-between", gap: 20 },
@@ -1773,23 +1805,23 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     paddingHorizontal: 12,
-    height: 44,
+    height: 40,
     borderRadius: 8,
-    backgroundColor: "#fafafa",
+    backgroundColor: "#f2f8fc",
     width: "100%",
     fontFamily: "Montserrat-Regular",
-    fontSize: 14,
+    fontSize: 13,
   },
   picker: {
-    height: 44,
+    height: 40,
     borderWidth: 1,
     borderColor: "#ccc",
-    padding: 12,
+    padding: 10,
     borderRadius: 8,
-    backgroundColor: "#fafafa",
+    backgroundColor: "#f2f8fc",
     width: "100%",
     fontFamily: "Montserrat-Regular",
-    fontSize: 14,
+    fontSize: 13,
   },
   errorInput: { borderColor: "red", backgroundColor: "#fef2f2" },
   errorText: {
@@ -1807,9 +1839,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 8,
-    height: 44,
+    height: 40,
     width: "100%",
-    backgroundColor: "#fafafa",
+    backgroundColor: "#f2f8fc",
     marginBottom: 10,
     ...(Platform.OS === "web" && { boxSizing: "border-box" }),
   },
@@ -1825,12 +1857,12 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     marginBottom: 10,
     paddingHorizontal: 12,
-    height: 44,
+    height: 40,
     borderRadius: 8,
-    backgroundColor: "#fafafa",
+    backgroundColor: "#f2f8fc",
     width: "100%",
     fontFamily: "Montserrat-Regular",
-    fontSize: 14,
+    fontSize: 13,
   },
 
   textArea: {
@@ -1848,8 +1880,9 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     padding: 20,
     borderRadius: 10,
+    borderStyle: "dashed",
     alignItems: "center",
-    backgroundColor: "#fafafa",
+    backgroundColor: "#fff",
     height: 140,
     justifyContent: "center",
     marginBottom: 15,
@@ -1930,19 +1963,98 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   submitText: { color: "#fff", fontSize: 16, fontWeight: "600" },
-
-  hoverPrimary: {
-    backgroundColor: "#1e3a5f",
-    transform: [{ scale: 1.01 }],
+  processImageContainer: {
+    borderWidth: 1,
+    borderStyle: "dashed", 
+    borderColor: "#ccc",
+    borderRadius: 10,
+    backgroundColor: "#fff",
+    height: 140,           
+    width: "100%",
+    overflow: "hidden",     
+    marginBottom: 15,
+  },
+  processPickerInnerClick: {
+    flex: 1,
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  processScrollWrapper: {
+    flex: 1,
+    width: "100%",
+  },
+  processThumbnailWrapper: {
+    marginRight: 14,
+    position: "relative",
+    paddingTop: 8,
+    paddingRight: 8,
   },
 
-  hoverSecondary: {
-    backgroundColor: "#F3F4F6 ",
-    transform: [{ scale: 1.01 }],
+  processThumbnail: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+    objectFit: "cover",
+    borderWidth: 1,
+    borderColor: "#cbd5e1",
   },
 
-  pressedButton: {
-    transform: [{ scale: 0.98 }],
-    opacity: 0.9,
+  inlineAddMoreButton: {
+    width: 80,
+    height: 100,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderStyle: "dashed",
+    borderColor: "#a3b8cc",
+    backgroundColor: "#f1f5f9",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 0, 
+  },
+
+  inlineAddText: {
+    fontSize: 11,
+    color: "#666",
+    fontFamily: "Montserrat-Regular",
+    marginTop: 2,
+  },
+
+  removeBadge: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    backgroundColor: "#ff4444",
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 3,
+  },
+
+  removeBadgeText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 14,
+    lineHeight: 16,
+  },
+  removeButton: {
+  position: 'absolute',
+  top: 8,
+  right: 8,
+  backgroundColor: '#ff4444', 
+  width: 24,
+  height: 24,
+  borderRadius: 12, 
+  justifyContent: 'center',
+  alignItems: 'center',
+  zIndex: 10, 
+  },
+removeButtonText: {
+  color: '#ffffff',
+  fontSize: 12,
+  fontWeight: 'bold',
+  lineHeight: 14, 
   },
 });

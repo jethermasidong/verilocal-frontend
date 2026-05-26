@@ -22,6 +22,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { StackScreenLifecycleState } from "react-native-screens";
 
 export default function RegisterBusiness() {
   const [name, setName] = useState("");
@@ -37,17 +38,15 @@ export default function RegisterBusiness() {
   const [social_link, setSocialLink] = useState("");
 
   const [errors, setErrors] = useState({});
-
   const [isMobile, setIsMobile] = useState(false);
-
   const [consent, setConsent] = useState(false);
   const [showConsentModal, setShowConsentModal] = useState(false);
-
   const [isLoading, setIsLoading] = useState(false);
   const [submitting, setIsSubmitting] = useState(false);
-
   const [suggestions, setSuggestions] = useState([]);
 
+
+  //ADDRESS API AUTOCOMPLETE
   const searchAddress = async (text) => {
     setAddress(text);
 
@@ -77,6 +76,8 @@ export default function RegisterBusiness() {
     }
   };
 
+
+  //SINGLE IMAGE UPLOAD
   const pickImage = async (setter) => {
     try {
       if (Platform.OS === "web") {
@@ -114,6 +115,8 @@ export default function RegisterBusiness() {
     }
   };
 
+
+  //CERTIFICATES UPLOAD
   const multipleImages = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
@@ -145,6 +148,9 @@ export default function RegisterBusiness() {
     }
   };
 
+
+
+  //WEB DIMENSION
   useEffect(() => {
     const resize = () => {
       const w = Dimensions.get("window").width;
@@ -155,6 +161,9 @@ export default function RegisterBusiness() {
     return () => Dimensions.removeEventListener("change", resize);
   }, []);
 
+
+
+  //INPUT VALIDATIONS
   const validateField = (field, value) => {
   let error = "";
 
@@ -216,6 +225,8 @@ export default function RegisterBusiness() {
     }));
   };
 
+
+
   const validate = () => {
     const e = {};
     if (!name) e.name = "Owner name is required";
@@ -243,7 +254,6 @@ export default function RegisterBusiness() {
           "Password must be at least 8 characters long and include at least one letter & number";
       }
     }
-
     if (!address) e.address = "Address is required";
     if (!contact_no) {
       e.contact_no = "Contact number is required";
@@ -258,6 +268,9 @@ export default function RegisterBusiness() {
     return e;
   };
 
+
+
+  //REGISTER FUNCTION VALIDATION
   const handleRegisterClick = () => {
     const e = validate();
     if (Object.keys(e).length > 0) {
@@ -269,6 +282,8 @@ export default function RegisterBusiness() {
     setShowConsentModal(true);
   };
 
+
+  //CONSENT FORM 
   const handleConfirmConsent = async () => {
     setConsent(true);
     setShowConsentModal(false);
@@ -278,10 +293,13 @@ export default function RegisterBusiness() {
   const [resultVisible, setResultVisible] = useState(false);
   const [resultType, setResultType] = useState(null);
   const [resultMessage, setResultMessage] = useState("");
+
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
   const shakeAnim = useRef(new Animated.Value(0)).current;
 
+
+  //MAIN REGISTER FUNCTION
   const handleSubmit = async () => {
     try {
       setIsLoading(true);
@@ -336,7 +354,7 @@ export default function RegisterBusiness() {
 
       setResultType("success");
       setResultMessage(
-        "Your business registration has been submitted successfully.",
+        "Your account registration has been submitted successfully.",
       );
       setResultVisible(true);
       setName("");
@@ -378,17 +396,17 @@ export default function RegisterBusiness() {
     }
   };
 
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(20)).current;
 
+  //FONTS
   const [fontsLoaded] = useFonts({
     "Montserrat-Regular": require("../../assets/fonts/Montserrat/static/Montserrat-Regular.ttf"),
     "Montserrat-Bold": require("../../assets/fonts/Montserrat/static/Montserrat-Bold.ttf"),
   });
-
   if (!fontsLoaded) return null;
 
-
+  //ANIMATION
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(20)).current;
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -466,6 +484,7 @@ export default function RegisterBusiness() {
   }, [resultVisible, resultType]);
 
 
+  //REGISTER BUTTON HOVER COMPONENT
   const HoverButton = ({
     children,
     style,
@@ -494,6 +513,14 @@ export default function RegisterBusiness() {
     );
   };
 
+
+  //REMOVE BUTTON FOR CERTIFICATE
+  const removeCertificate = (indexToRemove) => {
+    setCertificates((prev) => prev.filter((_, index) => index !== indexToRemove));
+  };
+
+
+  //JSX
   return (
     <Animated.View
       style={{
@@ -545,7 +572,7 @@ export default function RegisterBusiness() {
               </View>
               {Platform.OS === "web" && (
                 <Pressable
-                  style={{ padding: 5 }}
+                  style={{ padding: 5}}
                   onPress={() => router.push("/login-business")}
                 >
                   {({ hovered }) => (
@@ -559,7 +586,6 @@ export default function RegisterBusiness() {
                 </Pressable>
               )}
             </View>
-
             <View style={[styles.row, isMobile && { flexDirection: "column" }]}>
               <View style={[styles.col, isMobile && { minWidth: "100%" }]}>
                 <Text style={styles.label}>Owner Name<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
@@ -736,7 +762,7 @@ export default function RegisterBusiness() {
                   placeholder="Paste your Facebook, Instagram, or LinkedIn profile URL"
                   onChangeText={setSocialLink}
                   maxLength={64}
-                  keyboardType="social_link"
+                  keyboardType="url"
                 />
                 {errors.social_link && (
                   <Text style={styles.error}>{errors.social_link}</Text>
@@ -761,52 +787,115 @@ export default function RegisterBusiness() {
                 )}
               </View>
             </View>
-
-            <Text style={styles.label}>Business Permit (Mayor's Permit)<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text> </Text>
-            <Pressable
-              style={[styles.upload, errors.permit && styles.inputError]}
-              onPress={() => pickImage(setPermit)}
-            >
-              <Text>
-                {permit ? (
-                  permit.name
-                ) : (
-                  <FontAwesomeIcon icon={faFileUpload} size="2x" />
-                )}
-              </Text>
-            </Pressable>
-            {errors.permit && <Text style={styles.error}>{errors.permit}</Text>}
-
+            <View style={[styles.uploadRow, isMobile && { flexDirection: "column" }]}>
+            <View style={styles.uploadCol}>
+              <Text style={styles.label}>Business Permit (Mayor's Permit)<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text> </Text>
+              <Pressable
+                style={({ hovered }) => [styles.upload, errors.permit && styles.inputError,
+                  hovered && {boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.15)', transition: 'box-shadow 0.2s ease-in-out'}
+                ]}
+                onPress={() => pickImage(setPermit)}
+              >
+                  {permit ? (
+                    <View style={styles.imageContainer}>
+                      <Image
+                        source={{ uri: permit.uri }}
+                        style={styles.imagePreview}
+                      />
+                      <Pressable 
+                        style={styles.removeButton} 
+                        onPress={() => setPermit(null)} 
+                      >
+                        <Text style={{ color: '#ff5757', fontWeight: 'bold', fontSize: 16 }}>✕</Text>
+                      </Pressable>
+                    </View>
+                  ) : (
+                    <View style={{alignItems: "center"}}>
+                      <FontAwesomeIcon icon={faFileUpload} size="2x" color="#7d91b0" />
+                      <Text style={styles.innerFieldUploadText}>Click to upload permit</Text>
+                    </View>
+                  )}
+              </Pressable>
+              {errors.permit && <Text style={styles.error}>{errors.permit}</Text>}
+            </View>
+              
+            <View style={styles.uploadCol}>
             <Text style={styles.label}>Certificates (DENR / DTI)<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
-            <Pressable
-              style={[styles.upload, errors.certificates && styles.inputError]}
-              onPress={multipleImages}
-            >
-              <Text>
-                {certificates.length > 0 ? (
-                  `${certificates.length} files selected`
+              <View 
+                style={[
+                  styles.innerFieldBox, 
+                  { borderColor: '#ccc' }, 
+                  errors.certificates && styles.inputError,
+                  Platform.OS === 'web' ? { transition: 'box-shadow 0.2s ease-in-out' } : null
+                ]}
+                onMouseEnter={(e) => {
+                  if (Platform.OS === 'web') e.currentTarget.style.boxShadow = '0px 8px 16px rgba(0, 0, 0, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  if (Platform.OS === 'web') e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                {certificates.length === 0 ? (
+                  <Pressable style={styles.innerFieldEmptyZone} onPress={multipleImages}>
+                    <FontAwesomeIcon icon={faFileUpload} size="2x" color="#7d91b0" />
+                    <Text style={styles.innerFieldUploadText}>Click to upload certificates</Text>
+                  </Pressable>
                 ) : (
-                  <FontAwesomeIcon icon={faFileUpload} size="2x" />
-                )}
-              </Text>
-            </Pressable>
-            {errors.certificates && (
-              <Text style={styles.error}>{errors.certificates}</Text>
-            )}
+                  <ScrollView 
+                    horizontal 
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.innerGridContainer}
+                  >
+                    <Pressable style={styles.innerMiniUploadTile} onPress={multipleImages}>
+                      <Ionicons name="add" size={20} color="#5177b0" />
+                      <Text style={{ fontSize: 9, color: "#5177b0", fontWeight: "600" }}>Add</Text>
+                    </Pressable>
 
-            <Text style={styles.label}>Business Logo (Optional)</Text>
-            <Pressable
-              style={[styles.upload, { borderColor: "#ccc" }]}
-              onPress={() => pickImage(setLogo)}
-            >
-              <Text>
-                {logo ? (
-                  logo.name
-                ) : (
-                  <FontAwesomeIcon icon={faFileUpload} size="2x" />
+                    {certificates.map((item, index) => (
+                      <View key={index} style={styles.innerFieldTile}>
+                        <Image source={{ uri: item.uri }} style={styles.innerFieldImage} />
+                        <Pressable style={styles.innerFieldRemoveBadge} onPress={() => removeCertificate(index)}>
+                          <Ionicons name="close" size={10} color="#fff" />
+                        </Pressable>
+                      </View>
+                    ))}
+                  </ScrollView>
                 )}
-              </Text>
-            </Pressable>
+              </View>
+              {errors.certificates && (
+                <Text style={styles.error}>{errors.certificates}</Text>
+              )}
+            </View>
+            <View style={styles.uploadCol}>
+              <Text style={styles.label}>Business Logo (Optional)</Text>
+                <Pressable
+                  style={({ hovered }) => [styles.upload, { borderColor: "#ccc" }, hovered &&
+                    {boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.15',  transition: 'box-shadow 0.2s ease-in-out' }
+                  ]}
+                  onPress={() => pickImage(setLogo)}
+                >
+                    {logo ? (
+                      <View style={styles.imageContainer}>
+                        <Image
+                          source={{ uri: logo.uri }}
+                          style={styles.imagePreview}
+                        />
+                      <Pressable 
+                          style={styles.removeButton} 
+                          onPress={() => setLogo(null)} 
+                        >
+                          <Text style={{ color: '#ff5757', fontWeight: 'bold', fontSize: 16 }}>✕</Text>
+                        </Pressable>
+                      </View>
+                    ) : (
+                      <View style={{alignItems: "center"}}>
+                        <FontAwesomeIcon icon={faFileUpload} size="2x" color="#7d91b0" />
+                        <Text style={styles.innerFieldUploadText}>Click to upload logo</Text>
+                      </View>
+                    )}
+                </Pressable>
+            </View>
+          </View>
 
             <HoverButton
               style={[styles.submitBtn, isMobile && { minWidth: "100%" }]}
@@ -982,12 +1071,13 @@ const styles = StyleSheet.create({
   card: {
     width: "90%",
     maxWidth: 1300,
-    minHeight: 400,
+    marginTop: 30,
+    minHeight: 500,
     backgroundColor: "#f2f8fc",
-    borderRadius: 20,
+    borderRadius: 25,
     borderWidth: 1,
     borderColor: "#cae2f3",
-    overflow: "visible",
+    overflow: "hidden",
     flexDirection: "row",
     elevation: 6,
     alignSelf: "center",
@@ -1026,7 +1116,7 @@ const styles = StyleSheet.create({
     marginBottom: -5,
     textAlign: "left",
     color: "#223049",
-    fontFamily: "Garet-Heavy  ",
+    fontFamily: "Garet-Heavy",
   },
   subtitle: {
     fontSize: 14,
@@ -1106,12 +1196,14 @@ const styles = StyleSheet.create({
   },
   upload: {
     borderWidth: 1,
-    width: "97%",
+    width: "100%",
     borderStyle: "dashed",
     borderColor: "#ccc",
-    padding: 25,
     borderRadius: 12,
     marginTop: 6,
+    justifyContent: "center",
+    backgroundColor: "#fff",
+    height: 200,
     alignItems: "center",
   },
   submitBtn: {
@@ -1235,4 +1327,169 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
   },
+  uploadRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 16,
+    width: "100%",
+    marginTop: 10,
+    overflow: "visible",
+  },
+  uploadCol: {
+    flex: 1,
+    minWidth: 200, 
+    width: "100%",
+  },
+  uploadItem: {
+    borderWidth: 1,
+    width: "100%", 
+    borderStyle: "dashed",
+    borderColor: "#ccc",
+    padding: 25,
+    borderRadius: 12,
+    marginTop: 6,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#fff", 
+  },
+  previewContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    marginTop: 10,
+    width: "100%",
+  },
+  previewWrapper: {
+    position: "relative",
+    width: 70,
+    height: 70,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#cae2f3",
+    backgroundColor: "#fff",
+    padding: 2,
+  },
+  previewImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 6,
+    resizeMode: "cover",
+  },
+  removeBadge: {
+    position: "absolute",
+    top: -6,
+    right: -6,
+    backgroundColor: "#ff5757",
+    borderRadius: 12,
+    width: 20,
+    height: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+  },
+  innerFieldBox: {
+    borderWidth: 1,
+    borderStyle: "dashed",
+    borderColor: "#ccc",
+    borderRadius: 12,
+    marginTop: 6,
+    backgroundColor: "#fff",
+    height: 200,
+    width: "100%",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  innerFieldEmptyZone: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    paddingVertical: 20,
+  },
+  innerFieldUploadText: {
+    marginTop: 6,
+    fontSize: 12,
+    color: "#7d91b0",
+    fontFamily: "Montserrat-Regular",
+  },
+  innerGridContainer: {
+    flexDirection: "row",
+    height: "100%",
+    gap: 12,
+    padding: 12,
+    alignItems: "center",
+  },
+  innerMiniUploadTile: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#cae2f3",
+    borderStyle: "dashed",
+    backgroundColor: "#f2f8fc",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  innerFieldTile: {
+    position: "relative",
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#cae2f3",
+    backgroundColor: "#fff",
+    padding: 2,
+  },
+  innerFieldImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 6,
+    resizeMode: "cover",
+  },
+  innerFieldRemoveBadge: {
+    position: "absolute",
+    top: -5,
+    right: -5,
+    backgroundColor: "#ff5757",
+    borderRadius: 10,
+    width: 18,
+    height: 18,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 10,
+    elevation: 4,
+  },
+  imagePreview: {
+    width: "85%",
+    height: "85%",  
+    borderRadius: 8,
+    objectFit: "cover",
+    paddingTop: 25,
+    overflow: "hidden",
+  },
+  imageContainer: {
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  removeButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: '#ffffff', 
+    borderRadius: 12, 
+    padding: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
+  },
+  
 });
