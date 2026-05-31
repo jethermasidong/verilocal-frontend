@@ -792,7 +792,7 @@ export default function RegisterBusiness() {
               <Text style={styles.label}>Business Permit (Mayor's Permit)<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text> </Text>
               <Pressable
                 style={({ hovered }) => [styles.upload, errors.permit && styles.inputError,
-                  hovered && {boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.15)', transition: 'box-shadow 0.2s ease-in-out'}
+                  hovered && {boxShadow: '0px 8px 8px rgba(0, 0, 0, 0.15)', transition: 'box-shadow 0.2s ease-in-out'}
                 ]}
                 onPress={() => pickImage(setPermit)}
               >

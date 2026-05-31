@@ -7,13 +7,16 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
+import { jwtDecode } from "jwt-decode";
 import {
   ActivityIndicator,
   Animated,
   Easing,
   FlatList,
   Modal,
+  ScrollView,
   Pressable,
+  Alert,
   SafeAreaView,
   StatusBar,
   StyleSheet,
@@ -21,6 +24,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Platform,
 } from "react-native";
 
 
@@ -87,11 +91,16 @@ export default function TransferOwnership() {
   const [modalVisible, setModalVisible] = useState(false);
   const [newOwner, setNewOwner] = useState("");
 
+
+
   // Result modal state
   const [isLoading, setIsLoading] = useState(false);
   const [resultVisible, setResultVisible] = useState(false);
   const [resultType, setResultType] = useState(null);
   const [resultMessage, setResultMessage] = useState("");
+  const [resultTitle, setResultTitle] = useState("");
+
+
   const NAME_OPTIONS = [...new Set(products.map((item) => item.name))];
 
   // Result animations
@@ -116,9 +125,29 @@ export default function TransferOwnership() {
   const [showFinalConfirmModal, setShowFinalConfirmModal] = useState(false);
   const [confirmText, setConfirmText] = useState("");
 
+  //Dropdown Suggestion
+  const [showOwnerDropdown, setShowOwnerDropdown] = useState(false);
+  const OWNER_OPTIONS = [
+    "Kultura Filipino", "Balikbayan", "Obra"];
+  const filteredOwners = OWNER_OPTIONS.filter((owner) => 
+    owner.toLowerCase().includes(newOwner.toLowerCase())
+  );
+
   // Validation errors
   const [newOwnerError, setNewOwnerError] = useState("");
+  const [newSellerError, setNewSellerError] = useState("");
   const [confirmTextError, setConfirmTextError] = useState("");
+  const [sellerNameError, setSellerNameError] = useState("");
+
+  const [sellerModalVisible, setSellerModalVisible] = useState(false);
+  const [newSellerName, setNewSellerName] = useState("");
+
+  const [showSellerHistoryModal, setShowSellerHistoryModal] = useState(false);
+  const [sellerHistory, setSellerHistory] = useState([]);
+
+  const [historyLoading, setHistoryLoading] = useState(false);
+
+
 
   useEffect(() => {
     fetchProducts();
@@ -184,7 +213,7 @@ export default function TransferOwnership() {
 
 
 ///////////////////////////////////////////
-////FETCH PRODUCTS///////////////////////////////
+////FETCH PRODUCTS////////////////////////
 //////////////////////////////////////////
 
   const fetchProducts = async () => {
@@ -233,6 +262,7 @@ export default function TransferOwnership() {
       );
 
       setResultType("success");
+      setResultTitle("Transfer Successful");
       setResultMessage(
         `Ownership of ${selectedIds.length} item${selectedIds.length > 1 ? "s" : ""} has been successfully transferred to ${newOwner}.`,
       );
@@ -244,6 +274,7 @@ export default function TransferOwnership() {
       const serverMessage =
         err.response?.data?.message || "Transfer failed. Please try again.";
       setResultType("error");
+      setResultTitle("Action Failed");
       setResultMessage(serverMessage);
     } finally {
       setIsLoading(false);
@@ -251,6 +282,106 @@ export default function TransferOwnership() {
     }
   };
 
+
+///////////////////////////////////////////
+////CREATE SELLER////////////////////////
+//////////////////////////////////////////
+  const handleAddSellerSubmit = async () => {
+
+    if (!newSellerName.trim()) {
+      setNewSellerError("This field is required before a seller can be created.");
+      return;
+    }
+    if (newSellerName !== newSellerName.trim()) {
+      setNewSellerError("Name must not start or end with spaces.");
+      return;
+    }
+    if (!/^[a-zA-Z\u00C0-\u024F][a-zA-Z\u00C0-\u024F '-]*[a-zA-Z\u00C0-\u024F]$/.test(newSellerName) && newSellerName.length > 1) {
+      setNewSellerError("Enter a valid name (letters, spaces, hyphens, or apostrophes only).");
+      return;
+    }
+    if (/\s{2,}/.test(newSellerName)) {
+      setNewSellerError("Name must not contain consecutive spaces.");
+      return;
+    }
+
+    try {
+      setSellerModalVisible(false);
+      setIsLoading(true);
+      const token = await AsyncStorage.getItem("token");
+
+      if (!token) {
+        setNewSellerError("Authentication token missing. Please log in again!");
+        return;
+      }
+
+      const decoded = jwtDecode(token);
+
+      await axios.post(
+        "https://verilocalph.onrender.com/api/sellers/create", 
+        { seller_name: newSellerName.trim(), business_id: decoded.id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setSellerModalVisible(false);
+      
+      setResultType("success");
+      setResultTitle("Seller Added");
+      setResultMessage(`Seller "${newSellerName}" has been successfully added to the system.`);
+      setNewSellerName("");
+      setNewSellerError("");
+    } catch (err) {
+      console.error(err);
+      const serverMessage = err.response?.data?.message || "Failed to add seller. Please try again.";
+      setResultType("error");
+      setResultTitle("Action Failed");
+      setResultMessage(serverMessage);
+    } finally {
+      setIsLoading(false);
+      setResultVisible(true);
+    }
+  };
+
+
+///////////////////////////////////////////
+////FETCH SELLER FUNCTION//////////////////
+//////////////////////////////////////////  
+
+  const fetchSellerHistory = async (id) => {
+    if (!id) return;
+    try {
+      setHistoryLoading(true);
+      const token = await AsyncStorage.getItem("token");
+      const decoded = jwtDecode(token);
+
+      const res = await axios.get(`https://verilocalph.onrender.com/api/sellers/business/${id}`);
+      const data = Array.isArray(res.data) ? res.data : [];
+      setSellerHistory(data);
+    } catch (error) {
+      Alert.alert("Error", "Failed to load seller history");
+      setSellerHistory([]);
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+///////////////////////////////////////////
+////DELETE SELLER FUNCTION/////////////////
+//////////////////////////////////////////
+
+  const deleteSellerEntry = async (id) => {
+    if (!id) return;
+    try {
+      const token = await AsyncStorage.getItem("token");
+      await axios.delete(`https://verilocalph.onrender.com/api/sellers/${id}`, {
+        headers: {Authorization: `Bearer ${token}`}
+      });
+      setSellerHistory((prev) => prev.filter((s) => s.id !== id));
+      Alert.alert("Success", "Seller profile deleted cleanly.");
+    } catch (error) {
+      Alert.alert("Error", "Failed to delete seller profile");
+    }
+  };
 
 ///////////////////////////////////////////
 ////FILTER FUNCTION///////////////////////
@@ -270,6 +401,7 @@ export default function TransferOwnership() {
 
     return matchesSearch && matchesName;
   });
+
 
 ///////////////////////////////////////////
 ////SELECT FUNCTION///////////////////////
@@ -352,6 +484,8 @@ export default function TransferOwnership() {
     );
   };
 
+
+
 ///////////////////////////////////////////
 ////RETURN JSX////////////////////////////
 //////////////////////////////////////////
@@ -382,9 +516,18 @@ export default function TransferOwnership() {
               placeholder="Search"
               placeholderTextColor="#9CA3AF"
               value={searchQuery}
+              maxLength={128}
               onChangeText={setSearchQuery}
             />
           </View>
+
+          <TouchableOpacity
+            style={styles.filterBtn}
+            onPress={() => setSellerModalVisible(true)}
+          >
+            <Ionicons name="person-add-outline" size={20} color="#374151" />
+            <Text style={styles.filterText}>Add Seller</Text>
+          </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.filterBtn, filterActive && styles.filterBtnActive]}
@@ -482,6 +625,111 @@ export default function TransferOwnership() {
           </View>
         )}
 
+        {/* Seller Modal*/}
+        <Modal visible={sellerModalVisible} transparent animationType="fade">
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              {/* Layout Icon container header frame matching style layout rules */}
+              <View style={{flexDirection: "row", justifyContent: "space-between"}}>
+                <View style={styles.modalIconWrap}>
+                  <Ionicons
+                    name="storefront-outline"
+                    size={22}
+                    color="#111827"
+                  />
+                </View>
+                <TouchableOpacity
+                  style={[ styles.modalIconWrap, { padding: 6, marginRight: 4 }]}
+                  onPress={async () => {
+                    try {
+                      const token = await AsyncStorage.getItem("token");
+                      if (token) {
+                        const decoded = jwtDecode(token);
+                        fetchSellerHistory(decoded.id); 
+                      } else {
+                        Alert.alert("Error", "Session expired. Please log in again.");
+                      }
+                    } catch (err) {
+                      console.error("Failed to read token:", err);
+                    }
+                    setShowSellerHistoryModal(true); 
+                  }}
+                >
+                  <Ionicons name="time-outline" size={22} color="#4A70A9" />
+                </TouchableOpacity>
+              </View>
+
+              {/* Headings */}
+              <Text style={styles.modalTitle}>Add New Seller</Text>
+              <Text style={styles.modalSubtitle}>
+                Create a profile container context path item. Enter the official designation registry title of the seller below.
+              </Text>
+
+              {/* TextInput Form Element Frame */}
+              <View
+                style={[
+                  styles.modalInputWrap,
+                  newSellerError ? { borderColor: "#EF4444", marginBottom: 6 } : null,
+                ]}
+              >
+                <Ionicons
+                  name="briefcase-outline"
+                  size={16}
+                  color="#9CA3AF"
+                  style={styles.modalInputIcon}
+                />
+                <TextInput
+                  placeholder="Seller organization name"
+                  placeholderTextColor="#9CA3AF"
+                  value={newSellerName}
+                  maxLength={64}
+                  onChangeText={(text) => {
+                    setNewSellerName(text);
+                    if (
+                      text.trim() &&
+                      text === text.trim() &&
+                      !/\s{2,}/.test(text) &&
+                      /^[a-zA-Z\u00C0-\u024F]/.test(text)
+                    ) {
+                      setNewSellerError("");
+                    }
+                  }}
+                  style={styles.modalInput}
+                  autoCapitalize="words"
+                />
+              </View>
+              {newSellerError ? (
+                <Text style={styles.inputErrorText}>{newSellerError}</Text>
+              ) : null}
+
+              {/* Divider element separation rules */}
+              <View style={styles.modalDivider} />
+
+              {/* Button Control Tray Action Wrapper */}
+              <View style={styles.modalActions}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setSellerModalVisible(false);
+                    setNewSellerName("");
+                    setNewSellerError("");
+                  }}
+                  style={styles.modalCancelBtn}
+                >
+                  <Text style={styles.modalCancelText}>Cancel</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => handleAddSellerSubmit()}
+                  style={styles.modalConfirmBtn}
+                >
+                  <Text style={styles.modalConfirmText}>Save Seller</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+        
+        {/* Transfer Modal*/}
         <Modal visible={modalVisible} transparent animationType="fade">
           <View style={styles.modalOverlay}>
             <View style={styles.modalContainer}>
@@ -521,8 +769,11 @@ export default function TransferOwnership() {
                   placeholder="New owner name"
                   placeholderTextColor="#9CA3AF"
                   value={newOwner}
+                  maxLength={64}
+                  onFocus={() => setShowOwnerDropdown(true)}
                   onChangeText={(text) => {
                     setNewOwner(text);
+                    setShowOwnerDropdown(true);
                     if (
                       text.trim() &&
                       text === text.trim() &&
@@ -535,7 +786,37 @@ export default function TransferOwnership() {
                   style={styles.modalInput}
                   autoCapitalize="none"
                 />
+                <TouchableOpacity
+                  onPress={() => setShowOwnerDropdown((prev) => !prev)}
+                  >
+                    <Ionicons
+                      name={showOwnerDropdown ? "chevron-up" : "chevron-down"}
+                      size={18}
+                      color="#687280"
+                    />
+                  </TouchableOpacity>
               </View>
+              {showOwnerDropdown && filteredOwners.length > 0 && (
+                <View style={styles.dropdownContainer}>
+                  <FlatList
+                    data={filteredOwners}
+                    keyExtractor={(item, index) => item + index}
+                    keyboardShouldPersistTaps="handled"
+                    renderItem={({ item }) => (
+                      <TouchableOpacity
+                        style={styles.dropdownItem}
+                        onPress={() => {
+                          setNewOwner(item);
+                          setShowOwnerDropdown(false);
+                          setNewOwnerError("");
+                        }}
+                      >
+                        <Text style={styles.dropdownText}>{item}</Text>
+                      </TouchableOpacity>
+                    )}
+                  />
+                </View>
+              )}
               {newOwnerError ? (
                 <Text style={styles.inputErrorText}>{newOwnerError}</Text>
               ) : null}
@@ -586,6 +867,90 @@ export default function TransferOwnership() {
             </View>
           </View>
         </Modal>
+
+        {/* Seller History Modal */}
+          <Modal
+            visible={showSellerHistoryModal}
+            transparent
+            animationType="fade"
+          >
+            <View style={styles.modalOverlay}>
+              <View style={[styles.modalContainer, { maxHeight: "75%", alignItems: 'stretch' }]}>
+                {/* Header */}
+                <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 16, gap: 10 }}>
+                  <View style={styles.modalIconWrap}>
+                    <Ionicons name="time-outline" size={22} color="#111827" />
+                  </View>
+                  <Text style={[styles.modalTitle, { flex: 1, marginBottom: 0, textAlign: 'left' }]}>
+                    Seller History
+                  </Text>
+                  <TouchableOpacity onPress={() => setShowSellerHistoryModal(false)}>
+                    <Ionicons name="close" size={22} color="#6B7280" />
+                  </TouchableOpacity>
+                </View>
+
+                <View style={styles.modalDivider} />
+
+                {/* List content */}
+                {historyLoading ? (
+                  <View style={{ paddingVertical: 24, alignItems: "center" }}>
+                    <ActivityIndicator size="small" color="#111827" />
+                    <Text style={{ marginTop: 10, color: '#4B5563' }}>Loading History...</Text>
+                  </View>
+                ) : sellerHistory.length === 0 ? (
+                  <View style={{ paddingVertical: 24, alignItems: "center" }}>
+                    <Ionicons name="archive-outline" size={36} color="#D1D5DB" />
+                    <Text style={{ color: "#9CA3AF", marginTop: 10 }}>
+                      No sellers registered yet
+                    </Text>
+                  </View>
+                ) : (
+                  <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 340 }}>
+                    {sellerHistory.map((item, index) => (
+                      <View key={item.id ?? index} style={styles.historyItem}>
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.historyItemName}>{item.seller_name}</Text>
+                          {item.business_id ? (
+                            <Text style={styles.historyItemSub}>Created: {item.created_at}</Text>
+                          ) : null}
+                        </View>
+                        <TouchableOpacity
+                          onPress={() => {
+                            console.log("Delete clicked for item:", item.id);
+                            const title = "Delete Seller";
+                            const message = `Are you sure you want to remove "${item.seller_name}"?`;
+
+                            if (Platform.OS === "web") {
+                              const confirmWebDelete = window.confirm(`${title}\n\n${message}`);
+                              if (confirmWebDelete) {
+                                deleteSellerEntry(item.id);
+                              }
+                            } else {
+                              Alert.alert(title, message, [
+                                { text: "Cancel", style: "cancel" },
+                                {
+                                  text: "Delete",
+                                  style: "destructive",
+                                  onPress: () => deleteSellerEntry(item.id),
+                                },
+                              ]);
+                            }
+                          }}
+                          hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+                          style={styles.historyDeleteBtn}
+                        >
+                          <Ionicons name="trash-outline" size={16} color="#B91C1C" />
+                        </TouchableOpacity>
+                      </View>
+                    ))}
+                  </ScrollView>
+                )}
+                <View style={[styles.modalDivider, { marginTop: 12 }]} />
+              </View>
+            </View>
+          </Modal>
+
+
         {/* Filter Panel */}
         <Modal visible={showFilter} transparent animationType="fade">
           <Pressable style={{ flex: 1 }} onPress={() => setShowFilter(false)}>
@@ -808,9 +1173,9 @@ export default function TransferOwnership() {
                   { color: resultType === "success" ? "#2e7d32" : "#c62828" },
                 ]}
               >
-                {resultType === "success"
-                  ? "Transfer Successful"
-                  : "Transfer Failed"}
+                {resultTitle || resultType === "success"
+                  ? "Action Successful"
+                  : "Action Failed"}
               </Text>
               <Text style={styles.resultMessage}>{resultMessage}</Text>
               <Pressable
@@ -1442,5 +1807,59 @@ const styles = StyleSheet.create({
     fontFamily: "Garet-Book",
     fontSize: 12,
     color: "#6B7280",
+  },
+
+  dropdownContainer: {
+  position: "absolute",
+  top: 220,
+  left: 20,
+  right: 20,
+  backgroundColor: "#FFFFFF",
+  borderWidth: 1,
+  borderColor: "#E5E7EB",
+  borderRadius: 12,
+  maxHeight: 180,
+  zIndex: 99999,
+  elevation: 20,
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.1,
+  shadowRadius: 8,
+},
+
+dropdownItem: {
+  paddingVertical: 12,
+  paddingHorizontal: 14,
+  borderBottomWidth: 1,
+  borderBottomColor: "#F3F4F6",
+},
+dropdownText: {
+  fontSize: 14,
+  color: "#111827",
+  fontFamily: "Garet-Book",
+},
+historyItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F3F4F6",
+  },
+  historyItemName: {
+    fontSize: 15,
+    fontWeight: "500",
+    color: "#111827",
+  },
+  historyItemSub: {
+    fontSize: 12,
+    color: "#6B7280",
+    marginTop: 2,
+  },
+  historyDeleteBtn: {
+    padding: 8,
+    borderRadius: 6,
+    backgroundColor: "#FEE2E2",
   },
 });

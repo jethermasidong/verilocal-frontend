@@ -1362,7 +1362,11 @@ export default function BusinessDashboard() {
                       onPress={() =>
                         router.push("/business/productRegistration")
                       }
-                      style={styles.dashboard_addProductCard}
+                      style={({ hovered }) => [styles.dashboard_addProductCard,
+                        hovered && {boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.35)', 
+                          transition: 'box-shadow 0.2s ease-in-out'
+                        }
+                      ]}
                     >
                       <Ionicons
                         name="bag-add-outline"
