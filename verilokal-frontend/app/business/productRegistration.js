@@ -5,6 +5,7 @@ import { Picker } from "@react-native-picker/picker";
 import { Assets } from "@react-navigation/elements";
 import axios from "axios";
 import { useFonts } from "expo-font";
+import { jwtDecode } from "jwt-decode";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
@@ -82,6 +83,12 @@ export default function RegisterProduct() {
   const [types, setTypes] = useState([]);
   const [materials, setMaterials] = useState([]);
   const [origins, setOrigins] = useState([]);
+
+
+  //SELLER DROPDOWN
+  const [sellers, setSellers] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [sellerHistory, setSellerHistory] = useState([]);
 
   //DATE FORMAT
   const formatDate = (date) => {
@@ -341,7 +348,10 @@ export default function RegisterProduct() {
     return () => Dimensions.removeEventListener("change", resize);
   }, []);
 
-  //ERROR HANDLING
+  
+
+
+  //SUBMIT FUNCTION
   const handleSubmit = async () => {
     const newErrors = {};
     if (!form.name) newErrors.name = "Product name is required";
@@ -495,6 +505,36 @@ export default function RegisterProduct() {
       setOrigins(res.data);
     } catch (err) {
       console.error("Error fetching origin", err);
+    }
+  };
+
+  useEffect(() => {
+    const loadInitialBusinessSellers = async () => {
+      try {
+        const token = await AsyncStorage.getItem("token");
+        if (token) {
+          const decoded = jwtDecode(token);
+          if (decoded && decoded.id) {
+            fetchSeller(decoded.id);
+          }
+        }
+      } catch (err) {
+        console.error("Token decoding failed:", err);
+      }
+    };
+    loadInitialBusinessSellers();
+  }, []);
+
+  const fetchSeller = async (id) => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      const res = await axios.get(`https://verilocalph.onrender.com/api/sellers/business/${id}`,{
+        headers: { Authorization: `Bearer ${token}`}
+      });
+      console.log("RAW BACKEND RESPONSE DATA:", res.data);
+      setSellers(res.data);
+    } catch (err) {
+      console.error("Error fetching seller", err);
     }
   };
 
@@ -721,11 +761,12 @@ export default function RegisterProduct() {
                         style={[styles.picker, errors.current_owner && styles.errorInput]}
                         onValueChange={(value) => handleInputChange("current_owner", value)}
                       >
-                        <Picker.Item label="Select Artisan" value="" />
-                        <Picker.Item label="Mondiguing Woodcrafts" value="Mondiguing Woodcrafts" />
-                        <Picker.Item label="Kultura Filipino" value="Kultura Filipino" />
-                        <Picker.Item label="Balikbayan" value="Balikbayan" />
-                        <Picker.Item label="Obra" value="Obra" />
+                        <Picker.Item label="Select Seller" value="" />
+                          {sellers.map((seller, index) => (
+                            <Picker.Item key={seller.id ? String(seller.id) : String(index)}
+                            label={seller.seller_name || seller.name} 
+                            value={seller.id  ? String(seller.id) : seller} />
+                          ))}
                       </Picker>
                       {errors.current_owner && (
                         <Text style={styles.errorText}>{errors.current_owner}</Text>
@@ -1117,11 +1158,12 @@ export default function RegisterProduct() {
                         style={[styles.picker, errors.current_owner && styles.errorInput]}
                         onValueChange={(value) => handleInputChange("current_owner", value)}
                       >
-                        <Picker.Item label="Select Artisan" value="" />
-                        <Picker.Item label="Mondiguing Woodcrafts" value="Mondiguing Woodcrafts" />
-                        <Picker.Item label="Kultura Filipino" value="Kultura Filipino" />
-                        <Picker.Item label="Balikbayan" value="Balikbayan" />
-                        <Picker.Item label="Obra" value="Obra" />
+                        <Picker.Item label="Select Seller" value="" />
+                          {sellers.map((seller, index) => (
+                            <Picker.Item key={seller.id ? String(seller.id) : String(index)}
+                            label={seller.seller_name || seller.name} 
+                            value={seller.id  ? String(seller.id) : seller} />
+                          ))}
                       </Picker>
                       {errors.current_owner && (
                         <Text style={styles.errorText}>{errors.current_owner}</Text>

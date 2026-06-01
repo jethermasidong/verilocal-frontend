@@ -125,14 +125,6 @@ export default function TransferOwnership() {
   const [showFinalConfirmModal, setShowFinalConfirmModal] = useState(false);
   const [confirmText, setConfirmText] = useState("");
 
-  //Dropdown Suggestion
-  const [showOwnerDropdown, setShowOwnerDropdown] = useState(false);
-  const OWNER_OPTIONS = [
-    "Kultura Filipino", "Balikbayan", "Obra"];
-  const filteredOwners = OWNER_OPTIONS.filter((owner) => 
-    owner.toLowerCase().includes(newOwner.toLowerCase())
-  );
-
   // Validation errors
   const [newOwnerError, setNewOwnerError] = useState("");
   const [newSellerError, setNewSellerError] = useState("");
@@ -148,12 +140,20 @@ export default function TransferOwnership() {
   const [historyLoading, setHistoryLoading] = useState(false);
 
 
+  //Dropdown Suggestion
+  const [showOwnerDropdown, setShowOwnerDropdown] = useState(false);
+
+  const filteredOwners = sellerHistory.filter((item) => 
+    item.seller_name?.toLowerCase().includes(newOwner.toLowerCase())
+  );
+
+
+
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
-  // Trigger animations when result modal appears
   useEffect(() => {
     if (!resultVisible) return;
     if (resultType === "success") {
@@ -402,6 +402,17 @@ export default function TransferOwnership() {
     return matchesSearch && matchesName;
   });
 
+
+  useEffect(() => {
+    const preLoadSellers = async () => {
+      const token = await AsyncStorage.getItem("token");
+      if (token) {
+        const decoded = jwtDecode(token);
+        if (decoded?.id) fetchSellerHistory(decoded.id);
+      }
+    };
+    preLoadSellers();
+  }, []);
 
 ///////////////////////////////////////////
 ////SELECT FUNCTION///////////////////////
@@ -679,7 +690,7 @@ export default function TransferOwnership() {
                   style={styles.modalInputIcon}
                 />
                 <TextInput
-                  placeholder="Seller organization name"
+                  placeholder="Seller business name"
                   placeholderTextColor="#9CA3AF"
                   value={newSellerName}
                   maxLength={64}
@@ -753,65 +764,50 @@ export default function TransferOwnership() {
               </Text>
 
               {/* Input */}
-              <View
-                style={[
-                  styles.modalInputWrap,
-                  newOwnerError ? { borderColor: "#EF4444", marginBottom: 6 } : null,
-                ]}
-              >
-                <Ionicons
-                  name="person-outline"
-                  size={16}
-                  color="#9CA3AF"
-                  style={styles.modalInputIcon}
-                />
-                <TextInput
-                  placeholder="New owner name"
-                  placeholderTextColor="#9CA3AF"
-                  value={newOwner}
-                  maxLength={64}
-                  onFocus={() => setShowOwnerDropdown(true)}
-                  onChangeText={(text) => {
-                    setNewOwner(text);
-                    setShowOwnerDropdown(true);
-                    if (
-                      text.trim() &&
-                      text === text.trim() &&
-                      !/\s{2,}/.test(text) &&
-                      /^[a-zA-Z\u00C0-\u024F]/.test(text)
-                    ) {
-                      setNewOwnerError("");
-                    }
-                  }}
-                  style={styles.modalInput}
-                  autoCapitalize="none"
-                />
-                <TouchableOpacity
+                <Pressable
                   onPress={() => setShowOwnerDropdown((prev) => !prev)}
-                  >
-                    <Ionicons
-                      name={showOwnerDropdown ? "chevron-up" : "chevron-down"}
-                      size={18}
-                      color="#687280"
-                    />
-                  </TouchableOpacity>
-              </View>
+                  style={[
+                    styles.modalInputWrap,
+                    newOwnerError ? { borderColor: "#EF4444", marginBottom: 6 } : null,
+                  ]}
+                >
+                  <Ionicons
+                    name="person-outline"
+                    size={16}
+                    color="#9CA3AF"
+                    style={styles.modalInputIcon}
+                  />
+
+                  <Text style={[
+                    styles.modalInput, 
+                    { color: newOwner ? "#111827" : "#9CA3AF", paddingVertical: 5 }
+                  ]}>
+                    {newOwner || "Select owner from your seller list"}
+                  </Text>
+                  
+                  <Ionicons
+                    name={showOwnerDropdown ? "chevron-up" : "chevron-down"}
+                    size={18}
+                    color="#687280"
+                  />
+                </Pressable>
+
               {showOwnerDropdown && filteredOwners.length > 0 && (
                 <View style={styles.dropdownContainer}>
                   <FlatList
                     data={filteredOwners}
-                    keyExtractor={(item, index) => item + index}
+                    keyExtractor={(item, index) => (item.id ? String(item.id) : String(index))}
                     keyboardShouldPersistTaps="handled"
                     renderItem={({ item }) => (
                       <TouchableOpacity
                         style={styles.dropdownItem}
                         onPress={() => {
-                          setNewOwner(item);
+                          setNewOwner(item.seller_name);
                           setShowOwnerDropdown(false);
                           setNewOwnerError("");
                         }}
                       >
-                        <Text style={styles.dropdownText}>{item}</Text>
+                        <Text style={styles.dropdownText}>{item.seller_name}</Text>
                       </TouchableOpacity>
                     )}
                   />

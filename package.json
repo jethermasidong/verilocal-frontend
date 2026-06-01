@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "react-native-autocomplete-dropdown": "^5.1.0"
+  }
+}
