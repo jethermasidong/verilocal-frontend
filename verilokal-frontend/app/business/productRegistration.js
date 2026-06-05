@@ -1193,7 +1193,7 @@ export default function RegisterProduct() {
                       )}
                     </View>
                   <Text style={styles.label}>
-                    Production Date* (Start to End)<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text>
+                    Production Date (Start to End)<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text>
                   </Text>
                   {Platform.OS === "web" ? (
                     <>

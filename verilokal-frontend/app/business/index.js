@@ -1928,6 +1928,13 @@ export default function BusinessDashboard() {
             <View style={styles.modalOverlay}>
               <View style={styles.editModalCard}>
                 <View style={styles.editHeader}>
+                  <View style={styles.editLogo}>
+                    <Ionicons
+                      name="create-outline"
+                      size={20}
+                      color="#3C6CB4"
+                    />
+                  </View>
                   <Text style={styles.editTitle}>Edit Product</Text>
                 </View>
 
@@ -1941,7 +1948,7 @@ export default function BusinessDashboard() {
                   showsVerticalScrollIndicator={false}
                 >
                   <View style={styles.formGroup}>
-                    <Text style={styles.label}>Product Name*</Text>
+                    <Text style={styles.label}>Name of the Product<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                     <TextInput
                       placeholder="Product Name"
                       value={editForm.name}
@@ -1966,11 +1973,12 @@ export default function BusinessDashboard() {
                           fontWeight: "600",
                           marginTop: 0,
                           marginBottom: 4,
+                          marginTop: 5,
                           fontSize: 13,
                           fontFamily: "Montserrat-Regular",
                         }}
                       >
-                        Type*
+                        Type of Product<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text>
                       </Text>
                       <Picker
                         selectedValue={editForm.type}
@@ -2030,13 +2038,13 @@ export default function BusinessDashboard() {
                     <Text
                       style={{
                         fontWeight: "600",
-                        marginTop: 6,
+                        marginTop: 5,
                         marginBottom: 4,
                         fontSize: 13,
                         fontFamily: "Montserrat-Regular",
                       }}
                     >
-                      Origin*
+                      Origin of the Product<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text>
                     </Text>
                     <View style={{ marginBottom: 7 }}>
                       <Picker
@@ -2070,13 +2078,13 @@ export default function BusinessDashboard() {
                       <Text
                         style={{
                           fontWeight: "600",
-                          marginTop: 0,
+                          marginTop: 5,
                           marginBottom: 4,
                           fontSize: 13,
                           fontFamily: "Montserrat-Regular",
                         }}
                       >
-                        Production Date* (Start to End)
+                        Production Date (Start to End)<Text style={{color: "#ff5757", marginLeft: 2, marginRight: 2,}}>*</Text>
                       </Text>
                       {Platform.OS === "web" ? (
                         <>
@@ -2189,13 +2197,13 @@ export default function BusinessDashboard() {
                       <Text
                         style={{
                           fontWeight: "600",
-                          marginTop: 0,
+                          marginTop: 5,
                           marginBottom: 4,
                           fontSize: 13,
                           fontFamily: "Montserrat-Regular",
                         }}
                       >
-                        Description*
+                        Description<Text style={{color: "#ff5757", marginLeft: 2, marginRight: 2,}}>*</Text>
                       </Text>
                       <TextInput
                         placeholder="Description"
@@ -2227,7 +2235,7 @@ export default function BusinessDashboard() {
                       />
                     </View>
                     {/* PRODUCT IMAGE BOX */}
-                    <Text style={styles.label}>Image of the Product*</Text>
+                    <Text style={styles.label}>Image of the Product<Text style={{color: "#ff5757", marginLeft: 2, marginRight: 2,}}>*</Text></Text>
                     <Pressable onPress={() => pickImage("productImage")}>
                       <View
                         style={[
@@ -2278,7 +2286,7 @@ export default function BusinessDashboard() {
                     )}
 
                     {/* PROCESS IMAGES BOX */}
-                    <Text style={styles.label}>Images of the Process*</Text>
+                    <Text style={styles.label}>Images of the Process<Text style={{color: "#ff5757", marginLeft: 2, marginRight: 2,}}>*</Text></Text>
                     <Pressable
                       onPress={() => pickProcessImages("processImages")}
                     >
@@ -3242,22 +3250,28 @@ const styles = StyleSheet.create({
     maxHeight: "90%",
   },
 
-  editHeader: {
-    alignItems: "center",
+  editHeader: { 
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignContent: "center",
+    paddingBottom: 10,
     paddingVertical: 3,
-    paddingHorizontal: 5,
-    borderColor: "#486d8f",
-    borderWidth: 1,
-    borderRadius: 10,
-    borderStyle: "dotted",
-    marginBottom: 5,
+    paddingHorizontal: 5, 
   },
 
   editTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "700",
-    fontFamily: "Montserrat-Bold",
+    marginTop: 5,
+    marginLeft: 8,
+    fontFamily: "Garet-Heavy",
     includeFontPadding: false,
+  },
+
+  editLogo: {
+    backgroundColor: "#d8e2f0",
+    padding: 8,
+    borderRadius: 10,
   },
 
   formGroup: {
@@ -3268,6 +3282,7 @@ const styles = StyleSheet.create({
   label: {
     fontWeight: "600",
     marginBottom: 4,
+    marginTop: 5,
     fontSize: 13,
     fontFamily: "Montserrat-Regular",
   },

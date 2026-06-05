@@ -3,7 +3,7 @@ import axios from "axios";
 import { useFonts } from "expo-font";
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import {ActivityIndicator, Animated, Dimensions, Image, ImageBackground, Modal, Pressable, ScrollView, Text, View } from "react-native";
+import {ActivityIndicator, Animated, Dimensions, Platform, Image, ImageBackground, Modal, Pressable, ScrollView, Text, View } from "react-native";
 
 
 export default function ProductScanner() {
@@ -109,6 +109,7 @@ export default function ProductScanner() {
   //QR CODE FUNCTIONS
     try {
       const { Html5Qrcode } = await import("html5-qrcode");
+
       const qrCodeScanner = new Html5Qrcode("qr-reader");
       Html5QrcodeRef.current = qrCodeScanner;
 
@@ -360,14 +361,22 @@ export default function ProductScanner() {
       {/* HEADER */}
       <Text
         style={{
-          fontSize: 32,
+          fontSize: isMobile ? 20 : 32,
           fontFamily: "Garet-Heavy",
           color: "#000",
           textAlign: "center",
-          marginBottom: 30,
-          marginTop: 100,
+          marginBottom: isMobile? 10 : 30,
+          marginTop: 60,
+          justifyContent: "space-between",
+          alignContent: "center",
         }}
       >
+      <Ionicons
+        style={{marginRight: 5, padding: 7, borderColor: "#3448728f", borderWidth: 1, borderRadius: 10, backgroundColor: "#d8e2f0"}}
+        name="scan-circle-outline"
+        size={isMobile? 14 : 22}
+        color="#4A70A9"
+      />
         Product Verification
       </Text>
 
@@ -387,11 +396,12 @@ export default function ProductScanner() {
             width: isMobile ? 300: 400, 
             height: isMobile ? 300: 400,
             borderWidth: 2,
-            borderColor: "#000",
+            borderColor: "#524a4a59",
             borderRadius: 16,
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: "#f9fafb",
+            backgroundColor: "#f9fafb4d",
+            opacity: 25,
             shadowColor: "#000",
             shadowOpacity: 0.1,
             shadowRadius: 4,
@@ -400,20 +410,130 @@ export default function ProductScanner() {
             padding: 5,
           }}
         >
-          <Text style={{borderColor: "#2d4049", borderWidth: 1, paddingBottom: 4, paddingTop: 4, paddingLeft: 7, paddingRight: 7, borderRadius: 25, textAlign: "center", color: "#000000", fontFamily: 'Montserrat-Regular' }}>
+          <View style={{borderColor: "#2d4049", borderWidth: 1, borderStyle: "dotted", padding: 50, borderRadius: 10, marginBottom: 5,}}>
+            <Ionicons name="qr-code-outline" size={32} color="#000" />
+          </View>
+          <Text style={{textAlign: "center", color: "#000000", fontFamily: 'Montserrat-Regular', fontSize: isMobile? 12 : 13 }}>
             {isScanning ? "Scanning..." : "Scanner Inactive"}
           </Text>
         </View>
 
+        {/* MOBILE BUTTONS */}
+        {(Platform.OS !== 'web' || isMobile) && (
+          <>
+          <View style={{ flexDirection: "row", gap: 10, marginBottom: -10}}>
+            <Pressable
+              onHoverIn={() => setHoveredScanning(true)}
+              onHoverOut={() => setHoveredScanning(false)}
+              onPress={startScanner}
+              style={{
+                backgrounColor: hoveredScanning ? "#0000000" : "#5177b0",
+                cursor: "pointer",
+                paddingVertical: 12,
+                paddingHorizontal: 28,
+                borderWidth: 1,
+                borderRadius: 10,
+                shadowColor: "#000",
+                shadowOpacity: 0.1,
+                shadowOffset: { width: 0, height: 2 },
+                shadowRadius: 3,
+                elevation: 3,
+              }}
+            >
+             <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 2 }}>
+                <Ionicons name="play-outline" size={15} color="rgb(0, 0, 0)" />
+                <Text
+                  style={{
+                    fontFamily: "Montserrat-Regular",
+                    fontWeight: "700",
+                    color: "rgb(0, 0, 0)",
+                    textAlign: "center",
+                  }}
+                >
+                  START QR
+                </Text>
+            </View>
+            </Pressable>
+
+            <Pressable
+              onPress={stopScanner}
+              style={{
+                paddingVertical: 12,
+                paddingHorizontal: 41,
+                borderWidth: 1,
+                borderColor: "#000",
+                borderRadius: 10,
+                shadowColor: "#000",
+                shadowOpacity: 0.1,
+                shadowRadius: 3,
+                elevation: 3,
+              }}
+            >
+              <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 2 }}>
+                <Ionicons name="stop-outline" size={15} color="rgb(0, 0, 0)" />
+                <Text
+                  style={{
+                    fontFamily: "Montserrat-Regular",
+                    fontWeight: "700",
+                    color: "#000000",
+                    textAlign: "center",
+                  }}
+                >
+                  STOP
+                </Text>
+              </View>
+            </Pressable>
+          </View>
+
+          <View style={{ flexDirection: "row", gap: 15, marginBottom: -2 }}>
+            <Pressable
+            onPress={uploadQrImage}
+            style={{
+              borderWidth: 1,
+              borderColor: "#4a79af",
+              paddingVertical: 12,
+              paddingHorizontal: 93,
+              borderRadius: 10,
+              shadowColor: "#000",
+              shadowOpacity: 0.1,
+              shadowRadius: 3,
+              elevation: 3,
+            }}
+          > 
+            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 4 }}>
+              <Ionicons name="cloud-upload-outline" size={15} color="rgb(0, 0, 0)" />
+              <Text
+                style={{
+                  fontFamily: "Montserrat-Regular",
+                  fontWeight: "700",
+                  color: "rgb(0, 0, 0)",
+                  textAlign: "center",
+                }}
+              >
+                UPLOAD QR
+              </Text>
+            </View>
+          </Pressable> 
+        </View>
+        </>
+      )}
+
+        {isMobile && (
+          <Text style={{ fontFamily: "Montserrat-Regular", }}>
+            ----------------- how it works -------------------
+          </Text>
+        )}
+
+        
         {/* INSTRUCTION BOX */}
         <View
           style={{
             width: isMobile ? 300: 400, 
             height: isMobile ? 300: 400,
             borderWidth: 2,
-            borderColor: "#000",
+            borderColor: "#524a4a59",
             borderRadius: 16,
-            backgroundColor: "#f9fafb",
+            backgroundColor: "#f9fafb4d",
             shadowColor: "#000",
             shadowOpacity: 0.1,
             shadowRadius: 4,
@@ -421,17 +541,20 @@ export default function ProductScanner() {
             padding: isMobile ? 10  : 40,
           }}
         >
-          <Text
-            style={{
-              fontSize: 18,
-              fontFamily: "Garet-Heavy",
-              color: "#000",
-              textAlign: "center",
-              marginBottom: 15,
-            }}
-          >
-            Instructions
-          </Text>
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 4 }}>
+            <Ionicons style={{marginTop: -15}} name="information-circle-outline" size={20} color="rgb(0, 0, 0)" />
+            <Text
+              style={{
+                fontSize: 18,
+                fontFamily: "Garet-Heavy",
+                color: "#000",
+                textAlign: "center",
+                marginBottom: 15,
+              }}
+            >
+              Instructions
+            </Text>
+          </View>
           <ScrollView
             style={{ flex: 1 }}
             showsVerticalScrollIndicator={false}
@@ -439,12 +562,12 @@ export default function ProductScanner() {
           >
             {instructions.map((instruction, index) => (
               <View key={index} style={{ flexDirection: "row", marginBottom: 10, alignItems: "flex-start" }}>
-                <Text style={{ fontSize: 16, color: "#4A70A9", marginRight: 10, fontWeight: "bold" }}>
+                <Text style={{ fontSize: 14, color: "#4A70A9", marginRight: 10, fontWeight: "bold", paddingHorizontal: 5, paddingVertical: 2, borderColor: "#757d85a1", borderWidth: 1, borderRadius: 100}}>
                   {index + 1}.
                 </Text>
                 <Text
                   style={{
-                    fontSize: 14,
+                    fontSize: isMobile? 12 : 14,
                     color: "#333",
                     fontFamily: "Montserrat-Regular",
                     lineHeight: 20,
@@ -460,7 +583,7 @@ export default function ProductScanner() {
       </View>
 
       {/* BUTTONS */}
-      <View style={{ flexDirection: isMobile? "column": "row", gap: 15, marginBottom: 20 }}>
+      <View style={{ display: (Platform.OS === 'web' && !isMobile) ? 'flex' : 'none', flexDirection: isMobile? "column": "row", gap: 15, marginBottom: 20 }}>
         <Pressable
           onHoverIn={() => setHoveredScanning(true)}
           onHoverOut={() => setHoveredScanning(false)}
@@ -469,9 +592,9 @@ export default function ProductScanner() {
             backgrounColor: hoveredScanning ? "#0000000" : "#5177b0",
             cursor: "pointer",
             paddingVertical: 12,
-            paddingHorizontal: 24,
+            paddingHorizontal: 28,
             borderWidth: 1,
-            borderRadius: 30,
+            borderRadius: 10,
             shadowColor: "#000",
             shadowOpacity: 0.1,
             shadowOffset: { width: 0, height: 2 },
@@ -479,6 +602,65 @@ export default function ProductScanner() {
             elevation: 3,
           }}
         >
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 2 }}>
+            <Ionicons name="play-outline" size={15} color="rgb(0, 0, 0)" />
+              <Text
+                style={{
+                  fontFamily: "Montserrat-Regular",
+                  fontWeight: "700",
+                  color: "rgb(0, 0, 0)",
+                  textAlign: "center",
+                }}
+              >
+                START QR
+              </Text>
+            </View>
+        </Pressable>
+
+        <Pressable
+          onPress={stopScanner}
+          style={{
+            paddingVertical: 12,
+            paddingHorizontal: 41,
+            borderWidth: 1,
+            borderColor: "#000",
+            borderRadius: 10,
+            shadowColor: "#000",
+            shadowOpacity: 0.1,
+            shadowRadius: 3,
+            elevation: 3,
+          }}
+        >
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 2 }}>
+            <Ionicons name="stop-outline" size={15} color="rgb(0, 0, 0)" />
+            <Text
+              style={{
+                fontFamily: "Montserrat-Regular",
+                fontWeight: "700",
+                color: "#000000",
+                textAlign: "center",
+              }}
+            >
+              STOP
+            </Text>
+          </View>
+        </Pressable>
+        <Pressable
+        onPress={uploadQrImage}
+        style={{
+          borderWidth: 1,
+          borderColor: "#4a79af",
+          paddingVertical: 12,
+          paddingHorizontal: 25,
+          borderRadius: 10,
+          shadowColor: "#000",
+          shadowOpacity: 0.1,
+          shadowRadius: 3,
+          elevation: 3,
+        }}
+      >
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 4 }}>
+          <Ionicons name="cloud-upload-outline" size={15} color="rgb(0, 0, 0)" />
           <Text
             style={{
               fontFamily: "Montserrat-Regular",
@@ -487,63 +669,12 @@ export default function ProductScanner() {
               textAlign: "center",
             }}
           >
-            START QR
+            UPLOAD QR
           </Text>
-        </Pressable>
-
-        <Pressable
-          onPress={stopScanner}
-          style={{
-            paddingVertical: 12,
-            paddingHorizontal: 24,
-            borderWidth: 1,
-            borderColor: "#000",
-            borderRadius: 30,
-            shadowColor: "#000",
-            shadowOpacity: 0.1,
-            shadowRadius: 3,
-            elevation: 3,
-          }}
-        >
-          <Text
-            style={{
-              fontFamily: "Montserrat-Regular",
-              fontWeight: "700",
-              color: "#000000",
-              textAlign: "center",
-            }}
-          >
-            STOP
-          </Text>
-        </Pressable>
-        <Pressable
-        onPress={uploadQrImage}
-        style={{
-          borderWidth: 1,
-          borderColor: "#4a79af",
-          paddingVertical: 12,
-          paddingHorizontal: 24,
-          borderRadius: 30,
-          shadowColor: "#000",
-          shadowOpacity: 0.1,
-          shadowRadius: 3,
-          elevation: 3,
-        }}
-      >
-        <Text
-          style={{
-            fontFamily: "Montserrat-Regular",
-            fontWeight: "700",
-            color: "rgb(0, 0, 0)",
-            textAlign: "center",
-          }}
-        >
-          UPLOAD QR
-        </Text>
+        </View>
       </Pressable> 
       </View>
 
-      {/* Add this above the Button View */}
       {error && (
         <Text style={{ color: "red", marginBottom: 10, textAlign: "center", fontFamily: "Montserrat-Regular" }}>
           {error}
