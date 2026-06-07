@@ -310,6 +310,19 @@ export default function TransferOwnership() {
       setIsLoading(true);
       const token = await AsyncStorage.getItem("token");
 
+      const isDuplicate = sellerHistory.some(
+        (item) => 
+          item.seller_name?.trim().toLowerCase() === newSellerName.trim().toLowerCase()
+      );
+
+      if (isDuplicate) {
+        setResultType("error");
+        setResultMessage(`"${newSellerName}" already exists.`);
+        setIsLoading(false);
+        setResultVisible(true);
+        return;
+      }
+
       if (!token) {
         setNewSellerError("Authentication token missing. Please log in again!");
         return;

@@ -280,7 +280,7 @@ export default function RegisterProduct() {
   };
 
 
-  //ERROR HANDLING
+  //LIVE ERROR HANDLING
   const validateField = (name, value) => {
     let error = "";
 

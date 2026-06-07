@@ -117,6 +117,8 @@ export default function BusinessDashboard() {
 
   const [errors, setErrors] = useState({});
 
+
+  //HOVER FUNCTION
   const onHoverIn = () => {
     Animated.spring(hoverAnimReport, {
       toValue: 1,
@@ -156,6 +158,8 @@ export default function BusinessDashboard() {
     }).start();
   };
 
+
+  //WEB SIZE COMPONENT
   const [windowWidth, setWindowWidth] = useState(
     Dimensions.get("window").width,
   );
@@ -198,6 +202,8 @@ export default function BusinessDashboard() {
     processImages: [],
   });
 
+
+  //PRODUCTION DATE FORMATING
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString("en-US", {
       month: "short",
@@ -206,6 +212,7 @@ export default function BusinessDashboard() {
     });
   };
 
+  //PRODUCTION DATE FUNCTION
   const onDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
     if (!selectedDate) return;
@@ -245,15 +252,20 @@ export default function BusinessDashboard() {
         ...prev,
         productionDate: `${start} - ${end}`,
       }));
+      setErrors((prev) => ({ ...prev, productionDate: null }));
     }
   }, [editForm.productionStartDate, editForm.productionEndDate]);
 
+
+  //PROCESS IMAGE PARSING
   const processImages = Array.isArray(selectedProduct?.process_images)
     ? selectedProduct.process_images
     : typeof selectedProduct?.process_images === "string"
       ? JSON.parse(selectedProduct.process_images)
       : [];
 
+
+  //LOAD BUSINESS_NAME COMPONENT
   useEffect(() => {
     const loadBusinessesName = async () => {
       const registered_business_name = await AsyncStorage.getItem(
@@ -265,6 +277,8 @@ export default function BusinessDashboard() {
     loadBusinessesName();
   }, []);
 
+
+  //FETCH PRODUCT FUNCTION
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -320,6 +334,7 @@ export default function BusinessDashboard() {
     return matchesSearch && matchesType && matchesMaterials && matchesStatus;
   });
 
+  //OPEN MODAL FUNCTION OF PRODUCT
   const openModal = (product) => {
     setSelectedProduct(product);
     if (product.product_image) {
@@ -334,6 +349,8 @@ export default function BusinessDashboard() {
     setModalVisible(true);
   };
 
+
+  //UPDATE FUNCTION
   const updateProduct = async (uid) => {
     setIsLoading(true);
     try {
@@ -423,11 +440,13 @@ export default function BusinessDashboard() {
     }
   };
 
+
+  //OPEN EDIT MODAL FUNCTION
   const openEditModal = (product) => {
     let start = "";
     let end = "";
 
-    if (product.productionDate?.includes(" - ")) {
+    if (product.productionDate && product.productionDate.includes(" - ")) {
       const parts = product.productionDate.split(" - ");
       start = parts[0];
       end = parts[1];
@@ -441,8 +460,8 @@ export default function BusinessDashboard() {
       materials: product.materials || "",
       description: product.description || "",
       type: product.type || "",
-      productionStart: start,
-      productionEnd: end,
+      productionStartDate: start,
+      productionEndDate: end,
       productionDate: product.productionDate || "",
     });
 
@@ -562,6 +581,8 @@ export default function BusinessDashboard() {
     }
   };
 
+
+  //VALIDATE FORM - AFTER SUBMIT
   const validateForm = () => {
     const newErrors = {};
     if (!editForm.name) newErrors.name = "Product name is required";
@@ -581,6 +602,8 @@ export default function BusinessDashboard() {
     return Object.keys(newErrors).length === 0;
   };
 
+
+  //DOWNLOAD QR FUNCTION
   const downloadQRCode = async (qrUrl) => {
     try {
       const response = await fetch(qrUrl);
@@ -829,6 +852,8 @@ export default function BusinessDashboard() {
     win.document.close();
   };
 
+
+  //DELETE PRODUCT FUNCTION
   const deleteProduct = async (id) => {
     setIsLoading(true);
 
@@ -858,10 +883,62 @@ export default function BusinessDashboard() {
     }
   };
 
-  const handleInputChange = (field, value) => {
-    setEditForm((prev) => ({ ...prev, [field]: value }));
+
+  //LIVEERROR HANDLING
+  const validateField = (name, value) => {
+    let error = "";
+
+    switch (name) {
+      case "name":
+        if (!value.trim()) error = "Product name is required";
+        else if (value.length < 3)
+          error = "Product name must be at least 3 characters";
+        break;
+
+      case "type":
+        if (!value || value === "") error = "Product type is required";
+        break;
+
+      case "materials":
+        if (!value || value === "") error = "Materials are required";
+        break;
+
+      case "origin":
+        if (!value || value === "") error = "Origin is required";
+        break;
+
+      case "description":
+        if (!value.trim()) error = "Description is required";
+        else if (value.length < 10)
+          error = "Description must be at least 10 characters";
+        break;
+
+      default:
+        break;
+    }
+
+    return error;
   };
 
+  const handleInputChange = (field, value) => {
+
+    setEditForm((prev) => ({ ...prev, [field]: value }));
+
+    const fieldError = validateField(field, value);
+
+    setErrors((prev) => {
+      if (fieldError) {
+        return { ...prev, [field]: fieldError };
+      } else {
+        const nextErrors = { ...prev };
+        delete nextErrors[field];
+        return nextErrors;
+      }
+    });
+  };
+
+
+  //SHOW RESULT FUNCTION
   const showResult = (type, message) => {
     setResultType(type);
     setResultMessage(message);
@@ -910,6 +987,8 @@ export default function BusinessDashboard() {
     ]).start();
   }, []);
 
+
+  //FETCH BUSINESS PROFILE
   useEffect(() => {
     const fetchBusinessProfile = async () => {
       try {
@@ -938,12 +1017,17 @@ export default function BusinessDashboard() {
   const slideX = useRef(new Animated.Value(SIDEBAR_WIDTH)).current;
   const [sidebarMounted, setSidebarMounted] = useState(false);
 
- useEffect(() => {
+
+
+
+  //FETCHING MATERIALS BASED ON TYPE COMPONENT
+  useEffect(() => {
     if (editForm.type) {
       fetchMaterials(editForm.type);
     }
   }, [editForm.type])
 
+  //FETCH MATERIALS FUNCTION
   const fetchMaterials = async (type) => {
     try {
       const token = await AsyncStorage.getItem("token");
@@ -961,10 +1045,14 @@ export default function BusinessDashboard() {
     }
   };
 
+
+
+  //FETCH TYPES COMPONENT
   useEffect(() => {
     fetchTypes();
   }, []);
 
+  //FETCH TYPES FUNCTION
   const fetchTypes = async () => {
     try {
       const token = await AsyncStorage.getItem("token");
@@ -981,10 +1069,13 @@ export default function BusinessDashboard() {
     }
   };
 
+
+  //FETCH ORIGIN COMPONENT
   useEffect(() => {
     fetchOrigins();
   }, []);
 
+  //FETCH ORIGIN FUNCTION
   const fetchOrigins = async () => {
     try {
       const token = await AsyncStorage.getItem("token");
@@ -1001,7 +1092,7 @@ export default function BusinessDashboard() {
   };
 
 
-
+  //SIDEBAR COMPONENT
   useEffect(() => {
     if (profileSidebarVisible) {
       slideX.setValue(SIDEBAR_WIDTH);
@@ -1104,7 +1195,7 @@ export default function BusinessDashboard() {
                 isMobile && {
                   alignItems: "flex-start",
                   width: "100%",
-                  justifyConten: "center",
+                  justifyContent: "center",
                   alignItems: "center",
                 },
               ]}
@@ -1931,7 +2022,7 @@ export default function BusinessDashboard() {
                   <View style={styles.editLogo}>
                     <Ionicons
                       name="create-outline"
-                      size={20}
+                      size={18}
                       color="#3C6CB4"
                     />
                   </View>
@@ -1953,10 +2044,7 @@ export default function BusinessDashboard() {
                       placeholder="Product Name"
                       value={editForm.name}
                       maxLength={50}
-                      onChangeText={(t) => {
-                        setEditForm({ ...editForm, name: t });
-                        if (errors.name) setErrors({ ...errors, name: null });
-                      }}
+                      onChangeText={(t) => handleInputChange("name", t)}
                       style={[
                         styles.input,
                         ,
@@ -1966,6 +2054,9 @@ export default function BusinessDashboard() {
                         },
                       ]}
                     />
+                    {errors.name && (
+                      <Text style={styles.errorText}>{errors.name}</Text>
+                    )}
 
                     <View style={{ marginBottom: 7 }}>
                       <Text
@@ -1986,7 +2077,7 @@ export default function BusinessDashboard() {
                           handleInputChange("type", v);
                           handleInputChange("materials", "");
                         }}
-                        style={{
+                        style={[{
                           borderWidth: 1,
                           borderColor: "#ccc",
                           padding: 8,
@@ -1995,13 +2086,16 @@ export default function BusinessDashboard() {
                           width: "100%",
                           fontFamily: "Montserrat-Regular",
                           fontSize: 13,
-                        }}
+                        }, errors.type ? {borderColor: "#E74C3C", borderWidth: 1} : null, ]}
                       >
                         <Picker.Item label="Select Type" value="" />
                         {types.map((type, index) => (
                         <Picker.Item key={index} label={type} value={type} />
                       ))}
                       </Picker>
+                      {errors.type && (
+                        <Text style={styles.errorText}>{errors.type}</Text>
+                      )}
                     </View>
                     {editForm.type !== "" && (
                       <View style={{
@@ -2013,8 +2107,11 @@ export default function BusinessDashboard() {
                       }}>
                         <Picker
                           selectedValue={editForm.materials}
-                          onValueChange={(v) => handleInputChange("materials", v)}
-                          style={{
+                          onValueChange={(v) => {
+                            handleInputChange("materials", v);
+                            if (v) setErrors((prev) => ({ ...prev, materials: null }));
+                          }}
+                          style={[{
                             borderWidth: 1,
                             borderColor: "#ccc",
                             padding: 8,
@@ -2023,7 +2120,7 @@ export default function BusinessDashboard() {
                             width: "100%",
                             fontFamily: "Montserrat-Regular",
                             fontSize: 13,
-                          }}
+                          }, errors.materials && {borderColor: "#E74C3C", borderWidth: 1}]}
                           >
                         <Picker.Item label="Select Material" value="" />
                           {materials.map((mat, index) => (
@@ -2049,7 +2146,7 @@ export default function BusinessDashboard() {
                     <View style={{ marginBottom: 7 }}>
                       <Picker
                         selectedValue={editForm.origin}
-                        style={{
+                        style={[{
                           borderWidth: 1,
                           borderColor: "#ccc",
                           padding: 8,
@@ -2058,10 +2155,11 @@ export default function BusinessDashboard() {
                           width: "100%",
                           fontFamily: "Montserrat-Regular",
                           fontSize: 13,
-                        }}
-                        onValueChange={(value) =>
+                        }, errors.origin ? {borderColor: "#E74C3C", borderWidth: 1} : null,]}
+                        onValueChange={(value) => {
                           handleInputChange("origin", value)
-                        }
+                          if (value) setErrors((prev) => ({ ...prev, origin: null }));
+                        }}
                       >
                         <Picker.Item label="Select Origin" value="" />
                           {origins.map((item, index) => (
@@ -2072,6 +2170,9 @@ export default function BusinessDashboard() {
                             />
                           ))}   
                       </Picker>
+                      {errors.origin && (
+                        <Text style={styles.errorText}>{errors.origin}</Text>
+                      )}
                     </View>
 
                     <View style={{ marginBottom: 7 }}>
@@ -2209,12 +2310,7 @@ export default function BusinessDashboard() {
                         placeholder="Description"
                         multiline
                         value={editForm.description}
-                        onChangeText={(t) => {
-                          setEditForm({ ...editForm, description: t });
-                          if (errors.description) {
-                            setErrors({ ...errors, description: false });
-                          }
-                        }}
+                        onChangeText={(t) => handleInputChange("description", t)}
                         style={[
                           {
                             borderWidth: 1,
@@ -2234,6 +2330,11 @@ export default function BusinessDashboard() {
                         ]}
                       />
                     </View>
+                    {errors.description && (
+                      <Text style={styles.errorText}>{errors.description}</Text>
+                    )}
+                    <Text style={{borderBottomColor: "#ccc", borderBottomWidth: 1, marginTop: 20, marginBottom: 10}}>
+                    </Text>
                     {/* PRODUCT IMAGE BOX */}
                     <Text style={styles.label}>Image of the Product<Text style={{color: "#ff5757", marginLeft: 2, marginRight: 2,}}>*</Text></Text>
                     <Pressable onPress={() => pickImage("productImage")}>
@@ -3264,7 +3365,8 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginTop: 5,
     marginLeft: 8,
-    fontFamily: "Garet-Heavy",
+    fontFamily: "Montserrat-Regular",
+    fontWeight: "700",
     includeFontPadding: false,
   },
 

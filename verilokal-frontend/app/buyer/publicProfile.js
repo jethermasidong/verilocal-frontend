@@ -143,7 +143,7 @@ export default function PublicProfile() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.card}>
+      <View style={styles.card}>  
         {/* Header */}
         <View
           style={[
@@ -155,27 +155,28 @@ export default function PublicProfile() {
             },
           ]}
         >
-          <Image
-            source={ business.logo ? { uri: business.logo} : require("../../assets/images/placeholder.png")}
-            style={[styles.avatar, 
-              isMobile && {
-                width: 80,
-                height: 80,
-              }, 
-            ]}
-          />
+          <View style={[ styles.logoHeader, isMobile && { flexDirection: "column", marginLeft: -20, alignItems: "center",}]}>
+            <Image
+              source={ business.logo ? { uri: business.logo} : require("../../assets/images/placeholder.png")}
+              style={[styles.avatar, 
+                isMobile && {
+                  width: 80,
+                  height: 80,
+                }, 
+              ]}
+            />
 
-          <View
-            style={[
-              styles.headerText,
-              isMobile && {
-                marginTop: 12,
-                alignItems: "center",
-              },
-            ]}
-          >
-            <Text style={[styles.name, isMobile && {fontSize: 20}]}>{business.registered_business_name}</Text>
-            <Text style={[styles.location, isMobile && {fontSize: 14, textAlign: isMobile ? "center" : "left"}]}>{business.address}</Text>
+            <View
+              style={[
+                styles.headerText,
+                isMobile && {
+                  marginTop: 12,
+                  alignItems: "center",
+                },
+              ]}
+            >
+              <Text style={[styles.name, isMobile && {fontSize: 20, marginTop: -5}]}>{business.registered_business_name}</Text>
+            </View>
           </View>
         </View>
 
@@ -191,6 +192,13 @@ export default function PublicProfile() {
         >
           {/* Left */}
           <View style={[styles.left, isMobile && { gap : 16 }]}>
+            <Text style={{marginBottom: -10, fontFamily: "Montserrat-Regular", fontWeight: "700", fontSize: 12}}>
+              CONTACT
+            </Text>
+            <DetailItem 
+              icon="person-outline"
+              value={business.name}
+            />
             <DetailItem 
               icon="location-outline"
               value={business.address}
@@ -211,11 +219,22 @@ export default function PublicProfile() {
               icon="link-outline"
               value={business.social_link}
             />
+            {isMobile && (
+              <Text style={{fontFamily: "Montserrat-Regular", fontSize: 12, borderBottomColor: "#d1d5db", borderWidth: 1}}>
+              </Text>
+            )}
+            <Text style={{marginBottom: -10, fontFamily: "Montserrat-Regular", fontWeight: "700", fontSize: 12}}>
+              ABOUT
+            </Text>
             <DetailItem
               icon="information-outline"
               value={business.description}
               multiline={true}
             />
+            {isMobile && (
+              <Text style={{fontFamily: "Montserrat-Regular", marginTop: 5, fontSize: 12, borderBottomColor: "#d1d5db", borderWidth: 1}}>
+              </Text>
+            )}
 
             {isMobile && (
               <>
@@ -438,7 +457,7 @@ function DetailItem({ icon, value, multiline}) {
 
   return (
     <View style={styles.detailRow}>
-      <Ionicons name={icon} size={22} />
+      <Ionicons name={icon} size={22} style={{padding: 5, borderRadius: 10, borderWidth: 1, borderColor: "#d1d5db", backgroundColor: "#f9fafb4d"}} />
       <Text style={[styles.input, multiline && styles.textArea]}>
         {value || ""}
         </Text>
@@ -466,6 +485,7 @@ const styles = StyleSheet.create({
     padding: 24,
     backgroundColor: "#f3f4f6",
     minHeight: "100%",
+    marginTop: 75,
   },
 
   card: {
@@ -483,13 +503,20 @@ const styles = StyleSheet.create({
     backgroundColor: "#acbffc5d",
     padding: 32,
     flexDirection: "row",
+    borderTopRightRadius: 20,
+    borderTopLeftRadius: 20,
     alignItems: "center",
-    minHeight: 200,
+    minHeight: 160,
+  },
+
+  logoHeader: {
+    flexDirection: "row",
+    justifyContent: "center",
   },
 
   avatar: {
-    width: 230,
-    height: 230,
+    width: 150,
+    height: 150,
     borderRadius: 200,
     borderWidth: 4,
     borderColor: "#fff",
@@ -502,9 +529,10 @@ const styles = StyleSheet.create({
   },
 
   name: {
-    fontSize: 44,
-    fontWeight: "800",
-    fontFamily: 'Montserrat-Bold'
+    fontSize: 30,
+    marginTop: 50,
+    fontFamily: 'Montserrat-Regular',
+    fontWeight: "800"
   },
 
   location: {
@@ -556,7 +584,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: 'Montserrat-Regular',
     borderWidth: 1,
     borderColor: "#d1d5db",

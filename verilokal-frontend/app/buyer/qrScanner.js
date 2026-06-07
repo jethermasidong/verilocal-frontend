@@ -396,7 +396,7 @@ export default function ProductScanner() {
             width: isMobile ? 300: 400, 
             height: isMobile ? 300: 400,
             borderWidth: 2,
-            borderColor: "#524a4a59",
+            borderColor: "#524a4a15",
             borderRadius: 16,
             justifyContent: "center",
             alignItems: "center",
@@ -410,8 +410,8 @@ export default function ProductScanner() {
             padding: 5,
           }}
         >
-          <View style={{borderColor: "#2d4049", borderWidth: 1, borderStyle: "dotted", padding: 50, borderRadius: 10, marginBottom: 5,}}>
-            <Ionicons name="qr-code-outline" size={32} color="#000" />
+          <View style={{borderColor: "#2d40495b", borderWidth: 1, borderStyle: "dotted", padding: 50, borderRadius: 10, marginBottom: 5,}}>
+            <Ionicons name="qr-code-outline" size={40} color="#4A70A9" />
           </View>
           <Text style={{textAlign: "center", color: "#000000", fontFamily: 'Montserrat-Regular', fontSize: isMobile? 12 : 13 }}>
             {isScanning ? "Scanning..." : "Scanner Inactive"}
@@ -531,7 +531,7 @@ export default function ProductScanner() {
             width: isMobile ? 300: 400, 
             height: isMobile ? 300: 400,
             borderWidth: 2,
-            borderColor: "#524a4a59",
+            borderColor: "#524a4a15",
             borderRadius: 16,
             backgroundColor: "#f9fafb4d",
             shadowColor: "#000",
@@ -1005,7 +1005,7 @@ export default function ProductScanner() {
     </View>
   </Modal>
 </ScrollView>
-{isLoading && (
+      {isLoading && (
         <View
           style={{
           position: "absolute",
