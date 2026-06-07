@@ -143,9 +143,14 @@ export default function TransferOwnership() {
   //Dropdown Suggestion
   const [showOwnerDropdown, setShowOwnerDropdown] = useState(false);
 
-  const filteredOwners = sellerHistory.filter((item) => 
-    item.seller_name?.toLowerCase().includes(newOwner.toLowerCase())
-  );
+  const filteredOwners = sellerHistory.filter((item) => {
+    if (!newOwner) return true;
+
+    const isExactMatch = sellerHistory.some(s => s.seller_name === newOwner);
+    if (isExactMatch) return true;
+
+    return item.seller_name?.toLowerCase().includes(newOwner.toLowerCase());
+  });
 
 
 
@@ -282,6 +287,33 @@ export default function TransferOwnership() {
     }
   };
 
+  
+
+  //VALIDATE SELLER - REALTIME ERROR HANDLING
+  const validateSeller = (text) => {
+
+    if (!text) {
+      setNewSellerError("This field is required before a seller can be created");
+      return false;
+    }
+
+    if (text !== text.trim() && (text.startsWith(" ") || text.endsWith(" "))) {
+      setNewSellerError("Name must not start or end with spaces");
+      return false;6813
+    }
+
+    const isDuplicate = sellerHistory.some(
+      (item) => item.seller_name?.trim().toLowerCase() === text.trim().toLowerCase()
+    );
+    if (isDuplicate) {
+      setNewSellerError(`"${text.trim()}" already exists`);
+      return false;
+    }
+    setNewSellerError("");
+    return true;
+  };
+
+  const isValid = newSellerName.trim().length > 0 && !newSellerError;
 
 ///////////////////////////////////////////
 ////CREATE SELLER////////////////////////
@@ -709,14 +741,7 @@ export default function TransferOwnership() {
                   maxLength={64}
                   onChangeText={(text) => {
                     setNewSellerName(text);
-                    if (
-                      text.trim() &&
-                      text === text.trim() &&
-                      !/\s{2,}/.test(text) &&
-                      /^[a-zA-Z\u00C0-\u024F]/.test(text)
-                    ) {
-                      setNewSellerError("");
-                    }
+                    validateSeller(text);
                   }}
                   style={styles.modalInput}
                   autoCapitalize="words"
@@ -743,8 +768,9 @@ export default function TransferOwnership() {
                 </TouchableOpacity>
 
                 <TouchableOpacity
+                  disabled={!isValid}
                   onPress={() => handleAddSellerSubmit()}
-                  style={styles.modalConfirmBtn}
+                  style={[styles.modalConfirmBtn, !isValid && styles.buttonDisabled]}
                 >
                   <Text style={styles.modalConfirmText}>Save Seller</Text>
                 </TouchableOpacity>
@@ -1086,9 +1112,17 @@ export default function TransferOwnership() {
                   placeholder='Type "confirm" to proceed'
                   placeholderTextColor="#9CA3AF"
                   value={confirmText}
+                  maxLength={7}
                   onChangeText={(text) => {
                     setConfirmText(text);
-                    if (text.trim()) setConfirmTextError("");
+                    const trimmed = text.trim();
+                      if (!trimmed) {
+                        setConfirmTextError("This field is required before continuing.");
+                      } else if (trimmed.toLowerCase() !== "confirm") {
+                        setConfirmTextError('Please type "confirm" exactly to proceed.');
+                      } else {
+                        setConfirmTextError("");
+                      }
                   }}
                   style={styles.modalInput}
                   autoCapitalize="none"
@@ -1115,6 +1149,7 @@ export default function TransferOwnership() {
                 </TouchableOpacity>
 
                 <TouchableOpacity
+                  disabled={confirmText.trim().toLowerCase() !== "confirm"}
                   onPress={() => {
                     if (!confirmText.trim()) {
                       setConfirmTextError("This field is required before continuing.");
@@ -1768,6 +1803,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
+  },
+
+  buttonDisabled: {
+    backgroundColor: "#9CA3AF", 
+    opacity: 0.6,
   },
 
   // Filter panel

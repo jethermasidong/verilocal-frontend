@@ -26,6 +26,49 @@
     const [showModal, setShowModal] = useState(false);
     const [currentImage, setCurrentImage] = useState(null);
 
+    const [showAddMaterialModal, setShowAddMaterialModal] = useState(false);
+    const [showAddOriginModal, setShowAddOriginModal] = useState(false);
+    const [showManageDropdown, setShowManageDropdown] = useState(false);
+
+    const totalPending = pendingBusinesses.length;
+    const withPermit = pendingBusinesses.filter((b) => b.permit).length;
+    const withCertificates = pendingBusinesses.filter(
+      (b) => b.certificates,
+    ).length;
+
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showVerifyModal, setShowVerifyModal] = useState(false);
+    const [selectedBusiness, setSelectedBusiness] = useState(null);
+
+    const [currentImages, setCurrentImages] = useState([]);
+    const [currentIndex, setCurrentIndex] = useState(0);
+
+    const [hoverClose, setHoverClose] = useState(false);
+
+    // History modals
+    const [showMaterialHistoryModal, setShowMaterialHistoryModal] =
+      useState(false);
+    const [showOriginHistoryModal, setShowOriginHistoryModal] = useState(false);
+    const [materialHistory, setMaterialHistory] = useState([]);
+    const [originHistory, setOriginHistory] = useState([]);
+    const [historyLoading, setHistoryLoading] = useState(false);
+
+    // History item delete confirmation modal
+    const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
+    const [historyDeleteTarget, setHistoryDeleteTarget] = useState(null); 
+
+    // Shared loading & result state
+    const [isLoading, setIsLoading] = useState(false);
+    const [resultVisible, setResultVisible] = useState(false);
+    const [resultType, setResultType] = useState(null);
+    const [resultMessage, setResultMessage] = useState("");
+
+    // Result animations
+    const scaleAnim = useRef(new Animated.Value(0.8)).current;
+    const opacityAnim = useRef(new Animated.Value(0)).current;
+    const shakeAnim = useRef(new Animated.Value(0)).current;
+
+
     // Add Material Input Errors
     const [materialNameError, setMaterialNameError] = useState("");
     const [materialTypeError, setMaterialTypeError] = useState("");
@@ -33,18 +76,36 @@
     // Add Origin Input Error
     const [originNameError, setOriginNameError] = useState("");
 
-    // Material Validation Handlers
+    // Add Material inputs
+    const [newMaterialName, setNewMaterialName] = useState("");
+    const [newMaterialType, setNewMaterialType] = useState("");
+
+    // Add Origin inputs
+    const [newOriginName, setNewOriginName] = useState("");
+
+    // Material Name Validation Handlers
     const handleMaterialNameChange = (text) => {
       setNewMaterialName(text);
+
       if (!text.trim()) {
         setMaterialNameError("Material name cannot be empty.");
-      } else if (text.trim().length < 3) {
+        return;
+      } 
+      if (text.trim().length < 3) {
         setMaterialNameError("Material name must be at least 3 characters.");
+        return;
+      } 
+      const isDuplicateMaterial = materialHistory.some(
+        (item) => item.name?.trim().toLowerCase() === text.trim().toLowerCase()
+      );
+      if (isDuplicateMaterial) {
+        setMaterialNameError(`"${text.trim()}" already exists`) 
       } else {
         setMaterialNameError("");
       }
     };
-
+    
+    // Material Type Validation Handler
     const handleMaterialTypeChange = (text) => {
       setNewMaterialType(text);
       if (!text.trim()) {
@@ -54,17 +115,28 @@
       }
     };
 
+    //BUTTON DISABLE CHECKER
+    const isMaterialNameAndTypeValid = newMaterialName.trim().length >= 3 && 
+      newMaterialType.trim().length > 0 &&
+      !materialNameError &&
+      !materialTypeError;
+
+
     // Origin Validation Handler
     const handleOriginNameChange = (text) => {
       setNewOriginName(text);
       if (!text.trim()) {
         setOriginNameError("Origin name cannot be empty.");
-      } else if (text.trim().length < 3) {
+        return;
+      } 
+      if (text.trim().length < 3) {
         setOriginNameError("Origin name must be at least 3 characters.");
       } else {
         setOriginNameError("");
       }
     };
+
+    const isOriginValid = newOriginName.trim().length > 0 && !originNameError;
 
     // Call these whenever you exit modals via 'Cancel'
     const clearMaterialForm = () => {
@@ -144,6 +216,8 @@
       setShowModal(true);
     };
 
+
+    //FONTS
     const [fontsLoaded] = useFonts({
       "Garet-Book": require("../../assets/fonts/garet/Garet-Book.ttf"),
       "Garet-Heavy": require("../../assets/fonts/garet/Garet-Heavy.ttf"),
@@ -152,55 +226,7 @@
       "Montserrat-Black": require("../../assets/fonts/Montserrat/static/Montserrat-Black.ttf"),
     });
 
-    const [showAddMaterialModal, setShowAddMaterialModal] = useState(false);
-    const [showAddOriginModal, setShowAddOriginModal] = useState(false);
-    const [showManageDropdown, setShowManageDropdown] = useState(false);
-
-    const totalPending = pendingBusinesses.length;
-    const withPermit = pendingBusinesses.filter((b) => b.permit).length;
-    const withCertificates = pendingBusinesses.filter(
-      (b) => b.certificates,
-    ).length;
-
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [showVerifyModal, setShowVerifyModal] = useState(false);
-    const [selectedBusiness, setSelectedBusiness] = useState(null);
-
-    const [currentImages, setCurrentImages] = useState([]);
-    const [currentIndex, setCurrentIndex] = useState(0);
-
-    const [hoverClose, setHoverClose] = useState(false);
-
-    // History modals
-    const [showMaterialHistoryModal, setShowMaterialHistoryModal] =
-      useState(false);
-    const [showOriginHistoryModal, setShowOriginHistoryModal] = useState(false);
-    const [materialHistory, setMaterialHistory] = useState([]);
-    const [originHistory, setOriginHistory] = useState([]);
-    const [historyLoading, setHistoryLoading] = useState(false);
-
-    // History item delete confirmation modal
-    const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
-    const [historyDeleteTarget, setHistoryDeleteTarget] = useState(null); 
-
-    // Add Material inputs
-    const [newMaterialName, setNewMaterialName] = useState("");
-    const [newMaterialType, setNewMaterialType] = useState("");
-
-    // Add Origin inputs
-    const [newOriginName, setNewOriginName] = useState("");
-
-    // Shared loading & result state
-    const [isLoading, setIsLoading] = useState(false);
-    const [resultVisible, setResultVisible] = useState(false);
-    const [resultType, setResultType] = useState(null);
-    const [resultMessage, setResultMessage] = useState("");
-
-    // Result animations
-    const scaleAnim = useRef(new Animated.Value(0.8)).current;
-    const opacityAnim = useRef(new Animated.Value(0)).current;
-    const shakeAnim = useRef(new Animated.Value(0)).current;
-
+    //ANIMATION
     useEffect(() => {
       if (!resultVisible) return;
       if (resultType === "success") {
@@ -893,8 +919,9 @@
                 </TouchableOpacity>
 
                 <TouchableOpacity
+                  disabled={!isMaterialNameAndTypeValid}
                   onPress={handleAddMaterial}
-                  style={styles.addMaterial_modalConfirmBtn}
+                  style={[styles.addMaterial_modalConfirmBtn, !isMaterialNameAndTypeValid && styles.buttonDisabled]}
                 >
                   <Text style={styles.addMaterial_modalConfirmText}>
                     Confirm Addition of Material
@@ -967,8 +994,9 @@
                 </TouchableOpacity>
 
                 <TouchableOpacity
+                  disabled={!isOriginValid}
                   onPress={handleAddOrigin}
-                  style={styles.addMaterial_modalConfirmBtn}
+                  style={[styles.addMaterial_modalConfirmBtn, !isOriginValid && styles.buttonDisabled]}
                 >
                   <Text style={styles.addMaterial_modalConfirmText}>
                     Confirm Addition of Origin
@@ -1694,8 +1722,10 @@
       color: "#FFFFFF",
       fontFamily: "Garet-Book",
     },
-
-    // Loading & Result
+    buttonDisabled: {
+      backgroundColor: "#9CA3AF", 
+      opacity: 0.6,
+    },
     admin_resultOverlay: {
       position: "absolute",
       top: 0,
