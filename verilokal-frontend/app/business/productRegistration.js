@@ -340,6 +340,8 @@ export default function RegisterProduct() {
     }));
   };
 
+
+  //WEB LAYOUT
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const resize = () => setIsMobile(Dimensions.get("window").width < 700);

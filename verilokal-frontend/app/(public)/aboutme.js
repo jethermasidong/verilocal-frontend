@@ -74,13 +74,13 @@ export default function AboutMe() {
   const cards = [
     {
       title: "Mission",
-      text: "Empowering Filipino artisans through secure blockchain authentication and digital verification.",
+      text: "To empower Filipino artisans by providing secure product verification, transparent traceability, and trusted digital records through blockchain technology.",
       icon: "shield-checkmark-outline",
       accent: "#6366f1",
     },
     {
       title: "Vision",
-      text: "Building a globally trusted ecosystem for authentic Filipino-made products.",
+      text: "To create a future where every authentic Filipino-made product is trusted, traceable, and recognized worldwide.",
       icon: "globe-outline",
       accent: "#0ea5e9",
     },
@@ -93,8 +93,8 @@ export default function AboutMe() {
   ];
 
   const pillars = [
-    { icon: "lock-closed-outline", label: "Secure Authentication" },
-    { icon: "sync-outline", label: "Secure Brand Identity and Integrity" },
+    { icon: "lock-closed-outline", label: "Secure Brand Identity and Integrity" },
+    { icon: "pricetags-outline", label: "Support Local Products" },
     { icon: "shield-outline", label: "Consumer Trust Protection" },
   ];
 
@@ -150,9 +150,9 @@ export default function AboutMe() {
           </Text>
 
           <Text style={[styles.paragraph, isMobile && { textAlign: "center" }]}>
-            We provide secure digital verification to protect artisans,
-            strengthen consumer trust, and elevate Filipino products in the
-            global marketplace.
+            We empower artisans and consumers through blockchain-backed product 
+            verification, helping preserve authenticity, strengthen trust, and 
+            protect the integrity of Filipino craftsmanship.
           </Text>
 
           <View style={[styles.pillarsContainer, isMobile && { alignItems: "center" }]}>

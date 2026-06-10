@@ -123,7 +123,7 @@ export default function Home() {
             >
               <View style={[styles.eyebrow, isMobile && { alignSelf: "center" }]}>
                 <View style={styles.eyebrowDot} />
-                <Text style={styles.eyebrowText}>Filipino Blockchain Verification</Text>
+                <Text style={styles.eyebrowText}>Brand Identity and Integrity</Text>
               </View>
 
               <View style={{ gap: 0 }}>
@@ -186,8 +186,8 @@ export default function Home() {
                   },
                 ]}
               >
-                Ensuring genuine Filipino craftsmanship through secure QR
-                verification and blockchain technology.
+                Strengthening the identity and integrity of Filipino handcrafted 
+                products through blockchain.
               </Animated.Text>
 
               {/* CTA */}
@@ -208,7 +208,7 @@ export default function Home() {
                 ]}
               >
                 {[
-                  { value: "100%", label: "Trusted" },
+                  { value: "Trusted", label: "Local" },
                   { value: "Secure", label: "Blockchain" },
                   { value: "PH", label: "Made" },
                 ].map((s, i) => (

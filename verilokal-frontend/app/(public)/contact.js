@@ -169,7 +169,7 @@ export default function Contact() {
               { textAlign: isMobile ? "center" : "left" },
             ]}
           >
-            Have questions about verification, partnerships, or protecting your
+            Have questions about blockchain, partnerships, or protecting your
             craftsmanship? We're here.
           </Text>
 
