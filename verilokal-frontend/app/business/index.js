@@ -809,7 +809,7 @@ export default function BusinessDashboard() {
         <div class="products">
             <h2>Product Catalog</h2>
             ${products
-              .filter((p) => p.status === "approved")
+              .filter((p) => p.status === "registered")
               .map(
                 (p) => `<div class="products">
                 <div class="image-box">
@@ -1374,9 +1374,9 @@ export default function BusinessDashboard() {
                   />
                 </View>
                 <View style={styles.summaryTextContainer}>
-                  <Text style={styles.summaryCardTitle}>Approved</Text>
+                  <Text style={styles.summaryCardTitle}>Registered</Text>
                   <Text style={styles.summaryProgress}>
-                    {products.filter((p) => p.status === "approved").length}{" "}
+                    {products.filter((p) => p.status === "registered").length}{" "}
                     Items
                   </Text>
                 </View>
@@ -1503,7 +1503,7 @@ export default function BusinessDashboard() {
                             styles.dashboard_productTypeBadge,
                             {
                               backgroundColor:
-                                item.status === "approved"
+                                item.status === "registered"
                                   ? "#e8f5e4"
                                   : item.status === "failed"
                                     ? "#faf0ef"

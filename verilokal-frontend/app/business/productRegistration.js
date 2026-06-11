@@ -767,7 +767,7 @@ export default function RegisterProduct() {
                           {sellers.map((seller, index) => (
                             <Picker.Item key={seller.id ? String(seller.id) : String(index)}
                             label={seller.seller_name || seller.name} 
-                            value={seller.id  ? String(seller.id) : seller} />
+                            value={seller.seller_name || seller.name} />
                           ))}
                       </Picker>
                       {errors.current_owner && (
@@ -1164,7 +1164,7 @@ export default function RegisterProduct() {
                           {sellers.map((seller, index) => (
                             <Picker.Item key={seller.id ? String(seller.id) : String(index)}
                             label={seller.seller_name || seller.name} 
-                            value={seller.id  ? String(seller.id) : seller} />
+                            value={seller.seller_name || seller.name} />
                           ))}
                       </Picker>
                       {errors.current_owner && (

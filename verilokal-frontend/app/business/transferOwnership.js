@@ -34,7 +34,7 @@ import {
 
 
 const STATUS_STYLES = {
-  Approved: { bg: "#DCFCE7", text: "#15803D" },
+  Registered: { bg: "#DCFCE7", text: "#15803D" },
   Pending: { bg: "#FEF3C7", text: "#B45309" },
   Failed: { bg: "#FEE2E2", text: "#B91C1C" },
 };
