@@ -24,6 +24,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import bgImage from "../../assets/bg1.jpg";
@@ -116,6 +117,8 @@ export default function BusinessDashboard() {
   const [origins, setOrigins] = useState([]);  
 
   const [errors, setErrors] = useState({});
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
+  const [selectedError, setSelectedError] = useState("");
 
 
   //HOVER FUNCTION
@@ -1143,6 +1146,7 @@ export default function BusinessDashboard() {
   const CARD_MARGIN = 10;
   const ITEM_WIDTH = CARD_WIDTH + CARD_MARGIN;
 
+
   {
     /* Register Button Hover Animations */
   }
@@ -1490,7 +1494,7 @@ export default function BusinessDashboard() {
                     )}
 
                     {/* Info */}
-                    <View style={styles.dashboard_productCardBody}>
+                    <View style={[styles.dashboard_productCardBody, { position: "relative"}]}>
                       <Text
                         style={styles.dashboard_productCardName}
                         numberOfLines={2}
@@ -1502,20 +1506,38 @@ export default function BusinessDashboard() {
                           style={[
                             styles.dashboard_productTypeBadge,
                             {
+                              flexDirection: "row",
+                              alignItems: "center",
                               backgroundColor:
                                 item.status === "registered"
                                   ? "#e8f5e4"
                                   : item.status === "failed"
                                     ? "#faf0ef"
                                     : "#f3f3dc",
+                              paddingHorizontal: 10,
+                              paddingVertical: 4,
+                              gap: 6,
                             },
                           ]}
                         >
                           <Text style={styles.dashboard_productTypeText}>
                             {item.status}
                           </Text>
+                          {item.status === "failed" && item.blockchain_error ? (
+                            <TouchableOpacity
+                              onPress={() => {
+                                setSelectedError(item.blockchain_error || "No error recorded");
+                                setErrorModalVisible(true);
+                              }}
+                              style={{ padding: 1, }}
+                            >
+                              <Ionicons name="alert-circle-outline" size={14} color="#c74242" />
+                            </TouchableOpacity>
+                          ) : null}
                         </View>
                       ) : null}
+                      
+
                       {item.materials ? (
                         <Text
                           style={styles.dashboard_productMaterialText}
@@ -1539,6 +1561,70 @@ export default function BusinessDashboard() {
               }}
             />
           </View>
+          <Modal
+            visible={errorModalVisible}
+            transparent
+            animationType="fade"
+            onRequestClose={() => setErrorModalVisible(false)}
+          >
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: "rgba(0,0,0,0.5)",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <View
+                style={{
+                  width: "20%",
+                  backgroundColor: "#fff",
+                  borderRadius: 12,
+                  padding: 16,
+                }}
+              >
+                <View style={{ flexDirection: "row", marginBottom: 10, justifyContent: "flex-start", alignItems: "center"}}>
+                  <Ionicons name="alert-outline" size={14} color="#c74242" style={{marginRight: 5, padding: 7, backgroundColor: "#faf0ef", borderRadius: 5}} />
+                  <View style={{ flexDirection: "column"}}>
+                    <Text style={{ fontSize: 14, fontWeight: "bold", color: "#c74242", fontFamily: "Montserrat-Regular" }}>
+                      {selectedError}
+                    </Text>
+                    <Text style={{ fontSize: 13, fontFamily: "Montserrat-Regular"}}>
+                      Blockchain Error
+                    </Text>
+                  </View>
+                </View>
+                
+                <View style={{ marginTop: 1, flexDirection: "row", marginTop: 10, padding: 10, borderRadius: 7, borderWidth: 1, borderColor: "#E5E7EB", backgroundColor: "#F9FAFB"}}>
+                  <Ionicons name="alert-circle-outline" size={15} color="black" style={{ marginRight: 5, marginTop: 3}}/>
+                  <View style={{ flexDirection: "column",}}>
+                    <Text style={{fontFamily: "Montserrat-Regular", fontStyle: "italic", fontSize: 13}}>
+                      Delete the product and re-register it again.
+                    </Text>
+                    <Text style={{fontFamily: "Montserrat-Regular", fontStyle: "italic", fontSize: 13}}>
+                      Ensure that you are not registering a product
+                    </Text>
+                    <Text style={{fontFamily: "Montserrat-Regular", fontStyle: "italic", fontSize: 13}}>
+                      with the same details as an existing registered 
+                    </Text>
+                    <Text style={{fontFamily: "Montserrat-Regular", fontStyle: "italic", fontSize: 13}}>
+                      product.
+                    </Text>
+                  </View>
+                </View>
+                
+                <TouchableOpacity
+                  onPress={() => setErrorModalVisible(false)}
+                  style={{
+                    marginTop: 15,
+                    alignSelf: "flex-end",
+                  }}
+                >
+                  <Text style={{ color: "#4A70A9", fontWeight: "bold", fontFamily: "Montserrat-Regular",}}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
 
           {/* Show More */}
           {products.length > visibleCount && (
