@@ -116,7 +116,7 @@ export default function Home() {
                   alignItems: isMobile ? "center" : "flex-start",
                   maxWidth: isMobile ? "100%" : 540,
                   flex: isMobile ? undefined : 1,
-                  marginLeft: isMobile ? 20 : 100,
+                  marginLeft: isMobile ? 0 : 100,
                   marginBottom: isMobile ? 0 : 100,
                 },
               ]}
