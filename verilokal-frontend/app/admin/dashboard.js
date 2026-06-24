@@ -157,7 +157,10 @@
 
     const loadBusinesses = async () => {
       try {
-        const res = await axios.get(`${serverUrl}/api/admin/pending-businesses`);
+        const token = await AsyncStorage.getItem("token");
+        const res = await axios.get(`${serverUrl}/api/admin/pending-businesses`, {
+          headers: { Authorization: `Bearer ${token}`}
+        });
         setPendingBusinesses(res.data);
       } catch (error) {
         Alert.alert("Error", "Failed to load businesses");
@@ -285,8 +288,11 @@
 
     const fetchMaterialHistory = async () => {
       try {
+        const token = await AsyncStorage.getItem("token");
         setHistoryLoading(true);
-        const res = await axios.get(`${serverUrl}/api/materials`);
+        const res = await axios.get(`${serverUrl}/api/materials`, {
+          headers: { Authorization: `Bearer ${token}`}
+        });
         const data = Array.isArray(res.data) ? res.data : [];
         setMaterialHistory(data);
       } catch (error) {
@@ -299,8 +305,11 @@
 
     const fetchOriginHistory = async () => {
       try {
+        const token = await AsyncStorage.getItem("token");
         setHistoryLoading(true);
-        const res = await axios.get(`${serverUrl}/api/origin`);
+        const res = await axios.get(`${serverUrl}/api/origin`, {
+          headers: { Authorization: `Bearer ${token}`}
+        });
         const data = Array.isArray(res.data) ? res.data : [];
         setOriginHistory(data);
       } catch (error) {
