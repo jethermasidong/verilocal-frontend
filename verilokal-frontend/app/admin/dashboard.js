@@ -174,7 +174,10 @@
 
     const handleVerify = async (id) => {
       try {
-        await axios.put(`${serverUrl}/api/admin/verify/${id}`);
+        const token = await AsyncStorage.getItem("token");
+        await axios.put(`${serverUrl}/api/admin/verify/${id}`, {
+          headers: { Authorization: `Bearer ${token}`}
+        });
         Alert.alert("Success", "Business verified!");
         setPendingBusinesses((prev) => prev.filter((b) => b.id !== id));
       } catch (error) {
@@ -185,7 +188,10 @@
 
     const deleteBusiness = async (id) => {
       try {
-        await axios.delete(`${serverUrl}/api/admin/delete/${id}`);
+        const token = await AsyncStorage.getItem("token");
+        await axios.delete(`${serverUrl}/api/admin/delete/${id}`, {
+          headers: { Authorization: `Bearer ${token}`}
+        });
         Alert.alert("Success", "Business Deleted");
         setPendingBusinesses((prev) => prev.filter((b) => b.id !== id));
       } catch (error) {
