@@ -399,7 +399,9 @@ export default function TransferOwnership() {
       const token = await AsyncStorage.getItem("token");
       const decoded = jwtDecode(token);
 
-      const res = await axios.get(`https://verilocalph.onrender.com/api/sellers/business/${id}`);
+      const res = await axios.get(`https://verilocalph.onrender.com/api/sellers/business/${id}`, {
+        headers: {Authorization: `Bearer ${token}`}
+      });
       const data = Array.isArray(res.data) ? res.data : [];
       setSellerHistory(data);
     } catch (error) {
