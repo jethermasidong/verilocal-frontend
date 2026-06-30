@@ -175,7 +175,7 @@
     const handleVerify = async (id) => {
       try {
         const token = await AsyncStorage.getItem("token");
-        await axios.put(`${serverUrl}/api/admin/verify/${id}`, {
+        await axios.put(`${serverUrl}/api/admin/verify/${id}`, {}, {
           headers: { Authorization: `Bearer ${token}`}
         });
         Alert.alert("Success", "Business verified!");
