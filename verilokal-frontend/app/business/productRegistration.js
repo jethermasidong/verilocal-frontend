@@ -476,7 +476,6 @@ export default function RegisterProduct() {
   const fetchTypes = async () => {
     try {
       const token = await AsyncStorage.getItem("token");
-      console.log("FETCHING TYPES...");
       const res = await axios.get(
         "https://verilocalph.onrender.com/api/materials/types",
         {
@@ -533,7 +532,6 @@ export default function RegisterProduct() {
       const res = await axios.get(`https://verilocalph.onrender.com/api/sellers/business/${id}`,{
         headers: { Authorization: `Bearer ${token}`}
       });
-      console.log("RAW BACKEND RESPONSE DATA:", res.data);
       setSellers(res.data);
     } catch (err) {
       console.error("Error fetching seller", err);

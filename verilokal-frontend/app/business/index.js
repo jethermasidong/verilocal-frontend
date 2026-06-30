@@ -1059,7 +1059,6 @@ export default function BusinessDashboard() {
   const fetchTypes = async () => {
     try {
       const token = await AsyncStorage.getItem("token");
-      console.log("FETCHING TYPES...");
       const res = await axios.get(
         "https://verilocalph.onrender.com/api/materials/types",
         {
