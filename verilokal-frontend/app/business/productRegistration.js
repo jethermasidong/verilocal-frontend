@@ -1625,7 +1625,19 @@ export default function RegisterProduct() {
                 fontWeight: "500",
               }}
             >
-              3. Add a Description
+              3. Select Current Owner (Your Registered Seller)
+            </Text>
+
+            {/* 3 */}
+            <Text
+              style={{
+                fontFamily: "Montserrat-Bold",
+                fontSize: 12,
+                marginBottom: 5,
+                fontWeight: "500",
+              }}
+            >
+              4. Add a Description
             </Text>
 
             <View style={{ flexDirection: "row", marginBottom: 16 }}>
@@ -1645,7 +1657,7 @@ export default function RegisterProduct() {
                 fontWeight: "500",
               }}
             >
-              4. Upload Images
+              5. Upload Images
             </Text>
 
             <View style={{ flexDirection: "row", marginBottom: 4 }}>
