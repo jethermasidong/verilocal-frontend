@@ -32,6 +32,7 @@ import bgImage from "../../assets/bg1.jpg";
 export default function BusinessDashboard() {
   const [business, setBusiness] = useState(null);
   const [products, setProducts] = useState([]);
+  const [archiveProducts, setArchiveProducts] = useState([]);
 
   //Product Count
   const [visibleCount, setVisibleCount] = useState(5);
@@ -81,6 +82,7 @@ export default function BusinessDashboard() {
   const hoverAnimReport = useRef(new Animated.Value(0)).current;
   const hoverAnimFilter = useRef(new Animated.Value(0)).current;
   const hoverAnimTransfer = useRef(new Animated.Value(0)).current;
+  const hoverAnimArchive = useRef(new Animated.Value(0)).current;
 
   //Loading State
   const [isLoading, setIsLoading] = useState(false);
@@ -119,6 +121,141 @@ export default function BusinessDashboard() {
   const [errors, setErrors] = useState({});
   const [errorModalVisible, setErrorModalVisible] = useState(false);
   const [selectedError, setSelectedError] = useState("");
+
+  const [restoreModalVisible, setRestoreModalVisible] = useState(false);
+  const [selectedForRestore, setSelectedForRestore] = useState([]);
+
+  const [archiveSortOption, setArchiveSortOption] = useState("recent");
+  const [restoreSortOption, setRestoreSortOption] = useState("recent");
+
+  const [dashboardSortOption, setDashboardSortOption] = useState("recent");
+
+  const [filtersInitialized, setFiltersInitialized] = useState(false);
+
+
+  const sortedForArchiveModal = [...products].sort((a, b) => {
+    if (archiveSortOption === "a-z") return a.name.localeCompare(b.name);
+    return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+  });
+
+ 
+  const sortedForRestoreModal = [...archiveProducts].sort((a, b) => {
+    if (restoreSortOption === "a-z") return a.name.localeCompare(b.name);
+    return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+  });
+
+  useEffect(() => {
+    if (products.length > 0 && !filtersInitialized) {
+      setSelectedTypes([...new Set(products.map((p) => p.type).filter(Boolean))]);
+      setSelectedMaterials([...new Set(products.map((p) => p.materials).filter(Boolean))]);
+      setSelectedStatus([...new Set(products.map((p) => p.status).filter(Boolean))]);
+      
+      setFiltersInitialized(true); 
+    }
+  }, [products]);
+
+  const fetchArchiveProducts = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      const res = await axios.get(
+        "https://verilocalph.onrender.com/api/archived-products",
+        {headers : {Authorization: `Bearer ${token}`}},
+      );
+      setArchiveProducts(res.data);
+    } catch (err) {
+      console.error("Error loading products:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchArchiveProducts();
+  }, []);
+   
+
+
+  const toggleRestoreSelection = (uid) => {
+    setSelectedForRestore((prev) =>
+      prev.includes(uid)
+      ? prev.filter((existingUid) => existingUid !== uid)
+      : [...prev, uid])
+  };
+
+  const handleRestoreSubmit = async () => {
+    if (selectedForRestore.length === 0) return;
+
+    setIsLoading(true);
+    try {
+      const token = await AsyncStorage.getItem("token");
+      await axios.post(
+        'https://verilocalph.onrender.com/api/restore',
+        {uids: selectedForRestore},
+        {headers: {Authorization: `Bearer ${token}`}}
+      );
+
+      await fetchArchiveProducts();
+      await fetchProducts();
+
+      setRestoreModalVisible(false);
+      setSelectedForRestore([]);
+
+      showResult("success", `${selectedForRestore.length} product(s) successfully restored!`);
+    } catch (err) {
+      console.error("Backend Error Details:", err.response?.data?.message || err.message);
+      showResult("error", "Failed to archive product(s). Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const [archiveModalVisible, setArchiveModalVisible] = useState(false);
+  const [selectedForArchive, setSelectedForArchive] = useState([]);
+
+  const toggleArchiveSelection = (uid) => {
+    setSelectedForArchive((prev) => 
+      prev.includes(uid)
+        ? prev.filter((existingUid) => existingUid !== uid)
+        : [...prev, uid]
+    );
+  };
+
+  const handleArchiveSubmit = async () => {
+    if (selectedForArchive.length === 0) return;
+
+    setIsLoading(true);
+    try {
+      const token = await AsyncStorage.getItem("token");
+      await axios.post(
+        'https://verilocalph.onrender.com/api/archive',
+        {uids: selectedForArchive},
+        {headers: {Authorization: `Bearer ${token}`}}
+      );
+
+      await fetchProducts();
+      await fetchArchiveProducts();
+
+      setArchiveModalVisible(false);
+      setSelectedForArchive([]);
+      setIsLoading(false);
+
+      showResult("success", `${selectedForArchive.length} product(s) successfully archived!`);
+    } catch (err) {
+      console.error("Backend Error Details:", err.response?.data?.message || err.message);
+      setIsLoading(false);
+      showResult("error", "Failed to archive product(s). Please try again.");
+    } 
+  };  
+
+  //DATE FORMAT ONLY
+  const formatDateOnly = (dateString) => {
+    if (!dateString) return "-";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
 
 
   //HOVER FUNCTION
@@ -161,6 +298,18 @@ export default function BusinessDashboard() {
     }).start();
   };
 
+  const onHoverIn3 = () => {
+    Animated.spring(hoverAnimArchive, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
+  const onHoverOut3 = () => {
+    Animated.spring(hoverAnimArchive, {
+      toValue: 0,
+      useNativeDriver: true,
+    }).start();
+  };
 
   //WEB SIZE COMPONENT
   const [windowWidth, setWindowWidth] = useState(
@@ -325,16 +474,19 @@ export default function BusinessDashboard() {
       ?.toLowerCase()
       .includes(searchQuery.toLowerCase());
 
-    const matchesType =
-      selectedTypes.length === 0 || selectedTypes.includes(p.type);
+    const matchesType = selectedTypes.includes(p.type);
 
-    const matchesMaterials =
-      selectedMaterials.length === 0 || selectedMaterials.includes(p.materials);
+    const matchesMaterials = selectedMaterials.includes(p.materials);
 
-    const matchesStatus =
-      selectedStatus.length === 0 || selectedStatus.includes(p.status);
-
+    const matchesStatus = selectedStatus.includes(p.status);
+      
     return matchesSearch && matchesType && matchesMaterials && matchesStatus;
+  }).sort((a, b) => {
+    
+    if (dashboardSortOption === "a-z") {
+      return (a.name || "").localeCompare(b.name || "");
+    }
+    return new Date(b.created_at || 0) - new Date(a.created_at || 0)
   });
 
   //OPEN MODAL FUNCTION OF PRODUCT
@@ -1251,6 +1403,33 @@ export default function BusinessDashboard() {
                 </Pressable>
               </Animated.View>
 
+              
+              {/* Manual Archive Button*/}
+              <Animated.View
+                style={{
+                  transform: [
+                    {
+                      translateY: hoverAnimArchive.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, -6],
+                      }),
+                    },
+                  ],
+                }}
+              >
+                <Pressable
+                  onHoverIn={onHoverIn3}
+                  onHoverOut={onHoverOut3}
+                  style={styles.filterProducts_btn}
+                  onPress={() => setArchiveModalVisible(true)}
+                >
+                  <Ionicons name="archive-outline" size={30} />
+                  {!isMobile && onHoverIn3 && (
+                    <Text style={styles.hoverText}>Archive Product</Text>
+                  )}
+                </Pressable>
+              </Animated.View>
+
               {/* Report Generation Button */}
               <Animated.View
                 style={{
@@ -1271,7 +1450,7 @@ export default function BusinessDashboard() {
                   ref={filterRef}
                   onPress={reportGenerator}
                 >
-                  <Ionicons name="archive-outline" size={30} />
+                  <Ionicons name="document-text-outline" size={30} />
                   {!isMobile && onHoverIn && (
                     <Text style={styles.hoverText}>Report Generation</Text>
                   )}
@@ -1304,6 +1483,9 @@ export default function BusinessDashboard() {
               </Animated.View>
             </View>
           </View>
+
+
+
           {/* Welcome Section */}
           <LinearGradient
             colors={["#f4f6fb", "#4A70A9"]}
@@ -1519,7 +1701,7 @@ export default function BusinessDashboard() {
                             },
                           ]}
                         >
-                          <Text style={styles.dashboard_productTypeText}>
+                          <Text style={[styles.dashboard_productTypeText, {textTransform: 'capitalize'}]}>
                             {item.status}
                           </Text>
                           {item.status === "failed" && item.blockchain_error ? (
@@ -1621,6 +1803,287 @@ export default function BusinessDashboard() {
                 >
                   <Text style={{ color: "#4A70A9", fontWeight: "bold", fontFamily: "Montserrat-Regular",}}>Close</Text>
                 </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+
+          {/* ARCHIVE MODAL */}
+          <Modal
+            transparent
+            visible={archiveModalVisible}
+            animationType="fade"
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.archiveModalCard}>
+                <View style={{ flexDirection: "row", justifyContent: "space-between"}}>
+                  <View style={{ flexDirection: "column"}}>
+                    <Text style={[styles.modalTitle, {marginBottom: 0}]}>Archive Products</Text>
+                    <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 13, color: "#666" }}>
+                      Select the products you wish to archive. 
+                    </Text>
+                    <Text style={{ fontFamily: "Montserrat-Regular", marginBottom: 5, fontSize: 13, color: "#666" }}>
+                      Archiving a product hides it from the main catalog.
+                    </Text>
+                    <Text style={{ fontFamily: "Montserrat-Regular", marginBottom: 15, fontSize: 12, color: "#666", fontStyle: "italic" }}>
+                      Note: Products older than 2 years are automatically archived.
+                    </Text>
+                  </View>
+                  <TouchableOpacity
+                    style={[ styles.modalIconWrap, { padding: 6, marginRight: 4 }]}
+                    onPress={async () => setRestoreModalVisible(true)}
+                  >
+                  <Ionicons name="reload-circle-outline" size={22} color="#4A70A9" />
+                </TouchableOpacity>
+                </View>
+
+                <View style={styles.sortSwitchContainer}>
+                  <Pressable
+                    style={[styles.sortSwitchBtn, archiveSortOption === "recent" && styles.sortSwitchBtnActive]}
+                    onPress={() => setArchiveSortOption("recent")}
+                  >
+                    <Text style={[styles.sortSwitchText, archiveSortOption === "recent" && styles.sortSwitchTextActive]}>Recent</Text>
+                  </Pressable>
+                  <Pressable
+                    style={[styles.sortSwitchBtn, archiveSortOption === "a-z" && styles.sortSwitchBtnActive]}
+                    onPress={() => setArchiveSortOption("a-z")}
+                  >
+                    <Text style={[styles.sortSwitchText, archiveSortOption === "a-z" && styles.sortSwitchTextActive]}>A-Z</Text>
+                  </Pressable>
+                </View>
+
+                <Pressable 
+                  style={styles.archiveRow} 
+                  onPress={() => {
+                    if (selectedForArchive.length === products.length) {
+                      setSelectedForArchive([]); 
+                    } else {
+                      setSelectedForArchive(products.map(p => p.uid)); 
+                    }
+                  }}
+                >
+                  <Ionicons
+                    name={selectedForArchive.length === products.length && products.length > 0 ? "checkbox" : "square-outline"}
+                    size={24}
+                    color={selectedForArchive.length === products.length && products.length > 0 ? "#4A70A9" : "#ccc"}
+                  />
+                  <Text style={{ marginLeft: 10, fontFamily: "Montserrat-Regular", fontWeight: "600" }}>
+                    Select All
+                  </Text>
+                </Pressable>
+
+                <FlatList
+                  data={sortedForArchiveModal} 
+                  keyExtractor={(item) => item.id?.toString() || Math.random().toString()}
+                  style={{ maxHeight: 350, width: "100%", marginBottom: 15 }}
+                  showsVerticalScrollIndicator={false}
+
+                  ListEmptyComponent={
+                    <View style={{ padding: 20, alignItems: 'center', marginTop: 70,}}>
+                      <Ionicons name="alert-outline" size={40} color="#ccc" />
+                      <Text style={{ fontFamily: "Montserrat-Regular", color: "#666", marginTop: 10 }}>
+                        No products to display.
+                      </Text>
+                    </View>
+                  }
+
+                  renderItem={({ item }) => (
+                    <Pressable
+                      style={styles.archiveRow}
+                      onPress={() => toggleArchiveSelection(item.uid)}
+                    >
+                      <Ionicons
+                        name={selectedForArchive.includes(item.uid) ? "checkbox" : "square-outline"}
+                        size={24}
+                        color={selectedForArchive.includes(item.uid) ? "#4A70A9" : "#ccc"}
+                      />
+                      
+                      {item.product_image ? (
+                        <Image
+                          source={{ uri: item.product_image }}
+                          style={styles.archiveThumbnail}
+                        />
+                      ) : (
+                        <View style={styles.archiveThumbnailPlaceholder}>
+                          <Ionicons name="image-outline" size={18} color="#b0bec5" />
+                        </View>
+                      )}
+
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.archiveProductName} numberOfLines={1}>
+                          {item.name}
+                        </Text>
+                        <Text style={styles.archiveProductType}>
+                          Date Created: {formatDateOnly(item.created_at || "N/A")}
+                        </Text>
+                      </View>
+                    </Pressable>
+                  )}
+                />
+
+                <View style={styles.rowButtons}>
+                  <Pressable
+                    style={styles.confirm_cancelButton}
+                    onPress={() => {
+                      setArchiveModalVisible(false);
+                      setSelectedForArchive([]);
+                    }}
+                  >
+                    <Text style={styles.confirm_cancelText}>Cancel</Text>
+                  </Pressable>
+
+                  <Pressable
+                    style={[
+                      styles.confirm_Button,
+                      selectedForArchive.length === 0 && { opacity: 0.5, backgroundColor: "#a0a0a0" }
+                    ]}
+                    onPress={handleArchiveSubmit}
+                    disabled={selectedForArchive.length === 0}
+                  >
+                    <Text style={styles.confirm_deleteText}>
+                      Archive ({selectedForArchive.length})
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
+            </View>
+          </Modal>
+
+          {/* RESTORE MODAL */}
+          <Modal
+            transparent
+            visible={restoreModalVisible}
+            animationType="fade"
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.archiveModalCard}>
+                <View style={{ flexDirection: "row", justifyContent: "space-between"}}>
+                  <View style={{ flexDirection: "column"}}>
+                    <Text style={[styles.modalTitle, {marginBottom: 0}]}>Restore Products</Text>
+                    <Text style={{ fontFamily: "Montserrat-Regular", fontSize: 13, color: "#666" }}>
+                      Select the products you wish to restore. 
+                    </Text>
+                    <Text style={{ fontFamily: "Montserrat-Regular", marginBottom: 15, fontSize: 13, color: "#666" }}>
+                      Restoring a product restore it to the main catalog.
+                    </Text>
+                  </View>
+                  <TouchableOpacity
+                    style={[ styles.modalIconWrap, { padding: 6, marginRight: 4 }]}
+                    onPress={async () => { setArchiveModalVisible(true);
+                      setRestoreModalVisible(false);
+                    }}
+                  >
+                  <Ionicons name="archive-outline" size={22} color="#4A70A9" />
+                </TouchableOpacity>
+                </View>
+
+                <View style={styles.sortSwitchContainer}>
+                  <Pressable
+                    style={[styles.sortSwitchBtn, restoreSortOption === "recent" && styles.sortSwitchBtnActive]}
+                    onPress={() => setRestoreSortOption("recent")}
+                  >
+                    <Text style={[styles.sortSwitchText, restoreSortOption === "recent" && styles.sortSwitchTextActive]}>Recent</Text>
+                  </Pressable>
+                  <Pressable
+                    style={[styles.sortSwitchBtn, restoreSortOption === "a-z" && styles.sortSwitchBtnActive]}
+                    onPress={() => setRestoreSortOption("a-z")}
+                  >
+                    <Text style={[styles.sortSwitchText, restoreSortOption === "a-z" && styles.sortSwitchTextActive]}>A-Z</Text>
+                  </Pressable>
+                </View>
+                  
+                <Pressable 
+                  style={styles.archiveRow} 
+                  onPress={() => {
+                    if (selectedForRestore.length === archiveProducts.length) {
+                      setSelectedForRestore([]);
+                    } else {
+                      setSelectedForRestore(archiveProducts.map(p => p.uid));
+                    }
+                  }}
+                >
+                  <Ionicons
+                    name={selectedForRestore.length === archiveProducts.length && archiveProducts.length > 0 ? "checkbox" : "square-outline"}
+                    size={24}
+                    color={selectedForRestore.length === archiveProducts.length && archiveProducts.length > 0 ? "#4A70A9" : "#ccc"}
+                  />
+                  <Text style={{ marginLeft: 10, fontFamily: "Montserrat-Regular", fontWeight: "600" }}>
+                    Select All
+                  </Text>
+                </Pressable>
+
+                <FlatList
+                  data={sortedForRestoreModal} 
+                  keyExtractor={(item) => item.id?.toString() || Math.random().toString()}
+                  style={{ height: 350, width: "100%", marginBottom: 15 }}
+                  showsVerticalScrollIndicator={false}
+
+                  ListEmptyComponent={
+                    <View style={{ padding: 20, alignItems: 'center', marginTop: 70, }}>
+                      <Ionicons name="alert-circle-outline" size={40} color="#ccc" />
+                      <Text style={{ fontFamily: "Montserrat-Regular", color: "#666", marginTop: 10 }}>
+                        No products to display.
+                      </Text>
+                    </View>
+                  }
+
+                  renderItem={({ item }) => (
+                    <Pressable
+                      style={styles.archiveRow}
+                      onPress={() => toggleRestoreSelection(item.uid)}
+                    >
+                      <Ionicons
+                        name={selectedForRestore.includes(item.uid) ? "checkbox" : "square-outline"}
+                        size={24}
+                        color={selectedForRestore.includes(item.uid) ? "#4A70A9" : "#ccc"}
+                      />
+                      
+                      {item.product_image ? (
+                        <Image
+                          source={{ uri: item.product_image }}
+                          style={styles.archiveThumbnail}
+                        />
+                      ) : (
+                        <View style={styles.archiveThumbnailPlaceholder}>
+                          <Ionicons name="image-outline" size={18} color="#b0bec5" />
+                        </View>
+                      )}
+
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.archiveProductName} numberOfLines={1}>
+                          {item.name}
+                        </Text>
+                        <Text style={styles.archiveProductType}>
+                          Date Created: {formatDateOnly(item.created_at || "N/A")}
+                        </Text>
+                      </View>
+                    </Pressable>
+                  )}
+                />
+
+                <View style={styles.rowButtons}>
+                  <Pressable
+                    style={styles.confirm_cancelButton}
+                    onPress={() => {
+                      setRestoreModalVisible(false);
+                      setSelectedForRestore([]);
+                    }}
+                  >
+                    <Text style={styles.confirm_cancelText}>Cancel</Text>
+                  </Pressable>
+
+                  <Pressable
+                    style={[
+                      styles.confirm_Button,
+                      selectedForRestore.length === 0 && { opacity: 0.5, backgroundColor: "#a0a0a0" }
+                    ]}
+                    onPress={handleRestoreSubmit}
+                    disabled={selectedForRestore.length === 0}
+                  >
+                    <Text style={styles.confirm_deleteText}>
+                      Restore ({selectedForRestore.length})
+                    </Text>
+                  </Pressable>
+                </View>
               </View>
             </View>
           </Modal>
@@ -2644,7 +3107,7 @@ export default function BusinessDashboard() {
                   <View style={styles.loadingContainer}>
                     <View style={styles.loadingCard}>
                       <ActivityIndicator size="large" color="#5177b0" />
-                      <Text style={{ marginTop: 10 }}>
+                      <Text style={{ marginTop: 10, fontFamily: "Montserrat-Regular" }}>
                         Updating Product Information...
                       </Text>
                     </View>
@@ -2660,8 +3123,8 @@ export default function BusinessDashboard() {
             <View
               style={{
                 position: "absolute",
-                top: filterPos.y + 6,
-                left: filterPos.x - 140,
+                top: filterPos.y + -10,
+                left: filterPos.x - 280,
                 width: 180,
                 backgroundColor: "#fff",
                 borderWidth: 2,
@@ -2678,6 +3141,47 @@ export default function BusinessDashboard() {
               }}
             >
               <View style={{ marginBottom: 10, marginLeft: 10 }}>
+                {/* A- Z FILTER */}
+                <Text
+                  style={{
+                    fontWeight: "600",
+                    marginBottom: 6,
+                    fontFamily: "Montserrat-Regular",
+                  }}
+                >
+                  Sort By
+                </Text>
+                <View
+                  style={{ flexDirection: "row", flexWrap: "wrap", gap: 12, marginBottom: 10 }}
+                >
+                  {["Recent", "A-Z"].map((sort) => {
+                    const sortValue = sort.toLowerCase();
+                    return (
+                      <Pressable
+                        key={sortValue}
+                        onPress={() => setDashboardSortOption(sortValue)}
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <Ionicons
+                          name={
+                            dashboardSortOption === sortValue
+                              ? "checkbox"
+                              : "square-outline"
+                          }
+                          size={18}
+                          color={dashboardSortOption === sortValue ? "#4A70A9" : "#000"}
+                        />
+                        <Text style={{ fontFamily: "Montserrat-Regular" }}>
+                          {sort}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
                 {/* TYPE FILTER */}
                 <Text
                   style={{
@@ -2710,6 +3214,7 @@ export default function BusinessDashboard() {
                             : "square-outline"
                         }
                         size={18}
+                        color={selectedTypes.includes(type) ? "#4A70A9" : "#000"}
                       />
                       <Text style={{ fontFamily: "Montserrat-Regular" }}>
                         {type}
@@ -2754,6 +3259,7 @@ export default function BusinessDashboard() {
                             : "square-outline"
                         }
                         size={18}
+                        color={selectedMaterials.includes(mat) ? "#4A70A9" : "#000"}
                       />
                       <Text style={{ fontFamily: "Montserrat-Regular" }}>
                         {mat}
@@ -2794,6 +3300,7 @@ export default function BusinessDashboard() {
                             : "square-outline"
                         }
                         size={18}
+                        color={selectedStatus.includes(status) ? "#4A70A9" : "#000"}
                       />
                       <Text style={{ fontFamily: "Montserrat-Regular" }}>
                         {status?.charAt(0).toUpperCase() + status?.slice(1)}
@@ -2869,6 +3376,16 @@ export default function BusinessDashboard() {
                 </Text>
               </Pressable>
             </Animated.View>
+          </View>
+        </Modal>
+        <Modal visible={isLoading} transparent animationType="fade">
+          <View style={styles.loadingOverlay}>
+            <View style={styles.loadingCard}>
+              <ActivityIndicator size="large" color="#4A70A9" />
+              <Text style={{ marginTop: 10, fontFamily: "Montserrat-Regular" }}>
+                Loading...
+              </Text>
+            </View>
           </View>
         </Modal>
       </Animated.View>
@@ -3623,5 +4140,114 @@ const styles = StyleSheet.create({
     fontFamily: "Garet-Book",
     fontWeight: "600",
     color: "#111827",
+  },
+
+  archiveModalCard: {
+    backgroundColor: "#fff",
+    padding: 24,
+    borderRadius: 16,
+    width: "90%",
+    maxWidth: 450,
+    maxHeight: "80%",
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+  },
+  archiveRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+    gap: 12,
+  },
+  archiveThumbnail: {
+    width: 44,
+    height: 44,
+    borderRadius: 8,
+    backgroundColor: "#f0f4f8",
+    resizeMode: "cover",
+  },
+  archiveThumbnailPlaceholder: {
+    width: 44,
+    height: 44,
+    borderRadius: 8,
+    backgroundColor: "#f0f4f8",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  archiveProductName: {
+    fontFamily: "Montserrat-Bold",
+    fontSize: 13,
+    color: "#1a2f5a",
+    marginBottom: 2,
+  },
+  archiveProductType: {
+    fontFamily: "Montserrat-Regular",
+    fontSize: 11,
+    color: "#6b7280",
+  },
+
+  modalIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: "#F3F4F6",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+
+  sortSwitchContainer: {
+    flexDirection: "row",
+    backgroundColor: "#F3F4F6",
+    borderRadius: 8,
+    padding: 4,
+    marginBottom: 15,
+  },
+  sortSwitchBtn: {
+    flex: 1,
+    paddingVertical: 8,
+    alignItems: "center",
+    borderRadius: 6,
+  },
+  sortSwitchBtnActive: {
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  sortSwitchText: {
+    fontFamily: "Montserrat-Regular",
+    fontSize: 12,
+    color: "#6B7280",
+    fontWeight: "500",
+  },
+  sortSwitchTextActive: {
+    color: "#4A70A9",
+    fontWeight: "700",
+  },
+  loadingOverlay: {
+    flex: 1, 
+    backgroundColor: "rgba(0, 0, 0, 0.5)", 
+    justifyContent: "center", 
+    alignItems: "center", 
+  },
+  loadingCard: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 12,
+    width: "85%", 
+    maxWidth: 350, 
+    alignItems: "center",
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
   },
 });

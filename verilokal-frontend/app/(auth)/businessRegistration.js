@@ -776,10 +776,11 @@ export default function RegisterBusiness() {
                     errors.description && styles.inputError,
                   ]}
                   value={description}
+                  maxLength={360}
                   placeholder="Tell us a little bit about what your business does..."
-                 onChangeText={(text) => {
-                    setDescription(text);
-                    validateField("description", text);
+                  onChangeText={(text) => {
+                      setDescription(text);
+                      validateField("description", text);
                   }}
                 />
                 {errors.description && (

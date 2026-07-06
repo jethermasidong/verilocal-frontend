@@ -101,8 +101,6 @@ export default function TransferOwnership() {
   const [resultTitle, setResultTitle] = useState("");
 
 
-  const NAME_OPTIONS = [...new Set(products.map((item) => item.name))];
-
   // Result animations
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
@@ -142,6 +140,9 @@ export default function TransferOwnership() {
 
   //Dropdown Suggestion
   const [showOwnerDropdown, setShowOwnerDropdown] = useState(false);
+
+  const [dashboardSortOption, setDashboardSortOption] = useState("recent");
+
 
   const filteredOwners = sellerHistory.filter((item) => {
     if (!newOwner) return true;
@@ -442,11 +443,12 @@ export default function TransferOwnership() {
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
 
-    const matchesName =
-      selectedNames.length === 0 ||
-      selectedNames.includes(item.name);
-
-    return matchesSearch && matchesName;
+    return matchesSearch;
+  }).sort((a, b) => {
+    if (dashboardSortOption === "a-z") {
+      return (a.name || "").localeCompare(b.name || "");
+    }
+    return new Date(b.created_at || 0) - new Date(a.created_at || 0)
   });
 
 
@@ -1010,47 +1012,42 @@ export default function TransferOwnership() {
                 shadowRadius: 8,
               }}
             >
-             {/* PRODUCT NAME */}
-            <Text style={styles.filterSectionLabel}>Product Name</Text>
-              <View
-                style={{
-                  flexDirection: "row",
-                  flexWrap: "wrap",
-                  gap: 8,
-                  marginBottom: 10,
-                }}
+            {/* A- Z FILTER */}
+              <Text
+                style={styles.filterSectionLabel}
               >
-                {NAME_OPTIONS.map((name) => (
-                  <Pressable
-                    key={name}
-                    onPress={() =>
-                      toggleFilter(
-                        name,
-                        selectedNames,
-                        setSelectedNames
-                      )
-                    }
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      gap: 5,
-                    }}
-                  >
-                    <View
-                      style={[
-                        styles.filterCheckbox,
-                        selectedNames.includes(name) &&
-                          styles.filterCheckboxChecked,
-                      ]}
+                Sort By
+              </Text>
+              <View
+                style={{ flexDirection: "row", flexWrap: "wrap", gap: 12, marginBottom: 10 }}
+              >
+                {["Recent", "A-Z"].map((sort) => {
+                  const sortValue = sort.toLowerCase();
+                  return (
+                    <Pressable
+                      key={sortValue}
+                      onPress={() => setDashboardSortOption(sortValue)}
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 6,
+                      }}
                     >
-                      {selectedNames.includes(name) && (
-                        <Text style={styles.filterCheckmark}>✓</Text>
-                      )}
-                    </View>
-
-                    <Text style={styles.filterLabel}>{name}</Text>
-                  </Pressable>
-                ))}
+                      <Ionicons
+                        name={
+                          dashboardSortOption === sortValue
+                            ? "checkbox"
+                            : "square-outline"
+                        }
+                        size={18}
+                        color={dashboardSortOption === sortValue ? "#4A70A9" : "#000"}
+                      />
+                      <Text style={{ fontFamily: "Montserrat-Regular" }}>
+                        {sort}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
               </View>
 
               {/* Clear all */}

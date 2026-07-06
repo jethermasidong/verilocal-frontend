@@ -775,7 +775,7 @@ export default function RegisterProduct() {
                 </View>
 
                 <View style={[styles.col, isMobile && { width: "100%" }]}>
-                  <Text style={styles.label}>Quantity<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
+                  <Text style={styles.label}>Quantity of the Product<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                     <View style={styles.inputContainer}>
                       <Picker
                         selectedValue={form.quantity}
@@ -895,6 +895,7 @@ export default function RegisterProduct() {
                     style={styles.textArea}
                     label="Description"
                     value={form.description}
+                    maxLength={360}
                     onChange={(v) => handleInputChange("description", v)}
                     multiline
                     error={errors.description}
@@ -917,7 +918,10 @@ export default function RegisterProduct() {
                       style={styles.imagePreview}
                     />
                   ) : (
-                    <Text style={styles.imageText}>Select Product Image</Text>
+                    <View>
+                      <Text style={styles.imageText}>Select Product Image</Text>
+                      <Text style={styles.imageTextSmall}>(Maximum of 5MB Only.)</Text>
+                    </View>
                   )}
                 </Pressable>
                 {form.productImage && (
@@ -948,6 +952,7 @@ export default function RegisterProduct() {
                     <Pressable style={styles.processPickerInnerClick} onPress={pickProcessImages}>
                       <Ionicons name="cloud-upload-outline" size={24} color="#666" style={{ marginBottom: 8 }} />
                       <Text style={styles.imageText}>Upload process photos</Text>
+                      <Text style={styles.imageTextSmall}>(Maximum of 5MB Only.)</Text>
                     </Pressable>
                   ) : (
                     <View style={styles.processScrollWrapper}>
@@ -1172,7 +1177,7 @@ export default function RegisterProduct() {
                 </View>
 
                 <View style={[styles.col, isMobile && { minWidth: "100%" }]}>
-                  <Text style={styles.label}>Quantity<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
+                  <Text style={styles.label}>Quantity of the Product<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                   <View style={styles.inputContainer}>
                       <Picker
                         selectedValue={form.quantity}
@@ -1291,6 +1296,7 @@ export default function RegisterProduct() {
                     style={styles.textArea}
                     label="Description"
                     value={form.description}
+                    maxLength={360}
                     onChange={(v) => handleInputChange("description", v)}
                     multiline
                     error={errors.description}
@@ -1316,6 +1322,7 @@ export default function RegisterProduct() {
                         <View style={{alignItems: "center"}}>
                           <Ionicons name="cloud-upload-outline" size={24} color="#666" style={{ marginBottom: 8 }} />
                           <Text style={styles.imageText}>Select Product Image</Text>
+                          <Text style={styles.imageTextSmall}>(Maximum of 5MB Only.)</Text>
                         </View>
                       )}
                     </Pressable>
@@ -1348,6 +1355,7 @@ export default function RegisterProduct() {
                         <Pressable style={styles.processPickerInnerClick} onPress={pickProcessImages}>
                           <Ionicons name="cloud-upload-outline" size={24} color="#666" style={{ marginBottom: 8 }} />
                           <Text style={styles.imageText}>Upload process photos</Text>
+                          <Text style={styles.imageTextSmall}>(Maximum of 5MB Only.)</Text>
                         </Pressable>
                       ) : (
                         <View style={styles.processScrollWrapper}>
@@ -1951,7 +1959,14 @@ const styles = StyleSheet.create({
   imageText: {
     color: "#666",
     fontFamily: "Montserrat-Regular",
+    fontSize: 13,
+  },
+  imageTextSmall: {
+    color: "#666",
+    fontFamily: "Montserrat-Regular",
     paddingBottom: 20,
+    fontSize: 12,
+    fontStyle: "italic",
   },
 
   resultOverlay: {
