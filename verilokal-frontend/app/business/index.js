@@ -1824,7 +1824,7 @@ export default function BusinessDashboard() {
                     <Text style={{ fontFamily: "Montserrat-Regular", marginBottom: 5, fontSize: 13, color: "#666" }}>
                       Archiving a product hides it from the main catalog.
                     </Text>
-                    <Text style={{ fontFamily: "Montserrat-Regular", marginBottom: 15, fontSize: 12, color: "#666", fontStyle: "italic" }}>
+                    <Text style={{ fontFamily: "Montserrat-Regular", marginBottom: 15, fontSize: 12, color: "#c74242", fontStyle: "italic" }}>
                       Note: Products older than 2 years are automatically archived.
                     </Text>
                   </View>
@@ -1963,7 +1963,7 @@ export default function BusinessDashboard() {
                       Select the products you wish to restore. 
                     </Text>
                     <Text style={{ fontFamily: "Montserrat-Regular", marginBottom: 15, fontSize: 13, color: "#666" }}>
-                      Restoring a product restore it to the main catalog.
+                      Restoring a product will restore it to the main catalog.
                     </Text>
                   </View>
                   <TouchableOpacity
