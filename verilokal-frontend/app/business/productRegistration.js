@@ -796,99 +796,127 @@ export default function RegisterProduct() {
                         <Text style={styles.errorText}>{errors.quantity}</Text>
                       )}
                     </View>
-                  <Text style={[styles.label, { marginTop: 0 }]}>
-                    Production Date* (Start to End)<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text>
-                  </Text>
-                  {Platform.OS === "web" ? (
-                    <>
-                      <input
-                        type="date"
-                        value={form.productionStartDate}
-                        onChange={(e) =>
-                          setForm({
-                            ...form,
-                            productionStartDate: e.target.value,
-                          })
-                        }
-                        style={{
-                          ...styles.webDateInput,
-                          borderColor: errors.productionDate ? "red" : "#ccc",
-                          backgroundColor: errors.productionDate ? "#fef2f2" : "#f2f8fc",
-                        }}
-                      />
-                      <input
-                        type="date"
-                        min={form.productionStartDate}
-                        value={form.productionEndDate}
-                        onChange={(e) => {
-                          const selectedEnd = e.target.value;
-                          if (
-                            form.productionStartDate &&
-                            selectedEnd < form.productionStartDate
-                          ) {
-                            Alert.alert(
-                              "Error",
-                              "End date cannot be before start date",
-                            );
-                            return;
-                          }
-                          setForm({ ...form, productionEndDate: selectedEnd });
-                        }}
-                        style={{
-                          ...styles.webDateInput,
-                          borderColor: errors.productionDate ? "red" : "#ccc",
-                          backgroundColor: errors.productionDate ? "#fef2f2" : "#f2f8fc",
-                        }}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <Pressable
-                        style={[
-                          styles.dateWrapper,
-                          errors.productionDate && styles.errorInput,
-                        ]}
-                        onPress={() => {
-                          setDateType("start");
-                          setShowDatePicker(true);
-                        }}
-                      >
-                        <Text>
-                          {form.productionStartDate
-                            ? formatDate(form.productionStartDate)
-                            : "Select Start Date"}
-                        </Text>
-                      </Pressable>
-
-                      <Pressable
-                        style={[
-                          styles.dateWrapper,
-                          errors.productionDate && styles.errorInput,
-                        ]}
-                        onPress={() => {
-                          setDateType("end");
-                          setShowDatePicker(true);
-                        }}
-                      >
-                        <Text>
-                          {form.productionEndDate
-                            ? formatDate(form.productionEndDate)
-                            : "Select End Date"}
-                        </Text>
-                      </Pressable>
-                    </>
-                  )}
-
-                  {errors.productionDate && (
-                    <Text
-                      style={[
-                        styles.errorText,
-                        { marginTop: -6, marginBottom: 10 },
-                      ]}
-                    >
-                      {errors.productionDate}
+                   {/* PRODUCTION DATE SECTION */}
+                  <View style={{ width: '100%', marginBottom: 10 }}>
+                    
+                    {/* MAIN TITLE */}
+                    <Text style={[styles.label, { marginTop: 0, marginBottom: 10 }]}>
+                      Production Date<Text style={{color: "#ff5757", marginLeft: 2}}>*</Text>
                     </Text>
-                  )}
+
+                    <View style={{ paddingLeft: 5, gap: 12 }}>
+                      {/* START DATE ROW */}
+                      <View style={{ flexDirection: "row", alignItems: "center" }}>
+                        <Text style={{ width: 40, fontFamily: "Montserrat-Regular", fontSize: 14, color: "#555", marginBottom: 14,}}>
+                          Start
+                        </Text>
+                        <View style={{ flex: 1 }}>
+                          {Platform.OS === "web" ? (
+                            <input
+                              type="date"
+                              value={form.productionStartDate}
+                              onChange={(e) =>
+                                setForm({
+                                  ...form,
+                                  productionStartDate: e.target.value,
+                                })
+                              }
+                              style={{
+                                ...styles.webDateInput,
+                                borderColor: errors.productionDate ? "red" : "#ccc",
+                                backgroundColor: errors.productionDate ? "#fef2f2" : "#f2f8fc",
+                                width: '100%',
+                              }}
+                            />
+                          ) : (
+                            <Pressable
+                              style={[
+                                styles.dateWrapper,
+                                errors.productionDate && styles.errorInput,
+                                { marginBottom: 0, marginTop: 0 } 
+                              ]}
+                              onPress={() => {
+                                setDateType("start");
+                                setShowDatePicker(true);
+                              }}
+                            >
+                              <Text>
+                                {form.productionStartDate
+                                  ? formatDate(form.productionStartDate)
+                                  : "Select Start Date"}
+                              </Text>
+                            </Pressable>
+                          )}
+                        </View>
+                      </View>
+
+                      {/* END DATE ROW */}
+                      <View style={{ flexDirection: "row", alignItems: "center" }}>
+                        <Text style={{ width: 40, fontFamily: "Montserrat-Regular", fontSize: 14, color: "#555", marginBottom: 14 }}>
+                          End
+                        </Text>
+                        <View style={{ flex: 1 }}>
+                          {Platform.OS === "web" ? (
+                            <input
+                              type="date"
+                              min={form.productionStartDate}
+                              value={form.productionEndDate}
+                              onChange={(e) => {
+                                const selectedEnd = e.target.value;
+                                if (
+                                  form.productionStartDate &&
+                                  selectedEnd < form.productionStartDate
+                                ) {
+                                  Alert.alert(
+                                    "Error",
+                                    "End date cannot be before start date",
+                                  );
+                                  return;
+                                }
+                                setForm({ ...form, productionEndDate: selectedEnd });
+                              }}
+                              style={{
+                                ...styles.webDateInput,
+                                borderColor: errors.productionDate ? "red" : "#ccc",
+                                backgroundColor: errors.productionDate ? "#fef2f2" : "#f2f8fc",
+                                width: '100%',
+                              }}
+                            />
+                          ) : (
+                            <Pressable
+                              style={[
+                                styles.dateWrapper,
+                                errors.productionDate && styles.errorInput,
+                                { marginBottom: 0, marginTop: 0 }
+                              ]}
+                              onPress={() => {
+                                setDateType("end");
+                                setShowDatePicker(true);
+                              }}
+                            >
+                              <Text>
+                                {form.productionEndDate
+                                  ? formatDate(form.productionEndDate)
+                                  : "Select End Date"}
+                              </Text>
+                            </Pressable>
+                          )}
+                        </View>
+                      </View>
+                    </View>
+
+                    {/* ERROR MESSAGE FOR DATES */}
+                    {errors.productionDate && (
+                      <Text
+                        style={[
+                          styles.errorText,
+                          { marginTop: 8, marginBottom: 0 },
+                        ]}
+                      >
+                        {errors.productionDate}
+                      </Text>
+                    )}
+                  </View>
 
                   <Text style={styles.label}>Description<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                   <InputField
@@ -1197,99 +1225,128 @@ export default function RegisterProduct() {
                         <Text style={styles.errorText}>{errors.quantity}</Text>
                       )}
                     </View>
-                  <Text style={styles.label}>
-                    Production Date (Start to End)<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text>
-                  </Text>
-                  {Platform.OS === "web" ? (
-                    <>
-                      <input
-                        type="date"
-                        value={form.productionStartDate}
-                        onChange={(e) =>
-                          setForm({
-                            ...form,
-                            productionStartDate: e.target.value,
-                          })
-                        }
-                        style={{
-                          ...styles.webDateInput,
-                          borderColor: errors.productionDate ? "red" : "#ccc",
-                          backgroundColor: errors.productionDate ? "#fef2f2" : "#f2f8fc",
-                        }}
-                      />
-                      <input
-                        type="date"
-                        min={form.productionStartDate}
-                        value={form.productionEndDate}
-                        onChange={(e) => {
-                          const selectedEnd = e.target.value;
-                          if (
-                            form.productionStartDate &&
-                            selectedEnd < form.productionStartDate
-                          ) {
-                            Alert.alert(
-                              "Error",
-                              "End date cannot be before start date",
-                            );
-                            return;
-                          }
-                          setForm({ ...form, productionEndDate: selectedEnd });
-                        }}
-                        style={{
-                          ...styles.webDateInput,
-                          borderColor: errors.productionDate ? "red" : "#ccc",
-                          backgroundColor: errors.productionDate ? "#fef2f2" : "#f2f8fc",
-                        }}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <Pressable
-                        style={[
-                          styles.dateWrapper,
-                          errors.productionDate && styles.errorInput,
-                        ]}
-                        onPress={() => {
-                          setDateType("start");
-                          setShowDatePicker(true);
-                        }}
-                      >
-                        <Text>
-                          {form.productionStartDate
-                            ? formatDate(form.productionStartDate)
-                            : "Select Start Date"}
-                        </Text>
-                      </Pressable>
 
-                      <Pressable
-                        style={[
-                          styles.dateWrapper,
-                          errors.productionDate && styles.errorInput,
-                        ]}
-                        onPress={() => {
-                          setDateType("end");
-                          setShowDatePicker(true);
-                        }}
-                      >
-                        <Text>
-                          {form.productionEndDate
-                            ? formatDate(form.productionEndDate)
-                            : "Select End Date"}
-                        </Text>
-                      </Pressable>
-                    </>
-                  )}
-
-                  {errors.productionDate && (
-                    <Text
-                      style={[
-                        styles.errorText,
-                        { marginTop: -6, marginBottom: 10 },
-                      ]}
-                    >
-                      {errors.productionDate}
+                 {/* PRODUCTION DATE SECTION */}
+                  <View style={{ width: '100%', marginBottom: 10 }}>
+                    
+                    {/* MAIN TITLE */}
+                    <Text style={[styles.label, { marginTop: 0, marginBottom: 10 }]}>
+                      Production Date<Text style={{color: "#ff5757", marginLeft: 2}}>*</Text>
                     </Text>
-                  )}
+
+                    <View style={{ paddingLeft: 5, gap: 12 }}>
+                      {/* START DATE ROW */}
+                      <View style={{ flexDirection: "row", alignItems: "center" }}>
+                        <Text style={{ width: 40, fontFamily: "Montserrat-Regular", fontSize: 14, color: "#555", marginBottom: 14,}}>
+                          Start
+                        </Text>
+                        <View style={{ flex: 1 }}>
+                          {Platform.OS === "web" ? (
+                            <input
+                              type="date"
+                              value={form.productionStartDate}
+                              onChange={(e) =>
+                                setForm({
+                                  ...form,
+                                  productionStartDate: e.target.value,
+                                })
+                              }
+                              style={{
+                                ...styles.webDateInput,
+                                borderColor: errors.productionDate ? "red" : "#ccc",
+                                backgroundColor: errors.productionDate ? "#fef2f2" : "#f2f8fc",
+                                width: '100%',
+                              }}
+                            />
+                          ) : (
+                            <Pressable
+                              style={[
+                                styles.dateWrapper,
+                                errors.productionDate && styles.errorInput,
+                                { marginBottom: 0, marginTop: 0 } 
+                              ]}
+                              onPress={() => {
+                                setDateType("start");
+                                setShowDatePicker(true);
+                              }}
+                            >
+                              <Text>
+                                {form.productionStartDate
+                                  ? formatDate(form.productionStartDate)
+                                  : "Select Start Date"}
+                              </Text>
+                            </Pressable>
+                          )}
+                        </View>
+                      </View>
+
+                      {/* END DATE ROW */}
+                      <View style={{ flexDirection: "row", alignItems: "center" }}>
+                        <Text style={{ width: 40, fontFamily: "Montserrat-Regular", fontSize: 14, color: "#555", marginBottom: 14 }}>
+                          End
+                        </Text>
+                        <View style={{ flex: 1 }}>
+                          {Platform.OS === "web" ? (
+                            <input
+                              type="date"
+                              min={form.productionStartDate}
+                              value={form.productionEndDate}
+                              onChange={(e) => {
+                                const selectedEnd = e.target.value;
+                                if (
+                                  form.productionStartDate &&
+                                  selectedEnd < form.productionStartDate
+                                ) {
+                                  Alert.alert(
+                                    "Error",
+                                    "End date cannot be before start date",
+                                  );
+                                  return;
+                                }
+                                setForm({ ...form, productionEndDate: selectedEnd });
+                              }}
+                              style={{
+                                ...styles.webDateInput,
+                                borderColor: errors.productionDate ? "red" : "#ccc",
+                                backgroundColor: errors.productionDate ? "#fef2f2" : "#f2f8fc",
+                                width: '100%',
+                              }}
+                            />
+                          ) : (
+                            <Pressable
+                              style={[
+                                styles.dateWrapper,
+                                errors.productionDate && styles.errorInput,
+                                { marginBottom: 0, marginTop: 0 }
+                              ]}
+                              onPress={() => {
+                                setDateType("end");
+                                setShowDatePicker(true);
+                              }}
+                            >
+                              <Text>
+                                {form.productionEndDate
+                                  ? formatDate(form.productionEndDate)
+                                  : "Select End Date"}
+                              </Text>
+                            </Pressable>
+                          )}
+                        </View>
+                      </View>
+                    </View>
+
+                    {/* ERROR MESSAGE FOR DATES */}
+                    {errors.productionDate && (
+                      <Text
+                        style={[
+                          styles.errorText,
+                          { marginTop: 8, marginBottom: 0 },
+                        ]}
+                      >
+                        {errors.productionDate}
+                      </Text>
+                    )}
+                  </View>
 
                   <Text style={styles.label}>Description<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                   <InputField

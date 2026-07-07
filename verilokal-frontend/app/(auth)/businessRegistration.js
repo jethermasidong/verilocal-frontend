@@ -814,6 +814,7 @@ export default function RegisterBusiness() {
                     <View style={{alignItems: "center"}}>
                       <FontAwesomeIcon icon={faFileUpload} size="2x" color="#7d91b0" />
                       <Text style={styles.innerFieldUploadText}>Click to upload permit</Text>
+                      <Text style={styles.innerFieldUploadTextSmall}>Maximum of 5MB Only.</Text>
                     </View>
                   )}
               </Pressable>
@@ -840,6 +841,7 @@ export default function RegisterBusiness() {
                   <Pressable style={styles.innerFieldEmptyZone} onPress={multipleImages}>
                     <FontAwesomeIcon icon={faFileUpload} size="2x" color="#7d91b0" />
                     <Text style={styles.innerFieldUploadText}>Click to upload certificates</Text>
+                    <Text style={styles.innerFieldUploadTextSmall}>Maximum of 5MB Only.</Text>
                   </Pressable>
                 ) : (
                   <ScrollView 
@@ -892,6 +894,7 @@ export default function RegisterBusiness() {
                       <View style={{alignItems: "center"}}>
                         <FontAwesomeIcon icon={faFileUpload} size="2x" color="#7d91b0" />
                         <Text style={styles.innerFieldUploadText}>Click to upload logo</Text>
+                        <Text style={styles.innerFieldUploadTextSmall}>Maximum of 5MB Only.</Text>
                       </View>
                     )}
                 </Pressable>
@@ -1414,6 +1417,12 @@ const styles = StyleSheet.create({
   innerFieldUploadText: {
     marginTop: 6,
     fontSize: 12,
+    color: "#7d91b0",
+    fontFamily: "Montserrat-Regular",
+  },
+  innerFieldUploadTextSmall: {
+    marginTop: 6,
+    fontSize: 11,
     color: "#7d91b0",
     fontFamily: "Montserrat-Regular",
   },
