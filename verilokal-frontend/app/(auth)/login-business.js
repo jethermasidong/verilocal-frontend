@@ -161,24 +161,25 @@ export default function BusinessLogin() {
               },
             ]}
           >
-            {/* ── LEFT PANEL ── */}
             {!isMobile && (
               <View style={styles.leftPanel}>
-                <View style={styles.decorCircle1} />
-                <View style={styles.decorCircle2} />
-
                 <View style={styles.leftContent}>
-                  <Text style={styles.leftTagline}>Welcome back,</Text>
+                  <Text style={styles.leftTagline}>Welcome back!</Text>
                   <Text style={styles.leftTitle}>Artisans</Text>
                   <View style={styles.leftDivider} />
                   <Text style={styles.leftSub}>
                     Manage your products, show your brand, and grow your
                     local presence.
                   </Text>
+                  <Text style={styles.leftSub}>
+                    Any problem? email us here, verilocalphi@gmail.com
+                  </Text>
                 </View>
               </View>
             )}
-            {/* ── RIGHT FORM ── */}
+
+
+
             <View
               style={[
                 styles.formContainer,
@@ -186,19 +187,13 @@ export default function BusinessLogin() {
               ]}
             >
 
-              {/* Header */}
               <View style={styles.formHeader}>
-                <View style={styles.formBadge}>
-                  <Ionicons name="business-outline" size={14} color="#5177b0" />
-                  <Text style={styles.formBadgeText}>Artisan Account</Text>
-                </View>
                 <Text style={styles.formTitle}>Sign In</Text>
                 <Text style={styles.formSubtitle}>
                   Enter your credentials to continue
                 </Text>
               </View>
 
-              {/* EMAIL FIELD */}
               <View style={styles.fieldGroup}>
                 <Text style={styles.fieldLabel}>Email Address<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                 <View
@@ -240,7 +235,7 @@ export default function BusinessLogin() {
                 ) : null}
               </View>
 
-              {/* PASSWORD FIELD */}
+
               <View style={styles.fieldGroup}>
                 <Text style={styles.fieldLabel}>Password<Text style={{color: "#ff5757", marginLeft: 2,}}>*</Text></Text>
                 <View
@@ -283,7 +278,7 @@ export default function BusinessLogin() {
                 ) : null}
               </View>
 
-              {/* LOGIN BUTTON */}
+
               <Pressable
                 onHoverIn={() => setHoveredScan(true)}
                 onHoverOut={() => setHoveredScan(false)}
@@ -303,7 +298,7 @@ export default function BusinessLogin() {
                 />
               </Pressable>
 
-              {/* SIGN UP LINK */}
+
               <View style={styles.signupRow}>
                 <Text style={styles.signupText}>Don't have an account? </Text>
                 <Text
@@ -317,7 +312,7 @@ export default function BusinessLogin() {
           </View>
         </ScrollView>
 
-        {/* LOADING OVERLAY */}
+
         {isLoading && (
           <View style={styles.loadingContainer}>
             <View style={styles.loadingCard}>
@@ -369,29 +364,11 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     position: "relative",
   },
-  decorCircle1: {
-    position: "absolute",
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-    backgroundColor: "rgba(81,119,176,0.25)",
-    top: -60,
-    left: -60,
-  },
-  decorCircle2: {
-    position: "absolute",
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    backgroundColor: "rgba(255,255,255,0.06)",
-    bottom: -40,
-    right: -40,
-  },
   leftContent: {
     zIndex: 2,
   },
   leftTagline: {
-    fontSize: 13,
+    fontSize: 15,
     color: "rgba(255,255,255,0.55)",
     fontFamily: "Montserrat-Regular",
     letterSpacing: 1.2,
@@ -408,7 +385,7 @@ const styles = StyleSheet.create({
   leftDivider: {
     width: 36,
     height: 3,
-    backgroundColor: "#5177b0",
+    backgroundColor: "white",
     borderRadius: 2,
     marginBottom: 16,
   },
@@ -444,24 +421,6 @@ const styles = StyleSheet.create({
 
   formHeader: {
     marginBottom: 28,
-  },
-  formBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(81,119,176,0.09)",
-    alignSelf: "flex-start",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 20,
-    marginBottom: 12,
-    gap: 6,
-  },
-  formBadgeText: {
-    fontSize: 11,
-    color: "#5177b0",
-    fontFamily: "Montserrat-Bold",
-    letterSpacing: 0.5,
-    textTransform: "uppercase",
   },
   formTitle: {
     fontSize: 26,

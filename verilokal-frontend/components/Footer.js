@@ -4,22 +4,8 @@ export default function Footer() {
   return (
     <View style={styles.footer}>
       <Text style={styles.copyright}>
-        © {new Date().getFullYear()} VeriLokal
+       © 2026 VERILOCAL. All rights reserved. | Privacy Policy
       </Text>
-
-      <View style={styles.linkContainer}>
-        <TouchableOpacity onPress={() => Linking.openURL("https://facebook.com")}>
-          <Text style={styles.linkText}>Facebook</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => Linking.openURL("https://instagram.com")}>
-          <Text style={styles.linkText}>Instagram</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => Linking.openURL("mailto:support@woodcraft.com")}>
-          <Text style={styles.linkText}>Email Us</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }
@@ -41,17 +27,10 @@ const styles = StyleSheet.create({
   },
   copyright: {
     color: "#000000",
+    fontStyle: "italic",
+    marginTop: 5,
     fontSize: 14,
-    marginBottom: 8,
-    fontFamily: "Montserrat-Regular",
-  },
-  linkContainer: {
-    flexDirection: "row",
-    gap: 20,
-  },
-  linkText: {
-    color: "#000000",
-    fontSize: 14,
+    marginBottom: 5,
     fontFamily: "Montserrat-Regular",
   },
 });

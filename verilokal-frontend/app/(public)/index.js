@@ -121,16 +121,12 @@ export default function Home() {
                 },
               ]}
             >
-              <View style={[styles.eyebrow, isMobile && { alignSelf: "center" }]}>
-                <View style={styles.eyebrowDot} />
-                <Text style={styles.eyebrowText}>Brand Identity and Integrity</Text>
-              </View>
 
               <View style={{ gap: 0 }}>
                 <Text
                   style={[
                     styles.h1Light,
-                    { fontSize: isMobile ? 34 : 54, textAlign: isMobile ? "center" : "left" },
+                    { fontSize: isMobile ? 34 : 64, textAlign: isMobile ? "center" : "left" },
                   ]}
                 >
                   Honoring the
@@ -140,7 +136,7 @@ export default function Home() {
                   style={[
                     styles.h1Bold,
                     {
-                      fontSize: isMobile ? 36 : 58,
+                      fontSize: isMobile ? 36 : 68,
                       textAlign: isMobile ? "center" : "left",
                       opacity: word1Fade,
                       transform: [{ translateY: word1Slide }],
@@ -153,7 +149,7 @@ export default function Home() {
                 <Text
                   style={[
                     styles.h1Light,
-                    { fontSize: isMobile ? 34 : 54, textAlign: isMobile ? "center" : "left", marginTop: 4 },
+                    { fontSize: isMobile ? 34 : 64, textAlign: isMobile ? "center" : "left", marginTop: 4 },
                   ]}
                 >
                   Protecting the
@@ -163,7 +159,7 @@ export default function Home() {
                   style={[
                     styles.h1Bold,
                     {
-                      fontSize: isMobile ? 36 : 58,
+                      fontSize: isMobile ? 36 : 68,
                       textAlign: isMobile ? "center" : "left",
                       marginBottom: 28,
                       opacity: word2Fade,
@@ -180,7 +176,7 @@ export default function Home() {
                 style={[
                   styles.sub,
                   {
-                    fontSize: isMobile ? 15 : 16,
+                    fontSize: isMobile ? 15 : 19,
                     textAlign: isMobile ? "center" : "left",
                     opacity: subFade,
                   },
@@ -190,7 +186,6 @@ export default function Home() {
                 products through blockchain.
               </Animated.Text>
 
-              {/* CTA */}
               <Animated.View
                 style={[
                   { alignSelf: isMobile ? "center" : "flex-start", marginBottom: 40 },
@@ -200,7 +195,6 @@ export default function Home() {
                 <LoginButtons />
               </Animated.View>
 
-              {/* stats */}
               <Animated.View
                 style={[
                   styles.stats,
@@ -231,12 +225,6 @@ export default function Home() {
                 ]}
               >
 
-                <View style={styles.glowBlob} />
-
-                <View style={styles.orbitDash} />
-
-                <View style={styles.ringCrisp} />
-
                 <View style={styles.tiltCard} />
 
                 <View style={styles.tiltCard2} />
@@ -246,24 +234,8 @@ export default function Home() {
                   <View style={[styles.wash, { top: 0, left: 0, borderTopLeftRadius: 26 }]} />
                   <View style={[styles.wash, { bottom: 0, right: 0, borderBottomRightRadius: 26 }]} />
 
-                  <Image source={craftGif} style={styles.gif} resizeMode="contain" />
+                  <Image source={craftGif} style={styles.gif} resizeMode="wrap" />
                 </View>
-
-                <View style={[styles.pill, { top: 84, right: 56 }]}>
-                  <View style={styles.greenDot} />
-                  <Text style={styles.pillText}>Verified</Text>
-                </View>
-
-                <View style={[styles.pill, { bottom: 60, left: 60 }]}>
-                  <Text style={{ fontSize: 13 }}>🇵🇭</Text>
-                  <Text style={styles.pillText}>Filipino Made</Text>
-                </View>
-
-                <View style={[styles.pill, styles.pillSmall, { top: 72, left: 60 }]}>
-                  <View style={styles.blueDot} />
-                  <Text style={styles.pillTextSmall}>Blockchain</Text>
-                </View>
-
               </Animated.View>
             )}
 
@@ -295,39 +267,6 @@ const styles = StyleSheet.create({
   },
 
   left: { zIndex: 2 },
-
-  eyebrow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 22,
-    paddingHorizontal: 13,
-    paddingVertical: 7,
-    backgroundColor: "rgba(59,91,219,0.07)",
-    borderRadius: 40,
-    borderWidth: 1,
-    borderColor: "rgba(59,91,219,0.15)",
-    alignSelf: "flex-start",
-  },
-
-  eyebrowDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-    backgroundColor: "#3b5bdb",
-    shadowColor: "#3b5bdb",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.55,
-    shadowRadius: 5,
-  },
-
-  eyebrowText: {
-    fontSize: 11,
-    fontFamily: "Garet-Book",
-    color: "#3b5bdb",
-    letterSpacing: 0.9,
-    textTransform: "uppercase",
-  },
 
   h1Light: {
     fontFamily: "Garet-Book",
@@ -400,70 +339,37 @@ const styles = StyleSheet.create({
   },
 
 
-  glowBlob: {
-    position: "absolute",
-    width: 670,
-    height: 670,
-    borderRadius: 250,
-    backgroundColor: "#3b5bdb",
-    opacity: 0.07,
-    shadowColor: "#3b5bdb",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.35,
-    shadowRadius: 70,
-  },
-
-  orbitDash: {
-    position: "absolute",
-    width: 590,
-    height: 590,
-    borderRadius: 195,
-    borderWidth: 1,
-    borderStyle: "dashed",
-    borderColor: "rgba(59,91,219,0.12)",
-    backgroundColor: "transparent",
-  },
-
-  ringCrisp: {
+  tiltCard: {
     position: "absolute",
     width: 550,
     height: 550,
-    borderRadius: 175,
-    borderWidth: 1,
-    borderColor: "rgba(59,91,219,0.09)",
-    backgroundColor: "transparent",
-  },
-
-  tiltCard: {
-    position: "absolute",
-    width: 450,
-    height: 450,
     borderRadius: 30,
-    backgroundColor: "#eef2ff",
+    backgroundColor: "#d3d3d3",
     transform: [{ rotate: "-8deg" }],
     opacity: 0.8,
   },
 
   tiltCard2: {
     position: "absolute",
-    width: 450,
-    height: 450,
+    width: 550,
+    height: 550,
     borderRadius: 28,
-    backgroundColor: "#f5f7ff",
-    transform: [{ rotate: "4deg" }],
+    backgroundColor: "#a9a9a9",
+    transform: [{ rotate: "8deg" }],
     opacity: 0.6,
     borderWidth: 1,
     borderColor: "rgba(59,91,219,0.08)",
   },
 
   mainCard: {
-    width: 450,
-    height: 450,
+    width: 550,
+    height: 550,
     borderRadius: 26,
     backgroundColor: "#ffffff",
     borderWidth: 1,
-    borderColor: "#e5e7eb",
+    borderColor: "gray",
     alignItems: "center",
+    transform: [{ rotate: "2deg" }],
     justifyContent: "center",
     overflow: "hidden",
     shadowColor: "#3b5bdb",
@@ -483,33 +389,10 @@ const styles = StyleSheet.create({
   },
 
   gif: {
-    width: 400,
-    height: 400,
+    width: 450,
+    height: 450,
     zIndex: 2,
-  },
-
-  pill: {
-    position: "absolute",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "#ffffff",
-    paddingHorizontal: 13,
-    paddingVertical: 8,
-    borderRadius: 40,
-    borderWidth: 1,
-    borderColor: "#e5e7eb",
-    shadowColor: "#111418",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.07,
-    shadowRadius: 14,
-    elevation: 6,
-    zIndex: 10,
-  },
-
-  pillSmall: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    borderRadius: 25,
   },
 
   greenDot: {
@@ -534,17 +417,4 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
 
-  pillText: {
-    fontSize: 12,
-    fontFamily: "Garet-Book",
-    color: "#111418",
-    letterSpacing: 0.2,
-  },
-
-  pillTextSmall: {
-    fontSize: 11,
-    fontFamily: "Garet-Book",
-    color: "#111418",
-    letterSpacing: 0.2,
-  },
 });

@@ -13,7 +13,7 @@ import {
 
 const BLUE = "#3b6fd4";
 const BLUE_DARK = "#2c55a8";
-const BLUE_TINT = "#eef3fb";
+const BLUE_TINT = "#f0f1f3";
 const SLATE = "#1a2340";
 const TEXT_MID = "#475569";
 const TEXT_LIGHT = "#94a3b8";
@@ -96,8 +96,7 @@ export default function Contact() {
 
   return (
     <View style={[styles.section, { minHeight: height }]}>
-      <View style={styles.blobTopRight} pointerEvents="none" />
-      <View style={styles.blobBottomLeft} pointerEvents="none" />
+
       <View style={styles.gridLines} pointerEvents="none" />
 
       <Animated.View
@@ -169,7 +168,7 @@ export default function Contact() {
               { textAlign: isMobile ? "center" : "left" },
             ]}
           >
-            Have questions about blockchain, partnerships, or protecting your
+            Have questions or suggestions about blockchain, partnerships, or protecting your
             craftsmanship? We're here.
           </Text>
 
@@ -275,28 +274,6 @@ const styles = StyleSheet.create({
     paddingVertical: 80,
     backgroundColor: BLUE_TINT,
     overflow: "hidden",
-  },
-
-  blobTopRight: {
-    position: "absolute",
-    width: 460,
-    height: 460,
-    borderRadius: 230,
-    backgroundColor: BLUE,
-    opacity: 0.06,
-    top: -140,
-    right: -120,
-  },
-
-  blobBottomLeft: {
-    position: "absolute",
-    width: 340,
-    height: 340,
-    borderRadius: 170,
-    backgroundColor: BLUE,
-    opacity: 0.05,
-    bottom: -100,
-    left: -80,
   },
 
   gridLines: {

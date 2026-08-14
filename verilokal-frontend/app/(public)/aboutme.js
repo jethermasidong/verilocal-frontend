@@ -10,8 +10,8 @@ import {
 } from "react-native";
 import Logo from "../../assets/images/verilokal_text.png";
 
-const INDIGO = "#4338ca";
-const INDIGO_SOFT = "#6366f1";
+
+const INDIGO_SOFT = "#5177b0";
 const SLATE_DARK = "#0a0f1e";
 const SLATE_MID = "#1e293b";
 const SLATE_TEXT = "#64748b";
@@ -92,15 +92,8 @@ export default function AboutMe() {
     },
   ];
 
-  const pillars = [
-    { icon: "lock-closed-outline", label: "Secure Brand Identity and Integrity" },
-    { icon: "pricetags-outline", label: "Support Local Products" },
-    { icon: "shield-outline", label: "Consumer Trust Protection" },
-  ];
-
   return (
     <View style={[styles.section, { minHeight: height }]}>
-      <View style={styles.bgAccent} pointerEvents="none" />
 
       <Animated.View
         style={[
@@ -144,7 +137,7 @@ export default function AboutMe() {
           <View style={styles.divider} />
 
           <Text style={[styles.paragraph, isMobile && { textAlign: "center" }]}>
-            VeriLokal bridges traditional Filipino craftsmanship with modern
+            Bridges traditional Filipino craftsmanship with modern
             blockchain infrastructure, safeguarding product authenticity,
             brand identity, and integrity.
           </Text>
@@ -154,32 +147,7 @@ export default function AboutMe() {
             verification, helping preserve authenticity, strengthen trust, and 
             protect the integrity of Filipino craftsmanship.
           </Text>
-
-          <View style={[styles.pillarsContainer, isMobile && { alignItems: "center" }]}>
-            {pillars.map((p, i) => (
-              <Animated.View
-                key={i}
-                style={[
-                  styles.pillarItem,
-                  {
-                    opacity: pillarAnims[i],
-                    transform: [
-                      {
-                        translateX: pillarAnims[i].interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [-16, 0],
-                        }),
-                      },
-                    ],
-                  },
-                ]}
-              >
-                <View style={styles.pillarDot} />
-                <Ionicons name={p.icon} size={15} color={INDIGO_SOFT} style={{ marginRight: 8 }} />
-                <Text style={styles.pillarText}>{p.label}</Text>
-              </Animated.View>
-            ))}
-          </View>
+          
         </View>
 
         <View style={[styles.right, !isMobile && styles.grid]}>
@@ -257,19 +225,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 28,
     paddingVertical: 80,
-    backgroundColor: "#f8fafc",
+    backgroundColor: "white",
     overflow: "hidden",
-  },
-
-  bgAccent: {
-    position: "absolute",
-    top: -120,
-    right: -180,
-    width: 520,
-    height: 520,
-    borderRadius: 260,
-    backgroundColor: "#6366f1",
-    opacity: 0.04,
   },
 
   container: {
@@ -303,7 +260,7 @@ const styles = StyleSheet.create({
   labelLine: {
     width: 28,
     height: 1.5,
-    backgroundColor: INDIGO_SOFT,
+    backgroundColor: "#5177b0",
     transformOrigin: "left",
   },
 
@@ -311,7 +268,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     letterSpacing: 3,
     textTransform: "uppercase",
-    color: INDIGO_SOFT,
+    color: "#5177b0",
     fontFamily: "Montserrat-Bold",
   },
 
@@ -332,7 +289,7 @@ const styles = StyleSheet.create({
   divider: {
     width: 40,
     height: 2,
-    backgroundColor: INDIGO,
+    backgroundColor:"#5177b0",
     marginBottom: 20,
     borderRadius: 2,
   },
